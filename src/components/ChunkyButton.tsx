@@ -1,7 +1,7 @@
-import { motion } from "framer-motion";
+import { motion, type HTMLMotionProps } from "framer-motion";
 import { cn } from "@/lib/utils";
 
-interface Props extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+interface Props extends Omit<HTMLMotionProps<"button">, "ref"> {
   tone?: "primary" | "success" | "secondary" | "danger" | "ghost";
 }
 
