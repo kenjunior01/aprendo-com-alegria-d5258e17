@@ -31,7 +31,7 @@ function Onboarding() {
   };
 
   return (
-    <main className="bg-paper min-h-screen px-4 py-10">
+    <main className="bg-paper min-h-[100dvh] px-4 py-8 sm:py-10">
       <div className="mx-auto max-w-2xl">
         {/* progress dots */}
         <div className="mb-8 flex justify-center gap-2">
@@ -60,7 +60,7 @@ function Onboarding() {
                 className="w-full max-w-sm rounded-2xl border-2 border-border bg-card px-5 py-4 text-center font-display text-xl outline-none focus:border-primary"
                 autoFocus
               />
-              <ChunkyButton onClick={() => setStep(1)} disabled={!name.trim()}>
+              <ChunkyButton onClick={() => setStep(1)} disabled={!name.trim()} className="w-full sm:w-auto">
                 Continuar →
               </ChunkyButton>
             </Step>
@@ -83,9 +83,9 @@ function Onboarding() {
                   </button>
                 ))}
               </div>
-              <div className="flex gap-3">
-                <ChunkyButton tone="ghost" onClick={() => setStep(0)}>← Voltar</ChunkyButton>
-                <ChunkyButton onClick={() => setStep(2)}>Continuar →</ChunkyButton>
+              <div className="flex w-full flex-col gap-3 sm:flex-row">
+                <ChunkyButton tone="ghost" onClick={() => setStep(0)} className="sm:flex-1">← Voltar</ChunkyButton>
+                <ChunkyButton onClick={() => setStep(2)} className="sm:flex-1">Continuar →</ChunkyButton>
               </div>
             </Step>
           )}
@@ -112,9 +112,9 @@ function Onboarding() {
               <p className="rounded-2xl bg-card px-4 py-3 text-sm italic text-muted-foreground shadow-sm">
                 💬 “{MASCOTS.find((m) => m.id === mascot)?.greeting}”
               </p>
-              <div className="flex gap-3">
-                <ChunkyButton tone="ghost" onClick={() => setStep(1)}>← Voltar</ChunkyButton>
-                <ChunkyButton tone="success" onClick={finish}>Vamos começar! 🎉</ChunkyButton>
+              <div className="flex w-full flex-col gap-3 sm:flex-row">
+                <ChunkyButton tone="ghost" onClick={() => setStep(1)} className="sm:flex-1">← Voltar</ChunkyButton>
+                <ChunkyButton tone="success" onClick={finish} className="sm:flex-1">Vamos começar! 🎉</ChunkyButton>
               </div>
             </Step>
           )}

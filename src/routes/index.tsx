@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { Mascot } from "@/components/Mascot";
 import { ChunkyButton } from "@/components/ChunkyButton";
 import { MASCOTS } from "@/lib/mascots";
-import { loadProfile } from "@/lib/storage";
+import { loadProfile, pullProfileFromCloud } from "@/lib/storage";
 import { useEffect } from "react";
 
 export const Route = createFileRoute("/")({
@@ -22,23 +22,32 @@ function Landing() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const p = loadProfile();
-    if (p && p.name) {
-      navigate({ to: "/app" });
-    }
+    let cancelled = false;
+    const check = async () => {
+      const cloud = await pullProfileFromCloud();
+      if (cancelled) return;
+      const p = cloud ?? loadProfile();
+      if (p && p.name) {
+        navigate({ to: "/app" });
+      }
+    };
+    check();
+    return () => {
+      cancelled = true;
+    };
   }, [navigate]);
 
   return (
-    <main className="bg-paper relative min-h-screen overflow-hidden">
+    <main className="bg-paper relative min-h-[100dvh] overflow-hidden">
       {/* floating shapes */}
       <FloatingDecor />
 
-      <div className="relative mx-auto flex min-h-screen max-w-5xl flex-col items-center justify-center px-6 py-12 text-center">
+      <div className="relative mx-auto flex min-h-[100dvh] max-w-5xl flex-col items-center justify-center px-5 py-10 text-center sm:px-6 sm:py-12">
         <motion.div
           initial={{ y: -20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.5 }}
-          className="mb-2 inline-flex items-center gap-2 rounded-full bg-card px-4 py-1.5 font-display text-sm font-semibold text-primary shadow-sm"
+          className="mb-2 inline-flex items-center gap-2 rounded-full bg-card px-4 py-1.5 font-display text-xs font-semibold text-primary shadow-sm sm:text-sm"
         >
           🇵🇹 Feito para o 1.º ciclo em Portugal
         </motion.div>
@@ -47,7 +56,7 @@ function Landing() {
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.1 }}
-          className="font-display text-5xl font-bold leading-tight md:text-7xl"
+          className="font-display text-4xl font-bold leading-tight sm:text-5xl md:text-7xl"
         >
           Aprender é <span className="text-primary">brincar</span>!
         </motion.h1>
@@ -56,13 +65,13 @@ function Landing() {
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.2 }}
-          className="mt-4 max-w-xl text-lg text-muted-foreground md:text-xl"
+          className="mt-3 max-w-xl text-base text-muted-foreground sm:mt-4 sm:text-lg md:text-xl"
         >
           Português, Matemática e Estudo do Meio com mascotes divertidas, lições curtas e muitas estrelinhas. ✨
         </motion.p>
 
         {/* mascot row */}
-        <div className="my-10 flex flex-wrap items-end justify-center gap-4">
+        <div className="my-8 flex flex-wrap items-end justify-center gap-2 sm:my-10 sm:gap-4">
           {MASCOTS.map((m, i) => (
             <motion.div
               key={m.id}
@@ -71,8 +80,9 @@ function Landing() {
               transition={{ delay: 0.3 + i * 0.1, type: "spring" }}
               className="text-center"
             >
-              <Mascot id={m.id} size="lg" bouncing={i === 1} />
-              <p className="mt-1 font-display text-sm font-semibold">{m.name}</p>
+              <Mascot id={m.id} size="md" bouncing={i === 1} className="sm:hidden" />
+              <Mascot id={m.id} size="lg" bouncing={i === 1} className="hidden sm:inline-flex" />
+              <p className="mt-1 font-display text-xs font-semibold sm:text-sm">{m.name}</p>
             </motion.div>
           ))}
         </div>
@@ -81,22 +91,22 @@ function Landing() {
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.7 }}
-          className="flex flex-col items-center gap-3 sm:flex-row"
+          className="flex w-full max-w-xs flex-col items-stretch gap-3 sm:max-w-none sm:flex-row"
         >
-          <Link to="/comecar">
-            <ChunkyButton tone="primary" className="text-lg">
+          <Link to="/comecar" className="flex-1 sm:flex-none">
+            <ChunkyButton tone="primary" className="w-full text-base sm:text-lg">
               Começar a aventura 🚀
             </ChunkyButton>
           </Link>
-          <Link to="/app">
-            <ChunkyButton tone="ghost">Já joguei antes</ChunkyButton>
+          <Link to="/auth" className="flex-1 sm:flex-none">
+            <ChunkyButton tone="ghost" className="w-full">Já tenho conta</ChunkyButton>
           </Link>
         </motion.div>
 
-        <div className="mt-16 grid w-full gap-4 sm:grid-cols-3">
-          <FeatureCard emoji="📚" title="Português" text="Vogais, sílabas, rimas e plurais" />
-          <FeatureCard emoji="➕" title="Matemática" text="Contar, somar, subtrair e tabuada" />
-          <FeatureCard emoji="🌍" title="Estudo do Meio" text="Portugal, corpo humano, natureza" />
+        <div className="mt-12 grid w-full gap-3 sm:mt-16 sm:gap-4 md:grid-cols-3">
+          <FeatureCard emoji="📚" title="Português" text="Vogais, sílabas, gramática, plurais" />
+          <FeatureCard emoji="➕" title="Matemática" text="Tabuada, divisões, frações" />
+          <FeatureCard emoji="🌍" title="Estudo do Meio" text="Portugal, história, ambiente" />
         </div>
       </div>
     </main>
@@ -105,9 +115,9 @@ function Landing() {
 
 function FeatureCard({ emoji, title, text }: { emoji: string; title: string; text: string }) {
   return (
-    <div className="card-chunky rounded-3xl border border-border bg-card p-5 text-left">
-      <div className="text-3xl">{emoji}</div>
-      <h3 className="mt-2 font-display text-xl">{title}</h3>
+    <div className="card-chunky rounded-3xl border border-border bg-card p-4 text-left sm:p-5">
+      <div className="text-2xl sm:text-3xl">{emoji}</div>
+      <h3 className="mt-2 font-display text-lg sm:text-xl">{title}</h3>
       <p className="text-sm text-muted-foreground">{text}</p>
     </div>
   );
@@ -120,7 +130,7 @@ function FloatingDecor() {
       {items.map((e, i) => (
         <motion.span
           key={i}
-          className="absolute text-3xl opacity-70"
+          className="absolute text-2xl opacity-60 sm:text-3xl sm:opacity-70"
           style={{
             left: `${(i * 17 + 8) % 95}%`,
             top: `${(i * 23 + 10) % 80}%`,

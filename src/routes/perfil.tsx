@@ -1,11 +1,15 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { TopBar } from "@/components/TopBar";
+import { BottomNav } from "@/components/BottomNav";
 import { Mascot } from "@/components/Mascot";
 import { ChunkyButton } from "@/components/ChunkyButton";
 import { MASCOTS, type MascotId } from "@/lib/mascots";
-import { loadProfile, resetProfile, updateProfile, type Profile } from "@/lib/storage";
+import { loadProfile, pullProfileFromCloud, resetProfile, updateProfile, type Profile } from "@/lib/storage";
 import { SUBJECTS } from "@/lib/curriculum";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
+import { Cloud, CloudOff, LogOut } from "lucide-react";
 
 export const Route = createFileRoute("/perfil")({
   head: () => ({
@@ -20,14 +24,24 @@ export const Route = createFileRoute("/perfil")({
 function ProfilePage() {
   const navigate = useNavigate();
   const [profile, setProfile] = useState<Profile | null>(null);
+  const { user } = useAuth();
 
   useEffect(() => {
-    const p = loadProfile();
-    if (!p || !p.name) {
-      navigate({ to: "/comecar" });
-      return;
-    }
-    setProfile(p);
+    let cancelled = false;
+    const init = async () => {
+      const cloud = await pullProfileFromCloud();
+      if (cancelled) return;
+      const p = cloud ?? loadProfile();
+      if (!p || !p.name) {
+        navigate({ to: "/comecar" });
+        return;
+      }
+      setProfile(p);
+    };
+    init();
+    return () => {
+      cancelled = true;
+    };
   }, [navigate]);
 
   if (!profile) return null;
@@ -40,62 +54,94 @@ function ProfilePage() {
   };
 
   const reset = () => {
-    if (confirm("Tens a certeza que queres recomeçar? Perdes todo o progresso.")) {
+    if (confirm("Tens a certeza que queres recomeçar? Perdes todo o progresso (apenas neste dispositivo).")) {
       resetProfile();
       navigate({ to: "/" });
     }
   };
 
+  const signOut = async () => {
+    await supabase.auth.signOut();
+    navigate({ to: "/" });
+  };
+
   return (
-    <div className="min-h-screen bg-background pb-12">
+    <div className="min-h-[100dvh] bg-background pb-24 md:pb-12">
       <TopBar profile={profile} />
-      <main className="mx-auto max-w-2xl px-4 py-8">
-        <div className="card-chunky rounded-3xl border border-border bg-card p-6 text-center">
+      <main className="mx-auto max-w-2xl px-4 py-6 sm:py-8">
+        <div className="card-chunky rounded-3xl border border-border bg-card p-5 text-center sm:p-6">
           <Mascot id={profile.mascot} size="xl" bouncing />
-          <h1 className="mt-2 font-display text-3xl">{profile.name}</h1>
+          <h1 className="mt-2 font-display text-2xl sm:text-3xl">{profile.name}</h1>
           <p className="text-muted-foreground">{profile.age} anos</p>
 
-          <div className="mt-5 grid grid-cols-3 gap-3">
+          <div className="mt-5 grid grid-cols-3 gap-2 sm:gap-3">
             <Box label="🔥 Sequência" value={`${profile.streak}d`} />
             <Box label="⭐ XP" value={`${profile.xp}`} />
             <Box label="📘 Lições" value={`${completed}/${totalLessons}`} />
           </div>
+
+          {/* Cloud status */}
+          <div className="mt-4 flex items-center justify-center gap-2 text-xs text-muted-foreground">
+            {user ? (
+              <>
+                <Cloud className="h-4 w-4 text-success" />
+                <span>Sincronizado · {user.email}</span>
+              </>
+            ) : (
+              <>
+                <CloudOff className="h-4 w-4" />
+                <span>Apenas neste dispositivo</span>
+              </>
+            )}
+          </div>
+
+          {!user && (
+            <Link to="/auth" className="mt-3 inline-block">
+              <ChunkyButton tone="secondary" className="text-sm">☁️ Guardar na cloud</ChunkyButton>
+            </Link>
+          )}
         </div>
 
-        <section className="mt-8">
-          <h2 className="mb-3 font-display text-2xl">Mudar de mascote</h2>
-          <div className="grid grid-cols-4 gap-3">
+        <section className="mt-6 sm:mt-8">
+          <h2 className="mb-3 font-display text-xl sm:text-2xl">Mudar de mascote</h2>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             {MASCOTS.map((m) => (
               <button
                 key={m.id}
                 onClick={() => changeMascot(m.id)}
-                className={`card-chunky rounded-2xl border-2 bg-card p-2 transition-transform hover:-translate-y-0.5 ${
+                className={`card-chunky rounded-2xl border-2 bg-card p-2 transition-transform active:scale-95 ${
                   profile.mascot === m.id ? "border-primary ring-4 ring-primary/30" : "border-border"
                 }`}
               >
                 <Mascot id={m.id} size="sm" />
-                <p className="mt-1 text-center font-display text-xs">{m.name}</p>
+                <p className="mt-1 text-center font-display text-xs sm:text-sm">{m.name}</p>
               </button>
             ))}
           </div>
         </section>
 
-        <section className="mt-8 flex flex-col gap-3 sm:flex-row">
-          <Link to="/app" className="flex-1">
+        <section className="mt-8 flex flex-col gap-3">
+          <Link to="/app">
             <ChunkyButton className="w-full">← Voltar à jornada</ChunkyButton>
           </Link>
-          <ChunkyButton tone="danger" onClick={reset}>Recomeçar</ChunkyButton>
+          {user && (
+            <ChunkyButton tone="ghost" onClick={signOut} className="w-full">
+              <LogOut className="mr-1 h-4 w-4" /> Sair da conta
+            </ChunkyButton>
+          )}
+          <ChunkyButton tone="danger" onClick={reset} className="w-full">Recomeçar progresso</ChunkyButton>
         </section>
       </main>
+      <BottomNav />
     </div>
   );
 }
 
 function Box({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-2xl bg-muted px-3 py-3">
-      <p className="text-xs text-muted-foreground">{label}</p>
-      <p className="font-display text-2xl">{value}</p>
+    <div className="rounded-2xl bg-muted px-2 py-3 sm:px-3">
+      <p className="text-[10px] uppercase tracking-wide text-muted-foreground sm:text-xs">{label}</p>
+      <p className="mt-0.5 font-display text-lg sm:text-2xl">{value}</p>
     </div>
   );
 }
