@@ -83,9 +83,9 @@ function Onboarding() {
                   </button>
                 ))}
               </div>
-              <div className="flex gap-3">
-                <ChunkyButton tone="ghost" onClick={() => setStep(0)}>← Voltar</ChunkyButton>
-                <ChunkyButton onClick={() => setStep(2)}>Continuar →</ChunkyButton>
+              <div className="flex w-full flex-col gap-3 sm:flex-row">
+                <ChunkyButton tone="ghost" onClick={() => setStep(0)} className="sm:flex-1">← Voltar</ChunkyButton>
+                <ChunkyButton onClick={() => setStep(2)} className="sm:flex-1">Continuar →</ChunkyButton>
               </div>
             </Step>
           )}
@@ -112,9 +112,9 @@ function Onboarding() {
               <p className="rounded-2xl bg-card px-4 py-3 text-sm italic text-muted-foreground shadow-sm">
                 💬 “{MASCOTS.find((m) => m.id === mascot)?.greeting}”
               </p>
-              <div className="flex gap-3">
-                <ChunkyButton tone="ghost" onClick={() => setStep(1)}>← Voltar</ChunkyButton>
-                <ChunkyButton tone="success" onClick={finish}>Vamos começar! 🎉</ChunkyButton>
+              <div className="flex w-full flex-col gap-3 sm:flex-row">
+                <ChunkyButton tone="ghost" onClick={() => setStep(1)} className="sm:flex-1">← Voltar</ChunkyButton>
+                <ChunkyButton tone="success" onClick={finish} className="sm:flex-1">Vamos começar! 🎉</ChunkyButton>
               </div>
             </Step>
           )}
