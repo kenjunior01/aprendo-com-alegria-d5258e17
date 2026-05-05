@@ -31,7 +31,7 @@ function Onboarding() {
   };
 
   return (
-    <main className="bg-paper min-h-screen px-4 py-10">
+    <main className="bg-paper min-h-[100dvh] px-4 py-8 sm:py-10">
       <div className="mx-auto max-w-2xl">
         {/* progress dots */}
         <div className="mb-8 flex justify-center gap-2">
@@ -60,7 +60,7 @@ function Onboarding() {
                 className="w-full max-w-sm rounded-2xl border-2 border-border bg-card px-5 py-4 text-center font-display text-xl outline-none focus:border-primary"
                 autoFocus
               />
-              <ChunkyButton onClick={() => setStep(1)} disabled={!name.trim()}>
+              <ChunkyButton onClick={() => setStep(1)} disabled={!name.trim()} className="w-full sm:w-auto">
                 Continuar →
               </ChunkyButton>
             </Step>
