@@ -187,18 +187,14 @@ function AuthPage() {
   );
 }
 
-function Field({
-  label,
-  icon,
-  value,
-  onChange,
-  ...rest
-}: {
+type FieldProps = {
   label: string;
   icon?: React.ReactNode;
   value: string;
   onChange: (v: string) => void;
-} & React.InputHTMLAttributes<HTMLInputElement>) {
+} & Omit<React.InputHTMLAttributes<HTMLInputElement>, "value" | "onChange">;
+
+function Field({ label, icon, value, onChange, ...rest }: FieldProps) {
   return (
     <label className="block">
       <span className="mb-1 block font-display text-sm font-semibold">{label}</span>
