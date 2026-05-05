@@ -169,6 +169,14 @@
     color: var(--color-foreground);
     font-family: var(--font-sans);
     -webkit-tap-highlight-color: transparent;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    overscroll-behavior-y: none;
+  }
+
+  /* Larger touch targets on mobile */
+  button, a, [role="button"] {
+    touch-action: manipulation;
   }
 
   h1, h2, h3, h4 {
