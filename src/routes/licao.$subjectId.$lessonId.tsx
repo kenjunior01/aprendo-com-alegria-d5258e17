@@ -1,13 +1,15 @@
 import { createFileRoute, Link, useNavigate, useParams } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import confetti from "canvas-confetti";
 import { Mascot } from "@/components/Mascot";
 import { ChunkyButton } from "@/components/ChunkyButton";
+import { SoundToggle } from "@/components/SoundToggle";
 import { getLesson, getSubject } from "@/lib/curriculum";
 import { completeLesson, loadProfile, type Profile } from "@/lib/storage";
 import { getMascot } from "@/lib/mascots";
-import { Check, Heart, X } from "lucide-react";
+import { playCorrect, playWrong, playLevelUp, speak, stopSpeech, ttsAvailable } from "@/lib/audio";
+import { Check, Heart, Volume2, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/licao/$subjectId/$lessonId")({
@@ -34,6 +36,7 @@ function LessonPage() {
   const [correct, setCorrect] = useState(0);
   const [hearts, setHearts] = useState(5);
   const [done, setDone] = useState(false);
+  const lastSpokenRef = useRef<string>("");
 
   useEffect(() => {
     const p = loadProfile();
@@ -51,10 +54,27 @@ function LessonPage() {
     [qIndex, revealed, total],
   );
 
+  const q = lesson?.questions[qIndex];
+
+  // Narrar pergunta automaticamente
+  useEffect(() => {
+    if (!q || done || hearts === 0) return;
+    const text = q.prompt;
+    if (lastSpokenRef.current === text) return;
+    lastSpokenRef.current = text;
+    const t = setTimeout(() => speak(text), 350);
+    return () => {
+      clearTimeout(t);
+      stopSpeech();
+    };
+  }, [q, done, hearts]);
+
+  useEffect(() => () => stopSpeech(), []);
+
   if (!profile) return null;
-  if (!subject || !lesson) {
+  if (!subject || !lesson || !q) {
     return (
-      <main className="flex min-h-screen items-center justify-center p-6 text-center">
+      <main className="flex min-h-[100dvh] items-center justify-center p-6 text-center">
         <div>
           <p className="font-display text-2xl">Lição não encontrada</p>
           <Link to="/app" className="mt-4 inline-block text-primary underline">Voltar</Link>
@@ -63,7 +83,6 @@ function LessonPage() {
     );
   }
 
-  const q = lesson.questions[qIndex];
   const isCorrect = revealed && selected === q.answerIndex;
 
   const onCheck = () => {
@@ -71,14 +90,18 @@ function LessonPage() {
     setRevealed(true);
     if (selected === q.answerIndex) {
       setCorrect((c) => c + 1);
+      playCorrect();
+      speak("Boa! Resposta certa!");
       confetti({
-        particleCount: 50,
-        spread: 60,
+        particleCount: 60,
+        spread: 70,
         origin: { y: 0.7 },
         colors: ["#ff8c42", "#5db1ff", "#7cd16e", "#ffd166"],
       });
     } else {
       setHearts((h) => Math.max(0, h - 1));
+      playWrong();
+      speak(`Quase! A resposta certa é ${q.options[q.answerIndex]}.`);
     }
   };
 
@@ -88,7 +111,8 @@ function LessonPage() {
       const updated = completeLesson(lesson.id, earned);
       setProfile(updated);
       setDone(true);
-      confetti({ particleCount: 160, spread: 100, origin: { y: 0.6 } });
+      playLevelUp();
+      confetti({ particleCount: 200, spread: 110, origin: { y: 0.6 } });
     } else {
       setQIndex((i) => i + 1);
       setSelected(null);
@@ -100,23 +124,23 @@ function LessonPage() {
     const earned = Math.round((correct) * 10);
     const accuracy = Math.round((correct / total) * 100);
     return (
-      <main className="bg-paper flex min-h-screen flex-col items-center justify-center px-6 py-10 text-center">
+      <main className="bg-paper flex min-h-[100dvh] flex-col items-center justify-center px-5 py-10 text-center">
         <Mascot id={profile.mascot} size="xl" bouncing />
-        <h1 className="mt-4 font-display text-5xl text-primary">Boa! 🎉</h1>
-        <p className="mt-2 text-lg text-muted-foreground">
+        <h1 className="mt-4 font-display text-4xl text-primary sm:text-5xl">Boa! 🎉</h1>
+        <p className="mt-2 text-base text-muted-foreground sm:text-lg">
           Lição completa: <strong>{lesson.title}</strong>
         </p>
-        <div className="mt-6 grid w-full max-w-md grid-cols-3 gap-3">
+        <div className="mt-6 grid w-full max-w-md grid-cols-3 gap-2 sm:gap-3">
           <Stat label="Acertos" value={`${correct}/${total}`} />
           <Stat label="Precisão" value={`${accuracy}%`} />
-          <Stat label="XP ganho" value={`+${earned}`} />
+          <Stat label="XP" value={`+${earned}`} />
         </div>
-        <p className="mt-6 max-w-md italic text-muted-foreground">
+        <p className="mt-6 max-w-md text-sm italic text-muted-foreground sm:text-base">
           💬 “{getMascot(profile.mascot).encourage}”
         </p>
-        <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-          <Link to="/app">
-            <ChunkyButton tone="success">Continuar a jornada</ChunkyButton>
+        <div className="mt-8 flex w-full max-w-md flex-col gap-3 sm:flex-row sm:justify-center">
+          <Link to="/app" className="flex-1">
+            <ChunkyButton tone="success" className="w-full">Continuar a jornada</ChunkyButton>
           </Link>
         </div>
       </main>
@@ -125,22 +149,25 @@ function LessonPage() {
 
   if (hearts === 0) {
     return (
-      <main className="bg-paper flex min-h-screen flex-col items-center justify-center px-6 text-center">
+      <main className="bg-paper flex min-h-[100dvh] flex-col items-center justify-center px-6 text-center">
         <Mascot id={profile.mascot} size="lg" />
         <h1 className="mt-4 font-display text-4xl">Sem corações 💔</h1>
         <p className="mt-2 text-muted-foreground">Tenta de novo, tu consegues!</p>
-        <div className="mt-6 flex gap-3">
-          <Link to="/app"><ChunkyButton tone="ghost">Voltar</ChunkyButton></Link>
-          <ChunkyButton onClick={() => window.location.reload()}>Tentar outra vez</ChunkyButton>
+        <div className="mt-6 flex w-full max-w-sm flex-col gap-3 sm:flex-row">
+          <Link to="/app" className="flex-1"><ChunkyButton tone="ghost" className="w-full">Voltar</ChunkyButton></Link>
+          <ChunkyButton onClick={() => window.location.reload()} className="flex-1">Tentar outra vez</ChunkyButton>
         </div>
       </main>
     );
   }
 
   return (
-    <main className="min-h-screen bg-background pb-32">
+    <main className="min-h-[100dvh] bg-background pb-32" style={{ paddingBottom: "calc(8rem + env(safe-area-inset-bottom))" }}>
       {/* progress header */}
-      <header className="sticky top-0 z-20 bg-background/90 backdrop-blur">
+      <header
+        className="sticky top-0 z-20 bg-background/95 backdrop-blur"
+        style={{ paddingTop: "env(safe-area-inset-top)" }}
+      >
         <div className="mx-auto flex max-w-2xl items-center gap-3 px-4 py-3">
           <Link to="/app" aria-label="Sair" className="rounded-full p-2 hover:bg-muted">
             <X className="h-6 w-6 text-muted-foreground" />
@@ -156,45 +183,60 @@ function LessonPage() {
             <Heart className="h-5 w-5 fill-current" />
             <span className="font-semibold">{hearts}</span>
           </div>
+          <SoundToggle />
         </div>
       </header>
 
-      <div className="mx-auto max-w-2xl px-4 pt-8">
+      <div className="mx-auto max-w-2xl px-4 pt-6 sm:pt-8">
         <motion.div
           key={qIndex}
           initial={{ opacity: 0, x: 30 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.3 }}
         >
-          <div className="mb-6 flex items-end gap-3">
+          <div className="mb-5 flex items-end gap-3">
             <Mascot id={profile.mascot} size="md" />
-            <div className="card-chunky relative max-w-md rounded-3xl rounded-bl-none border border-border bg-card px-5 py-4">
-              <p className="font-display text-lg leading-snug">{q.prompt}</p>
+            <div className="card-chunky relative flex-1 rounded-3xl rounded-bl-none border border-border bg-card px-4 py-3 sm:px-5 sm:py-4">
+              <p className="pr-8 font-display text-base leading-snug sm:text-lg">{q.prompt}</p>
+              {ttsAvailable() && (
+                <button
+                  type="button"
+                  onClick={() => speak(q.prompt)}
+                  aria-label="Ouvir pergunta"
+                  className="absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-full bg-accent text-accent-foreground active:scale-90"
+                >
+                  <Volume2 className="h-4 w-4" />
+                </button>
+              )}
             </div>
           </div>
 
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className="grid gap-2.5 sm:grid-cols-2 sm:gap-3">
             {q.options.map((opt, i) => {
               const isSel = selected === i;
               const showCorrect = revealed && i === q.answerIndex;
               const showWrong = revealed && isSel && i !== q.answerIndex;
               return (
-                <button
+                <motion.button
                   key={i}
+                  whileTap={{ scale: revealed ? 1 : 0.97 }}
                   disabled={revealed}
-                  onClick={() => setSelected(i)}
+                  onClick={() => {
+                    setSelected(i);
+                    speak(opt, { rate: 1 });
+                  }}
                   className={cn(
-                    "card-chunky rounded-2xl border-2 border-border bg-card px-5 py-5 text-left font-display text-lg transition-transform hover:-translate-y-0.5 disabled:hover:translate-y-0",
+                    "card-chunky flex min-h-[60px] items-center rounded-2xl border-2 border-border bg-card px-4 py-4 text-left font-display text-base transition-all sm:text-lg",
                     isSel && !revealed && "border-primary ring-4 ring-primary/25",
                     showCorrect && "border-success bg-success/15 text-success",
                     showWrong && "border-destructive bg-destructive/10 text-destructive",
                   )}
                 >
-                  <span className="mr-2 inline-flex h-7 w-7 items-center justify-center rounded-lg bg-muted text-sm">
+                  <span className="mr-3 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-muted text-sm">
                     {String.fromCharCode(65 + i)}
                   </span>
-                  {opt}
-                </button>
+                  <span className="flex-1">{opt}</span>
+                </motion.button>
               );
             })}
           </div>
@@ -205,29 +247,28 @@ function LessonPage() {
       <AnimatePresence>
         {revealed && (
           <motion.div
-            initial={{ y: 100 }}
+            initial={{ y: 120 }}
             animate={{ y: 0 }}
-            exit={{ y: 100 }}
+            exit={{ y: 120 }}
             transition={{ type: "spring", stiffness: 200, damping: 22 }}
             className={cn(
               "fixed inset-x-0 bottom-0 z-30 border-t-4",
-              isCorrect
-                ? "border-success bg-success/15"
-                : "border-destructive bg-destructive/10",
+              isCorrect ? "border-success bg-success/15" : "border-destructive bg-destructive/10",
             )}
+            style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
           >
-            <div className="mx-auto flex max-w-2xl items-center justify-between gap-4 px-4 py-5">
+            <div className="mx-auto flex max-w-2xl flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:py-5">
               <div className="flex items-center gap-3">
                 <span
                   className={cn(
-                    "flex h-10 w-10 items-center justify-center rounded-full",
+                    "flex h-10 w-10 shrink-0 items-center justify-center rounded-full",
                     isCorrect ? "bg-success text-success-foreground" : "bg-destructive text-destructive-foreground",
                   )}
                 >
                   {isCorrect ? <Check className="h-6 w-6" strokeWidth={3} /> : <X className="h-6 w-6" strokeWidth={3} />}
                 </span>
                 <div>
-                  <p className={cn("font-display text-xl", isCorrect ? "text-success" : "text-destructive")}>
+                  <p className={cn("font-display text-lg sm:text-xl", isCorrect ? "text-success" : "text-destructive")}>
                     {isCorrect ? "Excelente!" : "Quase!"}
                   </p>
                   {!isCorrect && (
@@ -237,7 +278,7 @@ function LessonPage() {
                   )}
                 </div>
               </div>
-              <ChunkyButton tone={isCorrect ? "success" : "danger"} onClick={onNext}>
+              <ChunkyButton tone={isCorrect ? "success" : "danger"} onClick={onNext} className="w-full sm:w-auto">
                 Continuar →
               </ChunkyButton>
             </div>
@@ -246,9 +287,12 @@ function LessonPage() {
       </AnimatePresence>
 
       {!revealed && (
-        <div className="fixed inset-x-0 bottom-0 border-t border-border bg-card/95 backdrop-blur">
-          <div className="mx-auto flex max-w-2xl justify-end px-4 py-4">
-            <ChunkyButton onClick={onCheck} disabled={selected === null}>
+        <div
+          className="fixed inset-x-0 bottom-0 z-20 border-t border-border bg-card/95 backdrop-blur"
+          style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+        >
+          <div className="mx-auto flex max-w-2xl px-4 py-3 sm:py-4">
+            <ChunkyButton onClick={onCheck} disabled={selected === null} className="w-full sm:ml-auto sm:w-auto">
               Verificar
             </ChunkyButton>
           </div>
@@ -260,9 +304,9 @@ function LessonPage() {
 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="card-chunky rounded-2xl border border-border bg-card p-4">
+    <div className="card-chunky rounded-2xl border border-border bg-card p-3 sm:p-4">
       <p className="text-xs uppercase text-muted-foreground">{label}</p>
-      <p className="mt-1 font-display text-2xl">{value}</p>
+      <p className="mt-1 font-display text-xl sm:text-2xl">{value}</p>
     </div>
   );
 }
