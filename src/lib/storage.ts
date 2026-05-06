@@ -43,6 +43,9 @@ export const defaultProfile = (): Profile => ({
   isPremium: false,
   role: "child",
   createdAt: new Date().toISOString(),
+  parentPin: null,
+  dailyLimitMin: null,
+  bedtimeHour: null,
 });
 
 export const loadProfile = (): Profile | null => {
