@@ -87,6 +87,28 @@ function AppHome() {
 
         <AdaptiveTip />
 
+        {/* Quick links: Tutor + Jardim */}
+        <div className="mb-6 grid grid-cols-2 gap-3 sm:gap-4">
+          <Link to="/tutor" className="card-chunky group rounded-3xl border-2 border-border bg-gradient-to-br from-primary/15 to-card p-3 transition-transform hover:-translate-y-1 sm:p-4">
+            <div className="flex items-center gap-2">
+              <span className="text-2xl sm:text-3xl">🦉</span>
+              <div className="min-w-0">
+                <p className="truncate font-display text-sm sm:text-base">Falar com o Mocha</p>
+                <p className="truncate text-[10px] text-muted-foreground sm:text-xs">Tutor pessoal IA</p>
+              </div>
+            </div>
+          </Link>
+          <Link to="/jardim" className="card-chunky group rounded-3xl border-2 border-border bg-gradient-to-br from-success/15 to-card p-3 transition-transform hover:-translate-y-1 sm:p-4">
+            <div className="flex items-center gap-2">
+              <span className="text-2xl sm:text-3xl">🌱</span>
+              <div className="min-w-0">
+                <p className="truncate font-display text-sm sm:text-base">Meu Jardim</p>
+                <p className="truncate text-[10px] text-muted-foreground sm:text-xs">Mundo que cresce</p>
+              </div>
+            </div>
+          </Link>
+        </div>
+
         {/* Chapters as a vertical journey */}
         <div className="relative">
           {/* connector line */}
