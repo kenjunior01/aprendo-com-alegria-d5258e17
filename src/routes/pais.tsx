@@ -186,6 +186,8 @@ function ParentDashboard() {
               </div>
             )}
 
+            <ParentControlsCard profile={profile} onChange={setProfile} />
+
             {dashboard && <DashboardView data={dashboard} />}
           </>
         )}
