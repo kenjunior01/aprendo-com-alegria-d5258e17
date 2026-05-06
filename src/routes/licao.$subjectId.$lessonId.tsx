@@ -17,7 +17,7 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/licao/$subjectId/$lessonId")({
   head: () => ({
     meta: [
-      { title: "Lição — Lusis" },
+      { title: "Lição — Kidoz" },
       { name: "description", content: "Lição interativa com perguntas divertidas." },
     ],
   }),

@@ -11,7 +11,7 @@ import { Mail, Lock, AlertCircle } from "lucide-react";
 export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
-      { title: "Entrar — Lusis" },
+      { title: "Entrar — Kidoz" },
       { name: "description", content: "Entra na tua conta para guardar o teu progresso em todos os dispositivos." },
     ],
   }),

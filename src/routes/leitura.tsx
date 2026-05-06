@@ -13,7 +13,7 @@ import { getAdaptiveRecommendation } from "@/server/ai.functions";
 export const Route = createFileRoute("/leitura")({
   head: () => ({
     meta: [
-      { title: "Leitura em voz alta — Lusis" },
+      { title: "Leitura em voz alta — Kidoz" },
       { name: "description", content: "Pratica a leitura com reconhecimento de voz adaptado a crianças." },
     ],
   }),

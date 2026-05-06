@@ -39,8 +39,8 @@ const LAB_MODELS: { id: LabModelId; src: string; label: string; fact: string }[]
 export const Route = createFileRoute("/ra")({
   head: () => ({
     meta: [
-      { title: "Realidade Aumentada — Lusis" },
-      { name: "description", content: "Vê os mascotes do Lusis no teu mundo real, em 3D!" },
+      { title: "Realidade Aumentada — Kidoz" },
+      { name: "description", content: "Vê os mascotes do Kidoz no teu mundo real, em 3D!" },
     ],
   }),
   component: ARPage,

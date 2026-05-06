@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/comecar")({
   head: () => ({
     meta: [
-      { title: "Começar — Lusis" },
+      { title: "Começar — Kidoz" },
       { name: "description", content: "Cria o teu perfil e escolhe a tua mascote para começar a aventura." },
     ],
   }),

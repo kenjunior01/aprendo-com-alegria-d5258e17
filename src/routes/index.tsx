@@ -9,9 +9,9 @@ import { useEffect } from "react";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Lusis — Aprender a brincar | App educativa para crianças" },
+      { title: "Kidoz — Aprender a brincar | App educativa para crianças" },
       { name: "description", content: "App de aprendizagem infantil estilo Duolingo, para o 1.º ciclo em Portugal. Português, Matemática e Estudo do Meio com mascotes divertidas." },
-      { property: "og:title", content: "Lusis — Aprender a brincar" },
+      { property: "og:title", content: "Kidoz — Aprender a brincar" },
       { property: "og:description", content: "App educativa para crianças do 1.º ciclo, com mascotes e desafios divertidos." },
     ],
   }),

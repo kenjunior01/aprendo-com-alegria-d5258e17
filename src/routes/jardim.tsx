@@ -14,7 +14,7 @@ import confetti from "canvas-confetti";
 export const Route = createFileRoute("/jardim")({
   head: () => ({
     meta: [
-      { title: "O meu Jardim Mágico — Lusis" },
+      { title: "O meu Jardim Mágico — Kidoz" },
       { name: "description", content: "O teu jardim cresce a cada missão completada. Vê o que conseguiste desbloquear!" },
     ],
   }),

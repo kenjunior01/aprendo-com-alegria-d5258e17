@@ -11,7 +11,7 @@ import { ArrowLeft, Check, Crown, Sparkles } from "lucide-react";
 export const Route = createFileRoute("/premium")({
   head: () => ({
     meta: [
-      { title: "Família Premium — Lusis" },
+      { title: "Família Premium — Kidoz" },
       { name: "description", content: "Desbloqueia Realidade Aumentada, tutor IA, relatórios semanais e itens exclusivos." },
     ],
   }),
@@ -60,7 +60,7 @@ function PremiumPage() {
           className="card-chunky relative overflow-hidden rounded-3xl border border-border bg-gradient-to-br from-primary/15 via-secondary/20 to-accent/30 p-6 sm:p-8 text-center"
         >
           <Crown className="mx-auto h-10 w-10 text-primary" />
-          <h1 className="mt-2 font-display text-3xl sm:text-4xl">Lusis Família Premium</h1>
+          <h1 className="mt-2 font-display text-3xl sm:text-4xl">Kidoz Família Premium</h1>
           <p className="mt-2 text-sm text-muted-foreground sm:text-base">
             Mais aventura, mais aprendizagem, mais magia. Sem anúncios. Sem limites.
           </p>

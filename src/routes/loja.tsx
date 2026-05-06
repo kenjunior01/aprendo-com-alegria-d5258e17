@@ -14,7 +14,7 @@ import { playCorrect, playWrong } from "@/lib/audio";
 export const Route = createFileRoute("/loja")({
   head: () => ({
     meta: [
-      { title: "Loja — Lusis" },
+      { title: "Loja — Kidoz" },
       { name: "description", content: "Personaliza a tua mascote com chapéus, fatos e cenários ganhos com Abracadinhos." },
     ],
   }),
