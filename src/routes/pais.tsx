@@ -192,8 +192,12 @@ function ParentDashboard() {
               </div>
             )}
 
-            <ParentControlsCard profile={profile} onChange={setProfile} />
-
+            {selectedChild && (
+              <ChildControlsCard
+                childId={selectedChild}
+                childName={children.find((c) => c.id === selectedChild)?.name ?? ""}
+              />
+            )}
             {dashboard && <DashboardView data={dashboard} />}
           </>
         )}
