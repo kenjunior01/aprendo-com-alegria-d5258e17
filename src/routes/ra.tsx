@@ -21,26 +21,22 @@ export const Route = createFileRoute("/ra")({
 });
 
 // Modelos 3D públicos (animados) — Khronos / Google sample assets, sem chave de API.
-const MODELS: Record<MascotId, { src: string; ios?: string; label: string }> = {
+const MODELS: Record<MascotId, { src: string; label: string }> = {
   fox: {
     src: "https://modelviewer.dev/shared-assets/models/Astronaut.glb",
-    label: "Faísca, o astronauta-raposa",
+    label: "Faísca, em modo astronauta",
   },
   owl: {
-    src: "https://modelviewer.dev/shared-assets/models/glTF-Sample-Assets/Models/Avocado/glTF-Binary/Avocado.glb",
-    label: "Mocha, a coruja sábia",
+    src: "https://modelviewer.dev/shared-assets/models/RobotExpressive.glb",
+    label: "Mocha, a coruja sábia (robot dançarino)",
   },
-  cat: {
+  bunny: {
     src: "https://modelviewer.dev/shared-assets/models/Astronaut.glb",
-    label: "Pipoca, a gata exploradora",
+    label: "Pipoca, a coelhinha exploradora",
   },
-  dog: {
+  turtle: {
     src: "https://modelviewer.dev/shared-assets/models/Horse.glb",
-    label: "Tito, o melhor amigo",
-  },
-  panda: {
-    src: "https://modelviewer.dev/shared-assets/models/Astronaut.glb",
-    label: "Panda aventureiro",
+    label: "Tito, devagar e sempre",
   },
 };
 
@@ -162,14 +158,22 @@ function ARPage() {
 }
 
 // JSX type for <model-viewer>
-declare global {
+declare module "react" {
   namespace JSX {
     interface IntrinsicElements {
-      "model-viewer": React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement> & {
-        src?: string; alt?: string; ar?: boolean; "ar-modes"?: string;
-        "camera-controls"?: boolean; "auto-rotate"?: boolean; "touch-action"?: string;
-        "shadow-intensity"?: string;
-      }, HTMLElement>;
+      "model-viewer": React.DetailedHTMLProps<
+        React.HTMLAttributes<HTMLElement> & {
+          src?: string;
+          alt?: string;
+          ar?: boolean;
+          "ar-modes"?: string;
+          "camera-controls"?: boolean;
+          "auto-rotate"?: boolean;
+          "touch-action"?: string;
+          "shadow-intensity"?: string;
+        },
+        HTMLElement
+      >;
     }
   }
 }
