@@ -4,12 +4,17 @@ import { motion } from "framer-motion";
 import { BottomNav } from "@/components/BottomNav";
 import { Mascot } from "@/components/Mascot";
 import { ChunkyButton } from "@/components/ChunkyButton";
+import { ParentGate } from "@/components/ParentGate";
 import { loadProfile, pullProfileFromCloud, updateProfile, type Profile } from "@/lib/storage";
+import { getTodayMinutes } from "@/lib/usageTracker";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { getMyChildren, createParentInvite, acceptParentInvite, getChildDashboard, type ParentDashboardData } from "@/server/parent.functions";
 import { listChildren as listTutorChildren, type TutorHistory } from "@/lib/tutorHistory";
-import { Copy, LogOut, Plus, BarChart3, Clock, Target, Flame, MessageCircle } from "lucide-react";
+import { Copy, LogOut, Plus, BarChart3, Clock, Target, Flame, MessageCircle, ShieldCheck, Moon, Hourglass } from "lucide-react";
+
+const GATE_KEY = "kidoz-parent-gate-ts";
+const GATE_TTL_MIN = 30;
 
 export const Route = createFileRoute("/pais")({
   head: () => ({
@@ -33,6 +38,13 @@ function ParentDashboard() {
   const [dashboard, setDashboard] = useState<ParentDashboardData | null>(null);
   const [acceptCode, setAcceptCode] = useState("");
   const [acceptMsg, setAcceptMsg] = useState<string | null>(null);
+  const [unlocked, setUnlocked] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const ts = Number(sessionStorage.getItem(GATE_KEY) ?? 0);
+    if (ts && Date.now() - ts < GATE_TTL_MIN * 60_000) setUnlocked(true);
+  }, []);
 
   useEffect(() => {
     if (loading) return;
@@ -88,15 +100,27 @@ function ParentDashboard() {
     navigate({ to: "/" });
   };
 
+  if (!unlocked) {
+    return (
+      <ParentGate
+        expectedPin={profile.parentPin ?? null}
+        onPass={() => {
+          if (typeof window !== "undefined") sessionStorage.setItem(GATE_KEY, String(Date.now()));
+          setUnlocked(true);
+        }}
+      />
+    );
+  }
+
   return (
-    <div className="min-h-[100dvh] bg-background pb-24 md:pb-12">
+    <div className="min-h-[100dvh] bg-background pb-28 md:pb-12">
       <header className="sticky top-0 z-30 border-b border-border bg-background/90 backdrop-blur" style={{ paddingTop: "env(safe-area-inset-top)" }}>
         <div className="mx-auto flex max-w-4xl items-center justify-between px-4 py-3">
           <div className="flex items-center gap-2">
             <BarChart3 className="h-6 w-6 text-primary" />
             <p className="font-display text-lg">Painel de Pais</p>
           </div>
-          <button onClick={signOut} className="text-xs text-muted-foreground hover:text-foreground">
+          <button onClick={signOut} className="text-sm text-muted-foreground hover:text-foreground">
             <LogOut className="inline h-4 w-4" /> Sair
           </button>
         </div>
@@ -161,6 +185,8 @@ function ParentDashboard() {
                 <p className="font-mono text-2xl font-bold tracking-widest">{pendingCode}</p>
               </div>
             )}
+
+            <ParentControlsCard profile={profile} onChange={setProfile} />
 
             {dashboard && <DashboardView data={dashboard} />}
           </>
@@ -412,3 +438,92 @@ function KPI({ icon, label, value }: { icon: React.ReactNode; label: string; val
     </div>
   );
 }
+
+function ParentControlsCard({ profile, onChange }: { profile: Profile; onChange: (p: Profile) => void }) {
+  const [pin, setPin] = useState(profile.parentPin ?? "");
+  const [limit, setLimit] = useState<number | "">(profile.dailyLimitMin ?? "");
+  const [bedtime, setBedtime] = useState<number | "">(profile.bedtimeHour ?? "");
+  const [savedMsg, setSavedMsg] = useState<string | null>(null);
+  const todayMin = typeof window !== "undefined" ? getTodayMinutes() : 0;
+
+  const save = () => {
+    const next = updateProfile({
+      parentPin: pin.length === 4 ? pin : null,
+      dailyLimitMin: typeof limit === "number" && limit > 0 ? limit : null,
+      bedtimeHour: typeof bedtime === "number" ? bedtime : null,
+    });
+    onChange(next);
+    setSavedMsg("✅ Definições guardadas");
+    setTimeout(() => setSavedMsg(null), 2500);
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="card-chunky mb-5 rounded-3xl border-2 border-border bg-gradient-to-br from-secondary/20 to-card p-5"
+    >
+      <div className="flex items-center gap-2">
+        <ShieldCheck className="h-5 w-5 text-primary" />
+        <h3 className="font-display text-lg">Controlos parentais</h3>
+      </div>
+      <p className="mt-1 text-sm text-muted-foreground">Protege o acesso a este painel e define limites saudáveis.</p>
+
+      <div className="mt-4 grid gap-4 sm:grid-cols-3">
+        <label className="block">
+          <span className="flex items-center gap-1.5 font-display text-sm">
+            <ShieldCheck className="h-4 w-4" /> PIN (4 dígitos)
+          </span>
+          <input
+            type="password"
+            inputMode="numeric"
+            maxLength={4}
+            value={pin}
+            onChange={(e) => setPin(e.target.value.replace(/\D/g, ""))}
+            placeholder="Sem PIN"
+            className="mt-2 w-full rounded-xl border-2 border-border bg-card px-3 py-3 text-center font-mono text-xl tracking-[0.4em] outline-none focus:border-primary"
+          />
+        </label>
+
+        <label className="block">
+          <span className="flex items-center gap-1.5 font-display text-sm">
+            <Hourglass className="h-4 w-4" /> Limite diário (min)
+          </span>
+          <input
+            type="number"
+            inputMode="numeric"
+            min={0}
+            max={240}
+            value={limit}
+            onChange={(e) => setLimit(e.target.value === "" ? "" : Number(e.target.value))}
+            placeholder="Sem limite"
+            className="mt-2 w-full rounded-xl border-2 border-border bg-card px-3 py-3 text-center font-display text-lg outline-none focus:border-primary"
+          />
+          <span className="mt-1 block text-[11px] text-muted-foreground">Hoje: {todayMin} min</span>
+        </label>
+
+        <label className="block">
+          <span className="flex items-center gap-1.5 font-display text-sm">
+            <Moon className="h-4 w-4" /> Hora de dormir
+          </span>
+          <select
+            value={bedtime === "" ? "" : String(bedtime)}
+            onChange={(e) => setBedtime(e.target.value === "" ? "" : Number(e.target.value))}
+            className="mt-2 w-full rounded-xl border-2 border-border bg-card px-3 py-3 text-center font-display text-lg outline-none focus:border-primary"
+          >
+            <option value="">Sem bloqueio</option>
+            {[18, 19, 20, 21, 22].map((h) => (
+              <option key={h} value={h}>{h}h00</option>
+            ))}
+          </select>
+        </label>
+      </div>
+
+      <div className="mt-4 flex flex-wrap items-center gap-3">
+        <ChunkyButton onClick={save}>Guardar definições</ChunkyButton>
+        {savedMsg && <span className="text-sm text-success">{savedMsg}</span>}
+      </div>
+    </motion.div>
+  );
+}
+

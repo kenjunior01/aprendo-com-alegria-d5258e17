@@ -1,21 +1,21 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { TopBar } from "@/components/TopBar";
 import { BottomNav } from "@/components/BottomNav";
 import { Mascot } from "@/components/Mascot";
-import { CHAPTERS, chapterProgress, isChapterComplete, type Chapter } from "@/lib/chapters";
+import { CHAPTERS, type Chapter, type Mission } from "@/lib/chapters";
 import { loadProfile, pullProfileFromCloud, type Profile } from "@/lib/storage";
 import { getMascot } from "@/lib/mascots";
 import { AdaptiveTip } from "@/components/AdaptiveTip";
-import { Lock, Sparkles, CheckCircle2 } from "lucide-react";
+import { Lock, Star, CheckCircle2, Crown, Play } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/app")({
   head: () => ({
     meta: [
       { title: "A minha aventura — Kidoz" },
-      { name: "description", content: "Explora os capítulos da tua aventura: Português, Matemática e Estudo do Meio." },
+      { name: "description", content: "Caminho de aprendizagem visual: Português, Matemática e Estudo do Meio." },
     ],
   }),
   component: AppHome,
@@ -48,38 +48,27 @@ function AppHome() {
   if (!profile) return null;
   const mascot = getMascot(profile.mascot);
 
-  // Show chapters up to user grade + next; sequential unlock based on previous chapter completion
   const visibleChapters = CHAPTERS.filter((c) => c.grade <= Math.min(4, profile.grade + 1));
-  const completedSet = new Set(profile.completedLessons);
-
-  const isUnlocked = (idx: number) => {
-    if (idx === 0) return true;
-    const prev = visibleChapters[idx - 1];
-    return isChapterComplete(prev, profile.completedLessons) || prev.grade < profile.grade;
-  };
 
   return (
-    <div className="min-h-[100dvh] bg-background pb-24 md:pb-12">
+    <div className="min-h-[100dvh] bg-background pb-28 md:pb-12">
       <TopBar profile={profile} />
 
-      <main className="mx-auto max-w-3xl px-3 py-4 sm:px-4 sm:py-6">
+      <main className="mx-auto max-w-2xl px-4 py-4 sm:py-6">
         {/* Hero greeting */}
         <motion.section
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="card-chunky relative mb-6 overflow-hidden rounded-3xl border border-border bg-gradient-to-br from-card to-accent/30 p-4 sm:mb-8 sm:p-6"
+          className="card-chunky relative mb-5 overflow-hidden rounded-3xl border-2 border-border bg-gradient-to-br from-card to-accent/30 p-4 sm:p-5"
         >
           <div className="flex items-center gap-3 sm:gap-4">
             <Mascot id={profile.mascot} size="md" bouncing equippedItemId={profile.equippedItem} />
             <div className="min-w-0 flex-1">
-              <p className="truncate font-display text-lg sm:text-2xl">Olá, {profile.name}! ☀️</p>
-              <p className="text-xs text-muted-foreground sm:text-sm">
+              <p className="truncate font-display text-xl sm:text-2xl">Olá, {profile.name}! ☀️</p>
+              <p className="text-sm text-muted-foreground">
                 {profile.streak > 0
-                  ? `🔥 ${profile.streak} ${profile.streak === 1 ? "dia" : "dias"} seguidos! Continua!`
+                  ? `🔥 ${profile.streak} ${profile.streak === 1 ? "dia seguido" : "dias seguidos"}!`
                   : mascot.encourage}
-              </p>
-              <p className="mt-1 text-xs text-muted-foreground">
-                {profile.grade}.º ano · {completedSet.size} {completedSet.size === 1 ? "missão completa" : "missões completas"}
               </p>
             </div>
           </div>
@@ -87,56 +76,21 @@ function AppHome() {
 
         <AdaptiveTip />
 
-        {/* Quick links: Tutor + Jardim */}
-        <div className="mb-6 grid grid-cols-2 gap-3 sm:gap-4">
-          <Link to="/tutor" className="card-chunky group rounded-3xl border-2 border-border bg-gradient-to-br from-primary/15 to-card p-3 transition-transform hover:-translate-y-1 sm:p-4">
-            <div className="flex items-center gap-2">
-              <span className="text-2xl sm:text-3xl">🦉</span>
-              <div className="min-w-0">
-                <p className="truncate font-display text-sm sm:text-base">Falar com o Mocha</p>
-                <p className="truncate text-[10px] text-muted-foreground sm:text-xs">Tutor pessoal IA</p>
-              </div>
-            </div>
-          </Link>
-          <Link to="/jardim" className="card-chunky group rounded-3xl border-2 border-border bg-gradient-to-br from-success/15 to-card p-3 transition-transform hover:-translate-y-1 sm:p-4">
-            <div className="flex items-center gap-2">
-              <span className="text-2xl sm:text-3xl">🌱</span>
-              <div className="min-w-0">
-                <p className="truncate font-display text-sm sm:text-base">Meu Jardim</p>
-                <p className="truncate text-[10px] text-muted-foreground sm:text-xs">Mundo que cresce</p>
-              </div>
-            </div>
-          </Link>
+        {/* Quick links */}
+        <div className="mb-6 grid grid-cols-2 gap-3">
+          <QuickLink to="/leitura" emoji="🎤" title="Ler em voz alta" subtitle="Treina a leitura" tone="primary" />
+          <QuickLink to="/jardim" emoji="🌱" title="Meu Jardim" subtitle="Mundo que cresce" tone="success" />
         </div>
 
-        {/* Chapters as a vertical journey */}
-        <div className="relative">
-          {/* connector line */}
-          <div aria-hidden className="absolute left-1/2 top-0 -z-10 h-full w-1 -translate-x-1/2 bg-gradient-to-b from-border via-border/50 to-transparent" />
-
-          <div className="space-y-5 sm:space-y-7">
-            {visibleChapters.map((chapter, idx) => {
-              const unlocked = isUnlocked(idx);
-              const progress = chapterProgress(chapter, profile.completedLessons);
-              const complete = progress.pct === 1;
-
-              return (
-                <ChapterCard
-                  key={chapter.id}
-                  chapter={chapter}
-                  unlocked={unlocked}
-                  complete={complete}
-                  progressDone={progress.done}
-                  progressTotal={progress.total}
-                  align={idx % 2 === 0 ? "left" : "right"}
-                />
-              );
-            })}
-          </div>
+        {/* Chapter paths — Duolingo-style winding journey */}
+        <div className="space-y-8">
+          {visibleChapters.map((chapter) => (
+            <ChapterPath key={chapter.id} chapter={chapter} completedLessons={profile.completedLessons} />
+          ))}
         </div>
 
-        <p className="mt-10 text-center text-xs text-muted-foreground">
-          ✨ Mais capítulos serão desbloqueados à medida que avanças
+        <p className="mt-10 text-center text-sm text-muted-foreground">
+          ✨ Mais aventuras vão chegando à medida que avanças
         </p>
       </main>
 
@@ -145,114 +99,168 @@ function AppHome() {
   );
 }
 
-function ChapterCard({
-  chapter,
-  unlocked,
-  complete,
-  progressDone,
-  progressTotal,
-  align,
-}: {
-  chapter: Chapter;
-  unlocked: boolean;
-  complete: boolean;
-  progressDone: number;
-  progressTotal: number;
-  align: "left" | "right";
-}) {
-  const content = (
-    <motion.div
-      whileHover={unlocked ? { y: -3 } : undefined}
-      whileTap={unlocked ? { scale: 0.98 } : undefined}
+function QuickLink({ to, emoji, title, subtitle, tone }: { to: "/leitura" | "/jardim"; emoji: string; title: string; subtitle: string; tone: "primary" | "success" }) {
+  const ring = tone === "primary" ? "from-primary/20" : "from-success/20";
+  return (
+    <Link
+      to={to}
       className={cn(
-        "card-chunky relative overflow-hidden rounded-3xl border-2 p-4 sm:p-5 transition-all",
-        unlocked ? "border-border bg-card" : "border-border bg-muted/40",
-        align === "right" && "sm:ml-12",
-        align === "left" && "sm:mr-12",
+        "card-chunky group flex min-h-[88px] items-center gap-3 rounded-3xl border-2 border-border bg-gradient-to-br to-card p-3 transition-transform active:scale-[0.97]",
+        ring,
       )}
     >
-      {/* gradient stripe */}
-      <div
-        aria-hidden
-        className={cn(
-          "absolute inset-x-0 top-0 h-2",
-          `bg-gradient-to-r ${chapter.bgGradient}`,
-        )}
-      />
-
-      <div className="flex items-start gap-3 sm:gap-4">
-        <div
-          className={cn(
-            "flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl text-3xl shadow-sm sm:h-16 sm:w-16 sm:text-4xl",
-            !unlocked && "grayscale opacity-60",
-          )}
-          style={{
-            backgroundColor: `color-mix(in oklab, var(${chapter.themeColorVar}) 22%, var(--card))`,
-          }}
-        >
-          {chapter.emoji}
-        </div>
-
-        <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-2">
-            <span className="rounded-full bg-muted px-2 py-0.5 font-display text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
-              Capítulo {chapter.number}
-            </span>
-            {complete && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-success/15 px-2 py-0.5 font-display text-[10px] font-semibold text-success">
-                <CheckCircle2 className="h-3 w-3" /> Completo
-              </span>
-            )}
-            {!unlocked && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 font-display text-[10px] font-semibold text-muted-foreground">
-                <Lock className="h-3 w-3" /> Bloqueado
-              </span>
-            )}
-          </div>
-          <h3
-            className="mt-1 font-display text-lg leading-tight sm:text-xl"
-            style={unlocked ? { color: `var(${chapter.themeColorVar})` } : undefined}
-          >
-            {chapter.title}
-          </h3>
-          <p className="text-xs text-muted-foreground sm:text-sm">{chapter.subtitle}</p>
-          <p className="mt-2 text-xs italic text-muted-foreground/90 line-clamp-2 sm:text-sm">
-            “{chapter.story}”
-          </p>
-
-          {/* progress bar */}
-          <div className="mt-3 flex items-center gap-2">
-            <div className="h-2 flex-1 overflow-hidden rounded-full bg-muted">
-              <div
-                className="h-full rounded-full transition-all"
-                style={{
-                  width: `${progressTotal === 0 ? 0 : (progressDone / progressTotal) * 100}%`,
-                  backgroundColor: `var(${chapter.themeColorVar})`,
-                }}
-              />
-            </div>
-            <span className="font-display text-xs text-muted-foreground">
-              {progressDone}/{progressTotal}
-            </span>
-          </div>
-        </div>
-
-        {unlocked && !complete && (
-          <Sparkles className="h-5 w-5 shrink-0 animate-pulse text-primary" />
-        )}
+      <span className="text-3xl">{emoji}</span>
+      <div className="min-w-0">
+        <p className="truncate font-display text-base leading-tight">{title}</p>
+        <p className="truncate text-xs text-muted-foreground">{subtitle}</p>
       </div>
+    </Link>
+  );
+}
+
+function ChapterPath({ chapter, completedLessons }: { chapter: Chapter; completedLessons: string[] }) {
+  const completed = useMemo(() => new Set(completedLessons), [completedLessons]);
+  const missions = chapter.missions;
+  const doneCount = missions.filter((m) => completed.has(m.lessonId)).length;
+  // First mission whose previous chain is complete is the active one.
+  const firstUnfinishedIdx = missions.findIndex((m) => !completed.has(m.lessonId));
+  const activeIdx = firstUnfinishedIdx === -1 ? missions.length : firstUnfinishedIdx;
+
+  return (
+    <section aria-label={chapter.title}>
+      {/* Chapter banner */}
+      <div
+        className="card-chunky mb-4 overflow-hidden rounded-3xl border-2 border-border p-4 sm:p-5"
+        style={{ backgroundColor: `color-mix(in oklab, var(${chapter.themeColorVar}) 14%, var(--card))` }}
+      >
+        <div className="flex items-center gap-3">
+          <div
+            className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl text-3xl shadow-sm"
+            style={{ backgroundColor: `color-mix(in oklab, var(${chapter.themeColorVar}) 28%, var(--card))` }}
+          >
+            {chapter.emoji}
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="font-display text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+              Capítulo {chapter.number}
+            </p>
+            <h3 className="font-display text-xl leading-tight" style={{ color: `var(${chapter.themeColorVar})` }}>
+              {chapter.title}
+            </h3>
+            <p className="text-xs text-muted-foreground">{chapter.subtitle}</p>
+          </div>
+          <span className="rounded-full bg-card px-2.5 py-1 font-display text-xs font-bold">
+            {doneCount}/{missions.length}
+          </span>
+        </div>
+      </div>
+
+      {/* Path of nodes */}
+      <ol className="relative mx-auto max-w-sm">
+        {missions.map((mission, idx) => {
+          const isDone = completed.has(mission.lessonId);
+          const isActive = idx === activeIdx;
+          const isLocked = idx > activeIdx;
+          // Winding: alternate left / center / right
+          const offset = ["-translate-x-12", "translate-x-0", "translate-x-12", "translate-x-0"][idx % 4];
+          return (
+            <li key={mission.lessonId} className="relative flex justify-center py-3">
+              <div className={cn("transition-transform", offset)}>
+                <PathNode
+                  mission={mission}
+                  chapter={chapter}
+                  state={isDone ? "done" : isActive ? "active" : isLocked ? "locked" : "available"}
+                />
+              </div>
+            </li>
+          );
+        })}
+
+        {/* End trophy */}
+        <li className="relative flex justify-center pt-2">
+          <div
+            className={cn(
+              "flex h-16 w-16 items-center justify-center rounded-3xl border-2 border-border",
+              doneCount === missions.length ? "bg-xp/30" : "bg-muted",
+            )}
+            aria-label={doneCount === missions.length ? "Capítulo completo" : "Troféu por desbloquear"}
+          >
+            <Crown className={cn("h-7 w-7", doneCount === missions.length ? "text-xp" : "text-muted-foreground")} />
+          </div>
+        </li>
+      </ol>
+    </section>
+  );
+}
+
+function PathNode({
+  mission,
+  chapter,
+  state,
+}: {
+  mission: Mission;
+  chapter: Chapter;
+  state: "done" | "active" | "available" | "locked";
+}) {
+  const color = `var(${chapter.themeColorVar})`;
+  const node = (
+    <motion.div
+      whileTap={state !== "locked" ? { scale: 0.92 } : undefined}
+      className={cn(
+        "relative flex h-[88px] w-[88px] flex-col items-center justify-center rounded-full border-[3px] text-3xl select-none",
+        state === "done" && "border-success bg-success/15 text-success-foreground",
+        state === "active" && "border-card text-card animate-bounce-soft",
+        state === "available" && "border-border bg-card",
+        state === "locked" && "border-border bg-muted text-muted-foreground opacity-70",
+      )}
+      style={
+        state === "active"
+          ? { backgroundColor: color, boxShadow: `0 6px 0 0 color-mix(in oklab, ${color} 60%, black)` }
+          : state === "available"
+            ? { boxShadow: `0 5px 0 0 color-mix(in oklab, ${color} 25%, var(--border))` }
+            : undefined
+      }
+    >
+      <span aria-hidden>{mission.emoji}</span>
+      {state === "done" && (
+        <CheckCircle2 className="absolute -right-1 -top-1 h-7 w-7 rounded-full bg-card text-success" />
+      )}
+      {state === "active" && (
+        <span className="absolute -bottom-2 rounded-full border-2 border-card bg-foreground px-2 py-0.5 text-[10px] font-display font-bold text-background">
+          <Play className="inline h-3 w-3" /> AGORA
+        </span>
+      )}
+      {state === "locked" && (
+        <Lock className="absolute -right-1 -bottom-1 h-6 w-6 rounded-full bg-card p-1 text-muted-foreground" />
+      )}
+      {state === "available" && (
+        <Star className="absolute -right-1 -top-1 h-6 w-6 rounded-full bg-card p-1 text-xp" />
+      )}
     </motion.div>
   );
 
-  if (!unlocked) return <div aria-disabled>{content}</div>;
+  if (state === "locked") {
+    return (
+      <div className="flex flex-col items-center gap-1.5" aria-label={`${mission.title} (bloqueado)`}>
+        {node}
+        <p className="max-w-[120px] text-center font-display text-[11px] text-muted-foreground line-clamp-2">
+          {mission.title}
+        </p>
+      </div>
+    );
+  }
+
   return (
     <Link
-      to="/capitulo/$chapterId"
-      params={{ chapterId: chapter.id }}
-      className="block"
-      aria-label={`Capítulo ${chapter.number}: ${chapter.title}`}
+      to="/licao/$subjectId/$lessonId"
+      params={{ subjectId: mission.subjectId, lessonId: mission.lessonId }}
+      className="flex flex-col items-center gap-1.5"
+      aria-label={`Iniciar missão: ${mission.title}`}
     >
-      {content}
+      {node}
+      <p className="max-w-[140px] text-center font-display text-xs leading-tight line-clamp-2">
+        {mission.title}
+      </p>
     </Link>
   );
 }
