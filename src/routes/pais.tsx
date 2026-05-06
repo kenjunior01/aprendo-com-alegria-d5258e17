@@ -349,7 +349,57 @@ function DashboardView({ data }: { data: ParentDashboardData }) {
         </div>
       )}
 
+      <TutorHistorySection childName={data.child.name} />
+
       <Link to="/perfil"><ChunkyButton tone="ghost" className="w-full">Voltar ao perfil</ChunkyButton></Link>
+    </div>
+  );
+}
+
+function TutorHistorySection({ childName }: { childName: string }) {
+  const [hist, setHist] = useState<TutorHistory | null>(null);
+  const [open, setOpen] = useState(false);
+  useEffect(() => {
+    const all = listTutorChildren();
+    const match = all.find((h) => h.childKey.startsWith(childName.toLowerCase().trim() + "|"));
+    setHist(match ?? null);
+  }, [childName]);
+  if (!hist || hist.messages.length === 0) {
+    return (
+      <div className="card-chunky rounded-3xl border border-border bg-card p-5">
+        <div className="flex items-center gap-2">
+          <MessageCircle className="h-5 w-5 text-primary" />
+          <h3 className="font-display text-lg">Conversas com o Tutor</h3>
+        </div>
+        <p className="mt-2 text-sm text-muted-foreground">Ainda sem conversas guardadas neste dispositivo.</p>
+      </div>
+    );
+  }
+  const recent = open ? hist.messages : hist.messages.slice(-6);
+  return (
+    <div className="card-chunky rounded-3xl border border-border bg-card p-5">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <MessageCircle className="h-5 w-5 text-primary" />
+          <h3 className="font-display text-lg">Conversas com o Tutor</h3>
+        </div>
+        <span className="font-display text-xs text-muted-foreground">{hist.messages.length} mensagens</span>
+      </div>
+      <div className="mt-3 space-y-2 max-h-80 overflow-y-auto">
+        {recent.map((m, i) => (
+          <div key={i} className={`rounded-2xl px-3 py-2 text-sm ${m.role === "user" ? "bg-primary/10" : "bg-muted"}`}>
+            <p className="font-display text-[10px] uppercase tracking-wide text-muted-foreground">
+              {m.role === "user" ? "👧 Criança" : "🦉 Mocha"} · {new Date(m.ts).toLocaleString("pt-PT", { dateStyle: "short", timeStyle: "short" })}
+            </p>
+            <p className="mt-0.5">{m.content}</p>
+          </div>
+        ))}
+      </div>
+      {hist.messages.length > 6 && (
+        <button onClick={() => setOpen((o) => !o)} className="mt-2 text-xs font-display text-primary underline">
+          {open ? "Ver menos" : `Ver todas (${hist.messages.length})`}
+        </button>
+      )}
     </div>
   );
 }
