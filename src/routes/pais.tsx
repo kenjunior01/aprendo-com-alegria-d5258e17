@@ -4,12 +4,17 @@ import { motion } from "framer-motion";
 import { BottomNav } from "@/components/BottomNav";
 import { Mascot } from "@/components/Mascot";
 import { ChunkyButton } from "@/components/ChunkyButton";
+import { ParentGate } from "@/components/ParentGate";
 import { loadProfile, pullProfileFromCloud, updateProfile, type Profile } from "@/lib/storage";
+import { getTodayMinutes } from "@/lib/usageTracker";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { getMyChildren, createParentInvite, acceptParentInvite, getChildDashboard, type ParentDashboardData } from "@/server/parent.functions";
 import { listChildren as listTutorChildren, type TutorHistory } from "@/lib/tutorHistory";
-import { Copy, LogOut, Plus, BarChart3, Clock, Target, Flame, MessageCircle } from "lucide-react";
+import { Copy, LogOut, Plus, BarChart3, Clock, Target, Flame, MessageCircle, ShieldCheck, Moon, Hourglass } from "lucide-react";
+
+const GATE_KEY = "kidoz-parent-gate-ts";
+const GATE_TTL_MIN = 30;
 
 export const Route = createFileRoute("/pais")({
   head: () => ({
