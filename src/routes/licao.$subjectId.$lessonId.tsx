@@ -10,7 +10,8 @@ import { completeLesson, loadProfile, type Profile } from "@/lib/storage";
 import { getMascot } from "@/lib/mascots";
 import { playCorrect, playWrong, playLevelUp, speak, stopSpeech, ttsAvailable } from "@/lib/audio";
 import { checkAndUnlockAchievements, type Achievement } from "@/lib/achievements";
-import { Check, Coins, Heart, Trophy, Volume2, X } from "lucide-react";
+import { useVoiceMatch, isVoiceAvailable } from "@/lib/voice";
+import { Check, Coins, Heart, Mic, Trophy, Volume2, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/licao/$subjectId/$lessonId")({
