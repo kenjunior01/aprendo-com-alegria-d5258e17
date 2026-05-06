@@ -8,7 +8,8 @@ import { loadProfile, pullProfileFromCloud, updateProfile, type Profile } from "
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { getMyChildren, createParentInvite, acceptParentInvite, getChildDashboard, type ParentDashboardData } from "@/server/parent.functions";
-import { Copy, LogOut, Plus, BarChart3, Clock, Target, Flame } from "lucide-react";
+import { listChildren as listTutorChildren, type TutorHistory } from "@/lib/tutorHistory";
+import { Copy, LogOut, Plus, BarChart3, Clock, Target, Flame, MessageCircle } from "lucide-react";
 
 export const Route = createFileRoute("/pais")({
   head: () => ({
