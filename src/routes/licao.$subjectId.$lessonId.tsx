@@ -39,6 +39,7 @@ function LessonPage() {
   const [done, setDone] = useState(false);
   const [coinsEarned, setCoinsEarned] = useState(0);
   const [xpEarned, setXpEarned] = useState(0);
+  const [newAchievements, setNewAchievements] = useState<Achievement[]>([]);
   const lastSpokenRef = useRef<string>("");
   const startTimeRef = useRef<number>(Date.now());
 
