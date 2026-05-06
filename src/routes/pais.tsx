@@ -45,6 +45,8 @@ function ParentDashboard() {
     const ts = Number(sessionStorage.getItem(GATE_KEY) ?? 0);
     if (ts && Date.now() - ts < GATE_TTL_MIN * 60_000) setUnlocked(true);
   }, []);
+
+  useEffect(() => {
     if (loading) return;
     if (!user) {
       navigate({ to: "/auth", search: { mode: "parent" } as never });
