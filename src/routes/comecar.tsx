@@ -17,20 +17,31 @@ export const Route = createFileRoute("/comecar")({
   component: Onboarding,
 });
 
-const STEPS_TOTAL = 4;
+const STEPS_TOTAL = 5;
 
 function Onboarding() {
   const navigate = useNavigate();
   const [step, setStep] = useState(0);
+  const [role, setRole] = useState<"child" | "parent">("child");
   const [name, setName] = useState("");
   const [age, setAge] = useState(7);
   const [grade, setGrade] = useState(1);
   const [mascot, setMascot] = useState<MascotId>("fox");
 
   const finish = () => {
-    const p = { ...defaultProfile(), name: name.trim() || "Amigo", age, grade, mascot };
+    const p = { ...defaultProfile(), role, name: name.trim() || (role === "parent" ? "Adulto" : "Amigo"), age, grade, mascot };
     saveProfile(p);
-    navigate({ to: "/app" });
+    navigate({ to: role === "parent" ? "/pais" : "/app" });
+  };
+
+  // Skip steps not relevant to parents
+  const goNext = () => {
+    if (role === "parent" && step === 1) {
+      // Adultos saltam idade/ano/mascote — vão direto ao fim
+      finish();
+      return;
+    }
+    setStep((s) => s + 1);
   };
 
   return (
