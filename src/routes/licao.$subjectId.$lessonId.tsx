@@ -130,6 +130,14 @@ function LessonPage() {
       setDone(true);
       playLevelUp();
       confetti({ particleCount: 200, spread: 110, origin: { y: 0.6 } });
+      // Verifica conquistas em background
+      void checkAndUnlockAchievements({ wasPerfect: finalCorrect === total }).then((unlocked) => {
+        if (unlocked.length > 0) {
+          setNewAchievements(unlocked);
+          setProfile(loadProfile());
+          confetti({ particleCount: 120, spread: 90, origin: { y: 0.4 }, colors: ["#ffd166", "#ff8c42", "#5db1ff"] });
+        }
+      });
     } else {
       setQIndex((i) => i + 1);
       setSelected(null);
