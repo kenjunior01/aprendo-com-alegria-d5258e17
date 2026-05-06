@@ -18,6 +18,10 @@ export interface Profile {
   isPremium: boolean;
   role: "child" | "parent";
   createdAt: string;
+  // Parental controls (configured from /pais)
+  parentPin?: string | null; // 4-digit PIN
+  dailyLimitMin?: number | null; // null/undefined = no limit
+  bedtimeHour?: number | null; // 0-23 hour after which app is blocked (until 6am)
 }
 
 const KEY = "lusis-profile-v2";
