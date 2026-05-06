@@ -17,15 +17,18 @@ export const Route = createFileRoute("/comecar")({
   component: Onboarding,
 });
 
+const STEPS_TOTAL = 4;
+
 function Onboarding() {
   const navigate = useNavigate();
   const [step, setStep] = useState(0);
   const [name, setName] = useState("");
   const [age, setAge] = useState(7);
+  const [grade, setGrade] = useState(1);
   const [mascot, setMascot] = useState<MascotId>("fox");
 
   const finish = () => {
-    const p = { ...defaultProfile(), name: name.trim() || "Amigo", age, mascot };
+    const p = { ...defaultProfile(), name: name.trim() || "Amigo", age, grade, mascot };
     saveProfile(p);
     navigate({ to: "/app" });
   };
@@ -33,15 +36,11 @@ function Onboarding() {
   return (
     <main className="bg-paper min-h-[100dvh] px-4 py-8 sm:py-10">
       <div className="mx-auto max-w-2xl">
-        {/* progress dots */}
         <div className="mb-8 flex justify-center gap-2">
-          {[0, 1, 2].map((i) => (
+          {Array.from({ length: STEPS_TOTAL }).map((_, i) => (
             <span
               key={i}
-              className={cn(
-                "h-2 w-10 rounded-full transition-colors",
-                i <= step ? "bg-primary" : "bg-border",
-              )}
+              className={cn("h-2 w-10 rounded-full transition-colors", i <= step ? "bg-primary" : "bg-border")}
             />
           ))}
         </div>
@@ -50,8 +49,8 @@ function Onboarding() {
           {step === 0 && (
             <Step key="0">
               <Mascot id="owl" size="lg" bouncing />
-              <h1 className="font-display text-4xl">Como te chamas?</h1>
-              <p className="text-muted-foreground">Vamos criar o teu cantinho de aprendizagem.</p>
+              <h1 className="font-display text-3xl sm:text-4xl">Como te chamas?</h1>
+              <p className="text-muted-foreground">Vamos criar a tua aventura.</p>
               <input
                 value={name}
                 onChange={(e) => setName(e.target.value)}
@@ -68,7 +67,7 @@ function Onboarding() {
 
           {step === 1 && (
             <Step key="1">
-              <h1 className="font-display text-4xl">Que idade tens?</h1>
+              <h1 className="font-display text-3xl sm:text-4xl">Que idade tens?</h1>
               <div className="grid grid-cols-3 gap-3 sm:grid-cols-5">
                 {[6, 7, 8, 9, 10].map((a) => (
                   <button
@@ -92,7 +91,32 @@ function Onboarding() {
 
           {step === 2 && (
             <Step key="2">
-              <h1 className="font-display text-4xl">Escolhe a tua mascote!</h1>
+              <h1 className="font-display text-3xl sm:text-4xl">Em que ano andas?</h1>
+              <p className="text-muted-foreground">Vamos ajustar a aventura ao teu nível.</p>
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                {[1, 2, 3, 4].map((g) => (
+                  <button
+                    key={g}
+                    onClick={() => setGrade(g)}
+                    className={cn(
+                      "card-chunky rounded-2xl border-2 border-border bg-card py-5 font-display text-lg transition-transform hover:-translate-y-0.5",
+                      grade === g && "border-primary bg-accent text-accent-foreground",
+                    )}
+                  >
+                    {g}.º ano
+                  </button>
+                ))}
+              </div>
+              <div className="flex w-full flex-col gap-3 sm:flex-row">
+                <ChunkyButton tone="ghost" onClick={() => setStep(1)} className="sm:flex-1">← Voltar</ChunkyButton>
+                <ChunkyButton onClick={() => setStep(3)} className="sm:flex-1">Continuar →</ChunkyButton>
+              </div>
+            </Step>
+          )}
+
+          {step === 3 && (
+            <Step key="3">
+              <h1 className="font-display text-3xl sm:text-4xl">Escolhe a tua mascote!</h1>
               <p className="text-muted-foreground">Vai ser o teu companheiro de aventuras.</p>
               <div className="grid w-full grid-cols-2 gap-4 sm:grid-cols-4">
                 {MASCOTS.map((m) => (
@@ -113,7 +137,7 @@ function Onboarding() {
                 💬 “{MASCOTS.find((m) => m.id === mascot)?.greeting}”
               </p>
               <div className="flex w-full flex-col gap-3 sm:flex-row">
-                <ChunkyButton tone="ghost" onClick={() => setStep(1)} className="sm:flex-1">← Voltar</ChunkyButton>
+                <ChunkyButton tone="ghost" onClick={() => setStep(2)} className="sm:flex-1">← Voltar</ChunkyButton>
                 <ChunkyButton tone="success" onClick={finish} className="sm:flex-1">Vamos começar! 🎉</ChunkyButton>
               </div>
             </Step>

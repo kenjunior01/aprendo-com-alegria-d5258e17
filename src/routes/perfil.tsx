@@ -6,7 +6,7 @@ import { Mascot } from "@/components/Mascot";
 import { ChunkyButton } from "@/components/ChunkyButton";
 import { MASCOTS, type MascotId } from "@/lib/mascots";
 import { loadProfile, pullProfileFromCloud, resetProfile, updateProfile, type Profile } from "@/lib/storage";
-import { SUBJECTS } from "@/lib/curriculum";
+import { totalMissions } from "@/lib/chapters";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Cloud, CloudOff, LogOut } from "lucide-react";
@@ -39,18 +39,20 @@ function ProfilePage() {
       setProfile(p);
     };
     init();
-    return () => {
-      cancelled = true;
-    };
+    return () => { cancelled = true; };
   }, [navigate]);
 
   if (!profile) return null;
 
-  const totalLessons = SUBJECTS.reduce((s, sub) => s + sub.lessons.length, 0);
+  const total = totalMissions();
   const completed = profile.completedLessons.length;
 
   const changeMascot = (id: MascotId) => {
     setProfile(updateProfile({ mascot: id }));
+  };
+
+  const changeGrade = (g: number) => {
+    setProfile(updateProfile({ grade: g }));
   };
 
   const reset = () => {
@@ -70,17 +72,17 @@ function ProfilePage() {
       <TopBar profile={profile} />
       <main className="mx-auto max-w-2xl px-4 py-6 sm:py-8">
         <div className="card-chunky rounded-3xl border border-border bg-card p-5 text-center sm:p-6">
-          <Mascot id={profile.mascot} size="xl" bouncing />
+          <Mascot id={profile.mascot} size="xl" bouncing equippedItemId={profile.equippedItem} />
           <h1 className="mt-2 font-display text-2xl sm:text-3xl">{profile.name}</h1>
-          <p className="text-muted-foreground">{profile.age} anos</p>
+          <p className="text-muted-foreground">{profile.age} anos · {profile.grade}.º ano</p>
 
-          <div className="mt-5 grid grid-cols-3 gap-2 sm:gap-3">
+          <div className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-4 sm:gap-3">
             <Box label="🔥 Sequência" value={`${profile.streak}d`} />
             <Box label="⭐ XP" value={`${profile.xp}`} />
-            <Box label="📘 Lições" value={`${completed}/${totalLessons}`} />
+            <Box label="🪙 Moedas" value={`${profile.coins}`} />
+            <Box label="📘 Missões" value={`${completed}/${total}`} />
           </div>
 
-          {/* Cloud status */}
           <div className="mt-4 flex items-center justify-center gap-2 text-xs text-muted-foreground">
             {user ? (
               <>
@@ -102,6 +104,24 @@ function ProfilePage() {
           )}
         </div>
 
+        {/* Grade selector */}
+        <section className="mt-6 sm:mt-8">
+          <h2 className="mb-3 font-display text-xl sm:text-2xl">Ano escolar</h2>
+          <div className="grid grid-cols-4 gap-2">
+            {[1, 2, 3, 4].map((g) => (
+              <button
+                key={g}
+                onClick={() => changeGrade(g)}
+                className={`card-chunky rounded-2xl border-2 bg-card py-3 font-display text-sm transition-transform active:scale-95 ${
+                  profile.grade === g ? "border-primary bg-accent text-accent-foreground" : "border-border"
+                }`}
+              >
+                {g}.º ano
+              </button>
+            ))}
+          </div>
+        </section>
+
         <section className="mt-6 sm:mt-8">
           <h2 className="mb-3 font-display text-xl sm:text-2xl">Mudar de mascote</h2>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
@@ -113,7 +133,7 @@ function ProfilePage() {
                   profile.mascot === m.id ? "border-primary ring-4 ring-primary/30" : "border-border"
                 }`}
               >
-                <Mascot id={m.id} size="sm" />
+                <Mascot id={m.id} size="sm" equippedItemId={profile.mascot === m.id ? profile.equippedItem : null} />
                 <p className="mt-1 text-center font-display text-xs sm:text-sm">{m.name}</p>
               </button>
             ))}
@@ -122,7 +142,10 @@ function ProfilePage() {
 
         <section className="mt-8 flex flex-col gap-3">
           <Link to="/app">
-            <ChunkyButton className="w-full">← Voltar à jornada</ChunkyButton>
+            <ChunkyButton className="w-full">← Voltar à aventura</ChunkyButton>
+          </Link>
+          <Link to="/loja">
+            <ChunkyButton tone="secondary" className="w-full">🛍️ Ir à loja</ChunkyButton>
           </Link>
           {user && (
             <ChunkyButton tone="ghost" onClick={signOut} className="w-full">

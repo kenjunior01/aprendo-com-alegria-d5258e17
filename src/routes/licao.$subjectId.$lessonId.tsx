@@ -9,7 +9,7 @@ import { getLesson, getSubject } from "@/lib/curriculum";
 import { completeLesson, loadProfile, type Profile } from "@/lib/storage";
 import { getMascot } from "@/lib/mascots";
 import { playCorrect, playWrong, playLevelUp, speak, stopSpeech, ttsAvailable } from "@/lib/audio";
-import { Check, Heart, Volume2, X } from "lucide-react";
+import { Check, Coins, Heart, Volume2, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/licao/$subjectId/$lessonId")({
@@ -36,7 +36,10 @@ function LessonPage() {
   const [correct, setCorrect] = useState(0);
   const [hearts, setHearts] = useState(5);
   const [done, setDone] = useState(false);
+  const [coinsEarned, setCoinsEarned] = useState(0);
+  const [xpEarned, setXpEarned] = useState(0);
   const lastSpokenRef = useRef<string>("");
+  const startTimeRef = useRef<number>(Date.now());
 
   useEffect(() => {
     const p = loadProfile();
@@ -46,6 +49,7 @@ function LessonPage() {
     }
     setProfile(p);
     setHearts(p.hearts);
+    startTimeRef.current = Date.now();
   }, [navigate]);
 
   const total = lesson?.questions.length ?? 0;
@@ -56,7 +60,6 @@ function LessonPage() {
 
   const q = lesson?.questions[qIndex];
 
-  // Narrar pergunta automaticamente
   useEffect(() => {
     if (!q || done || hearts === 0) return;
     const text = q.prompt;
@@ -107,8 +110,20 @@ function LessonPage() {
 
   const onNext = () => {
     if (qIndex + 1 >= total) {
-      const earned = Math.round((correct + (isCorrect ? 1 : 0)) * 10);
-      const updated = completeLesson(lesson.id, earned);
+      const finalCorrect = correct + (isCorrect ? 1 : 0);
+      const durationSeconds = Math.round((Date.now() - startTimeRef.current) / 1000);
+      const updated = completeLesson({
+        lessonId: lesson.id,
+        subjectId: subject.id,
+        grade: lesson.grade,
+        correct: finalCorrect,
+        total,
+        durationSeconds,
+      });
+      const xpDelta = updated.xp - profile.xp;
+      const coinsDelta = updated.coins - profile.coins;
+      setXpEarned(xpDelta);
+      setCoinsEarned(coinsDelta);
       setProfile(updated);
       setDone(true);
       playLevelUp();
@@ -121,26 +136,30 @@ function LessonPage() {
   };
 
   if (done) {
-    const earned = Math.round((correct) * 10);
-    const accuracy = Math.round((correct / total) * 100);
+    const finalCorrect = correct;
+    const accuracy = Math.round((finalCorrect / total) * 100);
     return (
       <main className="bg-paper flex min-h-[100dvh] flex-col items-center justify-center px-5 py-10 text-center">
-        <Mascot id={profile.mascot} size="xl" bouncing />
+        <Mascot id={profile.mascot} size="xl" bouncing equippedItemId={profile.equippedItem} />
         <h1 className="mt-4 font-display text-4xl text-primary sm:text-5xl">Boa! 🎉</h1>
         <p className="mt-2 text-base text-muted-foreground sm:text-lg">
-          Lição completa: <strong>{lesson.title}</strong>
+          Missão completa: <strong>{lesson.title}</strong>
         </p>
-        <div className="mt-6 grid w-full max-w-md grid-cols-3 gap-2 sm:gap-3">
-          <Stat label="Acertos" value={`${correct}/${total}`} />
+        <div className="mt-6 grid w-full max-w-md grid-cols-2 gap-2 sm:grid-cols-4 sm:gap-3">
+          <Stat label="Acertos" value={`${finalCorrect}/${total}`} />
           <Stat label="Precisão" value={`${accuracy}%`} />
-          <Stat label="XP" value={`+${earned}`} />
+          <Stat label="XP" value={`+${xpEarned}`} />
+          <Stat label="Abracadinhos" value={`+${coinsEarned}`} icon={<Coins className="h-4 w-4 text-xp" />} />
         </div>
         <p className="mt-6 max-w-md text-sm italic text-muted-foreground sm:text-base">
           💬 “{getMascot(profile.mascot).encourage}”
         </p>
         <div className="mt-8 flex w-full max-w-md flex-col gap-3 sm:flex-row sm:justify-center">
+          <Link to="/loja" className="flex-1">
+            <ChunkyButton tone="secondary" className="w-full">Visitar a loja 🛍️</ChunkyButton>
+          </Link>
           <Link to="/app" className="flex-1">
-            <ChunkyButton tone="success" className="w-full">Continuar a jornada</ChunkyButton>
+            <ChunkyButton tone="success" className="w-full">Continuar aventura</ChunkyButton>
           </Link>
         </div>
       </main>
@@ -150,7 +169,7 @@ function LessonPage() {
   if (hearts === 0) {
     return (
       <main className="bg-paper flex min-h-[100dvh] flex-col items-center justify-center px-6 text-center">
-        <Mascot id={profile.mascot} size="lg" />
+        <Mascot id={profile.mascot} size="lg" equippedItemId={profile.equippedItem} />
         <h1 className="mt-4 font-display text-4xl">Sem corações 💔</h1>
         <p className="mt-2 text-muted-foreground">Tenta de novo, tu consegues!</p>
         <div className="mt-6 flex w-full max-w-sm flex-col gap-3 sm:flex-row">
@@ -163,7 +182,6 @@ function LessonPage() {
 
   return (
     <main className="min-h-[100dvh] bg-background pb-32" style={{ paddingBottom: "calc(8rem + env(safe-area-inset-bottom))" }}>
-      {/* progress header */}
       <header
         className="sticky top-0 z-20 bg-background/95 backdrop-blur"
         style={{ paddingTop: "env(safe-area-inset-top)" }}
@@ -195,7 +213,7 @@ function LessonPage() {
           transition={{ duration: 0.3 }}
         >
           <div className="mb-5 flex items-end gap-3">
-            <Mascot id={profile.mascot} size="md" />
+            <Mascot id={profile.mascot} size="md" equippedItemId={profile.equippedItem} />
             <div className="card-chunky relative flex-1 rounded-3xl rounded-bl-none border border-border bg-card px-4 py-3 sm:px-5 sm:py-4">
               <p className="pr-8 font-display text-base leading-snug sm:text-lg">{q.prompt}</p>
               {ttsAvailable() && (
@@ -243,7 +261,6 @@ function LessonPage() {
         </motion.div>
       </div>
 
-      {/* footer feedback */}
       <AnimatePresence>
         {revealed && (
           <motion.div
@@ -302,11 +319,14 @@ function LessonPage() {
   );
 }
 
-function Stat({ label, value }: { label: string; value: string }) {
+function Stat({ label, value, icon }: { label: string; value: string; icon?: React.ReactNode }) {
   return (
     <div className="card-chunky rounded-2xl border border-border bg-card p-3 sm:p-4">
-      <p className="text-xs uppercase text-muted-foreground">{label}</p>
-      <p className="mt-1 font-display text-xl sm:text-2xl">{value}</p>
+      <p className="flex items-center justify-center gap-1 text-[10px] uppercase text-muted-foreground sm:text-xs">
+        {icon}
+        {label}
+      </p>
+      <p className="mt-1 font-display text-lg sm:text-2xl">{value}</p>
     </div>
   );
 }
