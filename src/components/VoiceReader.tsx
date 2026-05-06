@@ -31,6 +31,29 @@ const normalize = (s: string) =>
 
 const tokenize = (s: string) => normalize(s).split(" ").filter(Boolean);
 
+// Análise fonética simples para pt-PT: dá uma dica ao errar uma palavra,
+// comparando padrões silábicos comuns.
+function phoneticHint(expected: string, said: string): string | null {
+  const exp = normalize(expected);
+  const heard = normalize(said);
+  if (!heard) return "Tenta falar mais alto e devagar.";
+  if (heard === exp) return null;
+  // Detectar troca de sons frequentes em crianças
+  const swaps: Array<[RegExp, string]> = [
+    [/r/g, "r"], [/lh/g, "lh"], [/nh/g, "nh"], [/ç|c(?=[ei])/g, "s"],
+  ];
+  for (const [re, sound] of swaps) {
+    if (exp.match(re) && !heard.match(re)) {
+      return `Atenção ao som "${sound}" — articula com calma.`;
+    }
+  }
+  if (heard.length < exp.length * 0.6) return "Faltaram sílabas — lê cada parte da palavra.";
+  if (heard.length > exp.length * 1.4) return "Disseste sons a mais — vai mais devagarinho.";
+  // Diferença em vogais finais
+  if (exp.slice(-1) !== heard.slice(-1)) return "Cuidado com a vogal final.";
+  return "Quase! Tenta repetir a palavra com clareza.";
+}
+
 // Compara palavra-a-palavra, devolvendo um boolean por palavra esperada.
 const wordMatch = (expected: string, said: string): boolean[] => {
   const exp = tokenize(expected);
@@ -170,6 +193,19 @@ export function VoiceReader({ expected, onResult, className }: Props) {
             {allOk ? `Perfeito! 🎉 (${accuracy}%)` : `Fluência: ${accuracy}% — ${accuracy! >= 70 ? "quase!" : "tenta outra vez"}`}
           </div>
           {transcript && <p className="mt-1 italic text-foreground/70">Ouvi: “{transcript}”</p>}
+          {!allOk && matches && (
+            <ul className="mt-2 space-y-1 text-left">
+              {expTokens.map((word, i) => {
+                if (matches[i]) return null;
+                const hint = phoneticHint(word, transcript);
+                return (
+                  <li key={i} className="rounded-lg bg-card/60 px-2 py-1 text-xs">
+                    🔊 <strong>{word}</strong> — {hint ?? "tenta de novo"}
+                  </li>
+                );
+              })}
+            </ul>
+          )}
         </motion.div>
       )}
     </div>

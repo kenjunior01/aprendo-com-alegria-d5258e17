@@ -10,6 +10,8 @@ export interface ParentDashboardData {
   byWeekday: { weekday: number; minutes: number }[];
   insights: { type: "good" | "warn" | "info"; text: string }[];
   recommendation: { title: string; message: string; focusSubject: string };
+  predictions: { area: string; risk: "alto" | "medio" | "baixo"; reason: string }[];
+  offPlatform: { type: "livro" | "brincadeira" | "atividade"; title: string; description: string }[];
   achievements: { code: string; unlocked_at: string }[];
 }
 
@@ -132,6 +134,42 @@ export const getChildDashboard = createServerFn({ method: "POST" })
     // AI recommendation (best-effort, falls back to a heuristic)
     const recommendation = await getRecommendationForChild(list, bySubject);
 
+    // Predictive analysis
+    const predictions: ParentDashboardData["predictions"] = [];
+    for (const s of bySubject) {
+      const acc = s.total ? s.correct / s.total : 0;
+      if (s.total >= 5 && acc < 0.55) {
+        predictions.push({
+          area: SUBJECT_NAMES[s.subject_id] ?? s.subject_id,
+          risk: "alto",
+          reason: `Precisão de ${Math.round(acc * 100)}% sugere dificuldade persistente — intervir esta semana.`,
+        });
+      } else if (s.total >= 5 && acc < 0.7) {
+        predictions.push({
+          area: SUBJECT_NAMES[s.subject_id] ?? s.subject_id,
+          risk: "medio",
+          reason: `Tendência irregular (${Math.round(acc * 100)}%). Reforço recomendado.`,
+        });
+      }
+    }
+    if (activeDays >= 1 && activeDays <= 3) {
+      predictions.push({
+        area: "Engagement",
+        risk: "medio",
+        reason: "Atividade baixa pode levar a perda de motivação. Estabelecer rotina diária ajuda.",
+      });
+    }
+    if (predictions.length === 0 && totals.sessions > 0) {
+      predictions.push({
+        area: "Geral",
+        risk: "baixo",
+        reason: "Nenhum risco detectado. Continuar a rotina atual.",
+      });
+    }
+
+    // Off-platform recommendations
+    const offPlatform = buildOffPlatform(profile.grade ?? 1, bySubject);
+
     return {
       child: profile as ParentDashboardData["child"],
       totals,
@@ -140,9 +178,43 @@ export const getChildDashboard = createServerFn({ method: "POST" })
       byWeekday,
       insights,
       recommendation,
+      predictions,
+      offPlatform,
       achievements: (ach ?? []).map((a) => ({ code: a.achievement_code, unlocked_at: a.unlocked_at })),
     };
   });
+
+function buildOffPlatform(
+  grade: number,
+  bySubject: Array<{ subject_id: string; correct: number; total: number }>,
+): ParentDashboardData["offPlatform"] {
+  const sorted = [...bySubject].sort((a, b) => (a.correct / Math.max(1, a.total)) - (b.correct / Math.max(1, b.total)));
+  const weakest = sorted[0]?.subject_id ?? "geral";
+
+  const POOL: Record<string, ParentDashboardData["offPlatform"]> = {
+    portugues: [
+      { type: "livro", title: grade <= 2 ? "«A que sabe a Lua?» — Michael Grejniec" : "«O Beijo da Palavrinha» — Mia Couto", description: "Leitura conjunta antes de dormir, pelo menos 10 minutos." },
+      { type: "brincadeira", title: "Caça às palavras em casa", description: "Procurem juntos objetos que comecem por uma letra escolhida." },
+      { type: "atividade", title: "Diário ilustrado", description: "Pedir à criança que desenhe e escreva uma frase sobre o dia." },
+    ],
+    matematica: [
+      { type: "brincadeira", title: "Matemática na cozinha", description: "Pesar ingredientes, contar copos, dividir bolachas — frações na prática." },
+      { type: "atividade", title: "Jogos de tabuleiro com dados", description: "Monopólio Júnior, Uno, jogo da glória reforçam contagem e estratégia." },
+      { type: "livro", title: "«Histórias de Matemágica»", description: "Coleção infantil com problemas como aventuras." },
+    ],
+    "estudo-do-meio": [
+      { type: "atividade", title: "Caminhada na natureza", description: "Identificar 5 plantas/animais e fotografá-los para depois pesquisar." },
+      { type: "brincadeira", title: "Mapa do bairro", description: "Desenhar juntos um mapa da rua, com pontos de referência." },
+      { type: "livro", title: "«O Meu Primeiro Atlas» — Porto Editora", description: "Explorar continentes, países, animais juntos." },
+    ],
+    geral: [
+      { type: "atividade", title: "20 minutos sem ecrãs", description: "Conversar à mesa sobre o que aprenderam hoje." },
+      { type: "brincadeira", title: "Adivinhas em família", description: "Ótimo para vocabulário e raciocínio." },
+    ],
+  };
+
+  return POOL[weakest] ?? POOL.geral;
+}
 
 async function getRecommendationForChild(
   sessions: Array<{ subject_id: string; correct: number; total: number }>,

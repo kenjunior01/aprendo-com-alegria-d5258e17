@@ -213,7 +213,50 @@ function DashboardView({ data }: { data: ParentDashboardData }) {
         </div>
       </motion.div>
 
-      {/* Insights */}
+      {/* Predictive analysis */}
+      {data.predictions.length > 0 && (
+        <div className="card-chunky rounded-3xl border border-border bg-card p-5">
+          <h3 className="font-display text-lg">🔮 Análise preditiva</h3>
+          <p className="mt-1 text-xs text-muted-foreground">Previsões baseadas no padrão recente.</p>
+          <ul className="mt-3 space-y-2">
+            {data.predictions.map((p, i) => (
+              <li key={i} className={`rounded-xl px-3 py-2 text-sm ${
+                p.risk === "alto" ? "bg-destructive/10" : p.risk === "medio" ? "bg-secondary/30" : "bg-success/10"
+              }`}>
+                <div className="flex items-center justify-between">
+                  <strong className="font-display">{p.area}</strong>
+                  <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase ${
+                    p.risk === "alto" ? "bg-destructive/20 text-destructive" :
+                    p.risk === "medio" ? "bg-secondary/60" : "bg-success/20 text-success"
+                  }`}>
+                    Risco {p.risk}
+                  </span>
+                </div>
+                <p className="mt-1 text-xs text-muted-foreground">{p.reason}</p>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {/* Off-platform recommendations */}
+      {data.offPlatform.length > 0 && (
+        <div className="card-chunky rounded-3xl border border-border bg-gradient-to-br from-accent/30 to-card p-5">
+          <h3 className="font-display text-lg">📚 Atividades fora do ecrã</h3>
+          <p className="mt-1 text-xs text-muted-foreground">Sugestões para complementar a aprendizagem.</p>
+          <div className="mt-3 grid gap-2 sm:grid-cols-2">
+            {data.offPlatform.map((rec, i) => (
+              <div key={i} className="rounded-2xl bg-card p-3">
+                <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-display uppercase text-primary">
+                  {rec.type}
+                </span>
+                <p className="mt-1 font-display text-sm">{rec.title}</p>
+                <p className="mt-1 text-xs text-muted-foreground">{rec.description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
       {data.insights.length > 0 && (
         <div className="card-chunky rounded-3xl border border-border bg-card p-5">
           <h3 className="font-display text-lg">Observações</h3>
