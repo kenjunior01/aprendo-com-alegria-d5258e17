@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Mascot } from "@/components/Mascot";
+import { KidozLogo } from "@/components/KidozLogo";
 import { ChunkyButton } from "@/components/ChunkyButton";
 import { MASCOTS, type MascotId } from "@/lib/mascots";
 import { defaultProfile, saveProfile } from "@/lib/storage";
