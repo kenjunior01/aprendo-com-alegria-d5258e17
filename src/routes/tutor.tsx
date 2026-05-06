@@ -163,8 +163,16 @@ function TutorChat() {
           <Mascot id="owl" size="md" bouncing />
           <div className="flex-1">
             <h1 className="font-display text-xl">Mocha 🦉</h1>
-            <p className="text-xs text-muted-foreground">O teu tutor pessoal · sempre disponível</p>
+            <p className="text-xs text-muted-foreground">O teu tutor pessoal · {messages.length - 1} mensagens guardadas</p>
           </div>
+          <button
+            onClick={clearHistory}
+            title="Apagar histórico"
+            className="rounded-full p-2 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+            aria-label="Apagar histórico"
+          >
+            <Trash2 className="h-4 w-4" />
+          </button>
           <Sparkles className="h-5 w-5 text-primary" />
         </div>
 
