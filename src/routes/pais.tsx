@@ -100,15 +100,27 @@ function ParentDashboard() {
     navigate({ to: "/" });
   };
 
+  if (!unlocked) {
+    return (
+      <ParentGate
+        expectedPin={profile.parentPin ?? null}
+        onPass={() => {
+          if (typeof window !== "undefined") sessionStorage.setItem(GATE_KEY, String(Date.now()));
+          setUnlocked(true);
+        }}
+      />
+    );
+  }
+
   return (
-    <div className="min-h-[100dvh] bg-background pb-24 md:pb-12">
+    <div className="min-h-[100dvh] bg-background pb-28 md:pb-12">
       <header className="sticky top-0 z-30 border-b border-border bg-background/90 backdrop-blur" style={{ paddingTop: "env(safe-area-inset-top)" }}>
         <div className="mx-auto flex max-w-4xl items-center justify-between px-4 py-3">
           <div className="flex items-center gap-2">
             <BarChart3 className="h-6 w-6 text-primary" />
             <p className="font-display text-lg">Painel de Pais</p>
           </div>
-          <button onClick={signOut} className="text-xs text-muted-foreground hover:text-foreground">
+          <button onClick={signOut} className="text-sm text-muted-foreground hover:text-foreground">
             <LogOut className="inline h-4 w-4" /> Sair
           </button>
         </div>
