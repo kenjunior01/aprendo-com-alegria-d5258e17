@@ -75,6 +75,11 @@ function ProfilePage() {
         <div className="card-chunky rounded-3xl border border-border bg-card p-5 text-center sm:p-6">
           <Mascot id={profile.mascot} size="xl" bouncing equippedItemId={profile.equippedItem} />
           <h1 className="mt-2 font-display text-2xl sm:text-3xl">{profile.name}</h1>
+          {profile.isPremium && (
+            <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-primary/20 to-secondary/30 px-3 py-0.5 font-display text-xs font-bold text-primary">
+              💎 PREMIUM
+            </span>
+          )}
           <p className="text-muted-foreground">{profile.age} anos · {profile.grade}.º ano</p>
 
           <div className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-4 sm:gap-3">
