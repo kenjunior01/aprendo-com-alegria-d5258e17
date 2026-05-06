@@ -60,17 +60,33 @@ function Onboarding() {
           {step === 0 && (
             <Step key="0">
               <Mascot id="owl" size="lg" bouncing />
-              <h1 className="font-display text-3xl sm:text-4xl">Como te chamas?</h1>
-              <p className="text-muted-foreground">Vamos criar a tua aventura.</p>
-              <input
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                maxLength={20}
-                placeholder="O teu nome"
-                className="w-full max-w-sm rounded-2xl border-2 border-border bg-card px-5 py-4 text-center font-display text-xl outline-none focus:border-primary"
-                autoFocus
-              />
-              <ChunkyButton onClick={() => setStep(1)} disabled={!name.trim()} className="w-full sm:w-auto">
+              <h1 className="font-display text-3xl sm:text-4xl">Quem está a chegar?</h1>
+              <p className="text-muted-foreground">Conta-nos para te darmos a melhor experiência.</p>
+              <div className="grid w-full max-w-md grid-cols-2 gap-3">
+                <button
+                  onClick={() => setRole("child")}
+                  className={cn(
+                    "card-chunky rounded-3xl border-2 border-border bg-card p-5 text-center transition-transform hover:-translate-y-1",
+                    role === "child" && "border-primary ring-4 ring-primary/25",
+                  )}
+                >
+                  <div className="text-4xl">🧒</div>
+                  <p className="mt-2 font-display text-lg">Sou criança</p>
+                  <p className="text-xs text-muted-foreground">Vou aprender e jogar</p>
+                </button>
+                <button
+                  onClick={() => setRole("parent")}
+                  className={cn(
+                    "card-chunky rounded-3xl border-2 border-border bg-card p-5 text-center transition-transform hover:-translate-y-1",
+                    role === "parent" && "border-primary ring-4 ring-primary/25",
+                  )}
+                >
+                  <div className="text-4xl">👨‍👩‍👧</div>
+                  <p className="mt-2 font-display text-lg">Sou adulto</p>
+                  <p className="text-xs text-muted-foreground">Quero acompanhar uma criança</p>
+                </button>
+              </div>
+              <ChunkyButton onClick={() => setStep(1)} className="w-full sm:w-auto">
                 Continuar →
               </ChunkyButton>
             </Step>
@@ -78,6 +94,32 @@ function Onboarding() {
 
           {step === 1 && (
             <Step key="1">
+              <Mascot id="owl" size="lg" bouncing />
+              <h1 className="font-display text-3xl sm:text-4xl">
+                {role === "parent" ? "Como te chamas?" : "Como te chamas?"}
+              </h1>
+              <p className="text-muted-foreground">
+                {role === "parent" ? "Para personalizar o teu painel." : "Vamos criar a tua aventura."}
+              </p>
+              <input
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                maxLength={20}
+                placeholder={role === "parent" ? "O teu nome" : "O teu nome"}
+                className="w-full max-w-sm rounded-2xl border-2 border-border bg-card px-5 py-4 text-center font-display text-xl outline-none focus:border-primary"
+                autoFocus
+              />
+              <div className="flex w-full flex-col gap-3 sm:flex-row">
+                <ChunkyButton tone="ghost" onClick={() => setStep(0)} className="sm:flex-1">← Voltar</ChunkyButton>
+                <ChunkyButton onClick={goNext} disabled={!name.trim()} className="sm:flex-1">
+                  {role === "parent" ? "Entrar 🎉" : "Continuar →"}
+                </ChunkyButton>
+              </div>
+            </Step>
+          )}
+
+          {step === 2 && role === "child" && (
+            <Step key="2">
               <h1 className="font-display text-3xl sm:text-4xl">Que idade tens?</h1>
               <div className="grid grid-cols-3 gap-3 sm:grid-cols-5">
                 {[6, 7, 8, 9, 10].map((a) => (
@@ -94,14 +136,14 @@ function Onboarding() {
                 ))}
               </div>
               <div className="flex w-full flex-col gap-3 sm:flex-row">
-                <ChunkyButton tone="ghost" onClick={() => setStep(0)} className="sm:flex-1">← Voltar</ChunkyButton>
-                <ChunkyButton onClick={() => setStep(2)} className="sm:flex-1">Continuar →</ChunkyButton>
+                <ChunkyButton tone="ghost" onClick={() => setStep(1)} className="sm:flex-1">← Voltar</ChunkyButton>
+                <ChunkyButton onClick={() => setStep(3)} className="sm:flex-1">Continuar →</ChunkyButton>
               </div>
             </Step>
           )}
 
-          {step === 2 && (
-            <Step key="2">
+          {step === 3 && role === "child" && (
+            <Step key="3">
               <h1 className="font-display text-3xl sm:text-4xl">Em que ano andas?</h1>
               <p className="text-muted-foreground">Vamos ajustar a aventura ao teu nível.</p>
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
@@ -119,14 +161,14 @@ function Onboarding() {
                 ))}
               </div>
               <div className="flex w-full flex-col gap-3 sm:flex-row">
-                <ChunkyButton tone="ghost" onClick={() => setStep(1)} className="sm:flex-1">← Voltar</ChunkyButton>
-                <ChunkyButton onClick={() => setStep(3)} className="sm:flex-1">Continuar →</ChunkyButton>
+                <ChunkyButton tone="ghost" onClick={() => setStep(2)} className="sm:flex-1">← Voltar</ChunkyButton>
+                <ChunkyButton onClick={() => setStep(4)} className="sm:flex-1">Continuar →</ChunkyButton>
               </div>
             </Step>
           )}
 
-          {step === 3 && (
-            <Step key="3">
+          {step === 4 && role === "child" && (
+            <Step key="4">
               <h1 className="font-display text-3xl sm:text-4xl">Escolhe a tua mascote!</h1>
               <p className="text-muted-foreground">Vai ser o teu companheiro de aventuras.</p>
               <div className="grid w-full grid-cols-2 gap-4 sm:grid-cols-4">
@@ -148,7 +190,7 @@ function Onboarding() {
                 💬 “{MASCOTS.find((m) => m.id === mascot)?.greeting}”
               </p>
               <div className="flex w-full flex-col gap-3 sm:flex-row">
-                <ChunkyButton tone="ghost" onClick={() => setStep(2)} className="sm:flex-1">← Voltar</ChunkyButton>
+                <ChunkyButton tone="ghost" onClick={() => setStep(3)} className="sm:flex-1">← Voltar</ChunkyButton>
                 <ChunkyButton tone="success" onClick={finish} className="sm:flex-1">Vamos começar! 🎉</ChunkyButton>
               </div>
             </Step>
