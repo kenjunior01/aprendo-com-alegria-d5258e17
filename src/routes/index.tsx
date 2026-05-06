@@ -101,6 +101,9 @@ function Landing() {
           <Link to="/auth" className="flex-1 sm:flex-none">
             <ChunkyButton tone="ghost" className="w-full">Já tenho conta</ChunkyButton>
           </Link>
+          <Link to="/pais" className="flex-1 sm:flex-none">
+            <ChunkyButton tone="secondary" className="w-full">👨‍👩‍👧 Sou pai/mãe</ChunkyButton>
+          </Link>
         </motion.div>
 
         <div className="mt-12 grid w-full gap-3 sm:mt-16 sm:gap-4 md:grid-cols-3">

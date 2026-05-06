@@ -1,0 +1,254 @@
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
+import { BottomNav } from "@/components/BottomNav";
+import { Mascot } from "@/components/Mascot";
+import { ChunkyButton } from "@/components/ChunkyButton";
+import { loadProfile, pullProfileFromCloud, updateProfile, type Profile } from "@/lib/storage";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
+import { getMyChildren, createParentInvite, acceptParentInvite, getChildDashboard, type ParentDashboardData } from "@/server/parent.functions";
+import { Copy, LogOut, Plus, BarChart3, Clock, Target, Flame } from "lucide-react";
+
+export const Route = createFileRoute("/pais")({
+  head: () => ({
+    meta: [
+      { title: "Painel de Pais — Lusis" },
+      { name: "description", content: "Acompanha o progresso dos teus filhos: tempo de estudo, áreas fortes e fracas, recomendações." },
+    ],
+  }),
+  component: ParentDashboard,
+});
+
+interface ChildSummary { id: string; name: string; mascot: string; grade: number; xp: number; streak: number }
+
+function ParentDashboard() {
+  const navigate = useNavigate();
+  const { user, loading } = useAuth();
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [children, setChildren] = useState<ChildSummary[]>([]);
+  const [pendingCode, setPendingCode] = useState<string | null>(null);
+  const [selectedChild, setSelectedChild] = useState<string | null>(null);
+  const [dashboard, setDashboard] = useState<ParentDashboardData | null>(null);
+  const [acceptCode, setAcceptCode] = useState("");
+  const [acceptMsg, setAcceptMsg] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (loading) return;
+    if (!user) {
+      navigate({ to: "/auth", search: { mode: "parent" } as never });
+      return;
+    }
+    void (async () => {
+      const cloud = await pullProfileFromCloud();
+      const p = cloud ?? loadProfile();
+      if (!p) {
+        // create minimal parent profile
+        setProfile(updateProfile({ name: user.email?.split("@")[0] ?? "Encarregado", role: "parent" }));
+      } else {
+        if (p.role !== "parent") {
+          setProfile(updateProfile({ role: "parent" }));
+        } else {
+          setProfile(p);
+        }
+      }
+      const res = await getMyChildren();
+      setChildren(res.children as ChildSummary[]);
+      if (res.children.length > 0) setSelectedChild(res.children[0].id);
+    })();
+  }, [user, loading, navigate]);
+
+  useEffect(() => {
+    if (!selectedChild) return;
+    void getChildDashboard({ data: { childId: selectedChild } }).then(setDashboard).catch(() => setDashboard(null));
+  }, [selectedChild]);
+
+  if (!user || !profile) return null;
+
+  const generateInvite = async () => {
+    try {
+      const r = await createParentInvite();
+      setPendingCode(r.invite_code);
+    } catch {
+      setPendingCode(null);
+    }
+  };
+
+  const acceptInvite = async () => {
+    setAcceptMsg(null);
+    if (!acceptCode.trim()) return;
+    const r = await acceptParentInvite({ data: { code: acceptCode } });
+    if (r.ok) setAcceptMsg("✅ Conta ligada com sucesso!");
+    else setAcceptMsg("❌ Código inválido ou já usado.");
+  };
+
+  const signOut = async () => {
+    await supabase.auth.signOut();
+    navigate({ to: "/" });
+  };
+
+  return (
+    <div className="min-h-[100dvh] bg-background pb-24 md:pb-12">
+      <header className="sticky top-0 z-30 border-b border-border bg-background/90 backdrop-blur" style={{ paddingTop: "env(safe-area-inset-top)" }}>
+        <div className="mx-auto flex max-w-4xl items-center justify-between px-4 py-3">
+          <div className="flex items-center gap-2">
+            <BarChart3 className="h-6 w-6 text-primary" />
+            <p className="font-display text-lg">Painel de Pais</p>
+          </div>
+          <button onClick={signOut} className="text-xs text-muted-foreground hover:text-foreground">
+            <LogOut className="inline h-4 w-4" /> Sair
+          </button>
+        </div>
+      </header>
+
+      <main className="mx-auto max-w-4xl px-4 py-6 sm:py-8">
+        {/* Children selector or empty state */}
+        {children.length === 0 ? (
+          <motion.section initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="card-chunky rounded-3xl border border-border bg-card p-5 sm:p-6">
+            <h1 className="font-display text-2xl sm:text-3xl">Olá, {profile.name}! 👋</h1>
+            <p className="mt-1 text-sm text-muted-foreground">Liga uma conta de criança para começar a acompanhar o progresso.</p>
+
+            <div className="mt-5 grid gap-4 sm:grid-cols-2">
+              <div className="rounded-2xl bg-accent/40 p-4">
+                <p className="font-display text-base">🔗 Convidar uma criança</p>
+                <p className="mt-1 text-xs text-muted-foreground">Gera um código e dá-o à criança para ela introduzir no perfil dela.</p>
+                {pendingCode ? (
+                  <div className="mt-3 flex items-center gap-2 rounded-xl bg-card px-3 py-2 font-mono text-lg font-bold tracking-widest">
+                    {pendingCode}
+                    <button onClick={() => navigator.clipboard?.writeText(pendingCode)} className="ml-auto text-muted-foreground hover:text-foreground"><Copy className="h-4 w-4" /></button>
+                  </div>
+                ) : (
+                  <ChunkyButton onClick={generateInvite} className="mt-3 w-full"><Plus className="h-4 w-4" /> Gerar código</ChunkyButton>
+                )}
+              </div>
+              <div className="rounded-2xl bg-secondary/30 p-4">
+                <p className="font-display text-base">🧒 Já tens código?</p>
+                <p className="mt-1 text-xs text-muted-foreground">Se um pai já gerou um código, introduz aqui (na conta da criança).</p>
+                <input
+                  value={acceptCode}
+                  onChange={(e) => setAcceptCode(e.target.value.toUpperCase())}
+                  placeholder="ABC123"
+                  maxLength={8}
+                  className="mt-3 w-full rounded-xl border-2 border-border bg-card px-3 py-2 text-center font-mono text-lg tracking-widest outline-none focus:border-primary"
+                />
+                <ChunkyButton tone="secondary" onClick={acceptInvite} className="mt-2 w-full">Ligar conta</ChunkyButton>
+                {acceptMsg && <p className="mt-2 text-center text-xs">{acceptMsg}</p>}
+              </div>
+            </div>
+          </motion.section>
+        ) : (
+          <>
+            <div className="mb-4 flex flex-wrap gap-2">
+              {children.map((c) => (
+                <button
+                  key={c.id}
+                  onClick={() => setSelectedChild(c.id)}
+                  className={`flex items-center gap-2 rounded-full px-3 py-1.5 font-display text-sm font-semibold transition-colors ${
+                    selectedChild === c.id ? "bg-primary text-primary-foreground" : "bg-card"
+                  }`}
+                >
+                  <Mascot id={c.mascot as never} size="sm" />
+                  {c.name}
+                </button>
+              ))}
+              <button onClick={generateInvite} className="rounded-full bg-card px-3 py-1.5 font-display text-sm text-muted-foreground"><Plus className="inline h-4 w-4" /> Adicionar</button>
+            </div>
+
+            {pendingCode && (
+              <div className="mb-4 rounded-2xl bg-accent/40 p-3 text-center">
+                <p className="text-xs text-muted-foreground">Novo código de convite:</p>
+                <p className="font-mono text-2xl font-bold tracking-widest">{pendingCode}</p>
+              </div>
+            )}
+
+            {dashboard && <DashboardView data={dashboard} />}
+          </>
+        )}
+      </main>
+      <BottomNav />
+    </div>
+  );
+}
+
+function DashboardView({ data }: { data: ParentDashboardData }) {
+  const accuracy = data.totals.total ? Math.round((data.totals.correct / data.totals.total) * 100) : 0;
+  const subjectName: Record<string, string> = {
+    portugues: "Português",
+    matematica: "Matemática",
+    "estudo-do-meio": "Estudo do Meio",
+  };
+
+  return (
+    <div className="space-y-5">
+      <div className="card-chunky rounded-3xl border border-border bg-card p-5">
+        <div className="flex items-center gap-3">
+          <Mascot id={data.child.mascot as never} size="md" />
+          <div>
+            <h2 className="font-display text-2xl">{data.child.name}</h2>
+            <p className="text-sm text-muted-foreground">{data.child.grade}.º ano · ⭐ {data.child.xp} XP · 🔥 {data.child.streak}d</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <KPI icon={<Target className="h-5 w-5 text-success" />} label="Precisão (14d)" value={`${accuracy}%`} />
+        <KPI icon={<Clock className="h-5 w-5 text-secondary-foreground" />} label="Tempo total" value={`${data.totals.minutes}min`} />
+        <KPI icon={<BarChart3 className="h-5 w-5 text-primary" />} label="Sessões" value={`${data.totals.sessions}`} />
+        <KPI icon={<Flame className="h-5 w-5 text-streak" />} label="Sequência" value={`${data.child.streak}d`} />
+      </div>
+
+      {/* Subjects */}
+      <div className="card-chunky rounded-3xl border border-border bg-card p-5">
+        <h3 className="font-display text-lg">Por disciplina</h3>
+        <div className="mt-3 space-y-3">
+          {data.bySubject.length === 0 && <p className="text-sm text-muted-foreground">Ainda sem dados.</p>}
+          {data.bySubject.map((s) => {
+            const acc = s.total ? Math.round((s.correct / s.total) * 100) : 0;
+            return (
+              <div key={s.subject_id}>
+                <div className="mb-1 flex items-center justify-between text-sm">
+                  <span className="font-display">{subjectName[s.subject_id] ?? s.subject_id}</span>
+                  <span className="text-muted-foreground">{acc}% · {s.correct}/{s.total}</span>
+                </div>
+                <div className="h-2 overflow-hidden rounded-full bg-muted">
+                  <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${acc}%` }} />
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Daily activity */}
+      <div className="card-chunky rounded-3xl border border-border bg-card p-5">
+        <h3 className="font-display text-lg">Atividade diária (14 dias)</h3>
+        <div className="mt-4 flex h-32 items-end gap-1.5">
+          {data.byDay.map((d) => {
+            const max = Math.max(1, ...data.byDay.map((x) => x.minutes));
+            const h = (d.minutes / max) * 100;
+            return (
+              <div key={d.date} className="flex flex-1 flex-col items-center gap-1" title={`${d.date}: ${d.minutes}min`}>
+                <div className="flex w-full flex-1 items-end">
+                  <div className="w-full rounded-t-md bg-primary/70 transition-all" style={{ height: `${h}%` }} />
+                </div>
+                <span className="text-[9px] text-muted-foreground">{d.date.slice(8)}</span>
+              </div>
+            );
+          })}
+          {data.byDay.length === 0 && <p className="text-sm text-muted-foreground">Sem atividade no período.</p>}
+        </div>
+      </div>
+
+      <Link to="/perfil"><ChunkyButton tone="ghost" className="w-full">Voltar ao perfil</ChunkyButton></Link>
+    </div>
+  );
+}
+
+function KPI({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
+  return (
+    <div className="rounded-2xl bg-card border border-border p-3 sm:p-4">
+      <div className="flex items-center gap-2">{icon}<p className="text-[10px] uppercase tracking-wide text-muted-foreground">{label}</p></div>
+      <p className="mt-1 font-display text-xl sm:text-2xl">{value}</p>
+    </div>
+  );
+}

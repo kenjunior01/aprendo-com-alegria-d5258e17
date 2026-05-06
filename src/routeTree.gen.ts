@@ -10,15 +10,34 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as PerfilRouteImport } from './routes/perfil'
+import { Route as PaisRouteImport } from './routes/pais'
+import { Route as LojaRouteImport } from './routes/loja'
+import { Route as LeituraRouteImport } from './routes/leitura'
 import { Route as ComecarRouteImport } from './routes/comecar'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AppRouteImport } from './routes/app'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as CapituloChapterIdRouteImport } from './routes/capitulo.$chapterId'
 import { Route as LicaoSubjectIdLessonIdRouteImport } from './routes/licao.$subjectId.$lessonId'
 
 const PerfilRoute = PerfilRouteImport.update({
   id: '/perfil',
   path: '/perfil',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PaisRoute = PaisRouteImport.update({
+  id: '/pais',
+  path: '/pais',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LojaRoute = LojaRouteImport.update({
+  id: '/loja',
+  path: '/loja',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LeituraRoute = LeituraRouteImport.update({
+  id: '/leitura',
+  path: '/leitura',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ComecarRoute = ComecarRouteImport.update({
@@ -41,6 +60,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CapituloChapterIdRoute = CapituloChapterIdRouteImport.update({
+  id: '/capitulo/$chapterId',
+  path: '/capitulo/$chapterId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LicaoSubjectIdLessonIdRoute = LicaoSubjectIdLessonIdRouteImport.update({
   id: '/licao/$subjectId/$lessonId',
   path: '/licao/$subjectId/$lessonId',
@@ -52,7 +76,11 @@ export interface FileRoutesByFullPath {
   '/app': typeof AppRoute
   '/auth': typeof AuthRoute
   '/comecar': typeof ComecarRoute
+  '/leitura': typeof LeituraRoute
+  '/loja': typeof LojaRoute
+  '/pais': typeof PaisRoute
   '/perfil': typeof PerfilRoute
+  '/capitulo/$chapterId': typeof CapituloChapterIdRoute
   '/licao/$subjectId/$lessonId': typeof LicaoSubjectIdLessonIdRoute
 }
 export interface FileRoutesByTo {
@@ -60,7 +88,11 @@ export interface FileRoutesByTo {
   '/app': typeof AppRoute
   '/auth': typeof AuthRoute
   '/comecar': typeof ComecarRoute
+  '/leitura': typeof LeituraRoute
+  '/loja': typeof LojaRoute
+  '/pais': typeof PaisRoute
   '/perfil': typeof PerfilRoute
+  '/capitulo/$chapterId': typeof CapituloChapterIdRoute
   '/licao/$subjectId/$lessonId': typeof LicaoSubjectIdLessonIdRoute
 }
 export interface FileRoutesById {
@@ -69,7 +101,11 @@ export interface FileRoutesById {
   '/app': typeof AppRoute
   '/auth': typeof AuthRoute
   '/comecar': typeof ComecarRoute
+  '/leitura': typeof LeituraRoute
+  '/loja': typeof LojaRoute
+  '/pais': typeof PaisRoute
   '/perfil': typeof PerfilRoute
+  '/capitulo/$chapterId': typeof CapituloChapterIdRoute
   '/licao/$subjectId/$lessonId': typeof LicaoSubjectIdLessonIdRoute
 }
 export interface FileRouteTypes {
@@ -79,7 +115,11 @@ export interface FileRouteTypes {
     | '/app'
     | '/auth'
     | '/comecar'
+    | '/leitura'
+    | '/loja'
+    | '/pais'
     | '/perfil'
+    | '/capitulo/$chapterId'
     | '/licao/$subjectId/$lessonId'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -87,7 +127,11 @@ export interface FileRouteTypes {
     | '/app'
     | '/auth'
     | '/comecar'
+    | '/leitura'
+    | '/loja'
+    | '/pais'
     | '/perfil'
+    | '/capitulo/$chapterId'
     | '/licao/$subjectId/$lessonId'
   id:
     | '__root__'
@@ -95,7 +139,11 @@ export interface FileRouteTypes {
     | '/app'
     | '/auth'
     | '/comecar'
+    | '/leitura'
+    | '/loja'
+    | '/pais'
     | '/perfil'
+    | '/capitulo/$chapterId'
     | '/licao/$subjectId/$lessonId'
   fileRoutesById: FileRoutesById
 }
@@ -104,7 +152,11 @@ export interface RootRouteChildren {
   AppRoute: typeof AppRoute
   AuthRoute: typeof AuthRoute
   ComecarRoute: typeof ComecarRoute
+  LeituraRoute: typeof LeituraRoute
+  LojaRoute: typeof LojaRoute
+  PaisRoute: typeof PaisRoute
   PerfilRoute: typeof PerfilRoute
+  CapituloChapterIdRoute: typeof CapituloChapterIdRoute
   LicaoSubjectIdLessonIdRoute: typeof LicaoSubjectIdLessonIdRoute
 }
 
@@ -115,6 +167,27 @@ declare module '@tanstack/react-router' {
       path: '/perfil'
       fullPath: '/perfil'
       preLoaderRoute: typeof PerfilRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pais': {
+      id: '/pais'
+      path: '/pais'
+      fullPath: '/pais'
+      preLoaderRoute: typeof PaisRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/loja': {
+      id: '/loja'
+      path: '/loja'
+      fullPath: '/loja'
+      preLoaderRoute: typeof LojaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/leitura': {
+      id: '/leitura'
+      path: '/leitura'
+      fullPath: '/leitura'
+      preLoaderRoute: typeof LeituraRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/comecar': {
@@ -145,6 +218,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/capitulo/$chapterId': {
+      id: '/capitulo/$chapterId'
+      path: '/capitulo/$chapterId'
+      fullPath: '/capitulo/$chapterId'
+      preLoaderRoute: typeof CapituloChapterIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/licao/$subjectId/$lessonId': {
       id: '/licao/$subjectId/$lessonId'
       path: '/licao/$subjectId/$lessonId'
@@ -160,7 +240,11 @@ const rootRouteChildren: RootRouteChildren = {
   AppRoute: AppRoute,
   AuthRoute: AuthRoute,
   ComecarRoute: ComecarRoute,
+  LeituraRoute: LeituraRoute,
+  LojaRoute: LojaRoute,
+  PaisRoute: PaisRoute,
   PerfilRoute: PerfilRoute,
+  CapituloChapterIdRoute: CapituloChapterIdRoute,
   LicaoSubjectIdLessonIdRoute: LicaoSubjectIdLessonIdRoute,
 }
 export const routeTree = rootRouteImport

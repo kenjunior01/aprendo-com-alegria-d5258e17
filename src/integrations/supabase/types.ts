@@ -14,45 +14,171 @@ export type Database = {
   }
   public: {
     Tables: {
+      parent_links: {
+        Row: {
+          accepted_at: string | null
+          child_id: string | null
+          created_at: string
+          id: string
+          invite_code: string
+          parent_id: string
+          status: string
+        }
+        Insert: {
+          accepted_at?: string | null
+          child_id?: string | null
+          created_at?: string
+          id?: string
+          invite_code: string
+          parent_id: string
+          status?: string
+        }
+        Update: {
+          accepted_at?: string | null
+          child_id?: string | null
+          created_at?: string
+          id?: string
+          invite_code?: string
+          parent_id?: string
+          status?: string
+        }
+        Relationships: []
+      }
+      practice_sessions: {
+        Row: {
+          coins_earned: number
+          correct: number
+          created_at: string
+          duration_seconds: number
+          grade: number
+          id: string
+          lesson_id: string
+          subject_id: string
+          total: number
+          user_id: string
+          xp_earned: number
+        }
+        Insert: {
+          coins_earned?: number
+          correct?: number
+          created_at?: string
+          duration_seconds?: number
+          grade: number
+          id?: string
+          lesson_id: string
+          subject_id: string
+          total?: number
+          user_id: string
+          xp_earned?: number
+        }
+        Update: {
+          coins_earned?: number
+          correct?: number
+          created_at?: string
+          duration_seconds?: number
+          grade?: number
+          id?: string
+          lesson_id?: string
+          subject_id?: string
+          total?: number
+          user_id?: string
+          xp_earned?: number
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           age: number
+          coins: number
           completed_lessons: string[]
           created_at: string
+          equipped_item: string | null
+          gems: number
+          grade: number
           hearts: number
           id: string
+          is_premium: boolean
           last_played: string | null
           mascot: string
           name: string
+          owned_items: string[]
+          role: string
           streak: number
           updated_at: string
           xp: number
         }
         Insert: {
           age?: number
+          coins?: number
           completed_lessons?: string[]
           created_at?: string
+          equipped_item?: string | null
+          gems?: number
+          grade?: number
           hearts?: number
           id: string
+          is_premium?: boolean
           last_played?: string | null
           mascot?: string
           name?: string
+          owned_items?: string[]
+          role?: string
           streak?: number
           updated_at?: string
           xp?: number
         }
         Update: {
           age?: number
+          coins?: number
           completed_lessons?: string[]
           created_at?: string
+          equipped_item?: string | null
+          gems?: number
+          grade?: number
           hearts?: number
           id?: string
+          is_premium?: boolean
           last_played?: string | null
           mascot?: string
           name?: string
+          owned_items?: string[]
+          role?: string
           streak?: number
           updated_at?: string
           xp?: number
+        }
+        Relationships: []
+      }
+      shop_items: {
+        Row: {
+          emoji: string
+          id: string
+          mascot: string | null
+          name: string
+          premium: boolean
+          price: number
+          sort_order: number
+          type: string
+        }
+        Insert: {
+          emoji?: string
+          id: string
+          mascot?: string | null
+          name: string
+          premium?: boolean
+          price?: number
+          sort_order?: number
+          type: string
+        }
+        Update: {
+          emoji?: string
+          id?: string
+          mascot?: string | null
+          name?: string
+          premium?: boolean
+          price?: number
+          sort_order?: number
+          type?: string
         }
         Relationships: []
       }
