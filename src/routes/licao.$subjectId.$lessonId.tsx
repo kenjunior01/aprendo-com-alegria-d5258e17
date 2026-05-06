@@ -77,6 +77,15 @@ function LessonPage() {
 
   useEffect(() => () => stopSpeech(), []);
 
+  const voiceEnabled = subject?.id === "portugues" && isVoiceAvailable();
+  const voice = useVoiceMatch(q?.options ?? []);
+  // Auto-select option when voice matches
+  useEffect(() => {
+    if (voice.matchedIndex !== null && !revealed) {
+      setSelected(voice.matchedIndex);
+    }
+  }, [voice.matchedIndex, revealed]);
+
   if (!profile) return null;
   if (!subject || !lesson || !q) {
     return (
