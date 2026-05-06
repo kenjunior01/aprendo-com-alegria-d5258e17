@@ -177,6 +177,7 @@ function DashboardView({ data }: { data: ParentDashboardData }) {
     matematica: "Matemática",
     "estudo-do-meio": "Estudo do Meio",
   };
+  const weekdayLabel = ["D", "S", "T", "Q", "Q", "S", "S"];
 
   return (
     <div className="space-y-5">
@@ -197,6 +198,38 @@ function DashboardView({ data }: { data: ParentDashboardData }) {
         <KPI icon={<Flame className="h-5 w-5 text-streak" />} label="Sequência" value={`${data.child.streak}d`} />
       </div>
 
+      {/* AI recommendation */}
+      <motion.div
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="card-chunky rounded-3xl border border-border bg-gradient-to-br from-primary/10 to-accent/20 p-5"
+      >
+        <div className="flex items-start gap-3">
+          <span className="text-2xl">🤖</span>
+          <div>
+            <p className="font-display text-base">{data.recommendation.title}</p>
+            <p className="mt-1 text-sm text-muted-foreground">{data.recommendation.message}</p>
+          </div>
+        </div>
+      </motion.div>
+
+      {/* Insights */}
+      {data.insights.length > 0 && (
+        <div className="card-chunky rounded-3xl border border-border bg-card p-5">
+          <h3 className="font-display text-lg">Observações</h3>
+          <ul className="mt-3 space-y-2">
+            {data.insights.map((ins, i) => (
+              <li key={i} className={`flex items-start gap-2 rounded-xl px-3 py-2 text-sm ${
+                ins.type === "good" ? "bg-success/10" : ins.type === "warn" ? "bg-destructive/10" : "bg-muted"
+              }`}>
+                <span>{ins.type === "good" ? "✅" : ins.type === "warn" ? "⚠️" : "ℹ️"}</span>
+                <span>{ins.text}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
       {/* Subjects */}
       <div className="card-chunky rounded-3xl border border-border bg-card p-5">
         <h3 className="font-display text-lg">Por disciplina</h3>
@@ -208,10 +241,10 @@ function DashboardView({ data }: { data: ParentDashboardData }) {
               <div key={s.subject_id}>
                 <div className="mb-1 flex items-center justify-between text-sm">
                   <span className="font-display">{subjectName[s.subject_id] ?? s.subject_id}</span>
-                  <span className="text-muted-foreground">{acc}% · {s.correct}/{s.total}</span>
+                  <span className="text-muted-foreground">{acc}% · {s.correct}/{s.total} · {s.minutes}min</span>
                 </div>
                 <div className="h-2 overflow-hidden rounded-full bg-muted">
-                  <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${acc}%` }} />
+                  <div className={`h-full rounded-full transition-all ${acc >= 80 ? "bg-success" : acc >= 60 ? "bg-primary" : "bg-destructive"}`} style={{ width: `${acc}%` }} />
                 </div>
               </div>
             );
@@ -229,15 +262,48 @@ function DashboardView({ data }: { data: ParentDashboardData }) {
             return (
               <div key={d.date} className="flex flex-1 flex-col items-center gap-1" title={`${d.date}: ${d.minutes}min`}>
                 <div className="flex w-full flex-1 items-end">
-                  <div className="w-full rounded-t-md bg-primary/70 transition-all" style={{ height: `${h}%` }} />
+                  <div className={`w-full rounded-t-md transition-all ${d.minutes > 0 ? "bg-primary" : "bg-muted"}`} style={{ height: `${Math.max(h, d.minutes > 0 ? 8 : 4)}%` }} />
                 </div>
                 <span className="text-[9px] text-muted-foreground">{d.date.slice(8)}</span>
               </div>
             );
           })}
-          {data.byDay.length === 0 && <p className="text-sm text-muted-foreground">Sem atividade no período.</p>}
         </div>
       </div>
+
+      {/* By weekday */}
+      <div className="card-chunky rounded-3xl border border-border bg-card p-5">
+        <h3 className="font-display text-lg">Quando estuda mais</h3>
+        <div className="mt-4 grid grid-cols-7 gap-2">
+          {data.byWeekday.map((w) => {
+            const max = Math.max(1, ...data.byWeekday.map((x) => x.minutes));
+            const h = (w.minutes / max) * 100;
+            return (
+              <div key={w.weekday} className="flex flex-col items-center gap-1">
+                <div className="flex h-20 w-full items-end">
+                  <div className="w-full rounded-md bg-secondary/60 transition-all" style={{ height: `${Math.max(h, w.minutes > 0 ? 10 : 4)}%` }} />
+                </div>
+                <span className="text-xs font-display">{weekdayLabel[w.weekday]}</span>
+                <span className="text-[10px] text-muted-foreground">{w.minutes}m</span>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Recent achievements */}
+      {data.achievements.length > 0 && (
+        <div className="card-chunky rounded-3xl border border-border bg-card p-5">
+          <h3 className="font-display text-lg">🏆 Conquistas recentes</h3>
+          <div className="mt-3 flex flex-wrap gap-2">
+            {data.achievements.map((a) => (
+              <span key={a.code} className="rounded-full bg-accent/40 px-3 py-1 font-display text-xs">
+                {a.code}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
 
       <Link to="/perfil"><ChunkyButton tone="ghost" className="w-full">Voltar ao perfil</ChunkyButton></Link>
     </div>
