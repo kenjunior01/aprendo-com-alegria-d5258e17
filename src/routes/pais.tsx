@@ -65,9 +65,15 @@ function ParentDashboard() {
           setProfile(p);
         }
       }
-      const res = await getMyChildren();
-      setChildren(res.children as ChildSummary[]);
-      if (res.children.length > 0) setSelectedChild(res.children[0].id);
+      try {
+        const res = await getMyChildren();
+        const list = (res?.children ?? []) as ChildSummary[];
+        setChildren(list);
+        if (list.length > 0) setSelectedChild(list[0].id);
+      } catch (err) {
+        console.warn("getMyChildren failed", err);
+        setChildren([]);
+      }
     })();
   }, [user, loading, navigate]);
 
