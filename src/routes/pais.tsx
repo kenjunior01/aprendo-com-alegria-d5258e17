@@ -474,6 +474,15 @@ function TutorHistorySection({ childName }: { childName: string }) {
   );
 }
 
+function MiniStat({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-2xl bg-muted/40 p-3 text-center">
+      <p className="text-[10px] uppercase tracking-wide text-muted-foreground">{label}</p>
+      <p className="mt-1 font-display text-lg">{value}</p>
+    </div>
+  );
+}
+
 function KPI({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
   return (
     <div className="rounded-2xl bg-card border border-border p-3 sm:p-4">
