@@ -208,6 +208,35 @@
       radial-gradient(circle at 80% 0%, oklch(0.9 0.08 200 / 0.45), transparent 45%),
       radial-gradient(circle at 50% 100%, oklch(0.92 0.08 145 / 0.4), transparent 50%);
   }
+
+  /* Narrative immersive sky — used on landing & hero areas */
+  .bg-sky-island {
+    background:
+      radial-gradient(ellipse at top, oklch(0.94 0.08 220 / 0.7), transparent 55%),
+      radial-gradient(ellipse at bottom right, oklch(0.93 0.09 30 / 0.55), transparent 50%),
+      radial-gradient(ellipse at bottom left, oklch(0.94 0.09 145 / 0.5), transparent 55%),
+      linear-gradient(to bottom, oklch(0.97 0.02 220), oklch(0.985 0.015 95));
+  }
+
+  .text-shadow-soft {
+    text-shadow: 0 2px 0 color-mix(in oklab, currentColor 18%, transparent);
+  }
+
+  /* Used to outline mascot/cards floating in the scene */
+  .ring-soft {
+    box-shadow:
+      0 0 0 4px oklch(1 0 0 / 0.7),
+      0 18px 30px -12px oklch(0.4 0.05 260 / 0.25);
+  }
+}
+
+@keyframes float-slow {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-12px) rotate(2deg); }
+}
+
+.animate-float-slow {
+  animation: float-slow 6s ease-in-out infinite;
 }
 
 @keyframes bounce-soft {
