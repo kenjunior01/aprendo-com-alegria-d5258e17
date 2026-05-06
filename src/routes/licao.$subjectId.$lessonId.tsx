@@ -161,6 +161,34 @@ function LessonPage() {
           <Stat label="XP" value={`+${xpEarned}`} />
           <Stat label="Abracadinhos" value={`+${coinsEarned}`} icon={<Coins className="h-4 w-4 text-xp" />} />
         </div>
+
+        {newAchievements.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 12, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ delay: 0.3, type: "spring", stiffness: 200, damping: 18 }}
+            className="mt-6 w-full max-w-md rounded-3xl border-2 border-primary bg-gradient-to-br from-primary/15 to-secondary/15 p-4 text-left card-chunky"
+          >
+            <div className="mb-2 flex items-center gap-2">
+              <Trophy className="h-5 w-5 text-primary" />
+              <h2 className="font-display text-lg">
+                {newAchievements.length === 1 ? "Nova conquista!" : `${newAchievements.length} novas conquistas!`}
+              </h2>
+            </div>
+            <ul className="space-y-1.5">
+              {newAchievements.map((a) => (
+                <li key={a.code} className="flex items-center justify-between gap-3 text-sm">
+                  <span className="font-semibold">🏅 {a.title}</span>
+                  <span className="shrink-0 text-xs font-semibold text-secondary">+{a.coin_reward} 🪙</span>
+                </li>
+              ))}
+            </ul>
+            <Link to="/conquistas" className="mt-3 block text-center text-xs font-semibold text-primary underline">
+              Ver todas as conquistas →
+            </Link>
+          </motion.div>
+        )}
+
         <p className="mt-6 max-w-md text-sm italic text-muted-foreground sm:text-base">
           💬 “{getMascot(profile.mascot).encourage}”
         </p>
