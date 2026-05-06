@@ -38,8 +38,13 @@ function ParentDashboard() {
   const [dashboard, setDashboard] = useState<ParentDashboardData | null>(null);
   const [acceptCode, setAcceptCode] = useState("");
   const [acceptMsg, setAcceptMsg] = useState<string | null>(null);
+  const [unlocked, setUnlocked] = useState(false);
 
   useEffect(() => {
+    if (typeof window === "undefined") return;
+    const ts = Number(sessionStorage.getItem(GATE_KEY) ?? 0);
+    if (ts && Date.now() - ts < GATE_TTL_MIN * 60_000) setUnlocked(true);
+  }, []);
     if (loading) return;
     if (!user) {
       navigate({ to: "/auth", search: { mode: "parent" } as never });
