@@ -9,12 +9,14 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TutorRouteImport } from './routes/tutor'
 import { Route as RaRouteImport } from './routes/ra'
 import { Route as PremiumRouteImport } from './routes/premium'
 import { Route as PerfilRouteImport } from './routes/perfil'
 import { Route as PaisRouteImport } from './routes/pais'
 import { Route as LojaRouteImport } from './routes/loja'
 import { Route as LeituraRouteImport } from './routes/leitura'
+import { Route as JardimRouteImport } from './routes/jardim'
 import { Route as ConquistasRouteImport } from './routes/conquistas'
 import { Route as ComecarRouteImport } from './routes/comecar'
 import { Route as AuthRouteImport } from './routes/auth'
@@ -23,6 +25,11 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as CapituloChapterIdRouteImport } from './routes/capitulo.$chapterId'
 import { Route as LicaoSubjectIdLessonIdRouteImport } from './routes/licao.$subjectId.$lessonId'
 
+const TutorRoute = TutorRouteImport.update({
+  id: '/tutor',
+  path: '/tutor',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RaRoute = RaRouteImport.update({
   id: '/ra',
   path: '/ra',
@@ -51,6 +58,11 @@ const LojaRoute = LojaRouteImport.update({
 const LeituraRoute = LeituraRouteImport.update({
   id: '/leitura',
   path: '/leitura',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const JardimRoute = JardimRouteImport.update({
+  id: '/jardim',
+  path: '/jardim',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ConquistasRoute = ConquistasRouteImport.update({
@@ -95,12 +107,14 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/comecar': typeof ComecarRoute
   '/conquistas': typeof ConquistasRoute
+  '/jardim': typeof JardimRoute
   '/leitura': typeof LeituraRoute
   '/loja': typeof LojaRoute
   '/pais': typeof PaisRoute
   '/perfil': typeof PerfilRoute
   '/premium': typeof PremiumRoute
   '/ra': typeof RaRoute
+  '/tutor': typeof TutorRoute
   '/capitulo/$chapterId': typeof CapituloChapterIdRoute
   '/licao/$subjectId/$lessonId': typeof LicaoSubjectIdLessonIdRoute
 }
@@ -110,12 +124,14 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/comecar': typeof ComecarRoute
   '/conquistas': typeof ConquistasRoute
+  '/jardim': typeof JardimRoute
   '/leitura': typeof LeituraRoute
   '/loja': typeof LojaRoute
   '/pais': typeof PaisRoute
   '/perfil': typeof PerfilRoute
   '/premium': typeof PremiumRoute
   '/ra': typeof RaRoute
+  '/tutor': typeof TutorRoute
   '/capitulo/$chapterId': typeof CapituloChapterIdRoute
   '/licao/$subjectId/$lessonId': typeof LicaoSubjectIdLessonIdRoute
 }
@@ -126,12 +142,14 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/comecar': typeof ComecarRoute
   '/conquistas': typeof ConquistasRoute
+  '/jardim': typeof JardimRoute
   '/leitura': typeof LeituraRoute
   '/loja': typeof LojaRoute
   '/pais': typeof PaisRoute
   '/perfil': typeof PerfilRoute
   '/premium': typeof PremiumRoute
   '/ra': typeof RaRoute
+  '/tutor': typeof TutorRoute
   '/capitulo/$chapterId': typeof CapituloChapterIdRoute
   '/licao/$subjectId/$lessonId': typeof LicaoSubjectIdLessonIdRoute
 }
@@ -143,12 +161,14 @@ export interface FileRouteTypes {
     | '/auth'
     | '/comecar'
     | '/conquistas'
+    | '/jardim'
     | '/leitura'
     | '/loja'
     | '/pais'
     | '/perfil'
     | '/premium'
     | '/ra'
+    | '/tutor'
     | '/capitulo/$chapterId'
     | '/licao/$subjectId/$lessonId'
   fileRoutesByTo: FileRoutesByTo
@@ -158,12 +178,14 @@ export interface FileRouteTypes {
     | '/auth'
     | '/comecar'
     | '/conquistas'
+    | '/jardim'
     | '/leitura'
     | '/loja'
     | '/pais'
     | '/perfil'
     | '/premium'
     | '/ra'
+    | '/tutor'
     | '/capitulo/$chapterId'
     | '/licao/$subjectId/$lessonId'
   id:
@@ -173,12 +195,14 @@ export interface FileRouteTypes {
     | '/auth'
     | '/comecar'
     | '/conquistas'
+    | '/jardim'
     | '/leitura'
     | '/loja'
     | '/pais'
     | '/perfil'
     | '/premium'
     | '/ra'
+    | '/tutor'
     | '/capitulo/$chapterId'
     | '/licao/$subjectId/$lessonId'
   fileRoutesById: FileRoutesById
@@ -189,18 +213,27 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   ComecarRoute: typeof ComecarRoute
   ConquistasRoute: typeof ConquistasRoute
+  JardimRoute: typeof JardimRoute
   LeituraRoute: typeof LeituraRoute
   LojaRoute: typeof LojaRoute
   PaisRoute: typeof PaisRoute
   PerfilRoute: typeof PerfilRoute
   PremiumRoute: typeof PremiumRoute
   RaRoute: typeof RaRoute
+  TutorRoute: typeof TutorRoute
   CapituloChapterIdRoute: typeof CapituloChapterIdRoute
   LicaoSubjectIdLessonIdRoute: typeof LicaoSubjectIdLessonIdRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/tutor': {
+      id: '/tutor'
+      path: '/tutor'
+      fullPath: '/tutor'
+      preLoaderRoute: typeof TutorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/ra': {
       id: '/ra'
       path: '/ra'
@@ -241,6 +274,13 @@ declare module '@tanstack/react-router' {
       path: '/leitura'
       fullPath: '/leitura'
       preLoaderRoute: typeof LeituraRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/jardim': {
+      id: '/jardim'
+      path: '/jardim'
+      fullPath: '/jardim'
+      preLoaderRoute: typeof JardimRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/conquistas': {
@@ -301,15 +341,26 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   ComecarRoute: ComecarRoute,
   ConquistasRoute: ConquistasRoute,
+  JardimRoute: JardimRoute,
   LeituraRoute: LeituraRoute,
   LojaRoute: LojaRoute,
   PaisRoute: PaisRoute,
   PerfilRoute: PerfilRoute,
   PremiumRoute: PremiumRoute,
   RaRoute: RaRoute,
+  TutorRoute: TutorRoute,
   CapituloChapterIdRoute: CapituloChapterIdRoute,
   LicaoSubjectIdLessonIdRoute: LicaoSubjectIdLessonIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}
