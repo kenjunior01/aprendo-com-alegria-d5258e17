@@ -45,6 +45,15 @@ function Landing() {
 
       <div className="relative mx-auto flex min-h-[100dvh] max-w-5xl flex-col items-center justify-center px-5 py-10 text-center sm:px-6 sm:py-12">
         <motion.div
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ type: "spring", stiffness: 200, damping: 15 }}
+          className="mb-3"
+        >
+          <KidozLogo priority className="h-20 w-auto sm:h-24 md:h-28" alt="Kidoz — Aprender a brincar" />
+        </motion.div>
+
+        <motion.div
           initial={{ y: -20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.5 }}
