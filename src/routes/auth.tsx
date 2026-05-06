@@ -69,21 +69,21 @@ function AuthPage() {
     }
   };
 
-  const handleGoogle = async () => {
+  const handleOAuth = async (provider: "google" | "apple") => {
     setError(null);
     try {
-      const result = await lovable.auth.signInWithOAuth("google", {
+      const result = await lovable.auth.signInWithOAuth(provider, {
         redirect_uri: `${window.location.origin}/app`,
       });
       if (result.error) {
-        setError("Não foi possível entrar com Google. Tenta outra vez.");
+        setError(`Não foi possível entrar com ${provider === "google" ? "Google" : "Apple"}. Tenta outra vez.`);
         return;
       }
       if (result.redirected) return;
       await pullProfileFromCloud();
       navigate({ to: "/app" });
     } catch {
-      setError("Não foi possível entrar com Google.");
+      setError(`Não foi possível entrar com ${provider === "google" ? "Google" : "Apple"}.`);
     }
   };
 
