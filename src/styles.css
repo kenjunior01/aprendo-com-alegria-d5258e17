@@ -172,6 +172,11 @@
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
     overscroll-behavior-y: none;
+    /* Slightly larger base type for kids 6-10 (proposal §1.2) */
+    font-size: 17px;
+  }
+  @media (min-width: 640px) {
+    html, body { font-size: 16px; }
   }
 
   /* Larger touch targets on mobile */
