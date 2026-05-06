@@ -1,5 +1,5 @@
 import { Link, useLocation } from "@tanstack/react-router";
-import { Map as MapIcon, ShoppingBag, User, BarChart3 } from "lucide-react";
+import { Map as MapIcon, ShoppingBag, User, BarChart3, Trophy } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
 import { loadProfile } from "@/lib/storage";
