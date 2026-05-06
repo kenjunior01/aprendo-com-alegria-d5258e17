@@ -231,6 +231,8 @@ function ARPage() {
         <p className="mt-3 text-center text-xs text-muted-foreground">
           {activeLabel} · Toca no botão para colocar no teu mundo (precisa de telemóvel com câmara)
         </p>
+          </>
+        )}
 
         <div className="mt-6 grid gap-3 sm:grid-cols-2">
           <Link to="/app">
