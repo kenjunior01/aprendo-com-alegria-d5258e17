@@ -120,6 +120,17 @@ export const completeLesson = (result: LessonResult): Profile => {
   };
   saveProfile(next);
   void recordSession(result, xpEarned, coinsEarned);
+  // Atualiza missões diárias (lição feita + acertos + minutos)
+  if (typeof window !== "undefined") {
+    void import("./dailyMissions").then(({ applyProgress }) => {
+      applyProgress({
+        subject: result.subjectId,
+        lessonsDelta: 1,
+        correctDelta: result.correct,
+        minutesDelta: Math.max(1, Math.round(result.durationSeconds / 60)),
+      });
+    });
+  }
   return next;
 };
 
