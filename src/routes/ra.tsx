@@ -69,7 +69,7 @@ const MODELS: Record<MascotId, { src: string; label: string }> = {
 function ARPage() {
   const navigate = useNavigate();
   const [profile, setProfile] = useState<Profile | null>(null);
-  const [tab, setTab] = useState<"mascot" | "lab">("mascot");
+  const [tab, setTab] = useState<"mascot" | "lab" | "missions">("mascot");
   const [selected, setSelected] = useState<MascotId>("fox");
   const [labSelected, setLabSelected] = useState<LabModelId>("astronaut");
   const [loaded, setLoaded] = useState(false);
@@ -101,6 +101,11 @@ function ARPage() {
   const activeSrc = tab === "mascot" ? mascotModel.src : labModel.src;
   const activeLabel = tab === "mascot" ? mascotModel.label : labModel.label;
   const activeKey = tab === "mascot" ? `mascot-${selected}` : `lab-${labSelected}`;
+  const grantReward = (xp: number, coins: number) => {
+    if (!profile) return;
+    const next = updateProfile({ xp: profile.xp + xp, coins: profile.coins + coins });
+    setProfile(next);
+  };
 
   return (
     <div className="min-h-[100dvh] bg-background pb-24 md:pb-12">
