@@ -53,7 +53,12 @@ function ReadingPage() {
   const phrase = phrases[phraseIndex % phrases.length];
 
   const handleResult = (matched: boolean) => {
-    if (matched) setScore((s) => s + 1);
+    if (matched) {
+      setScore((s) => s + 1);
+      void import("@/lib/dailyMissions").then(({ applyProgress }) => {
+        applyProgress({ subject: "leitura", readsDelta: 1 });
+      });
+    }
   };
 
   const next = () => setPhraseIndex((i) => i + 1);
