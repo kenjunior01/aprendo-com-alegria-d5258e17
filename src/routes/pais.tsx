@@ -332,24 +332,58 @@ function DashboardView({ data }: { data: ParentDashboardData }) {
         </div>
       </div>
 
-      {/* Daily activity */}
+      {/* Daily activity — detailed minutes + accuracy + streak */}
       <div className="card-chunky rounded-3xl border border-border bg-card p-5">
-        <h3 className="font-display text-lg">Atividade diária (14 dias)</h3>
-        <div className="mt-4 flex h-32 items-end gap-1.5">
-          {data.byDay.map((d) => {
-            const max = Math.max(1, ...data.byDay.map((x) => x.minutes));
-            const h = (d.minutes / max) * 100;
-            return (
-              <div key={d.date} className="flex flex-1 flex-col items-center gap-1" title={`${d.date}: ${d.minutes}min`}>
-                <div className="flex w-full flex-1 items-end">
-                  <div className={`w-full rounded-t-md transition-all ${d.minutes > 0 ? "bg-primary" : "bg-muted"}`} style={{ height: `${Math.max(h, d.minutes > 0 ? 8 : 4)}%` }} />
-                </div>
-                <span className="text-[9px] text-muted-foreground">{d.date.slice(8)}</span>
-              </div>
-            );
-          })}
+        <div className="flex flex-wrap items-baseline justify-between gap-2">
+          <h3 className="font-display text-lg">Tempo de estudo (14 dias)</h3>
+          <div className="flex gap-3 text-xs text-muted-foreground">
+            <span className="flex items-center gap-1"><span className="inline-block h-2.5 w-2.5 rounded-sm bg-primary" /> minutos</span>
+            <span className="flex items-center gap-1"><span className="inline-block h-2.5 w-2.5 rounded-sm bg-success" /> precisão</span>
+          </div>
         </div>
+        {(() => {
+          const maxMin = Math.max(1, ...data.byDay.map((x) => x.minutes));
+          const activeDays = data.byDay.filter((d) => d.minutes > 0).length;
+          // Current streak = trailing consecutive days with minutes>0
+          let curStreak = 0;
+          for (let i = data.byDay.length - 1; i >= 0; i--) {
+            if (data.byDay[i].minutes > 0) curStreak++; else break;
+          }
+          // Best streak in window
+          let best = 0, run = 0;
+          for (const d of data.byDay) { if (d.minutes > 0) { run++; best = Math.max(best, run); } else { run = 0; } }
+          const totalMin = data.byDay.reduce((s, d) => s + d.minutes, 0);
+          const avgMin = activeDays ? Math.round(totalMin / activeDays) : 0;
+          return (
+            <>
+              <div className="mt-4 flex h-40 items-end gap-1.5">
+                {data.byDay.map((d) => {
+                  const h = (d.minutes / maxMin) * 100;
+                  const acc = d.total > 0 ? Math.round((d.correct / d.total) * 100) : 0;
+                  return (
+                    <div key={d.date} className="group relative flex flex-1 flex-col items-center gap-1" title={`${d.date}\n${d.minutes} min\n${acc}% precisão (${d.correct}/${d.total})`}>
+                      <div className="relative flex w-full flex-1 items-end">
+                        <div className={`w-full rounded-t-md transition-all ${d.minutes > 0 ? "bg-primary" : "bg-muted"}`} style={{ height: `${Math.max(h, d.minutes > 0 ? 8 : 4)}%` }} />
+                        {d.total > 0 && (
+                          <div className="absolute inset-x-0 bottom-0 mx-auto h-1 rounded-full bg-success" style={{ width: `${Math.max(10, acc)}%` }} />
+                        )}
+                      </div>
+                      <span className="text-[9px] text-muted-foreground">{d.date.slice(8)}</span>
+                    </div>
+                  );
+                })}
+              </div>
+              <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
+                <MiniStat label="Total" value={`${totalMin} min`} />
+                <MiniStat label="Média / dia ativo" value={`${avgMin} min`} />
+                <MiniStat label="Sequência atual" value={`🔥 ${curStreak}d`} />
+                <MiniStat label="Melhor (14d)" value={`⭐ ${best}d`} />
+              </div>
+            </>
+          );
+        })()}
       </div>
+
 
       {/* By weekday */}
       <div className="card-chunky rounded-3xl border border-border bg-card p-5">
