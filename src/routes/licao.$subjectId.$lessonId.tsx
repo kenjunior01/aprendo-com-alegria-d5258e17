@@ -356,8 +356,26 @@ function LessonPage() {
           className="fixed inset-x-0 bottom-0 z-20 border-t border-border bg-card/95 backdrop-blur"
           style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
         >
-          <div className="mx-auto flex max-w-2xl px-4 py-3 sm:py-4">
-            <ChunkyButton onClick={onCheck} disabled={selected === null} className="w-full sm:ml-auto sm:w-auto">
+          <div className="mx-auto flex max-w-2xl items-center gap-2 px-4 py-3 sm:py-4">
+            {voiceEnabled && (
+              <button
+                type="button"
+                onClick={voice.listening ? voice.stop : voice.start}
+                aria-label={voice.listening ? "A ouvir" : "Responder por voz"}
+                className={cn(
+                  "flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border-2 transition-all active:scale-95",
+                  voice.listening
+                    ? "animate-pulse border-destructive bg-destructive/15 text-destructive"
+                    : "border-border bg-card text-primary hover:border-primary",
+                )}
+              >
+                <Mic className="h-6 w-6" strokeWidth={2.5} />
+              </button>
+            )}
+            {voiceEnabled && voice.error && (
+              <p className="hidden text-xs text-muted-foreground sm:inline">{voice.error}</p>
+            )}
+            <ChunkyButton onClick={onCheck} disabled={selected === null} className="ml-auto w-full sm:w-auto">
               Verificar
             </ChunkyButton>
           </div>
