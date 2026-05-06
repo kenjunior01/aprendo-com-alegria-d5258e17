@@ -377,7 +377,7 @@ export const setChildControls = createServerFn({ method: "POST" })
     if (!(await assertLinked(userId, data.childId))) {
       return { ok: false as const, reason: "not_linked" as const };
     }
-    const patch: Record<string, unknown> = {};
+    const patch: { parent_pin?: string | null; daily_limit_min?: number | null; bedtime_hour?: number | null } = {};
     if (data.parentPin !== undefined) patch.parent_pin = data.parentPin;
     if (data.dailyLimitMin !== undefined) patch.daily_limit_min = data.dailyLimitMin;
     if (data.bedtimeHour !== undefined) patch.bedtime_hour = data.bedtimeHour;
