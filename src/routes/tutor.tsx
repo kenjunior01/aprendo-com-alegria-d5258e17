@@ -197,10 +197,19 @@ function TutorChat() {
                 </motion.div>
               ))}
             </AnimatePresence>
-            {loading && (
+            {streaming && (
+              <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="flex justify-start">
+                <div className="max-w-[85%] rounded-2xl rounded-bl-sm bg-muted px-4 py-2.5 text-sm leading-relaxed sm:text-base">
+                  {streaming}
+                  <span className="ml-0.5 inline-block h-3 w-1.5 animate-pulse bg-foreground/60 align-middle" />
+                </div>
+              </motion.div>
+            )}
+            {loading && !streaming && (
               <div className="flex justify-start">
                 <div className="rounded-2xl bg-muted px-4 py-2.5 text-sm">
-                  <span className="inline-flex gap-1">
+                  <span className="mr-2 font-display text-xs text-muted-foreground">Mocha está a pensar</span>
+                  <span className="inline-flex gap-1 align-middle">
                     <span className="h-2 w-2 animate-bounce rounded-full bg-foreground/40" style={{ animationDelay: "0ms" }} />
                     <span className="h-2 w-2 animate-bounce rounded-full bg-foreground/40" style={{ animationDelay: "150ms" }} />
                     <span className="h-2 w-2 animate-bounce rounded-full bg-foreground/40" style={{ animationDelay: "300ms" }} />
