@@ -47,6 +47,9 @@ function Onboarding() {
   return (
     <main className="bg-paper min-h-[100dvh] px-4 py-8 sm:py-10">
       <div className="mx-auto max-w-2xl">
+        <div className="mb-4 flex justify-center">
+          <KidozLogo priority className="h-12 w-auto sm:h-14" />
+        </div>
         <div className="mb-8 flex justify-center gap-2">
           {Array.from({ length: STEPS_TOTAL }).map((_, i) => (
             <span
