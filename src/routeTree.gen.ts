@@ -25,6 +25,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as CapituloChapterIdRouteImport } from './routes/capitulo.$chapterId'
 import { Route as LicaoSubjectIdLessonIdRouteImport } from './routes/licao.$subjectId.$lessonId'
 import { Route as ApiPublicTutorStreamRouteImport } from './routes/api/public/tutor-stream'
+import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
 
 const TutorRoute = TutorRouteImport.update({
   id: '/tutor',
@@ -106,6 +107,12 @@ const ApiPublicTutorStreamRoute = ApiPublicTutorStreamRouteImport.update({
   path: '/api/public/tutor-stream',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LovableEmailQueueProcessRoute =
+  LovableEmailQueueProcessRouteImport.update({
+    id: '/lovable/email/queue/process',
+    path: '/lovable/email/queue/process',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -124,6 +131,7 @@ export interface FileRoutesByFullPath {
   '/capitulo/$chapterId': typeof CapituloChapterIdRoute
   '/api/public/tutor-stream': typeof ApiPublicTutorStreamRoute
   '/licao/$subjectId/$lessonId': typeof LicaoSubjectIdLessonIdRoute
+  '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -142,6 +150,7 @@ export interface FileRoutesByTo {
   '/capitulo/$chapterId': typeof CapituloChapterIdRoute
   '/api/public/tutor-stream': typeof ApiPublicTutorStreamRoute
   '/licao/$subjectId/$lessonId': typeof LicaoSubjectIdLessonIdRoute
+  '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -161,6 +170,7 @@ export interface FileRoutesById {
   '/capitulo/$chapterId': typeof CapituloChapterIdRoute
   '/api/public/tutor-stream': typeof ApiPublicTutorStreamRoute
   '/licao/$subjectId/$lessonId': typeof LicaoSubjectIdLessonIdRoute
+  '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -181,6 +191,7 @@ export interface FileRouteTypes {
     | '/capitulo/$chapterId'
     | '/api/public/tutor-stream'
     | '/licao/$subjectId/$lessonId'
+    | '/lovable/email/queue/process'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -199,6 +210,7 @@ export interface FileRouteTypes {
     | '/capitulo/$chapterId'
     | '/api/public/tutor-stream'
     | '/licao/$subjectId/$lessonId'
+    | '/lovable/email/queue/process'
   id:
     | '__root__'
     | '/'
@@ -217,6 +229,7 @@ export interface FileRouteTypes {
     | '/capitulo/$chapterId'
     | '/api/public/tutor-stream'
     | '/licao/$subjectId/$lessonId'
+    | '/lovable/email/queue/process'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -236,6 +249,7 @@ export interface RootRouteChildren {
   CapituloChapterIdRoute: typeof CapituloChapterIdRoute
   ApiPublicTutorStreamRoute: typeof ApiPublicTutorStreamRoute
   LicaoSubjectIdLessonIdRoute: typeof LicaoSubjectIdLessonIdRoute
+  LovableEmailQueueProcessRoute: typeof LovableEmailQueueProcessRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -352,6 +366,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicTutorStreamRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/lovable/email/queue/process': {
+      id: '/lovable/email/queue/process'
+      path: '/lovable/email/queue/process'
+      fullPath: '/lovable/email/queue/process'
+      preLoaderRoute: typeof LovableEmailQueueProcessRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -372,6 +393,7 @@ const rootRouteChildren: RootRouteChildren = {
   CapituloChapterIdRoute: CapituloChapterIdRoute,
   ApiPublicTutorStreamRoute: ApiPublicTutorStreamRoute,
   LicaoSubjectIdLessonIdRoute: LicaoSubjectIdLessonIdRoute,
+  LovableEmailQueueProcessRoute: LovableEmailQueueProcessRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
