@@ -85,6 +85,8 @@ function AppHome() {
           </div>
         </motion.section>
 
+        <AdaptiveTip />
+
         {/* Chapters as a vertical journey */}
         <div className="relative">
           {/* connector line */}
