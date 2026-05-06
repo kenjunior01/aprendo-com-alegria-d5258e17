@@ -148,8 +148,20 @@ function ARPage() {
           >
             <FlaskConical className="mr-1 inline h-3.5 w-3.5" /> Laboratório
           </button>
+          <button
+            onClick={() => setTab("missions")}
+            className={`rounded-full px-4 py-1.5 font-display text-sm transition-colors ${tab === "missions" ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
+          >
+            <Target className="mr-1 inline h-3.5 w-3.5" /> Mini-missões
+          </button>
         </div>
 
+        {tab === "missions" ? (
+          <div className="mt-4">
+            <LabMissionsPanel onReward={grantReward} />
+          </div>
+        ) : (
+          <>
         {/* Picker */}
         <div className="mt-3 flex flex-wrap gap-2">
           {tab === "mascot"
