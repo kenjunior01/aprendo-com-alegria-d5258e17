@@ -193,6 +193,19 @@ export function VoiceReader({ expected, onResult, className }: Props) {
             {allOk ? `Perfeito! 🎉 (${accuracy}%)` : `Fluência: ${accuracy}% — ${accuracy! >= 70 ? "quase!" : "tenta outra vez"}`}
           </div>
           {transcript && <p className="mt-1 italic text-foreground/70">Ouvi: “{transcript}”</p>}
+          {!allOk && matches && (
+            <ul className="mt-2 space-y-1 text-left">
+              {expTokens.map((word, i) => {
+                if (matches[i]) return null;
+                const hint = phoneticHint(word, transcript);
+                return (
+                  <li key={i} className="rounded-lg bg-card/60 px-2 py-1 text-xs">
+                    🔊 <strong>{word}</strong> — {hint ?? "tenta de novo"}
+                  </li>
+                );
+              })}
+            </ul>
+          )}
         </motion.div>
       )}
     </div>
