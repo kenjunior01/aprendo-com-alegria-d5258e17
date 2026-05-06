@@ -1,13 +1,15 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { TopBar } from "@/components/TopBar";
 import { BottomNav } from "@/components/BottomNav";
 import { ChunkyButton } from "@/components/ChunkyButton";
-import { loadProfile, type Profile } from "@/lib/storage";
+import { loadProfile, updateProfile, type Profile } from "@/lib/storage";
 import { gardenState, progressToNext, LEVEL_NAMES } from "@/lib/garden";
-import { ArrowLeft, Sparkles, Lock } from "lucide-react";
+import { loadMissions, claimMission, dailyMissionStats, type DailyMissionsState } from "@/lib/dailyMissions";
+import { ArrowLeft, Sparkles, Lock, Gift, CheckCircle2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import confetti from "canvas-confetti";
 
 export const Route = createFileRoute("/jardim")({
   head: () => ({
