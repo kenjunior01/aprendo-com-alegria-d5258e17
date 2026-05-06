@@ -74,6 +74,101 @@ function GardenPage() {
           </div>
         </motion.section>
 
+        {/* Missões Diárias */}
+        <motion.section
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.05 }}
+          className="card-chunky mt-5 rounded-3xl border border-border bg-card p-5"
+        >
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <Gift className="h-5 w-5 text-primary" />
+              <h2 className="font-display text-lg">Missões de hoje</h2>
+            </div>
+            <span className="font-display text-xs text-muted-foreground">
+              {stats.completed}/{stats.total} concluídas
+            </span>
+          </div>
+          <div className="mt-2 h-2 overflow-hidden rounded-full bg-muted">
+            <motion.div
+              className="h-full rounded-full bg-gradient-to-r from-success via-primary to-secondary"
+              initial={{ width: 0 }}
+              animate={{ width: `${stats.pct * 100}%` }}
+              transition={{ duration: 0.6 }}
+            />
+          </div>
+          <div className="mt-4 grid gap-2 sm:grid-cols-2">
+            <AnimatePresence>
+              {missions.missions.map((m) => {
+                const prog = missions.progress[m.id] ?? 0;
+                const done = prog >= m.target;
+                const claimed = missions.claimed.includes(m.id);
+                const pct = Math.min(1, prog / m.target);
+                return (
+                  <motion.div
+                    key={m.id}
+                    layout
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className={cn(
+                      "rounded-2xl border-2 p-3 transition-colors",
+                      claimed ? "border-success/40 bg-success/5"
+                        : done ? "border-primary bg-primary/10"
+                        : "border-border bg-muted/30",
+                    )}
+                  >
+                    <div className="flex items-start gap-2">
+                      <span className="text-2xl">{m.emoji}</span>
+                      <div className="min-w-0 flex-1">
+                        <p className="font-display text-sm leading-tight">{m.title}</p>
+                        <p className="mt-0.5 text-[11px] text-muted-foreground">{m.description}</p>
+                      </div>
+                      {claimed && <CheckCircle2 className="h-4 w-4 text-success" />}
+                    </div>
+                    <div className="mt-2 flex items-center gap-2">
+                      <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-background">
+                        <div
+                          className={cn("h-full rounded-full transition-all", done ? "bg-success" : "bg-primary")}
+                          style={{ width: `${pct * 100}%` }}
+                        />
+                      </div>
+                      <span className="font-display text-[10px] text-muted-foreground">{prog}/{m.target}</span>
+                    </div>
+                    <div className="mt-2 flex items-center justify-between gap-2">
+                      <span className="font-display text-[11px] text-muted-foreground">
+                        🪙 {m.rewardCoins} · ⭐ {m.rewardXp} XP
+                      </span>
+                      {claimed ? (
+                        <span className="font-display text-[10px] text-success">Recolhido ✓</span>
+                      ) : done ? (
+                        <button
+                          onClick={() => handleClaim(m.id)}
+                          className="btn-chunky rounded-full bg-primary px-3 py-1 font-display text-[11px] text-primary-foreground"
+                        >
+                          Recolher
+                        </button>
+                      ) : (
+                        <Link to={subjectLink(m.subject)} className="font-display text-[11px] text-primary underline">
+                          Começar →
+                        </Link>
+                      )}
+                    </div>
+                    {justClaimed === m.id && (
+                      <motion.p initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} className="mt-1 text-center font-display text-[10px] text-success">
+                        +{m.rewardCoins} 🪙 +{m.rewardXp} ⭐
+                      </motion.p>
+                    )}
+                  </motion.div>
+                );
+              })}
+            </AnimatePresence>
+          </div>
+          <p className="mt-3 text-center text-[10px] text-muted-foreground">
+            🌅 Novas missões todos os dias — completa-as para o teu jardim crescer mais depressa.
+          </p>
+        </motion.section>
+
         {/* The garden scene */}
         <div
           className="card-chunky relative mt-5 overflow-hidden rounded-3xl border-2 border-border"
