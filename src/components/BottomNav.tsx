@@ -1,20 +1,27 @@
 import { Link, useLocation } from "@tanstack/react-router";
-import { Home, User, LogIn } from "lucide-react";
+import { Map as MapIcon, ShoppingBag, User, BarChart3 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
+import { loadProfile } from "@/lib/storage";
 
 export function BottomNav() {
   const location = useLocation();
-  const { user } = useAuth();
+  useAuth();
   const path = location.pathname;
+  const profile = typeof window !== "undefined" ? loadProfile() : null;
+  const isParent = profile?.role === "parent";
 
-  const items = [
-    { to: "/app", label: "Jornada", icon: Home, match: (p: string) => p.startsWith("/app") || p.startsWith("/licao") },
-    { to: "/perfil", label: "Perfil", icon: User, match: (p: string) => p.startsWith("/perfil") },
-    user
-      ? { to: "/perfil", label: "Conta", icon: User, match: () => false, hidden: true as const }
-      : { to: "/auth", label: "Entrar", icon: LogIn, match: (p: string) => p.startsWith("/auth") },
-  ];
+  type NavItem = { to: string; label: string; icon: typeof MapIcon; match: (p: string) => boolean };
+  const items: NavItem[] = isParent
+    ? [
+        { to: "/pais", label: "Painel", icon: BarChart3, match: (p) => p.startsWith("/pais") },
+        { to: "/perfil", label: "Perfil", icon: User, match: (p) => p.startsWith("/perfil") },
+      ]
+    : [
+        { to: "/app", label: "Jornada", icon: MapIcon, match: (p) => p === "/app" || p.startsWith("/licao") || p.startsWith("/capitulo") },
+        { to: "/loja", label: "Loja", icon: ShoppingBag, match: (p) => p.startsWith("/loja") },
+        { to: "/perfil", label: "Perfil", icon: User, match: (p) => p.startsWith("/perfil") },
+      ];
 
   return (
     <nav
@@ -22,11 +29,11 @@ export function BottomNav() {
       style={{ paddingBottom: "max(0.25rem, env(safe-area-inset-bottom))" }}
     >
       <ul className="mx-auto flex max-w-md items-stretch justify-around">
-        {items.filter((i) => !("hidden" in i && i.hidden)).map((item) => {
+        {items.map((item) => {
           const active = item.match(path);
           const Icon = item.icon;
           return (
-            <li key={item.to + item.label} className="flex-1">
+            <li key={item.to} className="flex-1">
               <Link
                 to={item.to}
                 className={cn(
