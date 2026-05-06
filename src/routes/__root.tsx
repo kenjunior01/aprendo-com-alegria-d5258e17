@@ -1,7 +1,13 @@
 import { Outlet, Link, createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
+import { useEffect } from "react";
 import { UsageGuard } from "@/components/UsageGuard";
+import { installServerFnAuthInterceptor } from "@/integrations/supabase/serverFnAuth";
 
 import appCss from "../styles.css?url";
+
+if (typeof window !== "undefined") {
+  installServerFnAuthInterceptor();
+}
 
 function NotFoundComponent() {
   return (
@@ -69,6 +75,9 @@ function RootShell({ children }: { children: React.ReactNode }) {
 }
 
 function RootComponent() {
+  useEffect(() => {
+    installServerFnAuthInterceptor();
+  }, []);
   return (
     <>
       <Outlet />
