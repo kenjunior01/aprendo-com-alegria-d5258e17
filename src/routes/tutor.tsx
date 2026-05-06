@@ -5,8 +5,8 @@ import { TopBar } from "@/components/TopBar";
 import { BottomNav } from "@/components/BottomNav";
 import { Mascot } from "@/components/Mascot";
 import { loadProfile, type Profile } from "@/lib/storage";
-import { chatWithTutor } from "@/server/tutor.functions";
-import { ArrowLeft, Send, Sparkles } from "lucide-react";
+import { appendMessages, getHistory } from "@/lib/tutorHistory";
+import { ArrowLeft, Send, Sparkles, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/tutor")({
