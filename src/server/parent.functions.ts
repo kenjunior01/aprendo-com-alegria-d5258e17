@@ -1,6 +1,8 @@
 // Server function: dados resumidos para o painel de pais
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { z } from "zod";
 
 export interface ParentDashboardData {
   child: { id: string; name: string; mascot: string; grade: number; xp: number; coins: number; streak: number };
@@ -322,3 +324,65 @@ export const getMyChildren = createServerFn({ method: "GET" })
       pending: links.filter((l) => l.status === "pending"),
     };
   });
+
+// ===================== Parental controls (cloud-synced) =====================
+
+const ControlsSchema = z.object({
+  childId: z.string().uuid(),
+  parentPin: z
+    .string()
+    .regex(/^[0-9]{4}$/)
+    .nullable()
+    .optional(),
+  dailyLimitMin: z.number().int().min(0).max(480).nullable().optional(),
+  bedtimeHour: z.number().int().min(0).max(23).nullable().optional(),
+});
+
+async function assertLinked(parentId: string, childId: string): Promise<boolean> {
+  const { data } = await supabaseAdmin
+    .from("parent_links")
+    .select("id")
+    .eq("parent_id", parentId)
+    .eq("child_id", childId)
+    .eq("status", "accepted")
+    .maybeSingle();
+  return !!data;
+}
+
+export const getChildControls = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: { childId: string }) => z.object({ childId: z.string().uuid() }).parse(d))
+  .handler(async ({ data, context }) => {
+    const { userId } = context;
+    if (!(await assertLinked(userId, data.childId))) {
+      return { parentPin: null, dailyLimitMin: null, bedtimeHour: null } as const;
+    }
+    const { data: row } = await supabaseAdmin
+      .from("profiles")
+      .select("parent_pin, daily_limit_min, bedtime_hour")
+      .eq("id", data.childId)
+      .maybeSingle();
+    return {
+      parentPin: (row?.parent_pin as string | null) ?? null,
+      dailyLimitMin: (row?.daily_limit_min as number | null) ?? null,
+      bedtimeHour: (row?.bedtime_hour as number | null) ?? null,
+    };
+  });
+
+export const setChildControls = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => ControlsSchema.parse(d))
+  .handler(async ({ data, context }) => {
+    const { userId } = context;
+    if (!(await assertLinked(userId, data.childId))) {
+      return { ok: false as const, reason: "not_linked" as const };
+    }
+    const patch: { parent_pin?: string | null; daily_limit_min?: number | null; bedtime_hour?: number | null } = {};
+    if (data.parentPin !== undefined) patch.parent_pin = data.parentPin;
+    if (data.dailyLimitMin !== undefined) patch.daily_limit_min = data.dailyLimitMin;
+    if (data.bedtimeHour !== undefined) patch.bedtime_hour = data.bedtimeHour;
+    const { error } = await supabaseAdmin.from("profiles").update(patch).eq("id", data.childId);
+    if (error) return { ok: false as const, reason: "error" as const };
+    return { ok: true as const };
+  });
+

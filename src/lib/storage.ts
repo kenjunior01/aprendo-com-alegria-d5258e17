@@ -191,6 +191,9 @@ async function syncProfileToCloud(p: Profile) {
       equipped_item: p.equippedItem,
       is_premium: p.isPremium,
       role: p.role,
+      parent_pin: p.parentPin ?? null,
+      daily_limit_min: p.dailyLimitMin ?? null,
+      bedtime_hour: p.bedtimeHour ?? null,
     });
   } catch {
     // offline ou sem sessão — ignora
@@ -244,6 +247,9 @@ export async function pullProfileFromCloud(): Promise<Profile | null> {
       isPremium: data.is_premium ?? false,
       role: (data.role as "child" | "parent") ?? "child",
       createdAt: data.created_at ?? new Date().toISOString(),
+      parentPin: (data as { parent_pin?: string | null }).parent_pin ?? null,
+      dailyLimitMin: (data as { daily_limit_min?: number | null }).daily_limit_min ?? null,
+      bedtimeHour: (data as { bedtime_hour?: number | null }).bedtime_hour ?? null,
     };
     const local = loadProfile();
     const merged = mergeProfiles(local, cloudProfile);
@@ -277,6 +283,10 @@ function mergeProfiles(local: Profile | null, cloud: Profile): Profile {
     equippedItem: cloud.equippedItem ?? local.equippedItem,
     isPremium: cloud.isPremium || local.isPremium,
     role: cloud.role || local.role,
+    // Parental controls: cloud is source of truth (set by parent on any device)
+    parentPin: cloud.parentPin ?? local.parentPin ?? null,
+    dailyLimitMin: cloud.dailyLimitMin ?? local.dailyLimitMin ?? null,
+    bedtimeHour: cloud.bedtimeHour ?? local.bedtimeHour ?? null,
   };
 }
 

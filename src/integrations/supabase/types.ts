@@ -221,9 +221,11 @@ export type Database = {
       profiles: {
         Row: {
           age: number
+          bedtime_hour: number | null
           coins: number
           completed_lessons: string[]
           created_at: string
+          daily_limit_min: number | null
           equipped_item: string | null
           gems: number
           grade: number
@@ -234,6 +236,7 @@ export type Database = {
           mascot: string
           name: string
           owned_items: string[]
+          parent_pin: string | null
           role: string
           streak: number
           updated_at: string
@@ -241,9 +244,11 @@ export type Database = {
         }
         Insert: {
           age?: number
+          bedtime_hour?: number | null
           coins?: number
           completed_lessons?: string[]
           created_at?: string
+          daily_limit_min?: number | null
           equipped_item?: string | null
           gems?: number
           grade?: number
@@ -254,6 +259,7 @@ export type Database = {
           mascot?: string
           name?: string
           owned_items?: string[]
+          parent_pin?: string | null
           role?: string
           streak?: number
           updated_at?: string
@@ -261,9 +267,11 @@ export type Database = {
         }
         Update: {
           age?: number
+          bedtime_hour?: number | null
           coins?: number
           completed_lessons?: string[]
           created_at?: string
+          daily_limit_min?: number | null
           equipped_item?: string | null
           gems?: number
           grade?: number
@@ -274,6 +282,7 @@ export type Database = {
           mascot?: string
           name?: string
           owned_items?: string[]
+          parent_pin?: string | null
           role?: string
           streak?: number
           updated_at?: string

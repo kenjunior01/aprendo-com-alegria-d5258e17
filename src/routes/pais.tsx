@@ -9,7 +9,7 @@ import { loadProfile, pullProfileFromCloud, updateProfile, type Profile } from "
 import { getTodayMinutes } from "@/lib/usageTracker";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
-import { getMyChildren, createParentInvite, acceptParentInvite, getChildDashboard, type ParentDashboardData } from "@/server/parent.functions";
+import { getMyChildren, createParentInvite, acceptParentInvite, getChildDashboard, getChildControls, setChildControls, type ParentDashboardData } from "@/server/parent.functions";
 import { listChildren as listTutorChildren, type TutorHistory } from "@/lib/tutorHistory";
 import { Copy, LogOut, Plus, BarChart3, Clock, Target, Flame, MessageCircle, ShieldCheck, Moon, Hourglass } from "lucide-react";
 
@@ -65,9 +65,15 @@ function ParentDashboard() {
           setProfile(p);
         }
       }
-      const res = await getMyChildren();
-      setChildren(res.children as ChildSummary[]);
-      if (res.children.length > 0) setSelectedChild(res.children[0].id);
+      try {
+        const res = await getMyChildren();
+        const list = (res?.children ?? []) as ChildSummary[];
+        setChildren(list);
+        if (list.length > 0) setSelectedChild(list[0].id);
+      } catch (err) {
+        console.warn("getMyChildren failed", err);
+        setChildren([]);
+      }
     })();
   }, [user, loading, navigate]);
 
@@ -186,8 +192,12 @@ function ParentDashboard() {
               </div>
             )}
 
-            <ParentControlsCard profile={profile} onChange={setProfile} />
-
+            {selectedChild && (
+              <ChildControlsCard
+                childId={selectedChild}
+                childName={children.find((c) => c.id === selectedChild)?.name ?? ""}
+              />
+            )}
             {dashboard && <DashboardView data={dashboard} />}
           </>
         )}
@@ -322,24 +332,58 @@ function DashboardView({ data }: { data: ParentDashboardData }) {
         </div>
       </div>
 
-      {/* Daily activity */}
+      {/* Daily activity — detailed minutes + accuracy + streak */}
       <div className="card-chunky rounded-3xl border border-border bg-card p-5">
-        <h3 className="font-display text-lg">Atividade diária (14 dias)</h3>
-        <div className="mt-4 flex h-32 items-end gap-1.5">
-          {data.byDay.map((d) => {
-            const max = Math.max(1, ...data.byDay.map((x) => x.minutes));
-            const h = (d.minutes / max) * 100;
-            return (
-              <div key={d.date} className="flex flex-1 flex-col items-center gap-1" title={`${d.date}: ${d.minutes}min`}>
-                <div className="flex w-full flex-1 items-end">
-                  <div className={`w-full rounded-t-md transition-all ${d.minutes > 0 ? "bg-primary" : "bg-muted"}`} style={{ height: `${Math.max(h, d.minutes > 0 ? 8 : 4)}%` }} />
-                </div>
-                <span className="text-[9px] text-muted-foreground">{d.date.slice(8)}</span>
-              </div>
-            );
-          })}
+        <div className="flex flex-wrap items-baseline justify-between gap-2">
+          <h3 className="font-display text-lg">Tempo de estudo (14 dias)</h3>
+          <div className="flex gap-3 text-xs text-muted-foreground">
+            <span className="flex items-center gap-1"><span className="inline-block h-2.5 w-2.5 rounded-sm bg-primary" /> minutos</span>
+            <span className="flex items-center gap-1"><span className="inline-block h-2.5 w-2.5 rounded-sm bg-success" /> precisão</span>
+          </div>
         </div>
+        {(() => {
+          const maxMin = Math.max(1, ...data.byDay.map((x) => x.minutes));
+          const activeDays = data.byDay.filter((d) => d.minutes > 0).length;
+          // Current streak = trailing consecutive days with minutes>0
+          let curStreak = 0;
+          for (let i = data.byDay.length - 1; i >= 0; i--) {
+            if (data.byDay[i].minutes > 0) curStreak++; else break;
+          }
+          // Best streak in window
+          let best = 0, run = 0;
+          for (const d of data.byDay) { if (d.minutes > 0) { run++; best = Math.max(best, run); } else { run = 0; } }
+          const totalMin = data.byDay.reduce((s, d) => s + d.minutes, 0);
+          const avgMin = activeDays ? Math.round(totalMin / activeDays) : 0;
+          return (
+            <>
+              <div className="mt-4 flex h-40 items-end gap-1.5">
+                {data.byDay.map((d) => {
+                  const h = (d.minutes / maxMin) * 100;
+                  const acc = d.total > 0 ? Math.round((d.correct / d.total) * 100) : 0;
+                  return (
+                    <div key={d.date} className="group relative flex flex-1 flex-col items-center gap-1" title={`${d.date}\n${d.minutes} min\n${acc}% precisão (${d.correct}/${d.total})`}>
+                      <div className="relative flex w-full flex-1 items-end">
+                        <div className={`w-full rounded-t-md transition-all ${d.minutes > 0 ? "bg-primary" : "bg-muted"}`} style={{ height: `${Math.max(h, d.minutes > 0 ? 8 : 4)}%` }} />
+                        {d.total > 0 && (
+                          <div className="absolute inset-x-0 bottom-0 mx-auto h-1 rounded-full bg-success" style={{ width: `${Math.max(10, acc)}%` }} />
+                        )}
+                      </div>
+                      <span className="text-[9px] text-muted-foreground">{d.date.slice(8)}</span>
+                    </div>
+                  );
+                })}
+              </div>
+              <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
+                <MiniStat label="Total" value={`${totalMin} min`} />
+                <MiniStat label="Média / dia ativo" value={`${avgMin} min`} />
+                <MiniStat label="Sequência atual" value={`🔥 ${curStreak}d`} />
+                <MiniStat label="Melhor (14d)" value={`⭐ ${best}d`} />
+              </div>
+            </>
+          );
+        })()}
       </div>
+
 
       {/* By weekday */}
       <div className="card-chunky rounded-3xl border border-border bg-card p-5">
@@ -430,6 +474,15 @@ function TutorHistorySection({ childName }: { childName: string }) {
   );
 }
 
+function MiniStat({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-2xl bg-muted/40 p-3 text-center">
+      <p className="text-[10px] uppercase tracking-wide text-muted-foreground">{label}</p>
+      <p className="mt-1 font-display text-lg">{value}</p>
+    </div>
+  );
+}
+
 function KPI({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
   return (
     <div className="rounded-2xl bg-card border border-border p-3 sm:p-4">
@@ -439,35 +492,60 @@ function KPI({ icon, label, value }: { icon: React.ReactNode; label: string; val
   );
 }
 
-function ParentControlsCard({ profile, onChange }: { profile: Profile; onChange: (p: Profile) => void }) {
-  const [pin, setPin] = useState(profile.parentPin ?? "");
-  const [limit, setLimit] = useState<number | "">(profile.dailyLimitMin ?? "");
-  const [bedtime, setBedtime] = useState<number | "">(profile.bedtimeHour ?? "");
+function ChildControlsCard({ childId, childName }: { childId: string; childName: string }) {
+  const [pin, setPin] = useState("");
+  const [limit, setLimit] = useState<number | "">("");
+  const [bedtime, setBedtime] = useState<number | "">("");
   const [savedMsg, setSavedMsg] = useState<string | null>(null);
-  const todayMin = typeof window !== "undefined" ? getTodayMinutes() : 0;
+  const [loaded, setLoaded] = useState(false);
+  const [saving, setSaving] = useState(false);
 
-  const save = () => {
-    const next = updateProfile({
-      parentPin: pin.length === 4 ? pin : null,
-      dailyLimitMin: typeof limit === "number" && limit > 0 ? limit : null,
-      bedtimeHour: typeof bedtime === "number" ? bedtime : null,
+  // Load current cloud-stored controls for this child whenever the selection changes.
+  useEffect(() => {
+    let cancelled = false;
+    setLoaded(false);
+    void getChildControls({ data: { childId } })
+      .then((c) => {
+        if (cancelled) return;
+        setPin(c.parentPin ?? "");
+        setLimit(c.dailyLimitMin ?? "");
+        setBedtime(c.bedtimeHour ?? "");
+        setLoaded(true);
+      })
+      .catch(() => setLoaded(true));
+    return () => { cancelled = true; };
+  }, [childId]);
+
+  const save = async () => {
+    setSaving(true);
+    setSavedMsg(null);
+    const r = await setChildControls({
+      data: {
+        childId,
+        parentPin: pin.length === 4 ? pin : null,
+        dailyLimitMin: typeof limit === "number" && limit > 0 ? limit : null,
+        bedtimeHour: typeof bedtime === "number" ? bedtime : null,
+      },
     });
-    onChange(next);
-    setSavedMsg("✅ Definições guardadas");
-    setTimeout(() => setSavedMsg(null), 2500);
+    setSaving(false);
+    setSavedMsg(r.ok ? "✅ Sincronizado em todos os dispositivos" : "❌ Não foi possível guardar");
+    setTimeout(() => setSavedMsg(null), 3000);
   };
 
   return (
     <motion.div
+      key={childId}
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       className="card-chunky mb-5 rounded-3xl border-2 border-border bg-gradient-to-br from-secondary/20 to-card p-5"
     >
       <div className="flex items-center gap-2">
         <ShieldCheck className="h-5 w-5 text-primary" />
-        <h3 className="font-display text-lg">Controlos parentais</h3>
+        <h3 className="font-display text-lg">Controlos parentais — {childName}</h3>
       </div>
-      <p className="mt-1 text-sm text-muted-foreground">Protege o acesso a este painel e define limites saudáveis.</p>
+      <p className="mt-1 text-sm text-muted-foreground">
+        Estas definições aplicam-se ao dispositivo desta criança e sincronizam automaticamente.
+      </p>
 
       <div className="mt-4 grid gap-4 sm:grid-cols-3">
         <label className="block">
@@ -479,9 +557,10 @@ function ParentControlsCard({ profile, onChange }: { profile: Profile; onChange:
             inputMode="numeric"
             maxLength={4}
             value={pin}
+            disabled={!loaded}
             onChange={(e) => setPin(e.target.value.replace(/\D/g, ""))}
             placeholder="Sem PIN"
-            className="mt-2 w-full rounded-xl border-2 border-border bg-card px-3 py-3 text-center font-mono text-xl tracking-[0.4em] outline-none focus:border-primary"
+            className="mt-2 w-full rounded-xl border-2 border-border bg-card px-3 py-3 text-center font-mono text-xl tracking-[0.4em] outline-none focus:border-primary disabled:opacity-50"
           />
         </label>
 
@@ -495,11 +574,11 @@ function ParentControlsCard({ profile, onChange }: { profile: Profile; onChange:
             min={0}
             max={240}
             value={limit}
+            disabled={!loaded}
             onChange={(e) => setLimit(e.target.value === "" ? "" : Number(e.target.value))}
             placeholder="Sem limite"
-            className="mt-2 w-full rounded-xl border-2 border-border bg-card px-3 py-3 text-center font-display text-lg outline-none focus:border-primary"
+            className="mt-2 w-full rounded-xl border-2 border-border bg-card px-3 py-3 text-center font-display text-lg outline-none focus:border-primary disabled:opacity-50"
           />
-          <span className="mt-1 block text-[11px] text-muted-foreground">Hoje: {todayMin} min</span>
         </label>
 
         <label className="block">
@@ -508,8 +587,9 @@ function ParentControlsCard({ profile, onChange }: { profile: Profile; onChange:
           </span>
           <select
             value={bedtime === "" ? "" : String(bedtime)}
+            disabled={!loaded}
             onChange={(e) => setBedtime(e.target.value === "" ? "" : Number(e.target.value))}
-            className="mt-2 w-full rounded-xl border-2 border-border bg-card px-3 py-3 text-center font-display text-lg outline-none focus:border-primary"
+            className="mt-2 w-full rounded-xl border-2 border-border bg-card px-3 py-3 text-center font-display text-lg outline-none focus:border-primary disabled:opacity-50"
           >
             <option value="">Sem bloqueio</option>
             {[18, 19, 20, 21, 22].map((h) => (
@@ -520,8 +600,10 @@ function ParentControlsCard({ profile, onChange }: { profile: Profile; onChange:
       </div>
 
       <div className="mt-4 flex flex-wrap items-center gap-3">
-        <ChunkyButton onClick={save}>Guardar definições</ChunkyButton>
-        {savedMsg && <span className="text-sm text-success">{savedMsg}</span>}
+        <ChunkyButton onClick={save} disabled={!loaded || saving}>
+          {saving ? "A guardar…" : "Guardar definições"}
+        </ChunkyButton>
+        {savedMsg && <span className="text-sm">{savedMsg}</span>}
       </div>
     </motion.div>
   );

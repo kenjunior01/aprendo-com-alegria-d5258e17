@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Moon, Hourglass } from "lucide-react";
-import { loadProfile } from "@/lib/storage";
+import { loadProfile, pullProfileFromCloud } from "@/lib/storage";
 import { addUsageSeconds, isBedtime, isOverLimit, getTodayMinutes } from "@/lib/usageTracker";
 import { ChunkyButton } from "./ChunkyButton";
 import { ParentGate } from "./ParentGate";
@@ -8,7 +8,8 @@ import { ParentGate } from "./ParentGate";
 /**
  * Tracks active app usage and enforces parental time-limits and bedtime.
  * Renders a blocking overlay when limits are hit; parents can unlock via the
- * standard parent gate.
+ * standard parent gate. Pulls fresh profile from cloud periodically so changes
+ * made by a parent on another device propagate to the child's device.
  */
 export function UsageGuard() {
   const [profile, setProfile] = useState(typeof window !== "undefined" ? loadProfile() : null);
@@ -17,10 +18,15 @@ export function UsageGuard() {
   const [showGate, setShowGate] = useState(false);
   const lastActiveRef = useRef<number>(Date.now());
 
-  // Refresh profile reads cheaply (parent settings can change in another tab)
+  // Refresh profile: cheap local read every 30s, full cloud pull every 5 min.
   useEffect(() => {
-    const id = setInterval(() => setProfile(loadProfile()), 30_000);
-    return () => clearInterval(id);
+    const localId = setInterval(() => setProfile(loadProfile()), 30_000);
+    const cloudId = setInterval(() => {
+      void pullProfileFromCloud().then((p) => { if (p) setProfile(p); });
+    }, 5 * 60_000);
+    // Initial cloud sync shortly after mount
+    const t = setTimeout(() => { void pullProfileFromCloud().then((p) => { if (p) setProfile(p); }); }, 1500);
+    return () => { clearInterval(localId); clearInterval(cloudId); clearTimeout(t); };
   }, []);
 
   // Heartbeat: every 15s, if document is visible, count usage and re-render.
