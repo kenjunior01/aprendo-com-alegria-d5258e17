@@ -24,6 +24,7 @@ import { Route as AppRouteImport } from './routes/app'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CapituloChapterIdRouteImport } from './routes/capitulo.$chapterId'
 import { Route as LicaoSubjectIdLessonIdRouteImport } from './routes/licao.$subjectId.$lessonId'
+import { Route as ApiPublicTutorStreamRouteImport } from './routes/api/public/tutor-stream'
 
 const TutorRoute = TutorRouteImport.update({
   id: '/tutor',
@@ -100,6 +101,11 @@ const LicaoSubjectIdLessonIdRoute = LicaoSubjectIdLessonIdRouteImport.update({
   path: '/licao/$subjectId/$lessonId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicTutorStreamRoute = ApiPublicTutorStreamRouteImport.update({
+  id: '/api/public/tutor-stream',
+  path: '/api/public/tutor-stream',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -116,6 +122,7 @@ export interface FileRoutesByFullPath {
   '/ra': typeof RaRoute
   '/tutor': typeof TutorRoute
   '/capitulo/$chapterId': typeof CapituloChapterIdRoute
+  '/api/public/tutor-stream': typeof ApiPublicTutorStreamRoute
   '/licao/$subjectId/$lessonId': typeof LicaoSubjectIdLessonIdRoute
 }
 export interface FileRoutesByTo {
@@ -133,6 +140,7 @@ export interface FileRoutesByTo {
   '/ra': typeof RaRoute
   '/tutor': typeof TutorRoute
   '/capitulo/$chapterId': typeof CapituloChapterIdRoute
+  '/api/public/tutor-stream': typeof ApiPublicTutorStreamRoute
   '/licao/$subjectId/$lessonId': typeof LicaoSubjectIdLessonIdRoute
 }
 export interface FileRoutesById {
@@ -151,6 +159,7 @@ export interface FileRoutesById {
   '/ra': typeof RaRoute
   '/tutor': typeof TutorRoute
   '/capitulo/$chapterId': typeof CapituloChapterIdRoute
+  '/api/public/tutor-stream': typeof ApiPublicTutorStreamRoute
   '/licao/$subjectId/$lessonId': typeof LicaoSubjectIdLessonIdRoute
 }
 export interface FileRouteTypes {
@@ -170,6 +179,7 @@ export interface FileRouteTypes {
     | '/ra'
     | '/tutor'
     | '/capitulo/$chapterId'
+    | '/api/public/tutor-stream'
     | '/licao/$subjectId/$lessonId'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -187,6 +197,7 @@ export interface FileRouteTypes {
     | '/ra'
     | '/tutor'
     | '/capitulo/$chapterId'
+    | '/api/public/tutor-stream'
     | '/licao/$subjectId/$lessonId'
   id:
     | '__root__'
@@ -204,6 +215,7 @@ export interface FileRouteTypes {
     | '/ra'
     | '/tutor'
     | '/capitulo/$chapterId'
+    | '/api/public/tutor-stream'
     | '/licao/$subjectId/$lessonId'
   fileRoutesById: FileRoutesById
 }
@@ -222,6 +234,7 @@ export interface RootRouteChildren {
   RaRoute: typeof RaRoute
   TutorRoute: typeof TutorRoute
   CapituloChapterIdRoute: typeof CapituloChapterIdRoute
+  ApiPublicTutorStreamRoute: typeof ApiPublicTutorStreamRoute
   LicaoSubjectIdLessonIdRoute: typeof LicaoSubjectIdLessonIdRoute
 }
 
@@ -332,6 +345,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LicaoSubjectIdLessonIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/tutor-stream': {
+      id: '/api/public/tutor-stream'
+      path: '/api/public/tutor-stream'
+      fullPath: '/api/public/tutor-stream'
+      preLoaderRoute: typeof ApiPublicTutorStreamRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -350,6 +370,7 @@ const rootRouteChildren: RootRouteChildren = {
   RaRoute: RaRoute,
   TutorRoute: TutorRoute,
   CapituloChapterIdRoute: CapituloChapterIdRoute,
+  ApiPublicTutorStreamRoute: ApiPublicTutorStreamRoute,
   LicaoSubjectIdLessonIdRoute: LicaoSubjectIdLessonIdRoute,
 }
 export const routeTree = rootRouteImport
