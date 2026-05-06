@@ -14,6 +14,51 @@ export type Database = {
   }
   public: {
     Tables: {
+      achievements: {
+        Row: {
+          category: string
+          code: string
+          coin_reward: number
+          created_at: string
+          description: string
+          icon: string
+          id: string
+          requirement_type: string
+          requirement_value: number
+          sort_order: number
+          title: string
+          xp_reward: number
+        }
+        Insert: {
+          category?: string
+          code: string
+          coin_reward?: number
+          created_at?: string
+          description: string
+          icon?: string
+          id?: string
+          requirement_type: string
+          requirement_value?: number
+          sort_order?: number
+          title: string
+          xp_reward?: number
+        }
+        Update: {
+          category?: string
+          code?: string
+          coin_reward?: number
+          created_at?: string
+          description?: string
+          icon?: string
+          id?: string
+          requirement_type?: string
+          requirement_value?: number
+          sort_order?: number
+          title?: string
+          xp_reward?: number
+        }
+        Relationships: []
+      }
       parent_links: {
         Row: {
           accepted_at: string | null
@@ -179,6 +224,27 @@ export type Database = {
           price?: number
           sort_order?: number
           type?: string
+        }
+        Relationships: []
+      }
+      user_achievements: {
+        Row: {
+          achievement_code: string
+          id: string
+          unlocked_at: string
+          user_id: string
+        }
+        Insert: {
+          achievement_code: string
+          id?: string
+          unlocked_at?: string
+          user_id: string
+        }
+        Update: {
+          achievement_code?: string
+          id?: string
+          unlocked_at?: string
+          user_id?: string
         }
         Relationships: []
       }
