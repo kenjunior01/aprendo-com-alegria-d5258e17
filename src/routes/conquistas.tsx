@@ -18,7 +18,7 @@ import {
 export const Route = createFileRoute("/conquistas")({
   head: () => ({
     meta: [
-      { title: "Conquistas — Lusis" },
+      { title: "Conquistas — Kidoz" },
       { name: "description", content: "Vê as tuas medalhas desbloqueadas e as próximas a conquistar." },
     ],
   }),

@@ -15,7 +15,7 @@ import { Cloud, CloudOff, LogOut } from "lucide-react";
 export const Route = createFileRoute("/perfil")({
   head: () => ({
     meta: [
-      { title: "Perfil — Lusis" },
+      { title: "Perfil — Kidoz" },
       { name: "description", content: "Vê o teu progresso e troca de mascote." },
     ],
   }),

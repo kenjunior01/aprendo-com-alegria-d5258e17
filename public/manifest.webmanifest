@@ -1,6 +1,6 @@
 {
-  "name": "Lusis — Aprender a brincar",
-  "short_name": "Lusis",
+  "name": "Kidoz — Aprender a brincar",
+  "short_name": "Kidoz",
   "description": "App educativa estilo Duolingo para crianças do 1.º ciclo em Portugal.",
   "start_url": "/",
   "scope": "/",
@@ -10,6 +10,12 @@
   "theme_color": "#ff8c42",
   "lang": "pt-PT",
   "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
     {
       "src": "/icon-512.png",
       "sizes": "512x512",

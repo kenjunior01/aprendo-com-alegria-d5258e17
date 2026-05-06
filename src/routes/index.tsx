@@ -2,6 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { Mascot } from "@/components/Mascot";
 import { ChunkyButton } from "@/components/ChunkyButton";
+import { KidozLogo } from "@/components/KidozLogo";
 import { MASCOTS } from "@/lib/mascots";
 import { loadProfile, pullProfileFromCloud } from "@/lib/storage";
 import { useEffect } from "react";
@@ -9,9 +10,9 @@ import { useEffect } from "react";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Lusis — Aprender a brincar | App educativa para crianças" },
+      { title: "Kidoz — Aprender a brincar | App educativa para crianças" },
       { name: "description", content: "App de aprendizagem infantil estilo Duolingo, para o 1.º ciclo em Portugal. Português, Matemática e Estudo do Meio com mascotes divertidas." },
-      { property: "og:title", content: "Lusis — Aprender a brincar" },
+      { property: "og:title", content: "Kidoz — Aprender a brincar" },
       { property: "og:description", content: "App educativa para crianças do 1.º ciclo, com mascotes e desafios divertidos." },
     ],
   }),
@@ -43,6 +44,15 @@ function Landing() {
       <FloatingDecor />
 
       <div className="relative mx-auto flex min-h-[100dvh] max-w-5xl flex-col items-center justify-center px-5 py-10 text-center sm:px-6 sm:py-12">
+        <motion.div
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ type: "spring", stiffness: 200, damping: 15 }}
+          className="mb-3"
+        >
+          <KidozLogo priority className="h-20 w-auto sm:h-24 md:h-28" alt="Kidoz — Aprender a brincar" />
+        </motion.div>
+
         <motion.div
           initial={{ y: -20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}

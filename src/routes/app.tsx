@@ -14,7 +14,7 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/app")({
   head: () => ({
     meta: [
-      { title: "A minha aventura — Lusis" },
+      { title: "A minha aventura — Kidoz" },
       { name: "description", content: "Explora os capítulos da tua aventura: Português, Matemática e Estudo do Meio." },
     ],
   }),

@@ -12,7 +12,7 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/tutor")({
   head: () => ({
     meta: [
-      { title: "Mocha, o teu tutor — Lusis" },
+      { title: "Mocha, o teu tutor — Kidoz" },
       { name: "description", content: "Conversa com o Mocha, o teu tutor IA. Faz perguntas, aprende e diverte-te." },
     ],
   }),

@@ -13,7 +13,7 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/capitulo/$chapterId")({
   head: () => ({
     meta: [
-      { title: "Capítulo — Lusis" },
+      { title: "Capítulo — Kidoz" },
       { name: "description", content: "Aventura por capítulos: missões interativas para crianças do 1.º ciclo." },
     ],
   }),

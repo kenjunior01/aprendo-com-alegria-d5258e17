@@ -14,7 +14,7 @@ import { Copy, LogOut, Plus, BarChart3, Clock, Target, Flame, MessageCircle } fr
 export const Route = createFileRoute("/pais")({
   head: () => ({
     meta: [
-      { title: "Painel de Pais — Lusis" },
+      { title: "Painel de Pais — Kidoz" },
       { name: "description", content: "Acompanha o progresso dos teus filhos: tempo de estudo, áreas fortes e fracas, recomendações." },
     ],
   }),
