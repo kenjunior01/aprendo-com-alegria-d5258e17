@@ -24,16 +24,31 @@ export const Route = createFileRoute("/jardim")({
 function GardenPage() {
   const navigate = useNavigate();
   const [profile, setProfile] = useState<Profile | null>(null);
+  const [missions, setMissions] = useState<DailyMissionsState | null>(null);
+  const [justClaimed, setJustClaimed] = useState<string | null>(null);
 
   useEffect(() => {
     const p = loadProfile();
     if (!p || !p.name) { navigate({ to: "/comecar" }); return; }
     setProfile(p);
+    setMissions(loadMissions());
   }, [navigate]);
 
-  if (!profile) return null;
+  const handleClaim = (id: string) => {
+    const m = claimMission(id);
+    if (!m || !profile) return;
+    const next = updateProfile({ coins: profile.coins + m.rewardCoins, xp: profile.xp + m.rewardXp });
+    setProfile(next);
+    setMissions(loadMissions());
+    setJustClaimed(id);
+    confetti({ particleCount: 90, spread: 75, origin: { y: 0.6 }, colors: ["#7cd16e", "#ffd166", "#5db1ff"] });
+    setTimeout(() => setJustClaimed(null), 2000);
+  };
+
+  if (!profile || !missions) return null;
   const garden = gardenState(profile);
   const nextProgress = garden.next ? progressToNext(profile, garden.next) : null;
+  const stats = dailyMissionStats(missions);
 
   return (
     <div className="min-h-[100dvh] bg-background pb-24 md:pb-12">
