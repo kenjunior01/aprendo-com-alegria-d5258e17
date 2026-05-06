@@ -288,3 +288,8 @@ function GardenPage() {
 }
 
 const _cn = cn; void _cn;
+
+function subjectLink(subject: string): "/app" | "/leitura" {
+  if (subject === "leitura") return "/leitura";
+  return "/app";
+}
