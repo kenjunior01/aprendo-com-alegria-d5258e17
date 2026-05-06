@@ -248,7 +248,241 @@ function ARPage() {
   );
 }
 
-// JSX type for <model-viewer>
+// =====================================================================
+// Mini-missões interativas do Laboratório RA
+// =====================================================================
+function LabMissionsPanel({ onReward }: { onReward: (xp: number, coins: number) => void }) {
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const [completed, setCompleted] = useState<Record<string, number>>({});
+  const active = LAB_MISSIONS.find((m) => m.id === activeId) ?? null;
+
+  if (active) {
+    return (
+      <MissionPlayer
+        mission={active}
+        onClose={() => setActiveId(null)}
+        onComplete={(score) => {
+          setCompleted((c) => ({ ...c, [active.id]: Math.max(c[active.id] ?? 0, score) }));
+          onReward(active.rewardXp, active.rewardCoins);
+        }}
+      />
+    );
+  }
+
+  return (
+    <div className="card-chunky rounded-3xl border border-border bg-card p-5">
+      <div className="flex items-center gap-2">
+        <Target className="h-5 w-5 text-primary" />
+        <h2 className="font-display text-lg">Mini-missões do Laboratório</h2>
+      </div>
+      <p className="mt-1 text-xs text-muted-foreground">
+        Desafios interativos com feedback imediato. Ganha 🪙 e ⭐ por cada missão.
+      </p>
+      <div className="mt-4 grid gap-2 sm:grid-cols-2">
+        {LAB_MISSIONS.map((m) => {
+          const score = completed[m.id];
+          const stars = score === undefined ? 0 : score === 100 ? 3 : score >= 70 ? 2 : 1;
+          return (
+            <button
+              key={m.id}
+              onClick={() => setActiveId(m.id)}
+              className="card-chunky group rounded-2xl border-2 border-border bg-card p-3 text-left transition-transform hover:scale-[1.02]"
+            >
+              <div className="flex items-start gap-2">
+                <span className="text-3xl">{m.emoji}</span>
+                <div className="flex-1">
+                  <p className="font-display text-sm">{m.title}</p>
+                  <p className="mt-0.5 text-[11px] text-muted-foreground">{m.intro}</p>
+                  <div className="mt-1.5 flex items-center justify-between">
+                    <span className="font-display text-[10px] text-muted-foreground">🪙 {m.rewardCoins} · ⭐ {m.rewardXp}</span>
+                    {score !== undefined && (
+                      <span className="font-display text-[10px] text-secondary-foreground">
+                        {"⭐".repeat(stars)}{"☆".repeat(3 - stars)}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function MissionPlayer({ mission, onClose, onComplete }: { mission: LabMission; onClose: () => void; onComplete: (scorePct: number) => void }) {
+  const [orderState, setOrderState] = useState<string[]>([]);
+  const [matchState, setMatchState] = useState<string[]>(() => mission.parts.map(() => ""));
+  const [identifyChoice, setIdentifyChoice] = useState<string | null>(null);
+  const [feedback, setFeedback] = useState<{ correct: boolean; message: string; partials?: number } | null>(null);
+  const [done, setDone] = useState(false);
+
+  // Match: pool de "funções" baralhadas (valores do answer map)
+  const matchOptions = mission.kind === "match"
+    ? Object.values(mission.answer as Record<string, string>)
+    : [];
+
+  const reset = () => {
+    setOrderState([]);
+    setMatchState(mission.parts.map(() => ""));
+    setIdentifyChoice(null);
+    setFeedback(null);
+    setDone(false);
+  };
+
+  const submit = () => {
+    let userAnswer: string | string[] = "";
+    if (mission.kind === "order") userAnswer = orderState;
+    else if (mission.kind === "identify") userAnswer = identifyChoice ?? "";
+    else if (mission.kind === "match") userAnswer = matchState;
+
+    const r = checkAnswer(mission, userAnswer);
+    if (r.correct) {
+      const pct = 100;
+      setFeedback({ correct: true, message: "Boa! Acertaste tudo! 🎉", partials: r.partials });
+      setDone(true);
+      confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 } });
+      onComplete(pct);
+    } else {
+      const pct = r.partials !== undefined ? Math.round((r.partials / mission.parts.length) * 100) : 0;
+      setFeedback({ correct: false, message: r.partials !== undefined ? `Quase! Acertaste ${r.partials}/${mission.parts.length}. Tenta de novo!` : "Não é essa. Tenta outra vez!", partials: r.partials });
+      if (pct >= 70) onComplete(pct);
+    }
+  };
+
+  return (
+    <div className="card-chunky rounded-3xl border border-border bg-card p-5">
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2">
+          <span className="text-3xl">{mission.emoji}</span>
+          <div>
+            <h2 className="font-display text-lg leading-tight">{mission.title}</h2>
+            <p className="text-[11px] text-muted-foreground">{mission.intro}</p>
+          </div>
+        </div>
+        <button onClick={onClose} className="text-xs text-muted-foreground hover:text-foreground">✕</button>
+      </div>
+
+      {/* Order kind */}
+      {mission.kind === "order" && (
+        <div className="mt-4">
+          <p className="font-display text-xs text-muted-foreground">Toca pela ordem certa:</p>
+          <div className="mt-2 flex flex-wrap gap-2">
+            {mission.parts.map((p) => {
+              const idx = orderState.indexOf(p.id);
+              return (
+                <button
+                  key={p.id}
+                  onClick={() => setOrderState((s) => s.includes(p.id) ? s.filter((x) => x !== p.id) : [...s, p.id])}
+                  className={cn(
+                    "rounded-2xl border-2 px-3 py-2 font-display text-sm transition-all",
+                    idx >= 0 ? "border-primary bg-primary/10" : "border-border bg-muted/40",
+                  )}
+                >
+                  {idx >= 0 && <span className="mr-1 inline-flex h-5 w-5 items-center justify-center rounded-full bg-primary font-bold text-[10px] text-primary-foreground">{idx + 1}</span>}
+                  <span className="text-lg">{p.emoji}</span> {p.label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Identify kind */}
+      {mission.kind === "identify" && (
+        <div className="mt-4">
+          <p className="font-display text-sm">{mission.prompt}</p>
+          <div className="mt-3 grid grid-cols-2 gap-2">
+            {mission.parts.map((p) => (
+              <button
+                key={p.id}
+                onClick={() => setIdentifyChoice(p.id)}
+                className={cn(
+                  "rounded-2xl border-2 p-3 text-center transition-all",
+                  identifyChoice === p.id ? "border-primary bg-primary/10" : "border-border bg-muted/40",
+                )}
+              >
+                <div className="text-3xl">{p.emoji}</div>
+                <div className="mt-1 font-display text-sm">{p.label}</div>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Match kind */}
+      {mission.kind === "match" && (
+        <div className="mt-4 space-y-2">
+          <p className="font-display text-xs text-muted-foreground">Para cada parte, escolhe a função certa:</p>
+          {mission.parts.map((p, i) => (
+            <div key={p.id} className="flex items-center gap-2 rounded-2xl border border-border bg-muted/30 p-2">
+              <span className="text-2xl">{p.emoji}</span>
+              <span className="w-24 font-display text-sm">{p.label}</span>
+              <select
+                value={matchState[i]}
+                onChange={(e) => setMatchState((s) => { const n = [...s]; n[i] = e.target.value; return n; })}
+                className="flex-1 rounded-xl border border-border bg-card px-2 py-1.5 text-sm"
+              >
+                <option value="">Escolhe…</option>
+                {matchOptions.map((opt) => (
+                  <option key={opt} value={opt}>{opt}</option>
+                ))}
+              </select>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Feedback */}
+      <AnimatePresence>
+        {feedback && (
+          <motion.div
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0 }}
+            className={cn(
+              "mt-4 rounded-2xl px-4 py-3",
+              feedback.correct ? "bg-success/10 text-success" : "bg-destructive/10 text-destructive",
+            )}
+          >
+            <p className="font-display text-sm">{feedback.message}</p>
+            {feedback.correct && (
+              <div className="mt-2 space-y-1 text-xs text-foreground">
+                {mission.parts.map((p) => (
+                  <p key={p.id}><span className="text-base">{p.emoji}</span> <strong>{p.label}:</strong> {p.fact}</p>
+                ))}
+              </div>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <div className="mt-4 flex items-center justify-between gap-2">
+        <button onClick={reset} className="inline-flex items-center gap-1 text-xs font-display text-muted-foreground hover:text-foreground">
+          <RotateCcw className="h-3 w-3" /> Recomeçar
+        </button>
+        {done ? (
+          <div className="flex items-center gap-2">
+            <Trophy className="h-4 w-4 text-secondary-foreground" />
+            <span className="font-display text-xs">+{mission.rewardXp} ⭐ · +{mission.rewardCoins} 🪙</span>
+            <button onClick={onClose} className="btn-chunky rounded-full bg-primary px-4 py-1.5 font-display text-sm text-primary-foreground">
+              Concluir
+            </button>
+          </div>
+        ) : (
+          <button
+            onClick={submit}
+            className="btn-chunky rounded-full bg-primary px-5 py-2 font-display text-sm text-primary-foreground"
+          >
+            Verificar
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
 declare module "react" {
   namespace JSX {
     interface IntrinsicElements {
