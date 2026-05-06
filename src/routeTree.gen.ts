@@ -13,6 +13,7 @@ import { Route as PerfilRouteImport } from './routes/perfil'
 import { Route as PaisRouteImport } from './routes/pais'
 import { Route as LojaRouteImport } from './routes/loja'
 import { Route as LeituraRouteImport } from './routes/leitura'
+import { Route as ConquistasRouteImport } from './routes/conquistas'
 import { Route as ComecarRouteImport } from './routes/comecar'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AppRouteImport } from './routes/app'
@@ -38,6 +39,11 @@ const LojaRoute = LojaRouteImport.update({
 const LeituraRoute = LeituraRouteImport.update({
   id: '/leitura',
   path: '/leitura',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ConquistasRoute = ConquistasRouteImport.update({
+  id: '/conquistas',
+  path: '/conquistas',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ComecarRoute = ComecarRouteImport.update({
@@ -76,6 +82,7 @@ export interface FileRoutesByFullPath {
   '/app': typeof AppRoute
   '/auth': typeof AuthRoute
   '/comecar': typeof ComecarRoute
+  '/conquistas': typeof ConquistasRoute
   '/leitura': typeof LeituraRoute
   '/loja': typeof LojaRoute
   '/pais': typeof PaisRoute
@@ -88,6 +95,7 @@ export interface FileRoutesByTo {
   '/app': typeof AppRoute
   '/auth': typeof AuthRoute
   '/comecar': typeof ComecarRoute
+  '/conquistas': typeof ConquistasRoute
   '/leitura': typeof LeituraRoute
   '/loja': typeof LojaRoute
   '/pais': typeof PaisRoute
@@ -101,6 +109,7 @@ export interface FileRoutesById {
   '/app': typeof AppRoute
   '/auth': typeof AuthRoute
   '/comecar': typeof ComecarRoute
+  '/conquistas': typeof ConquistasRoute
   '/leitura': typeof LeituraRoute
   '/loja': typeof LojaRoute
   '/pais': typeof PaisRoute
@@ -115,6 +124,7 @@ export interface FileRouteTypes {
     | '/app'
     | '/auth'
     | '/comecar'
+    | '/conquistas'
     | '/leitura'
     | '/loja'
     | '/pais'
@@ -127,6 +137,7 @@ export interface FileRouteTypes {
     | '/app'
     | '/auth'
     | '/comecar'
+    | '/conquistas'
     | '/leitura'
     | '/loja'
     | '/pais'
@@ -139,6 +150,7 @@ export interface FileRouteTypes {
     | '/app'
     | '/auth'
     | '/comecar'
+    | '/conquistas'
     | '/leitura'
     | '/loja'
     | '/pais'
@@ -152,6 +164,7 @@ export interface RootRouteChildren {
   AppRoute: typeof AppRoute
   AuthRoute: typeof AuthRoute
   ComecarRoute: typeof ComecarRoute
+  ConquistasRoute: typeof ConquistasRoute
   LeituraRoute: typeof LeituraRoute
   LojaRoute: typeof LojaRoute
   PaisRoute: typeof PaisRoute
@@ -188,6 +201,13 @@ declare module '@tanstack/react-router' {
       path: '/leitura'
       fullPath: '/leitura'
       preLoaderRoute: typeof LeituraRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/conquistas': {
+      id: '/conquistas'
+      path: '/conquistas'
+      fullPath: '/conquistas'
+      preLoaderRoute: typeof ConquistasRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/comecar': {
@@ -240,6 +260,7 @@ const rootRouteChildren: RootRouteChildren = {
   AppRoute: AppRoute,
   AuthRoute: AuthRoute,
   ComecarRoute: ComecarRoute,
+  ConquistasRoute: ConquistasRoute,
   LeituraRoute: LeituraRoute,
   LojaRoute: LojaRoute,
   PaisRoute: PaisRoute,
@@ -250,12 +271,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-  }
-}

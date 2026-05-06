@@ -144,6 +144,9 @@ function ProfilePage() {
           <Link to="/app">
             <ChunkyButton className="w-full">← Voltar à aventura</ChunkyButton>
           </Link>
+          <Link to="/conquistas">
+            <ChunkyButton tone="secondary" className="w-full">🏆 Ver conquistas</ChunkyButton>
+          </Link>
           <Link to="/loja">
             <ChunkyButton tone="secondary" className="w-full">🛍️ Ir à loja</ChunkyButton>
           </Link>
