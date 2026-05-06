@@ -283,6 +283,10 @@ function mergeProfiles(local: Profile | null, cloud: Profile): Profile {
     equippedItem: cloud.equippedItem ?? local.equippedItem,
     isPremium: cloud.isPremium || local.isPremium,
     role: cloud.role || local.role,
+    // Parental controls: cloud is source of truth (set by parent on any device)
+    parentPin: cloud.parentPin ?? local.parentPin ?? null,
+    dailyLimitMin: cloud.dailyLimitMin ?? local.dailyLimitMin ?? null,
+    bedtimeHour: cloud.bedtimeHour ?? local.bedtimeHour ?? null,
   };
 }
 
