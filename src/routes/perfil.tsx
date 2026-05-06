@@ -9,6 +9,7 @@ import { loadProfile, pullProfileFromCloud, resetProfile, updateProfile, type Pr
 import { totalMissions } from "@/lib/chapters";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
+import { ParentLinkPanel } from "@/components/ParentLinkPanel";
 import { Cloud, CloudOff, LogOut } from "lucide-react";
 
 export const Route = createFileRoute("/perfil")({
@@ -139,6 +140,12 @@ function ProfilePage() {
             ))}
           </div>
         </section>
+
+        {user && (
+          <section className="mt-6 sm:mt-8">
+            <ParentLinkPanel profile={profile} />
+          </section>
+        )}
 
         <section className="mt-8 flex flex-col gap-3">
           <Link to="/app">
