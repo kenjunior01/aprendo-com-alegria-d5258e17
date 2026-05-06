@@ -38,7 +38,7 @@ function Landing() {
   }, [navigate]);
 
   return (
-    <main className="bg-paper relative min-h-[100dvh] overflow-hidden">
+    <main className="bg-sky-island relative min-h-[100dvh] overflow-hidden">
       {/* floating shapes */}
       <FloatingDecor />
 
