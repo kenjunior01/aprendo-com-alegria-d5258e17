@@ -1,14 +1,17 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
+import confetti from "canvas-confetti";
 import { TopBar } from "@/components/TopBar";
 import { BottomNav } from "@/components/BottomNav";
 import { Mascot } from "@/components/Mascot";
 import { ChunkyButton } from "@/components/ChunkyButton";
 import { MASCOTS, type MascotId } from "@/lib/mascots";
-import { loadProfile, type Profile } from "@/lib/storage";
+import { loadProfile, updateProfile, type Profile } from "@/lib/storage";
 import { isPremium } from "@/lib/premium";
-import { ArrowLeft, Camera, Sparkles, Lock, FlaskConical } from "lucide-react";
+import { LAB_MISSIONS, checkAnswer, type LabMission } from "@/lib/labMissions";
+import { ArrowLeft, Camera, Sparkles, Lock, FlaskConical, Target, RotateCcw, Trophy } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 type LabModelId = "astronaut" | "robot" | "horse" | "helmet" | "duck" | "fox-3d";
 
