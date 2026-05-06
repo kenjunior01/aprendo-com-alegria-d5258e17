@@ -75,6 +75,11 @@ function ProfilePage() {
         <div className="card-chunky rounded-3xl border border-border bg-card p-5 text-center sm:p-6">
           <Mascot id={profile.mascot} size="xl" bouncing equippedItemId={profile.equippedItem} />
           <h1 className="mt-2 font-display text-2xl sm:text-3xl">{profile.name}</h1>
+          {profile.isPremium && (
+            <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-primary/20 to-secondary/30 px-3 py-0.5 font-display text-xs font-bold text-primary">
+              💎 PREMIUM
+            </span>
+          )}
           <p className="text-muted-foreground">{profile.age} anos · {profile.grade}.º ano</p>
 
           <div className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-4 sm:gap-3">
@@ -151,11 +156,20 @@ function ProfilePage() {
           <Link to="/app">
             <ChunkyButton className="w-full">← Voltar à aventura</ChunkyButton>
           </Link>
+          <Link to="/leitura">
+            <ChunkyButton tone="secondary" className="w-full">🎤 Praticar leitura em voz</ChunkyButton>
+          </Link>
+          <Link to="/ra">
+            <ChunkyButton tone="secondary" className="w-full">🥽 Mascote em Realidade Aumentada</ChunkyButton>
+          </Link>
           <Link to="/conquistas">
             <ChunkyButton tone="secondary" className="w-full">🏆 Ver conquistas</ChunkyButton>
           </Link>
           <Link to="/loja">
             <ChunkyButton tone="secondary" className="w-full">🛍️ Ir à loja</ChunkyButton>
+          </Link>
+          <Link to="/premium">
+            <ChunkyButton tone="primary" className="w-full">{profile.isPremium ? "💎 Gerir Premium" : "💎 Conhecer o Premium"}</ChunkyButton>
           </Link>
           {user && (
             <ChunkyButton tone="ghost" onClick={signOut} className="w-full">

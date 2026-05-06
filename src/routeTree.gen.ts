@@ -9,6 +9,8 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as RaRouteImport } from './routes/ra'
+import { Route as PremiumRouteImport } from './routes/premium'
 import { Route as PerfilRouteImport } from './routes/perfil'
 import { Route as PaisRouteImport } from './routes/pais'
 import { Route as LojaRouteImport } from './routes/loja'
@@ -21,6 +23,16 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as CapituloChapterIdRouteImport } from './routes/capitulo.$chapterId'
 import { Route as LicaoSubjectIdLessonIdRouteImport } from './routes/licao.$subjectId.$lessonId'
 
+const RaRoute = RaRouteImport.update({
+  id: '/ra',
+  path: '/ra',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PremiumRoute = PremiumRouteImport.update({
+  id: '/premium',
+  path: '/premium',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PerfilRoute = PerfilRouteImport.update({
   id: '/perfil',
   path: '/perfil',
@@ -87,6 +99,8 @@ export interface FileRoutesByFullPath {
   '/loja': typeof LojaRoute
   '/pais': typeof PaisRoute
   '/perfil': typeof PerfilRoute
+  '/premium': typeof PremiumRoute
+  '/ra': typeof RaRoute
   '/capitulo/$chapterId': typeof CapituloChapterIdRoute
   '/licao/$subjectId/$lessonId': typeof LicaoSubjectIdLessonIdRoute
 }
@@ -100,6 +114,8 @@ export interface FileRoutesByTo {
   '/loja': typeof LojaRoute
   '/pais': typeof PaisRoute
   '/perfil': typeof PerfilRoute
+  '/premium': typeof PremiumRoute
+  '/ra': typeof RaRoute
   '/capitulo/$chapterId': typeof CapituloChapterIdRoute
   '/licao/$subjectId/$lessonId': typeof LicaoSubjectIdLessonIdRoute
 }
@@ -114,6 +130,8 @@ export interface FileRoutesById {
   '/loja': typeof LojaRoute
   '/pais': typeof PaisRoute
   '/perfil': typeof PerfilRoute
+  '/premium': typeof PremiumRoute
+  '/ra': typeof RaRoute
   '/capitulo/$chapterId': typeof CapituloChapterIdRoute
   '/licao/$subjectId/$lessonId': typeof LicaoSubjectIdLessonIdRoute
 }
@@ -129,6 +147,8 @@ export interface FileRouteTypes {
     | '/loja'
     | '/pais'
     | '/perfil'
+    | '/premium'
+    | '/ra'
     | '/capitulo/$chapterId'
     | '/licao/$subjectId/$lessonId'
   fileRoutesByTo: FileRoutesByTo
@@ -142,6 +162,8 @@ export interface FileRouteTypes {
     | '/loja'
     | '/pais'
     | '/perfil'
+    | '/premium'
+    | '/ra'
     | '/capitulo/$chapterId'
     | '/licao/$subjectId/$lessonId'
   id:
@@ -155,6 +177,8 @@ export interface FileRouteTypes {
     | '/loja'
     | '/pais'
     | '/perfil'
+    | '/premium'
+    | '/ra'
     | '/capitulo/$chapterId'
     | '/licao/$subjectId/$lessonId'
   fileRoutesById: FileRoutesById
@@ -169,12 +193,28 @@ export interface RootRouteChildren {
   LojaRoute: typeof LojaRoute
   PaisRoute: typeof PaisRoute
   PerfilRoute: typeof PerfilRoute
+  PremiumRoute: typeof PremiumRoute
+  RaRoute: typeof RaRoute
   CapituloChapterIdRoute: typeof CapituloChapterIdRoute
   LicaoSubjectIdLessonIdRoute: typeof LicaoSubjectIdLessonIdRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/ra': {
+      id: '/ra'
+      path: '/ra'
+      fullPath: '/ra'
+      preLoaderRoute: typeof RaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/premium': {
+      id: '/premium'
+      path: '/premium'
+      fullPath: '/premium'
+      preLoaderRoute: typeof PremiumRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/perfil': {
       id: '/perfil'
       path: '/perfil'
@@ -265,6 +305,8 @@ const rootRouteChildren: RootRouteChildren = {
   LojaRoute: LojaRoute,
   PaisRoute: PaisRoute,
   PerfilRoute: PerfilRoute,
+  PremiumRoute: PremiumRoute,
+  RaRoute: RaRoute,
   CapituloChapterIdRoute: CapituloChapterIdRoute,
   LicaoSubjectIdLessonIdRoute: LicaoSubjectIdLessonIdRoute,
 }

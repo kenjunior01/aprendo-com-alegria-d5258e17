@@ -168,12 +168,11 @@ function ShopPage() {
                     {equipped ? <span className="inline-flex items-center gap-1"><Check className="h-3.5 w-3.5" /> Equipado</span> : "Equipar"}
                   </button>
                 ) : lockedPremium ? (
-                  <button
-                    disabled
-                    className="btn-chunky w-full rounded-2xl bg-muted px-3 py-1.5 font-display text-xs font-semibold text-muted-foreground sm:text-sm"
-                  >
-                    <Lock className="mr-1 inline h-3 w-3" />Premium
-                  </button>
+                  <Link to="/premium" className="w-full">
+                    <button className="btn-chunky w-full rounded-2xl bg-gradient-to-r from-primary to-secondary px-3 py-1.5 font-display text-xs font-semibold text-primary-foreground sm:text-sm">
+                      <Lock className="mr-1 inline h-3 w-3" />Premium
+                    </button>
+                  </Link>
                 ) : (
                   <button
                     onClick={() => onBuy(item)}
