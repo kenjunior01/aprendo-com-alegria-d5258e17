@@ -7,6 +7,7 @@ import { Mascot } from "@/components/Mascot";
 import { CHAPTERS, chapterProgress, isChapterComplete, type Chapter } from "@/lib/chapters";
 import { loadProfile, pullProfileFromCloud, type Profile } from "@/lib/storage";
 import { getMascot } from "@/lib/mascots";
+import { AdaptiveTip } from "@/components/AdaptiveTip";
 import { Lock, Sparkles, CheckCircle2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
