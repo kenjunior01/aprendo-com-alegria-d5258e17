@@ -151,11 +151,20 @@ function ProfilePage() {
           <Link to="/app">
             <ChunkyButton className="w-full">← Voltar à aventura</ChunkyButton>
           </Link>
+          <Link to="/leitura">
+            <ChunkyButton tone="secondary" className="w-full">🎤 Praticar leitura em voz</ChunkyButton>
+          </Link>
+          <Link to="/ra">
+            <ChunkyButton tone="secondary" className="w-full">🥽 Mascote em Realidade Aumentada</ChunkyButton>
+          </Link>
           <Link to="/conquistas">
             <ChunkyButton tone="secondary" className="w-full">🏆 Ver conquistas</ChunkyButton>
           </Link>
           <Link to="/loja">
             <ChunkyButton tone="secondary" className="w-full">🛍️ Ir à loja</ChunkyButton>
+          </Link>
+          <Link to="/premium">
+            <ChunkyButton tone="primary" className="w-full">{profile.isPremium ? "💎 Gerir Premium" : "💎 Conhecer o Premium"}</ChunkyButton>
           </Link>
           {user && (
             <ChunkyButton tone="ghost" onClick={signOut} className="w-full">
