@@ -107,11 +107,20 @@ function AuthPage() {
         <div className="card-chunky mt-6 w-full rounded-3xl border border-border bg-card p-5">
           <button
             type="button"
-            onClick={handleGoogle}
+            onClick={() => handleOAuth("google")}
             className="btn-chunky flex w-full items-center justify-center gap-3 rounded-2xl border-2 border-border bg-card px-5 py-3.5 font-display text-base font-semibold transition-transform hover:-translate-y-0.5"
           >
             <GoogleIcon />
             Continuar com Google
+          </button>
+
+          <button
+            type="button"
+            onClick={() => handleOAuth("apple")}
+            className="btn-chunky mt-3 flex w-full items-center justify-center gap-3 rounded-2xl border-2 border-border bg-foreground px-5 py-3.5 font-display text-base font-semibold text-background transition-transform hover:-translate-y-0.5"
+          >
+            <AppleIcon />
+            Continuar com Apple
           </button>
 
           <div className="my-4 flex items-center gap-3 text-xs uppercase text-muted-foreground">
