@@ -91,6 +91,7 @@ function AuthPage() {
   return (
     <main className="bg-paper relative min-h-[100dvh] overflow-hidden px-4 py-8">
       <div className="mx-auto flex w-full max-w-md flex-col items-center">
+        <KidozLogo priority className="mb-2 h-14 w-auto" />
         <motion.div
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
