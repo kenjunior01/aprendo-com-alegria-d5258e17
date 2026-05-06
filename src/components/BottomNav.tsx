@@ -19,6 +19,7 @@ export function BottomNav() {
       ]
     : [
         { to: "/app", label: "Jornada", icon: MapIcon, match: (p) => p === "/app" || p.startsWith("/licao") || p.startsWith("/capitulo") },
+        { to: "/conquistas", label: "Medalhas", icon: Trophy, match: (p) => p.startsWith("/conquistas") },
         { to: "/loja", label: "Loja", icon: ShoppingBag, match: (p) => p.startsWith("/loja") },
         { to: "/perfil", label: "Perfil", icon: User, match: (p) => p.startsWith("/perfil") },
       ];
