@@ -40,10 +40,6 @@ const PHRASES_EN: Record<number, string[]> = {
   4: ["Explorers discovered new paths across the seas.", "Recycling helps protect our blue planet.", "Fractions represent equal parts of a whole."],
 };
 function phrasesForRegion(): Record<number, string[]> {
-  if (typeof window === "undefined") return PHRASES_PT_PT;
-  // dynamically import to avoid SSR issues
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const { detectRegion } = require("@/lib/region") as typeof import("@/lib/region");
   const r = detectRegion();
   if (r.language === "en") return PHRASES_EN;
   if (r.code === "BR") return PHRASES_PT_BR;
