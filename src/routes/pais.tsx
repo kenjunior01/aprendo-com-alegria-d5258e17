@@ -11,8 +11,9 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { getMyChildren, createParentInvite, acceptParentInvite, getChildDashboard, getChildControls, setChildControls, type ParentDashboardData } from "@/server/parent.functions";
 import { listChildren as listTutorChildren, type TutorHistory } from "@/lib/tutorHistory";
-import { Copy, LogOut, Plus, BarChart3, Clock, Target, Flame, MessageCircle, ShieldCheck, Moon, Hourglass } from "lucide-react";
+import { Copy, LogOut, Plus, BarChart3, Clock, Target, Flame, MessageCircle, ShieldCheck, Moon, Hourglass, UserPlus } from "lucide-react";
 import { PurchaseHistoryPanel } from "@/components/PurchaseHistoryPanel";
+import { QuickChildSignup } from "@/components/QuickChildSignup";
 
 const GATE_KEY = "kidoz-parent-gate-ts";
 const GATE_TTL_MIN = 30;
@@ -40,6 +41,17 @@ function ParentDashboard() {
   const [acceptCode, setAcceptCode] = useState("");
   const [acceptMsg, setAcceptMsg] = useState<string | null>(null);
   const [unlocked, setUnlocked] = useState(false);
+  const [showQuickSignup, setShowQuickSignup] = useState(false);
+  const [showInviteCode, setShowInviteCode] = useState(false);
+
+  const reloadChildren = async () => {
+    try {
+      const res = await getMyChildren();
+      const list = (res?.children ?? []) as ChildSummary[];
+      setChildren(list);
+      if (list.length > 0 && !selectedChild) setSelectedChild(list[0].id);
+    } catch { /* noop */ }
+  };
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -141,35 +153,40 @@ function ParentDashboard() {
         {children.length === 0 ? (
           <motion.section initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="card-chunky rounded-3xl border border-border bg-card p-5 sm:p-6">
             <h1 className="font-display text-2xl sm:text-3xl">Olá, {profile.name}! 👋</h1>
-            <p className="mt-1 text-sm text-muted-foreground">Liga uma conta de criança para começar a acompanhar o progresso.</p>
+            <p className="mt-1 text-sm text-muted-foreground">Cria um perfil para a tua criança em poucos segundos.</p>
 
-            <div className="mt-5 grid gap-4 sm:grid-cols-2">
-              <div className="rounded-2xl bg-accent/40 p-4">
-                <p className="font-display text-base">🔗 Convidar uma criança</p>
-                <p className="mt-1 text-xs text-muted-foreground">Gera um código e dá-o à criança para ela introduzir no perfil dela.</p>
-                {pendingCode ? (
-                  <div className="mt-3 flex items-center gap-2 rounded-xl bg-card px-3 py-2 font-mono text-lg font-bold tracking-widest">
-                    {pendingCode}
-                    <button onClick={() => navigator.clipboard?.writeText(pendingCode)} className="ml-auto text-muted-foreground hover:text-foreground"><Copy className="h-4 w-4" /></button>
-                  </div>
-                ) : (
-                  <ChunkyButton onClick={generateInvite} className="mt-3 w-full"><Plus className="h-4 w-4" /> Gerar código</ChunkyButton>
-                )}
-              </div>
-              <div className="rounded-2xl bg-secondary/30 p-4">
-                <p className="font-display text-base">🧒 Já tens código?</p>
-                <p className="mt-1 text-xs text-muted-foreground">Se um pai já gerou um código, introduz aqui (na conta da criança).</p>
+            <div className="mt-5">
+              {showQuickSignup ? (
+                <QuickChildSignup
+                  onClose={() => setShowQuickSignup(false)}
+                  onCreated={async ({ childId }) => {
+                    setShowQuickSignup(false);
+                    setSelectedChild(childId);
+                    await reloadChildren();
+                  }}
+                />
+              ) : (
+                <ChunkyButton onClick={() => setShowQuickSignup(true)} className="w-full sm:w-auto">
+                  <UserPlus className="h-4 w-4" /> Criar perfil de criança
+                </ChunkyButton>
+              )}
+            </div>
+
+            <details className="mt-5 rounded-2xl bg-muted/40 p-3">
+              <summary className="cursor-pointer font-display text-sm">Tenho um código de convite</summary>
+              <div className="mt-3">
+                <p className="text-xs text-muted-foreground">Introduz aqui o código que te foi dado (na conta da criança).</p>
                 <input
                   value={acceptCode}
                   onChange={(e) => setAcceptCode(e.target.value.toUpperCase())}
                   placeholder="ABC123"
                   maxLength={8}
-                  className="mt-3 w-full rounded-xl border-2 border-border bg-card px-3 py-2 text-center font-mono text-lg tracking-widest outline-none focus:border-primary"
+                  className="mt-2 w-full rounded-xl border-2 border-border bg-card px-3 py-2 text-center font-mono text-lg tracking-widest outline-none focus:border-primary"
                 />
                 <ChunkyButton tone="secondary" onClick={acceptInvite} className="mt-2 w-full">Ligar conta</ChunkyButton>
                 {acceptMsg && <p className="mt-2 text-center text-xs">{acceptMsg}</p>}
               </div>
-            </div>
+            </details>
           </motion.section>
         ) : (
           <>
@@ -186,13 +203,34 @@ function ParentDashboard() {
                   {c.name}
                 </button>
               ))}
-              <button onClick={generateInvite} className="rounded-full bg-card px-3 py-1.5 font-display text-sm text-muted-foreground"><Plus className="inline h-4 w-4" /> Adicionar</button>
+              <button onClick={() => setShowQuickSignup(true)} className="rounded-full bg-primary/15 px-3 py-1.5 font-display text-sm text-primary"><UserPlus className="inline h-4 w-4" /> Novo perfil</button>
+              <button onClick={() => setShowInviteCode((v) => !v)} className="rounded-full bg-card px-3 py-1.5 font-display text-sm text-muted-foreground"><Plus className="inline h-4 w-4" /> Por código</button>
             </div>
 
-            {pendingCode && (
-              <div className="mb-4 rounded-2xl bg-accent/40 p-3 text-center">
-                <p className="text-xs text-muted-foreground">Novo código de convite:</p>
-                <p className="font-mono text-2xl font-bold tracking-widest">{pendingCode}</p>
+            {showQuickSignup && (
+              <div className="mb-4">
+                <QuickChildSignup
+                  onClose={() => setShowQuickSignup(false)}
+                  onCreated={async ({ childId }) => {
+                    setShowQuickSignup(false);
+                    setSelectedChild(childId);
+                    await reloadChildren();
+                  }}
+                />
+              </div>
+            )}
+
+            {showInviteCode && (
+              <div className="mb-4 rounded-2xl bg-accent/40 p-3">
+                <p className="text-xs text-muted-foreground">Gera um código para ligar uma conta de criança já existente:</p>
+                {pendingCode ? (
+                  <div className="mt-2 flex items-center gap-2 rounded-xl bg-card px-3 py-2 font-mono text-lg font-bold tracking-widest">
+                    {pendingCode}
+                    <button onClick={() => navigator.clipboard?.writeText(pendingCode)} className="ml-auto text-muted-foreground hover:text-foreground"><Copy className="h-4 w-4" /></button>
+                  </div>
+                ) : (
+                  <ChunkyButton onClick={generateInvite} className="mt-2 w-full sm:w-auto"><Plus className="h-4 w-4" /> Gerar código</ChunkyButton>
+                )}
               </div>
             )}
 
