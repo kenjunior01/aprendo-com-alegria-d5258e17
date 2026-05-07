@@ -21,8 +21,10 @@ function computeActive(sub: SubscriptionRow | null): boolean {
   if (!sub) return false;
   const end = sub.current_period_end ? new Date(sub.current_period_end).getTime() : null;
   const future = end === null || end > Date.now();
-  if (["active", "trialing", "past_due"].includes(sub.status) && future) return true;
+  if (["active", "trialing"].includes(sub.status) && future) return true;
   if (sub.status === "canceled" && end && end > Date.now()) return true;
+  // 7-day grace period for failed payments
+  if (["past_due", "unpaid"].includes(sub.status) && end && end > Date.now() - 7 * 24 * 60 * 60 * 1000) return true;
   return false;
 }
 
