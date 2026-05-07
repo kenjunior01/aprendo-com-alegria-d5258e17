@@ -181,7 +181,7 @@ function EscolaPage() {
     URL.revokeObjectURL(url);
   };
 
-
+  const summary = useMemo(() => {
     if (students.length === 0) return null;
     const totalMin = students.reduce((a, s) => a + s.minutes, 0);
     const totalSess = students.reduce((a, s) => a + s.sessions, 0);
