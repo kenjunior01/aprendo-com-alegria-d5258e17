@@ -5,7 +5,8 @@ import { ChunkyButton } from "@/components/ChunkyButton";
 import { KidozLogo } from "@/components/KidozLogo";
 import { MASCOTS } from "@/lib/mascots";
 import { loadProfile, pullProfileFromCloud } from "@/lib/storage";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { detectRegion, regionBadgeText, type RegionInfo } from "@/lib/region";
 
 export const Route = createFileRoute("/")({
   head: () => ({
