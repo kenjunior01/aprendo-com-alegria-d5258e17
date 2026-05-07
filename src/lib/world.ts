@@ -139,7 +139,7 @@ export async function pushWorldState(state: WorldState): Promise<void> {
     if (!user) return;
     await supabase
       .from("profiles")
-      .update({ world_state: state as unknown as Record<string, unknown> })
+      .update({ world_state: state as never })
       .eq("id", user.id);
   } catch {
     /* ignore offline */
