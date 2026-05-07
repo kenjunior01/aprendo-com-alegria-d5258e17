@@ -227,6 +227,11 @@
     text-shadow: 0 2px 0 color-mix(in oklab, currentColor 18%, transparent);
   }
 
+  /* Touch-target helpers — Guia Mobile §1.4 / §2.3 */
+  .touch-target { min-height: 48px; min-width: 48px; }
+  .touch-target-lg { min-height: 56px; min-width: 56px; }
+  .touch-target-kid { min-height: 75px; min-width: 75px; }
+
   /* Used to outline mascot/cards floating in the scene */
   .ring-soft {
     box-shadow:
