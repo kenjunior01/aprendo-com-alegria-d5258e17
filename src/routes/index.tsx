@@ -124,6 +124,12 @@ function Landing() {
           <FeatureCard emoji="➕" title="Matemática" text="Tabuada, divisões, frações" />
           <FeatureCard emoji="🌍" title="Estudo do Meio" text="Portugal, história, ambiente" />
         </div>
+
+        <div className="mt-8 flex w-full max-w-xs flex-col items-stretch gap-3 sm:max-w-none sm:flex-row sm:justify-center">
+          <Link to="/escolas" className="flex-1 sm:flex-none">
+            <ChunkyButton tone="ghost" className="w-full">🏫 Para escolas — 0,99€/aluno</ChunkyButton>
+          </Link>
+        </div>
       </div>
     </main>
   );
