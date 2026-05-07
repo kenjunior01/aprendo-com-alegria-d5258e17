@@ -41,6 +41,17 @@ function ParentDashboard() {
   const [acceptCode, setAcceptCode] = useState("");
   const [acceptMsg, setAcceptMsg] = useState<string | null>(null);
   const [unlocked, setUnlocked] = useState(false);
+  const [showQuickSignup, setShowQuickSignup] = useState(false);
+  const [showInviteCode, setShowInviteCode] = useState(false);
+
+  const reloadChildren = async () => {
+    try {
+      const res = await getMyChildren();
+      const list = (res?.children ?? []) as ChildSummary[];
+      setChildren(list);
+      if (list.length > 0 && !selectedChild) setSelectedChild(list[0].id);
+    } catch { /* noop */ }
+  };
 
   useEffect(() => {
     if (typeof window === "undefined") return;
