@@ -9,6 +9,7 @@ import { VoiceReader } from "@/components/VoiceReader";
 import { loadProfile, type Profile } from "@/lib/storage";
 import { ArrowLeft, Sparkles } from "lucide-react";
 import { getAdaptiveRecommendation } from "@/server/ai.functions";
+import { detectRegion } from "@/lib/region";
 
 export const Route = createFileRoute("/leitura")({
   head: () => ({
@@ -20,12 +21,30 @@ export const Route = createFileRoute("/leitura")({
   component: ReadingPage,
 });
 
-const PHRASES_BY_LEVEL: Record<number, string[]> = {
+const PHRASES_PT_PT: Record<number, string[]> = {
   1: ["O sol brilha no céu.", "A bola é vermelha.", "O gato bebe leite.", "A Mocha é uma coruja."],
   2: ["A borboleta voa pelo jardim colorido.", "Os meninos jogam à bola no parque.", "A galinha põe ovos no galinheiro."],
   3: ["O coelho saltou para dentro da floresta sombria.", "Lisboa fica junto ao rio Tejo, em Portugal.", "As estrelas brilham na noite de verão."],
   4: ["Os exploradores portugueses descobriram novos caminhos pelo mar.", "A reciclagem ajuda a proteger o nosso planeta azul.", "As frações representam partes iguais de um todo."],
 };
+const PHRASES_PT_BR: Record<number, string[]> = {
+  1: ["O sol brilha no céu.", "A bola é vermelha.", "O gato toma leite.", "O sapo pula na lagoa."],
+  2: ["A borboleta voa pelo jardim colorido.", "As crianças brincam de pique-esconde.", "A galinha bota ovos no galinheiro."],
+  3: ["O coelho pulou para dentro da floresta escura.", "O Rio de Janeiro fica junto ao mar.", "As estrelas brilham na noite de verão."],
+  4: ["Os bandeirantes exploraram o interior do Brasil.", "A reciclagem ajuda a proteger nosso planeta azul.", "As frações representam partes iguais de um todo."],
+};
+const PHRASES_EN: Record<number, string[]> = {
+  1: ["The sun shines in the sky.", "The ball is red.", "The cat drinks milk.", "The owl is wise."],
+  2: ["The butterfly flies through the garden.", "Children play in the park.", "The hen lays eggs in the coop."],
+  3: ["The rabbit hopped into the dark forest.", "The stars shine bright at night.", "We learn something new every day."],
+  4: ["Explorers discovered new paths across the seas.", "Recycling helps protect our blue planet.", "Fractions represent equal parts of a whole."],
+};
+function phrasesForRegion(): Record<number, string[]> {
+  const r = detectRegion();
+  if (r.language === "en") return PHRASES_EN;
+  if (r.code === "BR") return PHRASES_PT_BR;
+  return PHRASES_PT_PT;
+}
 
 function ReadingPage() {
   const navigate = useNavigate();
@@ -49,7 +68,8 @@ function ReadingPage() {
 
   if (!profile) return null;
 
-  const phrases = PHRASES_BY_LEVEL[profile.grade] ?? PHRASES_BY_LEVEL[1];
+  const phrasesMap = phrasesForRegion();
+  const phrases = phrasesMap[profile.grade] ?? phrasesMap[1];
   const phrase = phrases[phraseIndex % phrases.length];
 
   const handleResult = (matched: boolean) => {
