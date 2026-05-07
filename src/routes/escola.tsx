@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Mascot } from "@/components/Mascot";
-import { Download, Plus, School, Users, Pencil, Trash2, Filter, Trophy, LineChart as LineChartIcon, UserMinus } from "lucide-react";
+import { Download, Plus, School, Users, Pencil, Trash2, Filter, Trophy, LineChart as LineChartIcon, UserMinus, Bell, RotateCcw, X } from "lucide-react";
 import { toast } from "sonner";
 import { loadProfile, pullProfileFromCloud, type Profile } from "@/lib/storage";
 import {
@@ -23,11 +23,15 @@ import {
   getSubjectRanking,
   getClassTimeline,
   removeClassMember,
+  getStudentDetails,
+  getTeacherAlerts,
   type SchoolRow,
   type ClassRow,
   type ClassStudentStats,
   type SubjectRankingEntry,
   type WeeklyPoint,
+  type StudentDetails,
+  type TeacherAlert,
 } from "@/server/school.functions";
 import type { MascotId } from "@/lib/mascots";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend } from "recharts";
@@ -59,7 +63,12 @@ function EscolaPage() {
   const [subjectFilter, setSubjectFilter] = useState<string>("");
   const [daysFilter, setDaysFilter] = useState<number>(30);
   const [ranking, setRanking] = useState<SubjectRankingEntry[]>([]);
+  const [rankingAll, setRankingAll] = useState<SubjectRankingEntry[]>([]);
   const [timeline, setTimeline] = useState<WeeklyPoint[]>([]);
+  const [studentFilter, setStudentFilter] = useState<string>("");
+  const [openStudent, setOpenStudent] = useState<StudentDetails | null>(null);
+  const [alerts, setAlerts] = useState<TeacherAlert[]>([]);
+  const [dismissedAlerts, setDismissedAlerts] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
 
   const fnBecome = useServerFn(becomeTeacher);
@@ -73,6 +82,8 @@ function EscolaPage() {
   const fnRanking = useServerFn(getSubjectRanking);
   const fnTimeline = useServerFn(getClassTimeline);
   const fnRemoveMember = useServerFn(removeClassMember);
+  const fnStudent = useServerFn(getStudentDetails);
+  const fnAlerts = useServerFn(getTeacherAlerts);
 
   useEffect(() => {
     (async () => {
@@ -93,26 +104,43 @@ function EscolaPage() {
     const c = await fnClasses({ data: {} }); setClasses(c.classes);
   };
 
-  const reloadAll = async (cls = selectedClass, subject = subjectFilter, days = daysFilter) => {
+  const reloadAll = async (cls = selectedClass, subject = subjectFilter, days = daysFilter, student = studentFilter) => {
     if (!cls) return;
     const args = { classId: cls.id, subjectId: subject || undefined, days };
-    const [d, rk, tl] = await Promise.all([
+    const [d, rk, tl, al] = await Promise.all([
       fnDash({ data: args }),
       fnRanking({ data: args }),
-      fnTimeline({ data: args }),
+      fnTimeline({ data: { ...args, studentId: student || undefined } }),
+      fnAlerts({ data: { classId: cls.id, subjectId: subject || undefined } }),
     ]);
     setStudents(d.students);
     setSubjects(d.subjects);
     setRanking(rk.top);
+    setRankingAll((rk as any).all ?? rk.top);
     setTimeline(tl.points);
+    setAlerts(al.alerts);
   };
 
-  const reloadDashboard = (cls = selectedClass, subject = subjectFilter, days = daysFilter) => reloadAll(cls, subject, days);
+  const reloadDashboard = (cls = selectedClass, subject = subjectFilter, days = daysFilter) => reloadAll(cls, subject, days, studentFilter);
 
   const openClass = async (cls: ClassRow) => {
     setSelectedClass(cls);
     setSubjectFilter("");
-    await reloadAll(cls, "", daysFilter);
+    setStudentFilter("");
+    await reloadAll(cls, "", daysFilter, "");
+  };
+
+  const resetFilters = () => {
+    setSubjectFilter("");
+    setStudentFilter("");
+    setDaysFilter(30);
+    reloadAll(selectedClass, "", 30, "");
+  };
+
+  const openStudentDetails = async (studentId: string) => {
+    if (!selectedClass) return;
+    const r = await fnStudent({ data: { classId: selectedClass.id, studentId, subjectId: subjectFilter || undefined, days: daysFilter } });
+    if (r.details) setOpenStudent(r.details);
   };
 
   const exportCsv = () => {
@@ -133,6 +161,22 @@ function EscolaPage() {
     const a = document.createElement("a");
     a.href = url;
     a.download = `turma-${selectedClass.name}-${subjectFilter || "todas"}-${daysFilter}d.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const exportRankingCsv = () => {
+    if (!selectedClass || rankingAll.length === 0) return;
+    const header = ["Posição", "Nome", "XP", "Precisão %", "Minutos", "Sessões", "Top 10"].join(",");
+    const rows = rankingAll.map((e, i) => {
+      const cells = [i + 1, e.name, e.xp, e.accuracy, e.minutes, e.sessions, i < 10 ? "sim" : "não"];
+      return cells.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(",");
+    }).join("\n");
+    const blob = new Blob(["\uFEFF" + header + "\n" + rows], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `ranking-${selectedClass.name}-${subjectFilter || "geral"}-${daysFilter}d.csv`;
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -292,20 +336,64 @@ function EscolaPage() {
                     <div>
                       <Label className="text-xs">Período</Label>
                       <select
-                        className="h-9 w-32 rounded-md border border-border bg-background px-2 text-sm"
+                        className="h-9 w-36 rounded-md border border-border bg-background px-2 text-sm"
                         value={daysFilter}
                         onChange={(e) => { const d = Number(e.target.value); setDaysFilter(d); reloadDashboard(selectedClass, subjectFilter, d); }}
                       >
                         <option value={7}>7 dias</option>
                         <option value={30}>30 dias</option>
+                        <option value={28}>4 semanas</option>
+                        <option value={56}>8 semanas</option>
+                        <option value={84}>12 semanas</option>
                         <option value={90}>90 dias</option>
                       </select>
                     </div>
+                    <div>
+                      <Label className="text-xs">Aluno</Label>
+                      <select
+                        className="h-9 w-44 rounded-md border border-border bg-background px-2 text-sm"
+                        value={studentFilter}
+                        onChange={(e) => { setStudentFilter(e.target.value); reloadAll(selectedClass, subjectFilter, daysFilter, e.target.value); }}
+                      >
+                        <option value="">Toda a turma</option>
+                        {students.map((s) => <option key={s.studentId} value={s.studentId}>{s.name}</option>)}
+                      </select>
+                    </div>
+                    <Button variant="ghost" size="sm" onClick={resetFilters} title="Limpar filtros">
+                      <RotateCcw className="mr-1 h-4 w-4" />Reset
+                    </Button>
                     <Button variant="outline" size="sm" onClick={exportCsv}>
-                      <Download className="mr-1 h-4 w-4" />CSV
+                      <Download className="mr-1 h-4 w-4" />CSV turma
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={exportRankingCsv}>
+                      <Download className="mr-1 h-4 w-4" />CSV ranking
                     </Button>
                   </div>
                 </div>
+
+                {/* Teacher alerts */}
+                {alerts.filter((a) => !dismissedAlerts.has(`${a.studentId}:${a.kind}`)).length > 0 && (
+                  <div className="mt-3 space-y-1">
+                    {alerts.filter((a) => !dismissedAlerts.has(`${a.studentId}:${a.kind}`)).map((a) => {
+                      const key = `${a.studentId}:${a.kind}`;
+                      return (
+                        <div key={key} className="flex items-center gap-2 rounded-lg border border-primary/30 bg-primary/10 px-2 py-1.5 text-xs">
+                          <Bell className="h-4 w-4 text-primary" />
+                          <Mascot id={a.mascot as MascotId} size="sm" />
+                          <span className="font-display">{a.name}</span>
+                          <span className="text-muted-foreground">{a.kind === "accuracy_up" ? "📈" : "⏱️"} {a.detail}</span>
+                          <button
+                            className="ml-auto text-muted-foreground hover:text-foreground"
+                            onClick={() => setDismissedAlerts((s) => new Set(s).add(key))}
+                            aria-label="Descartar"
+                          >
+                            <X className="h-3 w-3" />
+                          </button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
 
                 {summary && (
                   <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
@@ -342,10 +430,10 @@ function EscolaPage() {
                       {students.map((s) => (
                         <tr key={s.studentId} className="border-t border-border">
                           <td className="p-2">
-                            <div className="flex items-center gap-2">
+                            <button onClick={() => openStudentDetails(s.studentId)} className="flex items-center gap-2 hover:underline">
                               <Mascot id={s.mascot as MascotId} size="sm" />
                               <span className="font-display">{s.name}</span>
-                            </div>
+                            </button>
                           </td>
                           <td className="p-2 text-right font-mono">{s.xp}</td>
                           <td className="p-2 text-right">{s.streak}</td>
@@ -434,13 +522,15 @@ function EscolaPage() {
                       const pos = ranking.findIndex((r) => r.studentId === s.studentId);
                       return (
                         <li key={s.studentId} className="flex items-center gap-2 py-2">
-                          <Mascot id={s.mascot as MascotId} size="sm" />
-                          <div className="flex-1">
-                            <p className="font-display text-sm">{s.name}</p>
-                            <p className="text-xs text-muted-foreground">
-                              {pos >= 0 ? `Posição #${pos + 1}` : "Sem ranking"} · {s.xp} XP · {s.accuracy}% precisão
-                            </p>
-                          </div>
+                          <button onClick={() => openStudentDetails(s.studentId)} className="flex flex-1 items-center gap-2 text-left hover:underline">
+                            <Mascot id={s.mascot as MascotId} size="sm" />
+                            <div className="flex-1">
+                              <p className="font-display text-sm">{s.name}</p>
+                              <p className="text-xs text-muted-foreground">
+                                {pos >= 0 ? `Posição #${pos + 1}` : "Sem ranking"} · {s.xp} XP · {s.accuracy}% precisão
+                              </p>
+                            </div>
+                          </button>
                           <Button
                             size="sm"
                             variant="ghost"
@@ -459,6 +549,51 @@ function EscolaPage() {
                   </ul>
                 )}
               </section>
+
+              {openStudent && (
+                <section className="card-chunky mt-4 rounded-2xl border-2 border-primary/40 bg-card p-4">
+                  <div className="mb-3 flex items-start gap-3">
+                    <Mascot id={openStudent.mascot as MascotId} size="md" />
+                    <div className="flex-1">
+                      <h3 className="font-display text-lg">Detalhes — {openStudent.name}</h3>
+                      <p className="text-xs text-muted-foreground">{openStudent.grade}.º ano · 🔥 {openStudent.streak} · {openStudent.xp} XP totais</p>
+                    </div>
+                    <Button size="icon" variant="ghost" onClick={() => setOpenStudent(null)} aria-label="Fechar"><X className="h-4 w-4" /></Button>
+                  </div>
+                  <div className="mb-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
+                    <Stat label="Sessões" value={String(openStudent.totals.sessions)} />
+                    <Stat label="Precisão" value={`${openStudent.totals.accuracy}%`} />
+                    <Stat label="Minutos" value={String(openStudent.totals.minutes)} />
+                    <Stat label="Moedas" value={String(openStudent.totals.coins)} />
+                  </div>
+                  {Object.keys(openStudent.bySubject).length > 0 && (
+                    <div className="mb-3 grid gap-1 sm:grid-cols-3">
+                      {Object.entries(openStudent.bySubject).map(([sid, v]) => (
+                        <div key={sid} className="rounded-lg bg-muted/40 p-2 text-xs">
+                          <p className="font-display">{SUBJECT_LABELS[sid] ?? sid}</p>
+                          <p className="text-muted-foreground">{v.sessions} sessões · {v.accuracy}% · {v.minutes}m</p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  <p className="mb-2 font-display text-sm">Últimos exercícios</p>
+                  {openStudent.recent.length === 0 ? (
+                    <p className="text-xs text-muted-foreground">Sem registos no período.</p>
+                  ) : (
+                    <ul className="divide-y divide-border text-xs">
+                      {openStudent.recent.map((r) => (
+                        <li key={r.id} className="flex items-center gap-2 py-1.5">
+                          <span className="w-24 text-muted-foreground">{new Date(r.created_at).toLocaleDateString("pt-PT", { day: "2-digit", month: "2-digit" })}</span>
+                          <span className="flex-1 font-display">{SUBJECT_LABELS[r.subject_id] ?? r.subject_id} <span className="text-muted-foreground">· {r.lesson_id}</span></span>
+                          <span>{r.correct}/{r.total}</span>
+                          <span className="text-muted-foreground">{Math.round(r.duration_seconds / 60)}m</span>
+                          <span className="font-mono text-primary">+{r.xp_earned}xp</span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </section>
+              )}
             </TabsContent>
           )}
         </Tabs>
