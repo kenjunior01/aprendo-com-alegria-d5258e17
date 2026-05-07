@@ -240,6 +240,7 @@ export type Database = {
           role: string
           streak: number
           updated_at: string
+          world_state: Json
           xp: number
         }
         Insert: {
@@ -263,6 +264,7 @@ export type Database = {
           role?: string
           streak?: number
           updated_at?: string
+          world_state?: Json
           xp?: number
         }
         Update: {
@@ -286,6 +288,7 @@ export type Database = {
           role?: string
           streak?: number
           updated_at?: string
+          world_state?: Json
           xp?: number
         }
         Relationships: []

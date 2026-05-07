@@ -1,0 +1,1 @@
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS world_state jsonb NOT NULL DEFAULT '{"placed":[]}'::jsonb;
