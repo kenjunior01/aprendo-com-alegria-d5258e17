@@ -1,75 +1,65 @@
-# Roteiro de implementação — Proposta Kidoz Mobile
+# Plano faseado
 
-Já está feito: **deteção automática da região** (PT/BR/MZ/AO/CV/US/ZA/GB) no badge da homepage, com currículo correspondente.
+O pedido cobre 6 áreas independentes. Vou entregar em fases para garantir qualidade — cada fase é testável isoladamente.
 
-A proposta do PDF é grande. Para não partir o que já funciona (Cloud, painel de Pais, mapa de aprendizagem) vamos por **4 fases independentes**, cada uma entregue e testada antes da seguinte.
+## Fase 1 — AGORA (esta iteração)
 
----
+### A) Página de histórico de compras + recibos/faturas
+- Novo server function `listUserInvoices` em `src/utils/payments.functions.ts` protegido por `requireSupabaseAuth`:
+  - lê `subscriptions.stripe_customer_id` do utilizador (sandbox e live)
+  - chama `stripe.invoices.list({ customer })` e `stripe.charges.list({ customer })`
+  - devolve `[{ id, date, amount, currency, status, hosted_invoice_url, invoice_pdf, receipt_url, description }]`
+- Novo componente `PurchaseHistoryPanel.tsx`:
+  - tabela responsiva (mobile-first 390px) com data, descrição, valor, estado
+  - botões "Ver recibo" (`receipt_url`) e "Descarregar fatura" (`invoice_pdf`) — abrem em nova aba
+  - estados: vazio (nunca comprou), loading, erro
+- Integrar em `/pais` (já é o dashboard parental) numa nova secção "Histórico de pagamentos", abaixo do `PremiumStatusPanel`
 
-## Fase 1 — Mundo Persistente & Economia Virtual *(menor risco, alto impacto kid)*
+### B) Ativar gestão fiscal automática (IVA por país)
+- Atualizar `createCheckoutSession` para incluir `automatic_tax: { enabled: true }` (opção 2: cálculo + cobrança, +0,5%/transação — tu fazes filing)
+  - Decisão: opção 2 e não managed_payments porque os teus produtos estão registados em PT e queres controlo sobre filing
+- Set `tax_code` nos 3 produtos via script único (`txcd_10103001` — SaaS/serviços eletrónicos, adequado para subscrição educativa digital)
+- Adicionar `customer_update: { address: 'auto' }` e `tax_id_collection: { enabled: true }` para faturas com NIF
+- Banner informativo no `/premium`: "Preço inclui IVA do teu país"
 
-**O que entrego:**
-- Nova rota `/mundo` (entrada pela Tab Bar): quarto virtual da criança.
-- Catálogo de itens decorativos (móveis, plantas, posters, fundos) comprados com **Abracadinhos**.
-- Drag-and-drop simples para colocar itens na sala (grelha).
-- Persistência cloud na tabela `profiles` (campo `world_state jsonb`) + tabela `world_items`.
-- Reaproveita o sistema de coins/shop existente.
+## Fases seguintes (iterações dedicadas)
 
-**Ficheiros novos:** `src/routes/mundo.tsx`, `src/lib/world.ts`, `src/components/WorldCanvas.tsx`, migração SQL.
+**Fase 2 — Registo leve da criança.** Fluxo onde o pai cria perfis-filho sem email/password (já existe `parent_links` + `profiles`). Página `/pais/criar-perfil` que cria profile com PIN curto, sem fluxo Supabase Auth para a criança.
 
----
+**Fase 3 — Plano Escolas (0,99€/aluno/mês, mín. 20).** Novo produto Stripe `escola_aluno_mensal` com quantity 20-1000, página `/escolas` com formulário de subscrição por turma, ligação a `schools` + `classes` + `class_members` que já existem.
 
-## Fase 2 — Feedback Fonético (leitura em voz alta)
+**Fase 4 — Expansão até 7.ª classe + conteúdo regional.** Auditar `src/lib/curriculum.ts` e `chapters.ts`, adicionar grades 5-7, criar variantes por região (PT/BR/MZ/AO/CV) para Estudo do Meio/Ciências Sociais (história, geografia, cidadania local). Estrutura: `curriculum[grade][subject][region]`. Trabalho de conteúdo pesado — vou pedir-te para validar pelo menos um exemplo por país antes de escalar.
 
-**O que entrego:**
-- Nova atividade "Lê em voz alta" dentro de Português.
-- Usa Web Speech API (`SpeechRecognition`, `pt-PT` / `pt-BR` conforme região).
-- Texto realça a verde palavra a palavra à medida que a criança lê; vermelho com sugestão se errar.
-- Pontuação de fluência (palavras/min + precisão).
-- Fallback para dispositivos sem suporte (modo "ouvir apenas").
+**Fase 5 — PayPal + Clicpay + Vouchers.**
+- PayPal: botão separado em `/premium`, server route `/api/public/paypal/webhook` e `/api/paypal/create-order` usando a tua API key (vais precisar de adicionar `PAYPAL_CLIENT_ID` e `PAYPAL_SECRET` como secrets)
+- Clicpay (M-Pesa/eMola para MZ): integração via API REST, página de checkout próprio
+- Vouchers: tabela `vouchers (code, plan, used_by, expires_at)`, página `/resgatar-codigo`, função admin para gerar lotes
 
-**Ficheiros novos:** `src/components/PhonicReader.tsx`, `src/lib/speechRecognition.ts`, integração em `src/routes/leitura.tsx`.
+## Detalhes técnicos da Fase 1
 
----
+```
+src/utils/payments.functions.ts
+  + listUserInvoices (server fn, requireSupabaseAuth)
+  ~ createCheckoutSession (adicionar automatic_tax + tax_id_collection)
 
-## Fase 3 — PvP, Rankings & Desafios da IA
+src/components/PurchaseHistoryPanel.tsx (novo)
+src/routes/pais.tsx (adicionar secção)
 
-**O que entrego:**
-- Tabela `challenges` (criador, oponente, disciplina, tópico, estado, pontuação).
-- Tabela `friendships` com gate parental (PIN para aceitar amigo).
-- Rota `/desafios` com 3 separadores: Amigos · Global · Da Mascote.
-- Ranking semanal (top XP dos últimos 7 dias) com filtro Amigos/Global/País.
-- Recompensas semanais automáticas (cron via `/api/public/weekly-rewards`).
-- Mascote propõe 1 desafio diário baseado em pontos fracos do aluno (já temos `practice_sessions`).
+scripts/setup-tax-codes.ts (one-shot, atualiza os 3 products no Stripe)
+```
 
-**Ficheiros:** migração SQL, `src/routes/desafios.tsx`, `src/server/challenges.functions.ts`, atualizar `BottomNav`.
+Stripe APIs usadas:
+- `stripe.invoices.list({ customer, limit: 100 })` — para subscrições
+- `stripe.charges.list({ customer, limit: 100 })` — para pagamentos one-time (vitalício)
+- `stripe.products.update(id, { tax_code: 'txcd_10103001' })`
 
----
+Sem alterações de DB nesta fase — `subscriptions.stripe_customer_id` já existe.
 
-## Fase 4 — Painel Institucional (Escolas/Professores) *(maior, faz por último)*
+## O que NÃO faço nesta iteração
 
-**O que entrego:**
-- Novo `role = 'teacher'` em `profiles`, mais tabelas `schools`, `classes`, `class_members`.
-- Login de professor com código de escola.
-- Rota `/escola` (gated por role): lista de turmas, alunos, atribuir lições, ver progresso, criar desafios de turma, ranking interno.
-- Personalização institucional (logo da escola, currículo selecionado).
-- Exportação CSV de relatórios.
+- Fases 2-5 (já mapeadas acima, faço a seguir uma a uma)
+- Não toco no curriculum/chapters
+- Não adiciono PayPal/Clicpay/vouchers ainda
+- Não crio plano Escolas ainda
 
-**Ficheiros:** migrações SQL pesadas, `src/routes/escola.*.tsx`, `src/server/school.functions.ts`, RLS para professores verem apenas a sua escola.
-
----
-
-## Ordem sugerida e porquê
-
-1. **Mundo Persistente** primeiro — é puramente frontend + 1 tabela, dá retorno visual imediato e usa peças que já existem (coins, shop).
-2. **Feedback Fonético** — independente, sem DB, alto valor pedagógico.
-3. **PvP/Rankings** — exige novo schema social mas isolado.
-4. **Painel Institucional** — maior mudança de modelo de dados (multi-tenant escolar), feito por último para não bloquear o resto.
-
-**Não incluído nesta versão** (podes pedir depois se quiseres): conteúdo bilingue PT/EN com alternância em tempo real, insights preditivos de IA no painel de pais, sistema de mensagens professor↔pai.
-
----
-
-## Confirma:
-- Avançar com a **Fase 1 (Mundo Persistente)** já a seguir?
-- Ou queres ajustar a ordem / cortar alguma fase?
+Confirma e arranco com a Fase 1. Se quiseres trocar a ordem das fases seguintes, diz-me.

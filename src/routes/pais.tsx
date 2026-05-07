@@ -12,6 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { getMyChildren, createParentInvite, acceptParentInvite, getChildDashboard, getChildControls, setChildControls, type ParentDashboardData } from "@/server/parent.functions";
 import { listChildren as listTutorChildren, type TutorHistory } from "@/lib/tutorHistory";
 import { Copy, LogOut, Plus, BarChart3, Clock, Target, Flame, MessageCircle, ShieldCheck, Moon, Hourglass } from "lucide-react";
+import { PurchaseHistoryPanel } from "@/components/PurchaseHistoryPanel";
 
 const GATE_KEY = "kidoz-parent-gate-ts";
 const GATE_TTL_MIN = 30;
@@ -202,6 +203,7 @@ function ParentDashboard() {
               />
             )}
             {dashboard && <DashboardView data={dashboard} />}
+            <PurchaseHistoryPanel />
           </>
         )}
       </main>
