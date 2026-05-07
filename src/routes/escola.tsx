@@ -93,19 +93,26 @@ function EscolaPage() {
     const c = await fnClasses({ data: {} }); setClasses(c.classes);
   };
 
-  const reloadDashboard = async (cls = selectedClass, subject = subjectFilter, days = daysFilter) => {
+  const reloadAll = async (cls = selectedClass, subject = subjectFilter, days = daysFilter) => {
     if (!cls) return;
-    const r = await fnDash({ data: { classId: cls.id, subjectId: subject || undefined, days } });
-    setStudents(r.students);
-    setSubjects(r.subjects);
+    const args = { classId: cls.id, subjectId: subject || undefined, days };
+    const [d, rk, tl] = await Promise.all([
+      fnDash({ data: args }),
+      fnRanking({ data: args }),
+      fnTimeline({ data: args }),
+    ]);
+    setStudents(d.students);
+    setSubjects(d.subjects);
+    setRanking(rk.top);
+    setTimeline(tl.points);
   };
+
+  const reloadDashboard = (cls = selectedClass, subject = subjectFilter, days = daysFilter) => reloadAll(cls, subject, days);
 
   const openClass = async (cls: ClassRow) => {
     setSelectedClass(cls);
     setSubjectFilter("");
-    const r = await fnDash({ data: { classId: cls.id, days: daysFilter } });
-    setStudents(r.students);
-    setSubjects(r.subjects);
+    await reloadAll(cls, "", daysFilter);
   };
 
   const exportCsv = () => {
