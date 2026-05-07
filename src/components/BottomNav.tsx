@@ -1,5 +1,5 @@
 import { Link, useLocation } from "@tanstack/react-router";
-import { Map as MapIcon, BookOpen, Trophy, BarChart3, User } from "lucide-react";
+import { Map as MapIcon, BookOpen, Trophy, BarChart3, User, Swords } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
 import { loadProfile } from "@/lib/storage";
@@ -34,6 +34,7 @@ export function BottomNav() {
         { to: "/app", label: "Início", icon: MapIcon, match: (p) => p === "/app" || p.startsWith("/licao") || p.startsWith("/capitulo") },
         { to: "/leitura", label: "Explorar", icon: BookOpen, match: (p) => p.startsWith("/leitura") || p.startsWith("/ra") || p.startsWith("/jardim") },
         { to: "/tutor", label: "O Meu Amigo", mascot: true, match: (p) => p.startsWith("/tutor") },
+        { to: "/desafios", label: "Desafios", icon: Swords, match: (p) => p.startsWith("/desafios") },
         { to: "/conquistas", label: "Prémios", icon: Trophy, match: (p) => p.startsWith("/conquistas") || p.startsWith("/loja") },
         { to: "/perfil", label: "Eu", icon: User, match: (p) => p.startsWith("/perfil") },
       ];
