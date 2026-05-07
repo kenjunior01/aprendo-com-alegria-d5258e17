@@ -126,9 +126,12 @@ function ParentDashboard() {
             <BarChart3 className="h-6 w-6 text-primary" />
             <p className="font-display text-lg">Painel de Pais</p>
           </div>
-          <button onClick={signOut} className="text-sm text-muted-foreground hover:text-foreground">
-            <LogOut className="inline h-4 w-4" /> Sair
-          </button>
+          <div className="flex items-center gap-3">
+            <a href="/escola" className="text-sm font-display text-primary hover:underline">🏫 Escola</a>
+            <button onClick={signOut} className="text-sm text-muted-foreground hover:text-foreground">
+              <LogOut className="inline h-4 w-4" /> Sair
+            </button>
+          </div>
         </div>
       </header>
 
