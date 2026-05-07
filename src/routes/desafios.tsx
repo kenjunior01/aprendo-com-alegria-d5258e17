@@ -35,6 +35,7 @@ export const Route = createFileRoute("/desafios")({
 
 function DesafiosPage() {
   const [profile, setProfile] = useState<Profile | null>(null);
+  const [myUserId, setMyUserId] = useState<string>("");
   const [challenges, setChallenges] = useState<ChallengeRow[]>([]);
   const [aiChallenge, setAiChallenge] = useState<ChallengeRow | null>(null);
   const [ranking, setRanking] = useState<Awaited<ReturnType<typeof getWeeklyRanking>>>({ ranking: [], me: null });
@@ -52,6 +53,8 @@ function DesafiosPage() {
     (async () => {
       const cloud = await pullProfileFromCloud();
       setProfile(cloud ?? loadProfile());
+      const { data: u } = await supabase.auth.getUser();
+      setMyUserId(u.user?.id ?? "");
       try {
         const [list, ai, rank, fr] = await Promise.all([
           fnList(),
