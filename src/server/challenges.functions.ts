@@ -26,7 +26,7 @@ export const listMyChallenges = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     const { supabase, userId } = context;
     const { data, error } = await supabase
-      .from("challenges" as never)
+      .from("challenges" as any)
       .select("*")
       .or(`creator_id.eq.${userId},opponent_id.eq.${userId}`)
       .order("created_at", { ascending: false })
@@ -52,7 +52,7 @@ export const createPvpChallenge = createServerFn({ method: "POST" })
     const { supabase, userId } = context;
     // Verify friendship
     const { data: f } = await supabase
-      .from("friendships" as never)
+      .from("friendships" as any)
       .select("status")
       .or(
         `and(requester_id.eq.${userId},addressee_id.eq.${data.opponentId}),and(requester_id.eq.${data.opponentId},addressee_id.eq.${userId})`,
@@ -63,7 +63,7 @@ export const createPvpChallenge = createServerFn({ method: "POST" })
       return { ok: false as const, error: "Precisas ser amigo dessa pessoa." };
     }
     const { data: ch, error } = await supabase
-      .from("challenges" as never)
+      .from("challenges" as any)
       .insert({
         creator_id: userId,
         opponent_id: data.opponentId,
@@ -84,7 +84,7 @@ export const submitChallengeScore = createServerFn({ method: "POST" })
   .handler(async ({ context, data }) => {
     const { supabase, userId } = context;
     const { data: ch } = await supabase
-      .from("challenges" as never)
+      .from("challenges" as any)
       .select("*")
       .eq("id", data.challengeId)
       .maybeSingle();
@@ -109,7 +109,7 @@ export const submitChallengeScore = createServerFn({ method: "POST" })
     }
 
     const { error } = await supabase
-      .from("challenges" as never)
+      .from("challenges" as any)
       .update({ ...patch, status, winner_id: winner })
       .eq("id", data.challengeId);
     if (error) return { ok: false as const, error: error.message };
@@ -143,7 +143,7 @@ export const getOrCreateDailyAiChallenge = createServerFn({ method: "POST" })
     const since = new Date();
     since.setHours(0, 0, 0, 0);
     const { data: existing } = await supabase
-      .from("challenges" as never)
+      .from("challenges" as any)
       .select("*")
       .eq("creator_id", userId)
       .eq("kind", "ai_daily")
@@ -173,7 +173,7 @@ export const getOrCreateDailyAiChallenge = createServerFn({ method: "POST" })
     const lesson = ranked[0]?.[1].lesson ?? "letras-vogais";
 
     const { data: ch, error } = await supabase
-      .from("challenges" as never)
+      .from("challenges" as any)
       .insert({
         creator_id: userId,
         kind: "ai_daily",
@@ -236,7 +236,7 @@ export const requestFriendship = createServerFn({ method: "POST" })
     const { supabase, userId } = context;
     if (data.addresseeId === userId) return { ok: false as const, error: "Não te podes adicionar a ti." };
     const { error } = await supabase
-      .from("friendships" as never)
+      .from("friendships" as any)
       .insert({ requester_id: userId, addressee_id: data.addresseeId });
     if (error) return { ok: false as const, error: error.message };
     return { ok: true as const };
@@ -248,7 +248,7 @@ export const respondFriendship = createServerFn({ method: "POST" })
   .handler(async ({ context, data }) => {
     const { supabase } = context;
     const { error } = await supabase
-      .from("friendships" as never)
+      .from("friendships" as any)
       .update({ status: data.accept ? "accepted" : "blocked" })
       .eq("id", data.friendshipId);
     if (error) return { ok: false as const, error: error.message };
@@ -260,7 +260,7 @@ export const listFriends = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     const { supabase, userId } = context;
     const { data: rels } = await supabase
-      .from("friendships" as never)
+      .from("friendships" as any)
       .select("id, requester_id, addressee_id, status")
       .or(`requester_id.eq.${userId},addressee_id.eq.${userId}`);
     const list = (rels ?? []) as unknown as Array<{
