@@ -63,7 +63,12 @@ function EscolaPage() {
   const [subjectFilter, setSubjectFilter] = useState<string>("");
   const [daysFilter, setDaysFilter] = useState<number>(30);
   const [ranking, setRanking] = useState<SubjectRankingEntry[]>([]);
+  const [rankingAll, setRankingAll] = useState<SubjectRankingEntry[]>([]);
   const [timeline, setTimeline] = useState<WeeklyPoint[]>([]);
+  const [studentFilter, setStudentFilter] = useState<string>("");
+  const [openStudent, setOpenStudent] = useState<StudentDetails | null>(null);
+  const [alerts, setAlerts] = useState<TeacherAlert[]>([]);
+  const [dismissedAlerts, setDismissedAlerts] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
 
   const fnBecome = useServerFn(becomeTeacher);
@@ -77,6 +82,8 @@ function EscolaPage() {
   const fnRanking = useServerFn(getSubjectRanking);
   const fnTimeline = useServerFn(getClassTimeline);
   const fnRemoveMember = useServerFn(removeClassMember);
+  const fnStudent = useServerFn(getStudentDetails);
+  const fnAlerts = useServerFn(getTeacherAlerts);
 
   useEffect(() => {
     (async () => {
