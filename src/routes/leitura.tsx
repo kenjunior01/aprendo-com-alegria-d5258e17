@@ -71,7 +71,8 @@ function ReadingPage() {
 
   if (!profile) return null;
 
-  const phrases = PHRASES_BY_LEVEL[profile.grade] ?? PHRASES_BY_LEVEL[1];
+  const phrasesMap = phrasesForRegion();
+  const phrases = phrasesMap[profile.grade] ?? phrasesMap[1];
   const phrase = phrases[phraseIndex % phrases.length];
 
   const handleResult = (matched: boolean) => {
