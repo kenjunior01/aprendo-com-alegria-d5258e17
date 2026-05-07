@@ -23,7 +23,7 @@ async function handleSubscriptionCreated(subscription: any, env: StripeEnv) {
   const periodStart = item?.current_period_start ?? subscription.current_period_start;
   const periodEnd = item?.current_period_end ?? subscription.current_period_end;
 
-  await getSupabase().from("subscriptions").upsert(
+  await (getSupabase() as any).from("subscriptions").upsert(
     {
       user_id: userId,
       stripe_subscription_id: subscription.id,
@@ -76,7 +76,7 @@ async function handleCheckoutCompleted(session: any, env: StripeEnv) {
   const userId = session.metadata?.userId;
   if (!userId) return;
   const priceId = session.metadata?.priceId || "vitalicio_lifetime";
-  await getSupabase().from("subscriptions").upsert(
+  await (getSupabase() as any).from("subscriptions").upsert(
     {
       user_id: userId,
       stripe_subscription_id: `lifetime_${session.id}`,
