@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Mascot } from "@/components/Mascot";
-import { Download, Plus, School, Users, Pencil, Trash2, Filter, Trophy, LineChart as LineChartIcon, UserMinus } from "lucide-react";
+import { Download, Plus, School, Users, Pencil, Trash2, Filter, Trophy, LineChart as LineChartIcon, UserMinus, Bell, RotateCcw, X } from "lucide-react";
 import { toast } from "sonner";
 import { loadProfile, pullProfileFromCloud, type Profile } from "@/lib/storage";
 import {
@@ -23,11 +23,15 @@ import {
   getSubjectRanking,
   getClassTimeline,
   removeClassMember,
+  getStudentDetails,
+  getTeacherAlerts,
   type SchoolRow,
   type ClassRow,
   type ClassStudentStats,
   type SubjectRankingEntry,
   type WeeklyPoint,
+  type StudentDetails,
+  type TeacherAlert,
 } from "@/server/school.functions";
 import type { MascotId } from "@/lib/mascots";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend } from "recharts";
