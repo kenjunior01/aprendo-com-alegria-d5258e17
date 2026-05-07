@@ -25,6 +25,7 @@ import { Route as ComecarRouteImport } from './routes/comecar'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AppRouteImport } from './routes/app'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as CheckoutReturnRouteImport } from './routes/checkout.return'
 import { Route as CapituloChapterIdRouteImport } from './routes/capitulo.$chapterId'
 import { Route as LicaoSubjectIdLessonIdRouteImport } from './routes/licao.$subjectId.$lessonId'
 import { Route as ApiPublicTutorStreamRouteImport } from './routes/api/public/tutor-stream'
@@ -111,6 +112,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CheckoutReturnRoute = CheckoutReturnRouteImport.update({
+  id: '/checkout/return',
+  path: '/checkout/return',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CapituloChapterIdRoute = CapituloChapterIdRouteImport.update({
   id: '/capitulo/$chapterId',
   path: '/capitulo/$chapterId',
@@ -157,6 +163,7 @@ export interface FileRoutesByFullPath {
   '/ra': typeof RaRoute
   '/tutor': typeof TutorRoute
   '/capitulo/$chapterId': typeof CapituloChapterIdRoute
+  '/checkout/return': typeof CheckoutReturnRoute
   '/api/public/tutor-stream': typeof ApiPublicTutorStreamRoute
   '/licao/$subjectId/$lessonId': typeof LicaoSubjectIdLessonIdRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
@@ -180,6 +187,7 @@ export interface FileRoutesByTo {
   '/ra': typeof RaRoute
   '/tutor': typeof TutorRoute
   '/capitulo/$chapterId': typeof CapituloChapterIdRoute
+  '/checkout/return': typeof CheckoutReturnRoute
   '/api/public/tutor-stream': typeof ApiPublicTutorStreamRoute
   '/licao/$subjectId/$lessonId': typeof LicaoSubjectIdLessonIdRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
@@ -204,6 +212,7 @@ export interface FileRoutesById {
   '/ra': typeof RaRoute
   '/tutor': typeof TutorRoute
   '/capitulo/$chapterId': typeof CapituloChapterIdRoute
+  '/checkout/return': typeof CheckoutReturnRoute
   '/api/public/tutor-stream': typeof ApiPublicTutorStreamRoute
   '/licao/$subjectId/$lessonId': typeof LicaoSubjectIdLessonIdRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
@@ -229,6 +238,7 @@ export interface FileRouteTypes {
     | '/ra'
     | '/tutor'
     | '/capitulo/$chapterId'
+    | '/checkout/return'
     | '/api/public/tutor-stream'
     | '/licao/$subjectId/$lessonId'
     | '/api/public/payments/webhook'
@@ -252,6 +262,7 @@ export interface FileRouteTypes {
     | '/ra'
     | '/tutor'
     | '/capitulo/$chapterId'
+    | '/checkout/return'
     | '/api/public/tutor-stream'
     | '/licao/$subjectId/$lessonId'
     | '/api/public/payments/webhook'
@@ -275,6 +286,7 @@ export interface FileRouteTypes {
     | '/ra'
     | '/tutor'
     | '/capitulo/$chapterId'
+    | '/checkout/return'
     | '/api/public/tutor-stream'
     | '/licao/$subjectId/$lessonId'
     | '/api/public/payments/webhook'
@@ -299,6 +311,7 @@ export interface RootRouteChildren {
   RaRoute: typeof RaRoute
   TutorRoute: typeof TutorRoute
   CapituloChapterIdRoute: typeof CapituloChapterIdRoute
+  CheckoutReturnRoute: typeof CheckoutReturnRoute
   ApiPublicTutorStreamRoute: typeof ApiPublicTutorStreamRoute
   LicaoSubjectIdLessonIdRoute: typeof LicaoSubjectIdLessonIdRoute
   ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
@@ -419,6 +432,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/checkout/return': {
+      id: '/checkout/return'
+      path: '/checkout/return'
+      fullPath: '/checkout/return'
+      preLoaderRoute: typeof CheckoutReturnRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/capitulo/$chapterId': {
       id: '/capitulo/$chapterId'
       path: '/capitulo/$chapterId'
@@ -475,6 +495,7 @@ const rootRouteChildren: RootRouteChildren = {
   RaRoute: RaRoute,
   TutorRoute: TutorRoute,
   CapituloChapterIdRoute: CapituloChapterIdRoute,
+  CheckoutReturnRoute: CheckoutReturnRoute,
   ApiPublicTutorStreamRoute: ApiPublicTutorStreamRoute,
   LicaoSubjectIdLessonIdRoute: LicaoSubjectIdLessonIdRoute,
   ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
