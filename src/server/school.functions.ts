@@ -267,25 +267,30 @@ export const getClassTimeline = createServerFn({ method: "POST" })
       classId: z.string().uuid(),
       subjectId: z.string().optional(),
       days: z.number().int().min(7).max(180).optional(),
+      studentId: z.string().uuid().optional(),
     }).parse,
   )
   .handler(async ({ context, data }) => {
     const { supabase } = context;
-    const { data: members } = await supabase
-      .from("class_members" as any).select("student_id").eq("class_id", data.classId);
-    const ids = ((members ?? []) as unknown as Array<{ student_id: string }>).map((m) => m.student_id);
-    if (ids.length === 0) return { points: [] as WeeklyPoint[] };
+    let userIds: string[] = [];
+    if (data.studentId) {
+      userIds = [data.studentId];
+    } else {
+      const { data: members } = await supabase
+        .from("class_members" as any).select("student_id").eq("class_id", data.classId);
+      userIds = ((members ?? []) as unknown as Array<{ student_id: string }>).map((m) => m.student_id);
+    }
+    if (userIds.length === 0) return { points: [] as WeeklyPoint[] };
     const days = data.days ?? 30;
     const since = new Date(Date.now() - days * 86400_000).toISOString();
     let sq = supabase.from("practice_sessions")
       .select("created_at, correct, total, duration_seconds")
-      .in("user_id", ids).gte("created_at", since);
+      .in("user_id", userIds).gte("created_at", since);
     if (data.subjectId) sq = sq.eq("subject_id", data.subjectId);
     const { data: sess } = await sq;
     const buckets: Record<string, { c: number; t: number; sec: number; n: number }> = {};
     for (const s of sess ?? []) {
       const d = new Date(s.created_at);
-      // ISO week start (Monday)
       const day = d.getUTCDay() || 7;
       const monday = new Date(d); monday.setUTCDate(d.getUTCDate() - (day - 1)); monday.setUTCHours(0,0,0,0);
       const key = monday.toISOString().slice(0, 10);
@@ -314,6 +319,155 @@ export const removeClassMember = createServerFn({ method: "POST" })
     if (error) return { ok: false as const, error: error.message };
     return { ok: true as const };
   });
+
+export interface StudentSessionRow {
+  id: string;
+  created_at: string;
+  subject_id: string;
+  lesson_id: string;
+  correct: number;
+  total: number;
+  duration_seconds: number;
+  xp_earned: number;
+}
+export interface StudentDetails {
+  studentId: string;
+  name: string;
+  mascot: string;
+  grade: number;
+  xp: number;
+  streak: number;
+  totals: { sessions: number; accuracy: number; minutes: number; coins: number };
+  bySubject: Record<string, { sessions: number; accuracy: number; minutes: number }>;
+  recent: StudentSessionRow[];
+}
+export const getStudentDetails = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator(
+    z.object({
+      classId: z.string().uuid(),
+      studentId: z.string().uuid(),
+      subjectId: z.string().optional(),
+      days: z.number().int().min(1).max(180).optional(),
+    }).parse,
+  )
+  .handler(async ({ context, data }) => {
+    const { supabase } = context;
+    const since = new Date(Date.now() - (data.days ?? 30) * 86400_000).toISOString();
+    let sq = supabase.from("practice_sessions")
+      .select("id, created_at, subject_id, lesson_id, correct, total, duration_seconds, xp_earned, coins_earned")
+      .eq("user_id", data.studentId).gte("created_at", since)
+      .order("created_at", { ascending: false });
+    if (data.subjectId) sq = sq.eq("subject_id", data.subjectId);
+    const [{ data: prof }, { data: sess }] = await Promise.all([
+      supabase.from("profiles").select("id, name, mascot, grade, xp, streak").eq("id", data.studentId).maybeSingle(),
+      sq,
+    ]);
+    if (!prof) return { details: null as StudentDetails | null };
+    const all = sess ?? [];
+    let c = 0, t = 0, sec = 0, coins = 0;
+    const sub: Record<string, { c: number; t: number; sec: number; n: number }> = {};
+    for (const s of all) {
+      c += s.correct; t += s.total; sec += s.duration_seconds; coins += s.coins_earned ?? 0;
+      const b = sub[s.subject_id] ?? { c: 0, t: 0, sec: 0, n: 0 };
+      b.c += s.correct; b.t += s.total; b.sec += s.duration_seconds; b.n += 1;
+      sub[s.subject_id] = b;
+    }
+    const bySubject: StudentDetails["bySubject"] = {};
+    for (const [k, v] of Object.entries(sub)) {
+      bySubject[k] = { sessions: v.n, accuracy: v.t ? Math.round((v.c / v.t) * 100) : 0, minutes: Math.round(v.sec / 60) };
+    }
+    const details: StudentDetails = {
+      studentId: prof.id,
+      name: prof.name ?? "Aluno",
+      mascot: prof.mascot ?? "fox",
+      grade: prof.grade ?? 1,
+      xp: prof.xp ?? 0,
+      streak: prof.streak ?? 0,
+      totals: { sessions: all.length, accuracy: t ? Math.round((c / t) * 100) : 0, minutes: Math.round(sec / 60), coins },
+      bySubject,
+      recent: all.slice(0, 15).map((s) => ({
+        id: s.id,
+        created_at: s.created_at,
+        subject_id: s.subject_id,
+        lesson_id: s.lesson_id,
+        correct: s.correct,
+        total: s.total,
+        duration_seconds: s.duration_seconds,
+        xp_earned: s.xp_earned,
+      })),
+    };
+    return { details };
+  });
+
+export interface TeacherAlert {
+  studentId: string;
+  name: string;
+  mascot: string;
+  kind: "accuracy_up" | "minutes_goal";
+  detail: string;
+}
+export const getTeacherAlerts = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator(
+    z.object({
+      classId: z.string().uuid(),
+      subjectId: z.string().optional(),
+      minutesGoal: z.number().int().min(5).max(600).optional(),
+    }).parse,
+  )
+  .handler(async ({ context, data }) => {
+    const { supabase } = context;
+    const goal = data.minutesGoal ?? 60;
+    const { data: members } = await supabase
+      .from("class_members" as any).select("student_id").eq("class_id", data.classId);
+    const ids = ((members ?? []) as unknown as Array<{ student_id: string }>).map((m) => m.student_id);
+    if (ids.length === 0) return { alerts: [] as TeacherAlert[] };
+
+    const now = new Date();
+    const day = now.getUTCDay() || 7;
+    const thisMon = new Date(now); thisMon.setUTCDate(now.getUTCDate() - (day - 1)); thisMon.setUTCHours(0,0,0,0);
+    const lastMon = new Date(thisMon); lastMon.setUTCDate(thisMon.getUTCDate() - 7);
+    let sq = supabase.from("practice_sessions")
+      .select("user_id, created_at, correct, total, duration_seconds")
+      .in("user_id", ids).gte("created_at", lastMon.toISOString());
+    if (data.subjectId) sq = sq.eq("subject_id", data.subjectId);
+    const [{ data: profs }, { data: sess }] = await Promise.all([
+      supabase.from("profiles").select("id, name, mascot").in("id", ids),
+      sq,
+    ]);
+    const week: Record<string, { c: number; t: number; sec: number }> = {};
+    const prev: Record<string, { c: number; t: number; sec: number }> = {};
+    for (const s of sess ?? []) {
+      const t = new Date(s.created_at).getTime();
+      const bucket = t >= thisMon.getTime() ? week : prev;
+      const b = bucket[s.user_id] ?? { c: 0, t: 0, sec: 0 };
+      b.c += s.correct; b.t += s.total; b.sec += s.duration_seconds;
+      bucket[s.user_id] = b;
+    }
+    const profMap = new Map((profs ?? []).map((p) => [p.id, p]));
+    const alerts: TeacherAlert[] = [];
+    for (const id of ids) {
+      const w = week[id]; const p = prev[id];
+      const prof = profMap.get(id);
+      if (!prof) continue;
+      if (w && w.t >= 5) {
+        const wAcc = Math.round((w.c / w.t) * 100);
+        const pAcc = p && p.t >= 5 ? Math.round((p.c / p.t) * 100) : null;
+        if (pAcc !== null && wAcc - pAcc >= 10) {
+          alerts.push({ studentId: id, name: prof.name ?? "Aluno", mascot: prof.mascot ?? "fox", kind: "accuracy_up", detail: `Precisão subiu de ${pAcc}% para ${wAcc}%` });
+        }
+      }
+      if (w) {
+        const mins = Math.round(w.sec / 60);
+        if (mins >= goal) {
+          alerts.push({ studentId: id, name: prof.name ?? "Aluno", mascot: prof.mascot ?? "fox", kind: "minutes_goal", detail: `Atingiu ${mins} min esta semana (meta ${goal})` });
+        }
+      }
+    }
+    return { alerts };
+  });
+
 
 export const updateClass = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
