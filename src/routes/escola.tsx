@@ -104,26 +104,43 @@ function EscolaPage() {
     const c = await fnClasses({ data: {} }); setClasses(c.classes);
   };
 
-  const reloadAll = async (cls = selectedClass, subject = subjectFilter, days = daysFilter) => {
+  const reloadAll = async (cls = selectedClass, subject = subjectFilter, days = daysFilter, student = studentFilter) => {
     if (!cls) return;
     const args = { classId: cls.id, subjectId: subject || undefined, days };
-    const [d, rk, tl] = await Promise.all([
+    const [d, rk, tl, al] = await Promise.all([
       fnDash({ data: args }),
       fnRanking({ data: args }),
-      fnTimeline({ data: args }),
+      fnTimeline({ data: { ...args, studentId: student || undefined } }),
+      fnAlerts({ data: { classId: cls.id, subjectId: subject || undefined } }),
     ]);
     setStudents(d.students);
     setSubjects(d.subjects);
     setRanking(rk.top);
+    setRankingAll((rk as any).all ?? rk.top);
     setTimeline(tl.points);
+    setAlerts(al.alerts);
   };
 
-  const reloadDashboard = (cls = selectedClass, subject = subjectFilter, days = daysFilter) => reloadAll(cls, subject, days);
+  const reloadDashboard = (cls = selectedClass, subject = subjectFilter, days = daysFilter) => reloadAll(cls, subject, days, studentFilter);
 
   const openClass = async (cls: ClassRow) => {
     setSelectedClass(cls);
     setSubjectFilter("");
-    await reloadAll(cls, "", daysFilter);
+    setStudentFilter("");
+    await reloadAll(cls, "", daysFilter, "");
+  };
+
+  const resetFilters = () => {
+    setSubjectFilter("");
+    setStudentFilter("");
+    setDaysFilter(30);
+    reloadAll(selectedClass, "", 30, "");
+  };
+
+  const openStudentDetails = async (studentId: string) => {
+    if (!selectedClass) return;
+    const r = await fnStudent({ data: { classId: selectedClass.id, studentId, subjectId: subjectFilter || undefined, days: daysFilter } });
+    if (r.details) setOpenStudent(r.details);
   };
 
   const exportCsv = () => {
