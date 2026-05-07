@@ -118,11 +118,18 @@ export interface ClassStudentStats {
   sessions: number;
   accuracy: number;
   minutes: number;
+  bySubject: Record<string, { sessions: number; accuracy: number; minutes: number }>;
 }
 
 export const getClassDashboard = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(z.object({ classId: z.string().uuid() }).parse)
+  .inputValidator(
+    z.object({
+      classId: z.string().uuid(),
+      subjectId: z.string().optional(), // filter by subject when present
+      days: z.number().int().min(1).max(180).optional(),
+    }).parse,
+  )
   .handler(async ({ context, data }) => {
     const { supabase } = context;
     const { data: members } = await supabase
@@ -130,30 +137,47 @@ export const getClassDashboard = createServerFn({ method: "POST" })
       .select("student_id")
       .eq("class_id", data.classId);
     const studentIds = ((members ?? []) as unknown as Array<{ student_id: string }>).map((m) => m.student_id);
-    if (studentIds.length === 0) return { students: [] as ClassStudentStats[] };
+    if (studentIds.length === 0) return { students: [] as ClassStudentStats[], subjects: [] as string[] };
 
-    const since = new Date(Date.now() - 30 * 86400_000).toISOString();
+    const days = data.days ?? 30;
+    const since = new Date(Date.now() - days * 86400_000).toISOString();
+    let sessQ = supabase
+      .from("practice_sessions")
+      .select("user_id, subject_id, correct, total, duration_seconds")
+      .in("user_id", studentIds)
+      .gte("created_at", since);
+    if (data.subjectId) sessQ = sessQ.eq("subject_id", data.subjectId);
+
     const [{ data: profs }, { data: sess }] = await Promise.all([
       supabase.from("profiles").select("id, name, mascot, grade, xp, streak").in("id", studentIds),
-      supabase
-        .from("practice_sessions")
-        .select("user_id, correct, total, duration_seconds")
-        .in("user_id", studentIds)
-        .gte("created_at", since),
+      sessQ,
     ]);
 
-    const agg: Record<string, { c: number; t: number; sec: number; n: number }> = {};
+    const agg: Record<string, {
+      c: number; t: number; sec: number; n: number;
+      sub: Record<string, { c: number; t: number; sec: number; n: number }>;
+    }> = {};
+    const subjectsSet = new Set<string>();
     for (const s of sess ?? []) {
+      subjectsSet.add(s.subject_id);
       const k = s.user_id;
-      agg[k] = agg[k] ?? { c: 0, t: 0, sec: 0, n: 0 };
-      agg[k].c += s.correct;
-      agg[k].t += s.total;
-      agg[k].sec += s.duration_seconds;
-      agg[k].n += 1;
+      agg[k] = agg[k] ?? { c: 0, t: 0, sec: 0, n: 0, sub: {} };
+      agg[k].c += s.correct; agg[k].t += s.total; agg[k].sec += s.duration_seconds; agg[k].n += 1;
+      const sb = agg[k].sub[s.subject_id] ?? { c: 0, t: 0, sec: 0, n: 0 };
+      sb.c += s.correct; sb.t += s.total; sb.sec += s.duration_seconds; sb.n += 1;
+      agg[k].sub[s.subject_id] = sb;
     }
 
     const students: ClassStudentStats[] = (profs ?? []).map((p) => {
-      const a = agg[p.id] ?? { c: 0, t: 0, sec: 0, n: 0 };
+      const a = agg[p.id] ?? { c: 0, t: 0, sec: 0, n: 0, sub: {} };
+      const bySubject: ClassStudentStats["bySubject"] = {};
+      for (const [sid, v] of Object.entries(a.sub)) {
+        bySubject[sid] = {
+          sessions: v.n,
+          accuracy: v.t ? Math.round((v.c / v.t) * 100) : 0,
+          minutes: Math.round(v.sec / 60),
+        };
+      }
       return {
         studentId: p.id,
         name: p.name ?? "Aluno",
@@ -164,8 +188,39 @@ export const getClassDashboard = createServerFn({ method: "POST" })
         sessions: a.n,
         accuracy: a.t ? Math.round((a.c / a.t) * 100) : 0,
         minutes: Math.round(a.sec / 60),
+        bySubject,
       };
     });
     students.sort((a, b) => b.xp - a.xp);
-    return { students };
+    return { students, subjects: Array.from(subjectsSet).sort() };
   });
+
+export const updateClass = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator(
+    z.object({
+      classId: z.string().uuid(),
+      name: z.string().min(1).max(60).optional(),
+      grade: z.number().int().min(1).max(4).optional(),
+    }).parse,
+  )
+  .handler(async ({ context, data }) => {
+    const { supabase } = context;
+    const patch: Record<string, unknown> = {};
+    if (data.name) patch.name = data.name;
+    if (data.grade) patch.grade = data.grade;
+    const { error } = await supabase.from("classes" as any).update(patch).eq("id", data.classId);
+    if (error) return { ok: false as const, error: error.message };
+    return { ok: true as const };
+  });
+
+export const deleteClass = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator(z.object({ classId: z.string().uuid() }).parse)
+  .handler(async ({ context, data }) => {
+    const { supabase } = context;
+    const { error } = await supabase.from("classes" as any).delete().eq("id", data.classId);
+    if (error) return { ok: false as const, error: error.message };
+    return { ok: true as const };
+  });
+

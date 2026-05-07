@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { TopBar } from "@/components/TopBar";
 import { Button } from "@/components/ui/button";
@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Mascot } from "@/components/Mascot";
-import { Download, Plus, School, Users } from "lucide-react";
+import { Download, Plus, School, Users, Pencil, Trash2, Filter } from "lucide-react";
 import { toast } from "sonner";
 import { loadProfile, pullProfileFromCloud, type Profile } from "@/lib/storage";
 import {
@@ -17,6 +17,8 @@ import {
   createSchool,
   listClasses,
   createClass,
+  updateClass,
+  deleteClass,
   getClassDashboard,
   type SchoolRow,
   type ClassRow,
@@ -34,6 +36,12 @@ export const Route = createFileRoute("/escola")({
   component: EscolaPage,
 });
 
+const SUBJECT_LABELS: Record<string, string> = {
+  portugues: "Português",
+  matematica: "Matemática",
+  "estudo-do-meio": "Estudo do Meio",
+};
+
 function EscolaPage() {
   const navigate = useNavigate();
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -41,6 +49,9 @@ function EscolaPage() {
   const [classes, setClasses] = useState<ClassRow[]>([]);
   const [selectedClass, setSelectedClass] = useState<ClassRow | null>(null);
   const [students, setStudents] = useState<ClassStudentStats[]>([]);
+  const [subjects, setSubjects] = useState<string[]>([]);
+  const [subjectFilter, setSubjectFilter] = useState<string>("");
+  const [daysFilter, setDaysFilter] = useState<number>(30);
   const [loading, setLoading] = useState(true);
 
   const fnBecome = useServerFn(becomeTeacher);
@@ -48,6 +59,8 @@ function EscolaPage() {
   const fnCreateSchool = useServerFn(createSchool);
   const fnClasses = useServerFn(listClasses);
   const fnCreateClass = useServerFn(createClass);
+  const fnUpdateClass = useServerFn(updateClass);
+  const fnDeleteClass = useServerFn(deleteClass);
   const fnDash = useServerFn(getClassDashboard);
 
   useEffect(() => {
@@ -69,25 +82,53 @@ function EscolaPage() {
     const c = await fnClasses({ data: {} }); setClasses(c.classes);
   };
 
+  const reloadDashboard = async (cls = selectedClass, subject = subjectFilter, days = daysFilter) => {
+    if (!cls) return;
+    const r = await fnDash({ data: { classId: cls.id, subjectId: subject || undefined, days } });
+    setStudents(r.students);
+    setSubjects(r.subjects);
+  };
+
   const openClass = async (cls: ClassRow) => {
     setSelectedClass(cls);
-    const r = await fnDash({ data: { classId: cls.id } });
+    setSubjectFilter("");
+    const r = await fnDash({ data: { classId: cls.id, days: daysFilter } });
     setStudents(r.students);
+    setSubjects(r.subjects);
   };
 
   const exportCsv = () => {
     if (!selectedClass) return;
-    const header = "Nome,Ano,XP,Streak,Sessões,Precisão %,Minutos\n";
-    const rows = students.map((s) => `${s.name},${s.grade},${s.xp},${s.streak},${s.sessions},${s.accuracy},${s.minutes}`).join("\n");
-    const blob = new Blob([header + rows], { type: "text/csv;charset=utf-8" });
+    const subjCols = subjectFilter ? [subjectFilter] : subjects;
+    const subjHeaders = subjCols.flatMap((s) => [`${SUBJECT_LABELS[s] ?? s} sessões`, `${SUBJECT_LABELS[s] ?? s} precisão %`, `${SUBJECT_LABELS[s] ?? s} min`]);
+    const header = ["Nome", "Ano", "XP", "Streak", "Sessões", "Precisão %", "Minutos", ...subjHeaders].join(",");
+    const rows = students.map((s) => {
+      const base = [s.name, s.grade, s.xp, s.streak, s.sessions, s.accuracy, s.minutes];
+      const subj = subjCols.flatMap((sid) => {
+        const v = s.bySubject[sid];
+        return v ? [v.sessions, v.accuracy, v.minutes] : [0, 0, 0];
+      });
+      return [...base, ...subj].map((c) => `"${String(c).replace(/"/g, '""')}"`).join(",");
+    }).join("\n");
+    const blob = new Blob(["\uFEFF" + header + "\n" + rows], { type: "text/csv;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
-    a.href = url; a.download = `turma-${selectedClass.name}.csv`; a.click();
+    a.href = url;
+    a.download = `turma-${selectedClass.name}-${subjectFilter || "todas"}-${daysFilter}d.csv`;
+    a.click();
     URL.revokeObjectURL(url);
   };
 
-  if (!profile) return null;
+  const summary = useMemo(() => {
+    if (students.length === 0) return null;
+    const totalMin = students.reduce((a, s) => a + s.minutes, 0);
+    const totalSess = students.reduce((a, s) => a + s.sessions, 0);
+    const avgAcc = Math.round(students.reduce((a, s) => a + s.accuracy, 0) / students.length);
+    const active = students.filter((s) => s.sessions > 0).length;
+    return { totalMin, totalSess, avgAcc, active };
+  }, [students]);
 
+  if (!profile) return null;
   if (loading) {
     return (
       <div className="min-h-[100dvh] bg-background">
@@ -97,22 +138,17 @@ function EscolaPage() {
     );
   }
 
-  if (profile.role !== "parent" && profile.role !== "child" && (profile.role as string) !== "teacher") {
-    // fallback unknown role
-  }
-
-  // First-time onboarding: not a teacher and no schools
   const isTeacher = (profile.role as string) === "teacher";
 
   return (
     <div className="min-h-[100dvh] bg-background pb-12">
       <TopBar profile={profile} />
-      <main className="mx-auto max-w-4xl px-4 py-6">
+      <main className="mx-auto max-w-5xl px-4 py-6">
         <header className="mb-6 flex items-center gap-3">
           <School className="h-7 w-7 text-primary" />
           <div>
             <h1 className="font-display text-3xl">Painel da Escola</h1>
-            <p className="text-sm text-muted-foreground">Gere turmas, acompanha o progresso e exporta resultados.</p>
+            <p className="text-sm text-muted-foreground">Gere turmas, acompanha progresso por disciplina e exporta relatórios.</p>
           </div>
         </header>
 
@@ -131,7 +167,7 @@ function EscolaPage() {
           <TabsList className="mb-4">
             <TabsTrigger value="schools">Escolas</TabsTrigger>
             <TabsTrigger value="classes">Turmas</TabsTrigger>
-            {selectedClass && <TabsTrigger value="dash">{selectedClass.name}</TabsTrigger>}
+            {selectedClass && <TabsTrigger value="dash">Relatório · {selectedClass.name}</TabsTrigger>}
           </TabsList>
 
           <TabsContent value="schools">
@@ -140,62 +176,136 @@ function EscolaPage() {
               if (r.ok) { toast.success("Escola criada"); refresh(); }
               else toast.error(r.error);
             }} />
-            <ul className="mt-4 grid gap-2 md:grid-cols-2">
-              {schools.map((s) => (
-                <li key={s.id} className="card-chunky rounded-2xl border-2 border-border bg-card p-4">
-                  <p className="font-display text-lg">{s.name}</p>
-                  <p className="mt-1 text-xs text-muted-foreground">Código de convite: <code className="rounded bg-muted px-1">{s.invite_code}</code></p>
-                </li>
-              ))}
+            <div className="mt-4 space-y-4">
+              {schools.map((s) => {
+                const schoolClasses = classes.filter((c) => c.school_id === s.id);
+                return (
+                  <section key={s.id} className="card-chunky rounded-2xl border-2 border-border bg-card p-4">
+                    <div className="mb-3 flex items-center justify-between gap-2">
+                      <div>
+                        <p className="font-display text-lg">{s.name}</p>
+                        <p className="text-xs text-muted-foreground">Convite: <code className="rounded bg-muted px-1">{s.invite_code}</code></p>
+                      </div>
+                      <Badge variant="secondary">{schoolClasses.length} turma(s)</Badge>
+                    </div>
+                    <NewClass
+                      schoolId={s.id}
+                      onCreate={async (data) => {
+                        const r = await fnCreateClass({ data });
+                        if (r.ok) { toast.success("Turma criada"); refresh(); }
+                        else toast.error(r.error);
+                      }}
+                    />
+                    {schoolClasses.length > 0 && (
+                      <ul className="mt-3 grid gap-2 md:grid-cols-2">
+                        {schoolClasses.map((c) => (
+                          <ClassCard
+                            key={c.id}
+                            cls={c}
+                            onOpen={() => openClass(c)}
+                            onSave={async (patch) => {
+                              const r = await fnUpdateClass({ data: { classId: c.id, ...patch } });
+                              if (r.ok) { toast.success("Turma atualizada"); refresh(); }
+                              else toast.error(r.error);
+                            }}
+                            onDelete={async () => {
+                              if (!confirm(`Apagar turma "${c.name}"? Esta ação não pode ser desfeita.`)) return;
+                              const r = await fnDeleteClass({ data: { classId: c.id } });
+                              if (r.ok) {
+                                toast.success("Turma apagada");
+                                if (selectedClass?.id === c.id) setSelectedClass(null);
+                                refresh();
+                              } else toast.error(r.error);
+                            }}
+                          />
+                        ))}
+                      </ul>
+                    )}
+                  </section>
+                );
+              })}
               {schools.length === 0 && <p className="text-sm text-muted-foreground">Ainda não tens escolas. Cria a primeira acima.</p>}
-            </ul>
+            </div>
           </TabsContent>
 
           <TabsContent value="classes">
-            <NewClass schools={schools} onCreate={async (data) => {
-              const r = await fnCreateClass({ data });
-              if (r.ok) { toast.success("Turma criada"); refresh(); }
-              else toast.error(r.error);
-            }} />
-            <ul className="mt-4 grid gap-2 md:grid-cols-2">
-              {classes.map((c) => (
-                <li key={c.id}>
-                  <button
-                    onClick={() => openClass(c)}
-                    className="card-chunky w-full rounded-2xl border-2 border-border bg-card p-4 text-left transition-transform active:scale-[0.98]"
-                  >
-                    <div className="flex items-center justify-between">
-                      <p className="font-display text-lg">{c.name}</p>
-                      <Badge variant="secondary">Ano {c.grade}</Badge>
-                    </div>
-                    <p className="mt-1 text-xs text-muted-foreground">
-                      Código alunos: <code className="rounded bg-muted px-1">{c.invite_code}</code>
-                    </p>
-                  </button>
-                </li>
-              ))}
-              {classes.length === 0 && <p className="text-sm text-muted-foreground">Sem turmas. Cria uma para começar.</p>}
-            </ul>
+            {classes.length === 0 ? (
+              <p className="text-sm text-muted-foreground">Sem turmas. Cria turmas a partir da aba Escolas.</p>
+            ) : (
+              <ul className="grid gap-2 md:grid-cols-2">
+                {classes.map((c) => {
+                  const sc = schools.find((s) => s.id === c.school_id);
+                  return (
+                    <li key={c.id}>
+                      <button onClick={() => openClass(c)} className="card-chunky w-full rounded-2xl border-2 border-border bg-card p-4 text-left transition-transform active:scale-[0.98]">
+                        <div className="flex items-center justify-between">
+                          <p className="font-display text-lg">{c.name}</p>
+                          <Badge variant="secondary">Ano {c.grade}</Badge>
+                        </div>
+                        <p className="mt-1 text-xs text-muted-foreground">{sc?.name} · Código: <code className="rounded bg-muted px-1">{c.invite_code}</code></p>
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
           </TabsContent>
 
           {selectedClass && (
             <TabsContent value="dash">
-              <div className="mb-3 flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Users className="h-5 w-5 text-primary" />
-                  <h2 className="font-display text-xl">{selectedClass.name} · {students.length} alunos</h2>
+              <div className="card-chunky mb-4 rounded-2xl border-2 border-border bg-card p-4">
+                <div className="mb-3 flex flex-wrap items-end gap-3">
+                  <div className="flex items-center gap-2">
+                    <Users className="h-5 w-5 text-primary" />
+                    <h2 className="font-display text-xl">{selectedClass.name}</h2>
+                  </div>
+                  <div className="ml-auto flex flex-wrap items-end gap-2">
+                    <div>
+                      <Label className="text-xs"><Filter className="mr-1 inline h-3 w-3" />Disciplina</Label>
+                      <select
+                        className="h-9 w-44 rounded-md border border-border bg-background px-2 text-sm"
+                        value={subjectFilter}
+                        onChange={(e) => { setSubjectFilter(e.target.value); reloadDashboard(selectedClass, e.target.value, daysFilter); }}
+                      >
+                        <option value="">Todas</option>
+                        {subjects.map((s) => <option key={s} value={s}>{SUBJECT_LABELS[s] ?? s}</option>)}
+                      </select>
+                    </div>
+                    <div>
+                      <Label className="text-xs">Período</Label>
+                      <select
+                        className="h-9 w-32 rounded-md border border-border bg-background px-2 text-sm"
+                        value={daysFilter}
+                        onChange={(e) => { const d = Number(e.target.value); setDaysFilter(d); reloadDashboard(selectedClass, subjectFilter, d); }}
+                      >
+                        <option value={7}>7 dias</option>
+                        <option value={30}>30 dias</option>
+                        <option value={90}>90 dias</option>
+                      </select>
+                    </div>
+                    <Button variant="outline" size="sm" onClick={exportCsv}>
+                      <Download className="mr-1 h-4 w-4" />CSV
+                    </Button>
+                  </div>
                 </div>
-                <Button variant="outline" size="sm" onClick={exportCsv}>
-                  <Download className="mr-1 h-4 w-4" />Exportar CSV
-                </Button>
+
+                {summary && (
+                  <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                    <Stat label="Alunos ativos" value={`${summary.active}/${students.length}`} />
+                    <Stat label="Sessões" value={String(summary.totalSess)} />
+                    <Stat label="Minutos" value={String(summary.totalMin)} />
+                    <Stat label="Precisão média" value={`${summary.avgAcc}%`} />
+                  </div>
+                )}
               </div>
+
               {students.length === 0 ? (
                 <div className="card-chunky rounded-2xl border-2 border-border bg-card p-6 text-center">
-                  <p className="mb-2">Ainda sem alunos.</p>
+                  <p className="mb-2">Ainda sem alunos ou sem atividade neste período.</p>
                   <p className="text-sm text-muted-foreground">Partilha o código <code className="rounded bg-muted px-1">{selectedClass.invite_code}</code> para se juntarem.</p>
                 </div>
               ) : (
-                <div className="overflow-hidden rounded-2xl border-2 border-border">
+                <div className="overflow-x-auto rounded-2xl border-2 border-border">
                   <table className="w-full text-sm">
                     <thead className="bg-muted/60 font-display">
                       <tr>
@@ -205,6 +315,9 @@ function EscolaPage() {
                         <th className="p-2 text-right">Sessões</th>
                         <th className="p-2 text-right">Precisão</th>
                         <th className="p-2 text-right">Min.</th>
+                        {(subjectFilter ? [subjectFilter] : subjects).map((s) => (
+                          <th key={s} className="p-2 text-right">{SUBJECT_LABELS[s] ?? s}</th>
+                        ))}
                       </tr>
                     </thead>
                     <tbody>
@@ -221,6 +334,14 @@ function EscolaPage() {
                           <td className="p-2 text-right">{s.sessions}</td>
                           <td className="p-2 text-right">{s.accuracy}%</td>
                           <td className="p-2 text-right">{s.minutes}</td>
+                          {(subjectFilter ? [subjectFilter] : subjects).map((sid) => {
+                            const v = s.bySubject[sid];
+                            return (
+                              <td key={sid} className="p-2 text-right">
+                                {v ? <span><strong>{v.accuracy}%</strong> <span className="text-xs text-muted-foreground">· {v.minutes}m</span></span> : <span className="text-xs text-muted-foreground">—</span>}
+                              </td>
+                            );
+                          })}
                         </tr>
                       ))}
                     </tbody>
@@ -231,6 +352,15 @@ function EscolaPage() {
           )}
         </Tabs>
       </main>
+    </div>
+  );
+}
+
+function Stat({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-xl bg-accent/30 p-2">
+      <p className="text-[10px] uppercase tracking-wide text-muted-foreground">{label}</p>
+      <p className="font-display text-lg">{value}</p>
     </div>
   );
 }
@@ -251,39 +381,64 @@ function NewSchool({ onCreate }: { onCreate: (name: string) => void }) {
   );
 }
 
-function NewClass({ schools, onCreate }: { schools: SchoolRow[]; onCreate: (data: { schoolId: string; name: string; grade: number }) => void }) {
-  const [schoolId, setSchoolId] = useState<string>("");
+function NewClass({ schoolId, onCreate }: { schoolId: string; onCreate: (data: { schoolId: string; name: string; grade: number }) => void }) {
   const [name, setName] = useState("");
   const [grade, setGrade] = useState(1);
-  if (schools.length === 0) return <p className="text-sm text-muted-foreground">Cria primeiro uma escola.</p>;
   return (
     <form
-      onSubmit={(e) => {
-        e.preventDefault();
-        if (name.trim() && (schoolId || schools[0])) onCreate({ schoolId: schoolId || schools[0].id, name: name.trim(), grade });
-        setName("");
-      }}
-      className="card-chunky grid gap-2 rounded-2xl border-2 border-border bg-card p-3 md:grid-cols-4"
+      onSubmit={(e) => { e.preventDefault(); if (name.trim()) { onCreate({ schoolId, name: name.trim(), grade }); setName(""); } }}
+      className="flex flex-wrap items-end gap-2 rounded-xl bg-muted/40 p-2"
     >
-      <div>
-        <Label>Escola</Label>
-        <select className="h-10 w-full rounded-md border border-border bg-background px-2" value={schoolId} onChange={(e) => setSchoolId(e.target.value)}>
-          {schools.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
-        </select>
-      </div>
-      <div className="md:col-span-2">
-        <Label>Nome da turma</Label>
-        <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Ex.: 2.º A" />
+      <div className="flex-1 min-w-[140px]">
+        <Label className="text-xs">Nova turma</Label>
+        <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Ex.: 2.º A" className="h-9" />
       </div>
       <div>
-        <Label>Ano</Label>
-        <select className="h-10 w-full rounded-md border border-border bg-background px-2" value={grade} onChange={(e) => setGrade(Number(e.target.value))}>
-          {[1,2,3,4].map((g) => <option key={g} value={g}>{g}.º ano</option>)}
+        <Label className="text-xs">Ano</Label>
+        <select className="h-9 w-24 rounded-md border border-border bg-background px-2 text-sm" value={grade} onChange={(e) => setGrade(Number(e.target.value))}>
+          {[1,2,3,4].map((g) => <option key={g} value={g}>{g}.º</option>)}
         </select>
       </div>
-      <div className="md:col-span-4 flex justify-end">
-        <Button type="submit" disabled={!name.trim()}><Plus className="mr-1 h-4 w-4" />Criar turma</Button>
-      </div>
+      <Button type="submit" size="sm" disabled={!name.trim()}><Plus className="mr-1 h-4 w-4" />Adicionar</Button>
     </form>
+  );
+}
+
+function ClassCard({
+  cls, onOpen, onSave, onDelete,
+}: {
+  cls: ClassRow;
+  onOpen: () => void;
+  onSave: (patch: { name?: string; grade?: number }) => Promise<void>;
+  onDelete: () => Promise<void>;
+}) {
+  const [editing, setEditing] = useState(false);
+  const [name, setName] = useState(cls.name);
+  const [grade, setGrade] = useState(cls.grade);
+
+  if (editing) {
+    return (
+      <li className="rounded-xl border border-border bg-card p-3">
+        <div className="flex flex-wrap items-end gap-2">
+          <Input value={name} onChange={(e) => setName(e.target.value)} className="h-9 flex-1" />
+          <select className="h-9 w-20 rounded-md border border-border bg-background px-2 text-sm" value={grade} onChange={(e) => setGrade(Number(e.target.value))}>
+            {[1,2,3,4].map((g) => <option key={g} value={g}>{g}.º</option>)}
+          </select>
+          <Button size="sm" onClick={async () => { await onSave({ name: name.trim(), grade }); setEditing(false); }}>Guardar</Button>
+          <Button size="sm" variant="outline" onClick={() => { setName(cls.name); setGrade(cls.grade); setEditing(false); }}>Cancelar</Button>
+        </div>
+      </li>
+    );
+  }
+
+  return (
+    <li className="flex items-center gap-2 rounded-xl border border-border bg-card p-3">
+      <button onClick={onOpen} className="flex-1 text-left">
+        <p className="font-display">{cls.name} <span className="text-xs text-muted-foreground">· {cls.grade}.º ano</span></p>
+        <p className="text-xs text-muted-foreground">Código: <code className="rounded bg-muted px-1">{cls.invite_code}</code></p>
+      </button>
+      <Button size="icon" variant="ghost" onClick={() => setEditing(true)} aria-label="Editar"><Pencil className="h-4 w-4" /></Button>
+      <Button size="icon" variant="ghost" onClick={onDelete} aria-label="Apagar"><Trash2 className="h-4 w-4 text-destructive" /></Button>
+    </li>
   );
 }
