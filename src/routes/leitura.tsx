@@ -9,6 +9,7 @@ import { VoiceReader } from "@/components/VoiceReader";
 import { loadProfile, type Profile } from "@/lib/storage";
 import { ArrowLeft, Sparkles } from "lucide-react";
 import { getAdaptiveRecommendation } from "@/server/ai.functions";
+import { detectRegion } from "@/lib/region";
 
 export const Route = createFileRoute("/leitura")({
   head: () => ({
