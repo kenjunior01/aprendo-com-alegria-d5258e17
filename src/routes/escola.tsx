@@ -366,6 +366,99 @@ function EscolaPage() {
                   </table>
                 </div>
               )}
+
+              {/* Timeline chart */}
+              <section className="card-chunky mt-4 rounded-2xl border-2 border-border bg-card p-4">
+                <div className="mb-2 flex items-center gap-2">
+                  <LineChartIcon className="h-5 w-5 text-primary" />
+                  <h3 className="font-display text-lg">Evolução semanal</h3>
+                  <span className="text-xs text-muted-foreground">
+                    {subjectFilter ? SUBJECT_LABELS[subjectFilter] ?? subjectFilter : "Todas as disciplinas"} · {daysFilter} dias
+                  </span>
+                </div>
+                {timeline.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">Sem dados para o período selecionado.</p>
+                ) : (
+                  <div className="h-64 w-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <LineChart data={timeline} margin={{ top: 8, right: 16, left: 0, bottom: 0 }}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                        <XAxis dataKey="week" tick={{ fontSize: 11 }} />
+                        <YAxis yAxisId="m" tick={{ fontSize: 11 }} />
+                        <YAxis yAxisId="a" orientation="right" domain={[0, 100]} tick={{ fontSize: 11 }} />
+                        <Tooltip />
+                        <Legend />
+                        <Line yAxisId="m" type="monotone" dataKey="minutes" name="Minutos" stroke="hsl(var(--primary))" strokeWidth={2} />
+                        <Line yAxisId="a" type="monotone" dataKey="accuracy" name="Precisão %" stroke="hsl(var(--accent-foreground))" strokeWidth={2} />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </div>
+                )}
+              </section>
+
+              {/* Ranking by subject */}
+              <section className="card-chunky mt-4 rounded-2xl border-2 border-border bg-card p-4">
+                <div className="mb-2 flex items-center gap-2">
+                  <Trophy className="h-5 w-5 text-primary" />
+                  <h3 className="font-display text-lg">Top 10 — {subjectFilter ? SUBJECT_LABELS[subjectFilter] ?? subjectFilter : "Geral"}</h3>
+                </div>
+                {ranking.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">Sem dados de ranking.</p>
+                ) : (
+                  <ol className="space-y-1">
+                    {ranking.map((e, i) => (
+                      <li key={e.studentId} className="flex items-center gap-2 rounded-lg bg-muted/30 px-2 py-1.5 text-sm">
+                        <span className={`w-6 text-center font-display ${i < 3 ? "text-primary" : "text-muted-foreground"}`}>{i + 1}</span>
+                        <Mascot id={e.mascot as MascotId} size="sm" />
+                        <span className="flex-1 font-display">{e.name}</span>
+                        <span className="font-mono text-xs">{e.xp} XP</span>
+                        <span className="text-xs text-muted-foreground">{e.accuracy}% · {e.minutes}m</span>
+                      </li>
+                    ))}
+                  </ol>
+                )}
+                <p className="mt-2 text-[11px] text-muted-foreground">A posição de cada aluno é mostrada também na tabela de relatório.</p>
+              </section>
+
+              {/* Members list with remove */}
+              <section className="card-chunky mt-4 rounded-2xl border-2 border-border bg-card p-4">
+                <div className="mb-2 flex items-center gap-2">
+                  <Users className="h-5 w-5 text-primary" />
+                  <h3 className="font-display text-lg">Alunos da turma ({students.length})</h3>
+                </div>
+                {students.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">Ainda sem alunos inscritos.</p>
+                ) : (
+                  <ul className="divide-y divide-border">
+                    {students.map((s) => {
+                      const pos = ranking.findIndex((r) => r.studentId === s.studentId);
+                      return (
+                        <li key={s.studentId} className="flex items-center gap-2 py-2">
+                          <Mascot id={s.mascot as MascotId} size="sm" />
+                          <div className="flex-1">
+                            <p className="font-display text-sm">{s.name}</p>
+                            <p className="text-xs text-muted-foreground">
+                              {pos >= 0 ? `Posição #${pos + 1}` : "Sem ranking"} · {s.xp} XP · {s.accuracy}% precisão
+                            </p>
+                          </div>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={async () => {
+                              if (!confirm(`Remover ${s.name} da turma?`)) return;
+                              const r = await fnRemoveMember({ data: { classId: selectedClass.id, studentId: s.studentId } });
+                              if (r.ok) { toast.success("Aluno removido"); reloadAll(); }
+                              else toast.error(r.error);
+                            }}
+                          >
+                            <UserMinus className="mr-1 h-4 w-4 text-destructive" />Remover
+                          </Button>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                )}
+              </section>
             </TabsContent>
           )}
         </Tabs>
