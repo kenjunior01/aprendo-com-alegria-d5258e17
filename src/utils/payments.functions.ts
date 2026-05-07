@@ -122,7 +122,7 @@ export const listUserInvoices = createServerFn({ method: "POST" })
 
       // Charges sem invoice (pagamentos one-time, p.ex. vitalício)
       for (const ch of charges.data) {
-        if (ch.invoice) continue; // já contabilizado acima
+        if ((ch as any).invoice) continue; // já contabilizado acima
         records.push({
           id: ch.id,
           date: new Date(ch.created * 1000).toISOString(),
