@@ -522,13 +522,15 @@ function EscolaPage() {
                       const pos = ranking.findIndex((r) => r.studentId === s.studentId);
                       return (
                         <li key={s.studentId} className="flex items-center gap-2 py-2">
-                          <Mascot id={s.mascot as MascotId} size="sm" />
-                          <div className="flex-1">
-                            <p className="font-display text-sm">{s.name}</p>
-                            <p className="text-xs text-muted-foreground">
-                              {pos >= 0 ? `Posição #${pos + 1}` : "Sem ranking"} · {s.xp} XP · {s.accuracy}% precisão
-                            </p>
-                          </div>
+                          <button onClick={() => openStudentDetails(s.studentId)} className="flex flex-1 items-center gap-2 text-left hover:underline">
+                            <Mascot id={s.mascot as MascotId} size="sm" />
+                            <div className="flex-1">
+                              <p className="font-display text-sm">{s.name}</p>
+                              <p className="text-xs text-muted-foreground">
+                                {pos >= 0 ? `Posição #${pos + 1}` : "Sem ranking"} · {s.xp} XP · {s.accuracy}% precisão
+                              </p>
+                            </div>
+                          </button>
                           <Button
                             size="sm"
                             variant="ghost"
