@@ -203,6 +203,7 @@ function ParentDashboard() {
               />
             )}
             {dashboard && <DashboardView data={dashboard} />}
+            <PurchaseHistoryPanel />
           </>
         )}
       </main>
