@@ -10,6 +10,7 @@ import { totalMissions } from "@/lib/chapters";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { ParentLinkPanel } from "@/components/ParentLinkPanel";
+import { PremiumStatusPanel } from "@/components/PremiumStatusPanel";
 import { Cloud, CloudOff, LogOut } from "lucide-react";
 
 export const Route = createFileRoute("/perfil")({
@@ -144,6 +145,10 @@ function ProfilePage() {
               </button>
             ))}
           </div>
+        </section>
+
+        <section className="mt-6 sm:mt-8">
+          <PremiumStatusPanel />
         </section>
 
         {user && (
