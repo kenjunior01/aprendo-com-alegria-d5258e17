@@ -10,6 +10,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Sparkles, Swords, Trophy, UserPlus, Check, X, Crown } from "lucide-react";
 import { loadProfile, pullProfileFromCloud, type Profile } from "@/lib/storage";
+import { supabase } from "@/integrations/supabase/client";
+import type { MascotId } from "@/lib/mascots";
 import {
   listMyChallenges,
   getOrCreateDailyAiChallenge,
