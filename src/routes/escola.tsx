@@ -430,10 +430,10 @@ function EscolaPage() {
                       {students.map((s) => (
                         <tr key={s.studentId} className="border-t border-border">
                           <td className="p-2">
-                            <div className="flex items-center gap-2">
+                            <button onClick={() => openStudentDetails(s.studentId)} className="flex items-center gap-2 hover:underline">
                               <Mascot id={s.mascot as MascotId} size="sm" />
                               <span className="font-display">{s.name}</span>
-                            </div>
+                            </button>
                           </td>
                           <td className="p-2 text-right font-mono">{s.xp}</td>
                           <td className="p-2 text-right">{s.streak}</td>
