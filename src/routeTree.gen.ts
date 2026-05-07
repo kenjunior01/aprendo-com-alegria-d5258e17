@@ -18,6 +18,7 @@ import { Route as MundoRouteImport } from './routes/mundo'
 import { Route as LojaRouteImport } from './routes/loja'
 import { Route as LeituraRouteImport } from './routes/leitura'
 import { Route as JardimRouteImport } from './routes/jardim'
+import { Route as EscolaRouteImport } from './routes/escola'
 import { Route as DesafiosRouteImport } from './routes/desafios'
 import { Route as ConquistasRouteImport } from './routes/conquistas'
 import { Route as ComecarRouteImport } from './routes/comecar'
@@ -72,6 +73,11 @@ const LeituraRoute = LeituraRouteImport.update({
 const JardimRoute = JardimRouteImport.update({
   id: '/jardim',
   path: '/jardim',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EscolaRoute = EscolaRouteImport.update({
+  id: '/escola',
+  path: '/escola',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DesafiosRoute = DesafiosRouteImport.update({
@@ -133,6 +139,7 @@ export interface FileRoutesByFullPath {
   '/comecar': typeof ComecarRoute
   '/conquistas': typeof ConquistasRoute
   '/desafios': typeof DesafiosRoute
+  '/escola': typeof EscolaRoute
   '/jardim': typeof JardimRoute
   '/leitura': typeof LeituraRoute
   '/loja': typeof LojaRoute
@@ -154,6 +161,7 @@ export interface FileRoutesByTo {
   '/comecar': typeof ComecarRoute
   '/conquistas': typeof ConquistasRoute
   '/desafios': typeof DesafiosRoute
+  '/escola': typeof EscolaRoute
   '/jardim': typeof JardimRoute
   '/leitura': typeof LeituraRoute
   '/loja': typeof LojaRoute
@@ -176,6 +184,7 @@ export interface FileRoutesById {
   '/comecar': typeof ComecarRoute
   '/conquistas': typeof ConquistasRoute
   '/desafios': typeof DesafiosRoute
+  '/escola': typeof EscolaRoute
   '/jardim': typeof JardimRoute
   '/leitura': typeof LeituraRoute
   '/loja': typeof LojaRoute
@@ -199,6 +208,7 @@ export interface FileRouteTypes {
     | '/comecar'
     | '/conquistas'
     | '/desafios'
+    | '/escola'
     | '/jardim'
     | '/leitura'
     | '/loja'
@@ -220,6 +230,7 @@ export interface FileRouteTypes {
     | '/comecar'
     | '/conquistas'
     | '/desafios'
+    | '/escola'
     | '/jardim'
     | '/leitura'
     | '/loja'
@@ -241,6 +252,7 @@ export interface FileRouteTypes {
     | '/comecar'
     | '/conquistas'
     | '/desafios'
+    | '/escola'
     | '/jardim'
     | '/leitura'
     | '/loja'
@@ -263,6 +275,7 @@ export interface RootRouteChildren {
   ComecarRoute: typeof ComecarRoute
   ConquistasRoute: typeof ConquistasRoute
   DesafiosRoute: typeof DesafiosRoute
+  EscolaRoute: typeof EscolaRoute
   JardimRoute: typeof JardimRoute
   LeituraRoute: typeof LeituraRoute
   LojaRoute: typeof LojaRoute
@@ -341,6 +354,13 @@ declare module '@tanstack/react-router' {
       path: '/jardim'
       fullPath: '/jardim'
       preLoaderRoute: typeof JardimRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/escola': {
+      id: '/escola'
+      path: '/escola'
+      fullPath: '/escola'
+      preLoaderRoute: typeof EscolaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/desafios': {
@@ -423,6 +443,7 @@ const rootRouteChildren: RootRouteChildren = {
   ComecarRoute: ComecarRoute,
   ConquistasRoute: ConquistasRoute,
   DesafiosRoute: DesafiosRoute,
+  EscolaRoute: EscolaRoute,
   JardimRoute: JardimRoute,
   LeituraRoute: LeituraRoute,
   LojaRoute: LojaRoute,
