@@ -549,6 +549,52 @@ function EscolaPage() {
                   </ul>
                 )}
               </section>
+              </section>
+
+              {openStudent && (
+                <section className="card-chunky mt-4 rounded-2xl border-2 border-primary/40 bg-card p-4">
+                  <div className="mb-3 flex items-start gap-3">
+                    <Mascot id={openStudent.mascot as MascotId} size="md" />
+                    <div className="flex-1">
+                      <h3 className="font-display text-lg">Detalhes — {openStudent.name}</h3>
+                      <p className="text-xs text-muted-foreground">{openStudent.grade}.º ano · 🔥 {openStudent.streak} · {openStudent.xp} XP totais</p>
+                    </div>
+                    <Button size="icon" variant="ghost" onClick={() => setOpenStudent(null)} aria-label="Fechar"><X className="h-4 w-4" /></Button>
+                  </div>
+                  <div className="mb-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
+                    <Stat label="Sessões" value={String(openStudent.totals.sessions)} />
+                    <Stat label="Precisão" value={`${openStudent.totals.accuracy}%`} />
+                    <Stat label="Minutos" value={String(openStudent.totals.minutes)} />
+                    <Stat label="Moedas" value={String(openStudent.totals.coins)} />
+                  </div>
+                  {Object.keys(openStudent.bySubject).length > 0 && (
+                    <div className="mb-3 grid gap-1 sm:grid-cols-3">
+                      {Object.entries(openStudent.bySubject).map(([sid, v]) => (
+                        <div key={sid} className="rounded-lg bg-muted/40 p-2 text-xs">
+                          <p className="font-display">{SUBJECT_LABELS[sid] ?? sid}</p>
+                          <p className="text-muted-foreground">{v.sessions} sessões · {v.accuracy}% · {v.minutes}m</p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  <p className="mb-2 font-display text-sm">Últimos exercícios</p>
+                  {openStudent.recent.length === 0 ? (
+                    <p className="text-xs text-muted-foreground">Sem registos no período.</p>
+                  ) : (
+                    <ul className="divide-y divide-border text-xs">
+                      {openStudent.recent.map((r) => (
+                        <li key={r.id} className="flex items-center gap-2 py-1.5">
+                          <span className="w-24 text-muted-foreground">{new Date(r.created_at).toLocaleDateString("pt-PT", { day: "2-digit", month: "2-digit" })}</span>
+                          <span className="flex-1 font-display">{SUBJECT_LABELS[r.subject_id] ?? r.subject_id} <span className="text-muted-foreground">· {r.lesson_id}</span></span>
+                          <span>{r.correct}/{r.total}</span>
+                          <span className="text-muted-foreground">{Math.round(r.duration_seconds / 60)}m</span>
+                          <span className="font-mono text-primary">+{r.xp_earned}xp</span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </section>
+              )}
             </TabsContent>
           )}
         </Tabs>
