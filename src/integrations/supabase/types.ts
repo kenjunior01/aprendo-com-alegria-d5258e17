@@ -59,6 +59,60 @@ export type Database = {
         }
         Relationships: []
       }
+      challenges: {
+        Row: {
+          coin_reward: number
+          created_at: string
+          creator_id: string
+          creator_score: number | null
+          expires_at: string
+          id: string
+          kind: string
+          lesson_id: string
+          opponent_id: string | null
+          opponent_score: number | null
+          status: string
+          subject_id: string
+          updated_at: string
+          winner_id: string | null
+          xp_reward: number
+        }
+        Insert: {
+          coin_reward?: number
+          created_at?: string
+          creator_id: string
+          creator_score?: number | null
+          expires_at?: string
+          id?: string
+          kind?: string
+          lesson_id: string
+          opponent_id?: string | null
+          opponent_score?: number | null
+          status?: string
+          subject_id: string
+          updated_at?: string
+          winner_id?: string | null
+          xp_reward?: number
+        }
+        Update: {
+          coin_reward?: number
+          created_at?: string
+          creator_id?: string
+          creator_score?: number | null
+          expires_at?: string
+          id?: string
+          kind?: string
+          lesson_id?: string
+          opponent_id?: string | null
+          opponent_score?: number | null
+          status?: string
+          subject_id?: string
+          updated_at?: string
+          winner_id?: string | null
+          xp_reward?: number
+        }
+        Relationships: []
+      }
       email_send_log: {
         Row: {
           created_at: string
@@ -143,6 +197,36 @@ export type Database = {
           id?: string
           token?: string
           used_at?: string | null
+        }
+        Relationships: []
+      }
+      friendships: {
+        Row: {
+          addressee_id: string
+          created_at: string
+          id: string
+          parent_approved: boolean
+          requester_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          addressee_id: string
+          created_at?: string
+          id?: string
+          parent_approved?: boolean
+          requester_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          addressee_id?: string
+          created_at?: string
+          id?: string
+          parent_approved?: boolean
+          requester_id?: string
+          status?: string
+          updated_at?: string
         }
         Relationships: []
       }
