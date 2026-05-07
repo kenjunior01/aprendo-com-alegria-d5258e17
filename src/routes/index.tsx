@@ -22,8 +22,10 @@ export const Route = createFileRoute("/")({
 
 function Landing() {
   const navigate = useNavigate();
+  const [region, setRegion] = useState<RegionInfo | null>(null);
 
   useEffect(() => {
+    setRegion(detectRegion());
     let cancelled = false;
     const check = async () => {
       const cloud = await pullProfileFromCloud();
