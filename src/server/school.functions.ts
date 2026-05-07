@@ -256,7 +256,7 @@ export const getSubjectRanking = createServerFn({ method: "POST" })
       const idx = all.findIndex((e) => e.studentId === data.focusStudentId);
       if (idx >= 0) focus = { ...all[idx], position: idx + 1 };
     }
-    return { top, focus, total: all.length };
+    return { top, focus, total: all.length, all };
   });
 
 export interface WeeklyPoint { week: string; minutes: number; accuracy: number; sessions: number; }
