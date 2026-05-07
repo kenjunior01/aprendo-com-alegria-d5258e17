@@ -144,7 +144,7 @@ function DesafiosPage() {
                   setFriends(fr.friends);
                 } else toast.error(r.error);
               }}
-              myUserId={profile.id ?? ""}
+              myUserId={myUserId}
             />
 
             <h3 className="mb-2 mt-6 font-display text-lg">Os meus desafios</h3>
@@ -185,7 +185,7 @@ function DesafiosPage() {
                       <span className="w-6 text-center font-display text-lg">
                         {i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : i + 1}
                       </span>
-                      <Mascot id={r.mascot} size="sm" />
+                      <Mascot id={r.mascot as MascotId} size="sm" />
                       <span className="flex-1 truncate font-display">{r.name}</span>
                       <span className="font-display text-primary">{r.xp} XP</span>
                     </li>
@@ -244,7 +244,7 @@ function FriendsBlock({
           <ul className="space-y-2">
             {incoming.map((f) => (
               <li key={f.friendshipId} className="flex items-center gap-2 rounded-xl border border-border bg-card p-2">
-                <Mascot id={f.mascot} size="sm" />
+                <Mascot id={f.mascot as MascotId} size="sm" />
                 <span className="flex-1 truncate font-display text-sm">{f.name}</span>
                 <Button size="icon" variant="default" onClick={() => onRespond(f.friendshipId, true)}><Check className="h-4 w-4" /></Button>
                 <Button size="icon" variant="outline" onClick={() => onRespond(f.friendshipId, false)}><X className="h-4 w-4" /></Button>
@@ -260,7 +260,7 @@ function FriendsBlock({
           <ul className="grid grid-cols-2 gap-2">
             {accepted.map((f) => (
               <li key={f.friendshipId} className="flex items-center gap-2 rounded-xl border border-border bg-card p-2">
-                <Mascot id={f.mascot} size="sm" />
+                <Mascot id={f.mascot as MascotId} size="sm" />
                 <span className="truncate font-display text-sm">{f.name}</span>
                 <Crown className="ml-auto h-3 w-3 text-primary" />
               </li>
