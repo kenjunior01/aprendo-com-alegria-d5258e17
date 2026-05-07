@@ -77,9 +77,10 @@ function AppHome() {
         <AdaptiveTip />
 
         {/* Quick links */}
-        <div className="mb-6 grid grid-cols-2 gap-3">
-          <QuickLink to="/leitura" emoji="🎤" title="Ler em voz alta" subtitle="Treina a leitura" tone="primary" />
-          <QuickLink to="/jardim" emoji="🌱" title="Meu Jardim" subtitle="Mundo que cresce" tone="success" />
+        <div className="mb-6 grid grid-cols-3 gap-2 sm:gap-3">
+          <QuickLink to="/mundo" emoji="🏠" title="Meu Mundo" subtitle="Decorar" tone="primary" />
+          <QuickLink to="/leitura" emoji="🎤" title="Ler" subtitle="Em voz alta" tone="primary" />
+          <QuickLink to="/jardim" emoji="🌱" title="Jardim" subtitle="Que cresce" tone="success" />
         </div>
 
         {/* Chapter paths — Duolingo-style winding journey */}
@@ -99,7 +100,7 @@ function AppHome() {
   );
 }
 
-function QuickLink({ to, emoji, title, subtitle, tone }: { to: "/leitura" | "/jardim"; emoji: string; title: string; subtitle: string; tone: "primary" | "success" }) {
+function QuickLink({ to, emoji, title, subtitle, tone }: { to: "/leitura" | "/jardim" | "/mundo"; emoji: string; title: string; subtitle: string; tone: "primary" | "success" }) {
   const ring = tone === "primary" ? "from-primary/20" : "from-success/20";
   return (
     <Link

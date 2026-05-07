@@ -14,6 +14,7 @@ import { Route as RaRouteImport } from './routes/ra'
 import { Route as PremiumRouteImport } from './routes/premium'
 import { Route as PerfilRouteImport } from './routes/perfil'
 import { Route as PaisRouteImport } from './routes/pais'
+import { Route as MundoRouteImport } from './routes/mundo'
 import { Route as LojaRouteImport } from './routes/loja'
 import { Route as LeituraRouteImport } from './routes/leitura'
 import { Route as JardimRouteImport } from './routes/jardim'
@@ -50,6 +51,11 @@ const PerfilRoute = PerfilRouteImport.update({
 const PaisRoute = PaisRouteImport.update({
   id: '/pais',
   path: '/pais',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MundoRoute = MundoRouteImport.update({
+  id: '/mundo',
+  path: '/mundo',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LojaRoute = LojaRouteImport.update({
@@ -123,6 +129,7 @@ export interface FileRoutesByFullPath {
   '/jardim': typeof JardimRoute
   '/leitura': typeof LeituraRoute
   '/loja': typeof LojaRoute
+  '/mundo': typeof MundoRoute
   '/pais': typeof PaisRoute
   '/perfil': typeof PerfilRoute
   '/premium': typeof PremiumRoute
@@ -142,6 +149,7 @@ export interface FileRoutesByTo {
   '/jardim': typeof JardimRoute
   '/leitura': typeof LeituraRoute
   '/loja': typeof LojaRoute
+  '/mundo': typeof MundoRoute
   '/pais': typeof PaisRoute
   '/perfil': typeof PerfilRoute
   '/premium': typeof PremiumRoute
@@ -162,6 +170,7 @@ export interface FileRoutesById {
   '/jardim': typeof JardimRoute
   '/leitura': typeof LeituraRoute
   '/loja': typeof LojaRoute
+  '/mundo': typeof MundoRoute
   '/pais': typeof PaisRoute
   '/perfil': typeof PerfilRoute
   '/premium': typeof PremiumRoute
@@ -183,6 +192,7 @@ export interface FileRouteTypes {
     | '/jardim'
     | '/leitura'
     | '/loja'
+    | '/mundo'
     | '/pais'
     | '/perfil'
     | '/premium'
@@ -202,6 +212,7 @@ export interface FileRouteTypes {
     | '/jardim'
     | '/leitura'
     | '/loja'
+    | '/mundo'
     | '/pais'
     | '/perfil'
     | '/premium'
@@ -221,6 +232,7 @@ export interface FileRouteTypes {
     | '/jardim'
     | '/leitura'
     | '/loja'
+    | '/mundo'
     | '/pais'
     | '/perfil'
     | '/premium'
@@ -241,6 +253,7 @@ export interface RootRouteChildren {
   JardimRoute: typeof JardimRoute
   LeituraRoute: typeof LeituraRoute
   LojaRoute: typeof LojaRoute
+  MundoRoute: typeof MundoRoute
   PaisRoute: typeof PaisRoute
   PerfilRoute: typeof PerfilRoute
   PremiumRoute: typeof PremiumRoute
@@ -287,6 +300,13 @@ declare module '@tanstack/react-router' {
       path: '/pais'
       fullPath: '/pais'
       preLoaderRoute: typeof PaisRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mundo': {
+      id: '/mundo'
+      path: '/mundo'
+      fullPath: '/mundo'
+      preLoaderRoute: typeof MundoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/loja': {
@@ -385,6 +405,7 @@ const rootRouteChildren: RootRouteChildren = {
   JardimRoute: JardimRoute,
   LeituraRoute: LeituraRoute,
   LojaRoute: LojaRoute,
+  MundoRoute: MundoRoute,
   PaisRoute: PaisRoute,
   PerfilRoute: PerfilRoute,
   PremiumRoute: PremiumRoute,
