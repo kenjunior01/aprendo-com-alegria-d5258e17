@@ -13,6 +13,15 @@ function getSupabase() {
   return _supabase;
 }
 
+// Sync the profiles.is_premium flag based on current subscription state.
+// Active/trialing/past_due (within period) and canceled-but-still-in-period count as premium.
+async function syncPremiumFlag(userId: string, env: StripeEnv) {
+  const sb = getSupabase() as any;
+  const { data } = await sb.rpc("has_active_subscription", { user_uuid: userId, check_env: env });
+  const isPremium = data === true;
+  await sb.from("profiles").update({ is_premium: isPremium, updated_at: new Date().toISOString() }).eq("id", userId);
+}
+
 async function handleSubscriptionCreated(subscription: any, env: StripeEnv) {
   const userId = subscription.metadata?.userId;
   if (!userId) { console.error("No userId in subscription metadata"); return; }
@@ -38,6 +47,7 @@ async function handleSubscriptionCreated(subscription: any, env: StripeEnv) {
     },
     { onConflict: "stripe_subscription_id" }
   );
+  await syncPremiumFlag(userId, env);
 }
 
 async function handleSubscriptionUpdated(subscription: any, env: StripeEnv) {
@@ -60,6 +70,8 @@ async function handleSubscriptionUpdated(subscription: any, env: StripeEnv) {
     })
     .eq("stripe_subscription_id", subscription.id)
     .eq("environment", env);
+  const userId = subscription.metadata?.userId;
+  if (userId) await syncPremiumFlag(userId, env);
 }
 
 async function handleSubscriptionDeleted(subscription: any, env: StripeEnv) {
@@ -68,6 +80,8 @@ async function handleSubscriptionDeleted(subscription: any, env: StripeEnv) {
     .update({ status: "canceled", updated_at: new Date().toISOString() })
     .eq("stripe_subscription_id", subscription.id)
     .eq("environment", env);
+  const userId = subscription.metadata?.userId;
+  if (userId) await syncPremiumFlag(userId, env);
 }
 
 async function handleCheckoutCompleted(session: any, env: StripeEnv) {
@@ -91,6 +105,7 @@ async function handleCheckoutCompleted(session: any, env: StripeEnv) {
     },
     { onConflict: "stripe_subscription_id" }
   );
+  await syncPremiumFlag(userId, env);
 }
 
 async function handleWebhook(req: Request, env: StripeEnv) {
