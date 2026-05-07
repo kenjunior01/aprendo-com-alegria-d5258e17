@@ -125,7 +125,7 @@ export async function pullWorldState(): Promise<WorldState | null> {
       .eq("id", user.id)
       .maybeSingle();
     if (error || !data) return null;
-    const ws = (data as { world_state?: WorldState }).world_state;
+    const ws = (data as unknown as { world_state?: WorldState }).world_state;
     if (!ws || !Array.isArray(ws.placed)) return defaultWorldState();
     return { ...defaultWorldState(), ...ws };
   } catch {
