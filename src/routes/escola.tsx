@@ -165,7 +165,23 @@ function EscolaPage() {
     URL.revokeObjectURL(url);
   };
 
-  const summary = useMemo(() => {
+  const exportRankingCsv = () => {
+    if (!selectedClass || rankingAll.length === 0) return;
+    const header = ["Posição", "Nome", "XP", "Precisão %", "Minutos", "Sessões", "Top 10"].join(",");
+    const rows = rankingAll.map((e, i) => {
+      const cells = [i + 1, e.name, e.xp, e.accuracy, e.minutes, e.sessions, i < 10 ? "sim" : "não"];
+      return cells.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(",");
+    }).join("\n");
+    const blob = new Blob(["\uFEFF" + header + "\n" + rows], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `ranking-${selectedClass.name}-${subjectFilter || "geral"}-${daysFilter}d.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+
     if (students.length === 0) return null;
     const totalMin = students.reduce((a, s) => a + s.minutes, 0);
     const totalSess = students.reduce((a, s) => a + s.sessions, 0);
