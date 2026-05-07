@@ -5,7 +5,8 @@ import { ChunkyButton } from "@/components/ChunkyButton";
 import { KidozLogo } from "@/components/KidozLogo";
 import { MASCOTS } from "@/lib/mascots";
 import { loadProfile, pullProfileFromCloud } from "@/lib/storage";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { detectRegion, regionBadgeText, type RegionInfo } from "@/lib/region";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -21,8 +22,10 @@ export const Route = createFileRoute("/")({
 
 function Landing() {
   const navigate = useNavigate();
+  const [region, setRegion] = useState<RegionInfo | null>(null);
 
   useEffect(() => {
+    setRegion(detectRegion());
     let cancelled = false;
     const check = async () => {
       const cloud = await pullProfileFromCloud();
@@ -59,7 +62,7 @@ function Landing() {
           transition={{ duration: 0.5 }}
           className="mb-2 inline-flex items-center gap-2 rounded-full bg-card px-4 py-1.5 font-display text-xs font-semibold text-primary shadow-sm sm:text-sm"
         >
-          🇵🇹 Feito para o 1.º ciclo em Portugal
+          {region ? regionBadgeText(region) : "🌍 A detetar a tua região…"}
         </motion.div>
 
         <motion.h1
