@@ -195,6 +195,126 @@ export const getClassDashboard = createServerFn({ method: "POST" })
     return { students, subjects: Array.from(subjectsSet).sort() };
   });
 
+export interface SubjectRankingEntry {
+  studentId: string;
+  name: string;
+  mascot: string;
+  xp: number;
+  accuracy: number;
+  minutes: number;
+  sessions: number;
+}
+export const getSubjectRanking = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator(
+    z.object({
+      classId: z.string().uuid(),
+      subjectId: z.string().optional(),
+      days: z.number().int().min(1).max(180).optional(),
+      focusStudentId: z.string().uuid().optional(),
+    }).parse,
+  )
+  .handler(async ({ context, data }) => {
+    const { supabase } = context;
+    const { data: members } = await supabase
+      .from("class_members" as any).select("student_id").eq("class_id", data.classId);
+    const ids = ((members ?? []) as unknown as Array<{ student_id: string }>).map((m) => m.student_id);
+    if (ids.length === 0) return { top: [] as SubjectRankingEntry[], focus: null as null | (SubjectRankingEntry & { position: number }), total: 0 };
+
+    const days = data.days ?? 30;
+    const since = new Date(Date.now() - days * 86400_000).toISOString();
+    let sq = supabase.from("practice_sessions")
+      .select("user_id, correct, total, duration_seconds, xp_earned")
+      .in("user_id", ids).gte("created_at", since);
+    if (data.subjectId) sq = sq.eq("subject_id", data.subjectId);
+    const [{ data: profs }, { data: sess }] = await Promise.all([
+      supabase.from("profiles").select("id, name, mascot").in("id", ids),
+      sq,
+    ]);
+    const agg: Record<string, { c: number; t: number; sec: number; n: number; xp: number }> = {};
+    for (const s of sess ?? []) {
+      const a = agg[s.user_id] ?? { c: 0, t: 0, sec: 0, n: 0, xp: 0 };
+      a.c += s.correct; a.t += s.total; a.sec += s.duration_seconds; a.n += 1; a.xp += s.xp_earned ?? 0;
+      agg[s.user_id] = a;
+    }
+    const all: SubjectRankingEntry[] = (profs ?? []).map((p) => {
+      const a = agg[p.id] ?? { c: 0, t: 0, sec: 0, n: 0, xp: 0 };
+      return {
+        studentId: p.id,
+        name: p.name ?? "Aluno",
+        mascot: p.mascot ?? "fox",
+        xp: a.xp,
+        accuracy: a.t ? Math.round((a.c / a.t) * 100) : 0,
+        minutes: Math.round(a.sec / 60),
+        sessions: a.n,
+      };
+    });
+    all.sort((a, b) => b.xp - a.xp || b.accuracy - a.accuracy);
+    const top = all.slice(0, 10);
+    let focus: (SubjectRankingEntry & { position: number }) | null = null;
+    if (data.focusStudentId) {
+      const idx = all.findIndex((e) => e.studentId === data.focusStudentId);
+      if (idx >= 0) focus = { ...all[idx], position: idx + 1 };
+    }
+    return { top, focus, total: all.length };
+  });
+
+export interface WeeklyPoint { week: string; minutes: number; accuracy: number; sessions: number; }
+export const getClassTimeline = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator(
+    z.object({
+      classId: z.string().uuid(),
+      subjectId: z.string().optional(),
+      days: z.number().int().min(7).max(180).optional(),
+    }).parse,
+  )
+  .handler(async ({ context, data }) => {
+    const { supabase } = context;
+    const { data: members } = await supabase
+      .from("class_members" as any).select("student_id").eq("class_id", data.classId);
+    const ids = ((members ?? []) as unknown as Array<{ student_id: string }>).map((m) => m.student_id);
+    if (ids.length === 0) return { points: [] as WeeklyPoint[] };
+    const days = data.days ?? 30;
+    const since = new Date(Date.now() - days * 86400_000).toISOString();
+    let sq = supabase.from("practice_sessions")
+      .select("created_at, correct, total, duration_seconds")
+      .in("user_id", ids).gte("created_at", since);
+    if (data.subjectId) sq = sq.eq("subject_id", data.subjectId);
+    const { data: sess } = await sq;
+    const buckets: Record<string, { c: number; t: number; sec: number; n: number }> = {};
+    for (const s of sess ?? []) {
+      const d = new Date(s.created_at);
+      // ISO week start (Monday)
+      const day = d.getUTCDay() || 7;
+      const monday = new Date(d); monday.setUTCDate(d.getUTCDate() - (day - 1)); monday.setUTCHours(0,0,0,0);
+      const key = monday.toISOString().slice(0, 10);
+      const b = buckets[key] ?? { c: 0, t: 0, sec: 0, n: 0 };
+      b.c += s.correct; b.t += s.total; b.sec += s.duration_seconds; b.n += 1;
+      buckets[key] = b;
+    }
+    const points: WeeklyPoint[] = Object.entries(buckets)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([week, v]) => ({
+        week,
+        minutes: Math.round(v.sec / 60),
+        accuracy: v.t ? Math.round((v.c / v.t) * 100) : 0,
+        sessions: v.n,
+      }));
+    return { points };
+  });
+
+export const removeClassMember = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator(z.object({ classId: z.string().uuid(), studentId: z.string().uuid() }).parse)
+  .handler(async ({ context, data }) => {
+    const { supabase } = context;
+    const { error } = await supabase.from("class_members" as any)
+      .delete().eq("class_id", data.classId).eq("student_id", data.studentId);
+    if (error) return { ok: false as const, error: error.message };
+    return { ok: true as const };
+  });
+
 export const updateClass = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator(
