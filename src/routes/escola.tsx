@@ -336,20 +336,64 @@ function EscolaPage() {
                     <div>
                       <Label className="text-xs">Período</Label>
                       <select
-                        className="h-9 w-32 rounded-md border border-border bg-background px-2 text-sm"
+                        className="h-9 w-36 rounded-md border border-border bg-background px-2 text-sm"
                         value={daysFilter}
                         onChange={(e) => { const d = Number(e.target.value); setDaysFilter(d); reloadDashboard(selectedClass, subjectFilter, d); }}
                       >
                         <option value={7}>7 dias</option>
                         <option value={30}>30 dias</option>
+                        <option value={28}>4 semanas</option>
+                        <option value={56}>8 semanas</option>
+                        <option value={84}>12 semanas</option>
                         <option value={90}>90 dias</option>
                       </select>
                     </div>
+                    <div>
+                      <Label className="text-xs">Aluno</Label>
+                      <select
+                        className="h-9 w-44 rounded-md border border-border bg-background px-2 text-sm"
+                        value={studentFilter}
+                        onChange={(e) => { setStudentFilter(e.target.value); reloadAll(selectedClass, subjectFilter, daysFilter, e.target.value); }}
+                      >
+                        <option value="">Toda a turma</option>
+                        {students.map((s) => <option key={s.studentId} value={s.studentId}>{s.name}</option>)}
+                      </select>
+                    </div>
+                    <Button variant="ghost" size="sm" onClick={resetFilters} title="Limpar filtros">
+                      <RotateCcw className="mr-1 h-4 w-4" />Reset
+                    </Button>
                     <Button variant="outline" size="sm" onClick={exportCsv}>
-                      <Download className="mr-1 h-4 w-4" />CSV
+                      <Download className="mr-1 h-4 w-4" />CSV turma
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={exportRankingCsv}>
+                      <Download className="mr-1 h-4 w-4" />CSV ranking
                     </Button>
                   </div>
                 </div>
+
+                {/* Teacher alerts */}
+                {alerts.filter((a) => !dismissedAlerts.has(`${a.studentId}:${a.kind}`)).length > 0 && (
+                  <div className="mt-3 space-y-1">
+                    {alerts.filter((a) => !dismissedAlerts.has(`${a.studentId}:${a.kind}`)).map((a) => {
+                      const key = `${a.studentId}:${a.kind}`;
+                      return (
+                        <div key={key} className="flex items-center gap-2 rounded-lg border border-primary/30 bg-primary/10 px-2 py-1.5 text-xs">
+                          <Bell className="h-4 w-4 text-primary" />
+                          <Mascot id={a.mascot as MascotId} size="sm" />
+                          <span className="font-display">{a.name}</span>
+                          <span className="text-muted-foreground">{a.kind === "accuracy_up" ? "📈" : "⏱️"} {a.detail}</span>
+                          <button
+                            className="ml-auto text-muted-foreground hover:text-foreground"
+                            onClick={() => setDismissedAlerts((s) => new Set(s).add(key))}
+                            aria-label="Descartar"
+                          >
+                            <X className="h-3 w-3" />
+                          </button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
 
                 {summary && (
                   <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
