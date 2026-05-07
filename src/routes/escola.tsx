@@ -549,7 +549,6 @@ function EscolaPage() {
                   </ul>
                 )}
               </section>
-              </section>
 
               {openStudent && (
                 <section className="card-chunky mt-4 rounded-2xl border-2 border-primary/40 bg-card p-4">
