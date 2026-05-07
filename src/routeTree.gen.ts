@@ -29,6 +29,7 @@ import { Route as CapituloChapterIdRouteImport } from './routes/capitulo.$chapte
 import { Route as LicaoSubjectIdLessonIdRouteImport } from './routes/licao.$subjectId.$lessonId'
 import { Route as ApiPublicTutorStreamRouteImport } from './routes/api/public/tutor-stream'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
+import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
 
 const TutorRoute = TutorRouteImport.update({
   id: '/tutor',
@@ -131,6 +132,12 @@ const LovableEmailQueueProcessRoute =
     path: '/lovable/email/queue/process',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicPaymentsWebhookRoute =
+  ApiPublicPaymentsWebhookRouteImport.update({
+    id: '/api/public/payments/webhook',
+    path: '/api/public/payments/webhook',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -152,6 +159,7 @@ export interface FileRoutesByFullPath {
   '/capitulo/$chapterId': typeof CapituloChapterIdRoute
   '/api/public/tutor-stream': typeof ApiPublicTutorStreamRoute
   '/licao/$subjectId/$lessonId': typeof LicaoSubjectIdLessonIdRoute
+  '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
 }
 export interface FileRoutesByTo {
@@ -174,6 +182,7 @@ export interface FileRoutesByTo {
   '/capitulo/$chapterId': typeof CapituloChapterIdRoute
   '/api/public/tutor-stream': typeof ApiPublicTutorStreamRoute
   '/licao/$subjectId/$lessonId': typeof LicaoSubjectIdLessonIdRoute
+  '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
 }
 export interface FileRoutesById {
@@ -197,6 +206,7 @@ export interface FileRoutesById {
   '/capitulo/$chapterId': typeof CapituloChapterIdRoute
   '/api/public/tutor-stream': typeof ApiPublicTutorStreamRoute
   '/licao/$subjectId/$lessonId': typeof LicaoSubjectIdLessonIdRoute
+  '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
 }
 export interface FileRouteTypes {
@@ -221,6 +231,7 @@ export interface FileRouteTypes {
     | '/capitulo/$chapterId'
     | '/api/public/tutor-stream'
     | '/licao/$subjectId/$lessonId'
+    | '/api/public/payments/webhook'
     | '/lovable/email/queue/process'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -243,6 +254,7 @@ export interface FileRouteTypes {
     | '/capitulo/$chapterId'
     | '/api/public/tutor-stream'
     | '/licao/$subjectId/$lessonId'
+    | '/api/public/payments/webhook'
     | '/lovable/email/queue/process'
   id:
     | '__root__'
@@ -265,6 +277,7 @@ export interface FileRouteTypes {
     | '/capitulo/$chapterId'
     | '/api/public/tutor-stream'
     | '/licao/$subjectId/$lessonId'
+    | '/api/public/payments/webhook'
     | '/lovable/email/queue/process'
   fileRoutesById: FileRoutesById
 }
@@ -288,6 +301,7 @@ export interface RootRouteChildren {
   CapituloChapterIdRoute: typeof CapituloChapterIdRoute
   ApiPublicTutorStreamRoute: typeof ApiPublicTutorStreamRoute
   LicaoSubjectIdLessonIdRoute: typeof LicaoSubjectIdLessonIdRoute
+  ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
   LovableEmailQueueProcessRoute: typeof LovableEmailQueueProcessRoute
 }
 
@@ -433,6 +447,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LovableEmailQueueProcessRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/payments/webhook': {
+      id: '/api/public/payments/webhook'
+      path: '/api/public/payments/webhook'
+      fullPath: '/api/public/payments/webhook'
+      preLoaderRoute: typeof ApiPublicPaymentsWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -456,6 +477,7 @@ const rootRouteChildren: RootRouteChildren = {
   CapituloChapterIdRoute: CapituloChapterIdRoute,
   ApiPublicTutorStreamRoute: ApiPublicTutorStreamRoute,
   LicaoSubjectIdLessonIdRoute: LicaoSubjectIdLessonIdRoute,
+  ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
   LovableEmailQueueProcessRoute: LovableEmailQueueProcessRoute,
 }
 export const routeTree = rootRouteImport
