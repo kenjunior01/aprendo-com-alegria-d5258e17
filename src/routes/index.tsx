@@ -62,7 +62,7 @@ function Landing() {
           transition={{ duration: 0.5 }}
           className="mb-2 inline-flex items-center gap-2 rounded-full bg-card px-4 py-1.5 font-display text-xs font-semibold text-primary shadow-sm sm:text-sm"
         >
-          🇵🇹 Feito para o 1.º ciclo em Portugal
+          {region ? regionBadgeText(region) : "🌍 A detetar a tua região…"}
         </motion.div>
 
         <motion.h1
