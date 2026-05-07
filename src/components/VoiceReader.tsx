@@ -1,15 +1,18 @@
 // Reconhecimento de voz infantil via Web Speech API.
-// Compara palavra-a-palavra e mostra quais foram bem lidas.
+// Modo karaoke: realça palavras a verde em tempo real à medida que a criança lê.
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { Mic, MicOff, Check, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { detectRegion } from "@/lib/region";
 
 interface Props {
   expected: string;
   onResult?: (matched: boolean, transcript: string, accuracy: number) => void;
   className?: string;
+  /** Override locale (defaults to region-based: pt-PT / pt-BR / en-US…) */
+  lang?: string;
 }
 
 function getRecognition(): any {
@@ -31,16 +34,24 @@ const normalize = (s: string) =>
 
 const tokenize = (s: string) => normalize(s).split(" ").filter(Boolean);
 
-// Análise fonética simples para pt-PT: dá uma dica ao errar uma palavra,
-// comparando padrões silábicos comuns.
+function regionLang(): string {
+  try {
+    const r = detectRegion();
+    if (r.language === "en") return "en-US";
+    if (r.code === "BR") return "pt-BR";
+    return "pt-PT";
+  } catch {
+    return "pt-PT";
+  }
+}
+
 function phoneticHint(expected: string, said: string): string | null {
   const exp = normalize(expected);
   const heard = normalize(said);
   if (!heard) return "Tenta falar mais alto e devagar.";
   if (heard === exp) return null;
-  // Detectar troca de sons frequentes em crianças
   const swaps: Array<[RegExp, string]> = [
-    [/r/g, "r"], [/lh/g, "lh"], [/nh/g, "nh"], [/ç|c(?=[ei])/g, "s"],
+    [/lh/g, "lh"], [/nh/g, "nh"], [/ç|c(?=[ei])/g, "s"], [/r{2,}/g, "rr forte"],
   ];
   for (const [re, sound] of swaps) {
     if (exp.match(re) && !heard.match(re)) {
@@ -49,24 +60,46 @@ function phoneticHint(expected: string, said: string): string | null {
   }
   if (heard.length < exp.length * 0.6) return "Faltaram sílabas — lê cada parte da palavra.";
   if (heard.length > exp.length * 1.4) return "Disseste sons a mais — vai mais devagarinho.";
-  // Diferença em vogais finais
   if (exp.slice(-1) !== heard.slice(-1)) return "Cuidado com a vogal final.";
   return "Quase! Tenta repetir a palavra com clareza.";
 }
 
-// Compara palavra-a-palavra, devolvendo um boolean por palavra esperada.
-const wordMatch = (expected: string, said: string): boolean[] => {
+// Constrói o array de matches palavra-a-palavra preservando ordem e
+// permitindo "saltos" (a criança pode dizer palavras seguidas mas a
+// transcrição interim cresce gradualmente).
+function progressiveMatch(expected: string, said: string): boolean[] {
   const exp = tokenize(expected);
-  const spoken = new Set(tokenize(said));
-  return exp.map((w) => spoken.has(w));
-};
+  const heard = tokenize(said);
+  const result = new Array<boolean>(exp.length).fill(false);
+  let h = 0;
+  for (let e = 0; e < exp.length && h < heard.length; e++) {
+    // permite procurar até 2 palavras à frente para resistir a ruído
+    for (let off = 0; off <= 2 && h + off < heard.length; off++) {
+      if (heard[h + off] === exp[e]) {
+        result[e] = true;
+        h = h + off + 1;
+        break;
+      }
+    }
+  }
+  return result;
+}
 
-export function VoiceReader({ expected, onResult, className }: Props) {
+export function VoiceReader({ expected, onResult, className, lang }: Props) {
   const [supported, setSupported] = useState(true);
   const [listening, setListening] = useState(false);
   const [transcript, setTranscript] = useState("");
   const [matches, setMatches] = useState<boolean[] | null>(null);
+  const [finished, setFinished] = useState(false);
+  const startedAt = useRef<number>(0);
   const recRef = useRef<any>(null);
+  const expectedRef = useRef(expected);
+  expectedRef.current = expected;
+  const onResultRef = useRef(onResult);
+  onResultRef.current = onResult;
+
+  const locale = lang || regionLang();
+  const expTokens = useMemo(() => tokenize(expected), [expected]);
 
   useEffect(() => {
     const rec = getRecognition();
@@ -74,29 +107,39 @@ export function VoiceReader({ expected, onResult, className }: Props) {
       setSupported(false);
       return;
     }
-    rec.lang = "pt-PT";
-    rec.continuous = false;
-    rec.interimResults = false;
-    rec.maxAlternatives = 3;
+    rec.lang = locale;
+    rec.continuous = true;
+    rec.interimResults = true;
+    rec.maxAlternatives = 1;
 
     rec.onresult = (event: any) => {
-      const alts: string[] = [];
-      const result = event.results[0];
-      for (let i = 0; i < result.length; i++) alts.push(result[i].transcript);
-      // Pick the alt with the most word matches
-      let best = alts[0] ?? "";
-      let bestM = wordMatch(expected, best);
-      for (let i = 1; i < alts.length; i++) {
-        const m = wordMatch(expected, alts[i]);
-        if (m.filter(Boolean).length > bestM.filter(Boolean).length) {
-          best = alts[i];
-          bestM = m;
-        }
+      let full = "";
+      let isFinal = false;
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        full += event.results[i][0].transcript + " ";
+        if (event.results[i].isFinal) isFinal = true;
       }
-      setTranscript(best);
-      setMatches(bestM);
-      const acc = bestM.length ? bestM.filter(Boolean).length / bestM.length : 0;
-      onResult?.(acc >= 0.7, best, acc);
+      // accumulate with prior transcript by re-reading all results
+      let all = "";
+      for (let i = 0; i < event.results.length; i++) {
+        all += event.results[i][0].transcript + " ";
+      }
+      setTranscript(all.trim());
+      const m = progressiveMatch(expectedRef.current, all);
+      setMatches(m);
+      const allOk = m.every(Boolean);
+      if (allOk || isFinal) {
+        const acc = m.length ? m.filter(Boolean).length / m.length : 0;
+        if (allOk) {
+          setFinished(true);
+          try { rec.stop(); } catch { /* ignore */ }
+          onResultRef.current?.(true, all.trim(), 1);
+        } else if (isFinal) {
+          onResultRef.current?.(acc >= 0.7, all.trim(), acc);
+        }
+        // suppress unused variable warning
+        void full;
+      }
     };
     rec.onerror = () => setListening(false);
     rec.onend = () => setListening(false);
@@ -105,12 +148,21 @@ export function VoiceReader({ expected, onResult, className }: Props) {
     return () => {
       try { rec.abort(); } catch { /* ignore */ }
     };
-  }, [expected, onResult]);
+  }, [locale]);
+
+  // Reset state when expected phrase changes
+  useEffect(() => {
+    setTranscript("");
+    setMatches(null);
+    setFinished(false);
+  }, [expected]);
 
   const start = () => {
     if (!recRef.current || listening) return;
     setTranscript("");
     setMatches(null);
+    setFinished(false);
+    startedAt.current = Date.now();
     try {
       recRef.current.start();
       setListening(true);
@@ -126,35 +178,59 @@ export function VoiceReader({ expected, onResult, className }: Props) {
   if (!supported) {
     return (
       <div className={cn("rounded-2xl bg-muted px-4 py-3 text-center text-sm text-muted-foreground", className)}>
-        🎤 O teu navegador não suporta reconhecimento de voz. Tenta no Chrome ou Safari.
+        🎤 O teu navegador não suporta reconhecimento de voz. Tenta no Chrome, Edge ou Safari.
       </div>
     );
   }
 
   const expWords = expected.split(/(\s+)/);
-  const expTokens = tokenize(expected);
   let tokenIdx = -1;
-  const accuracy = matches ? Math.round((matches.filter(Boolean).length / matches.length) * 100) : null;
+  const matchedCount = matches ? matches.filter(Boolean).length : 0;
+  const accuracy = matches ? Math.round((matchedCount / matches.length) * 100) : null;
   const allOk = matches ? matches.every(Boolean) : false;
+  const elapsedSec = startedAt.current && (matches || finished) ? (Date.now() - startedAt.current) / 1000 : 0;
+  const wpm = elapsedSec > 0 ? Math.round((matchedCount / elapsedSec) * 60) : 0;
 
   return (
     <div className={cn("flex flex-col items-center gap-3 text-center", className)}>
       <p className="font-display text-base text-muted-foreground">📖 Lê em voz alta:</p>
+
+      {/* Barra de progresso */}
+      {matches && (
+        <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
+          <motion.div
+            className="h-full bg-success"
+            initial={{ width: 0 }}
+            animate={{ width: `${(matchedCount / matches.length) * 100}%` }}
+            transition={{ duration: 0.3 }}
+          />
+        </div>
+      )}
+
       <p className="card-chunky rounded-3xl border border-border bg-card px-5 py-5 font-display text-2xl leading-relaxed sm:text-3xl">
         {expWords.map((tok, i) => {
           if (/^\s+$/.test(tok)) return <span key={i}>{tok}</span>;
           tokenIdx += 1;
           const idx = tokenIdx;
           const m = matches?.[idx];
+          // próxima palavra a ler (a primeira false)
+          const isNext = listening && matches && !m && matches.slice(0, idx).every(Boolean);
           return (
             <motion.span
               key={i}
-              animate={m === true ? { scale: [1, 1.15, 1] } : {}}
-              transition={{ duration: 0.4, delay: idx * 0.05 }}
+              animate={
+                m === true
+                  ? { scale: [1, 1.2, 1], color: ["currentColor", "var(--success, #16a34a)", "currentColor"] }
+                  : isNext
+                    ? { scale: [1, 1.05, 1] }
+                    : {}
+              }
+              transition={{ duration: m === true ? 0.5 : 1, repeat: isNext ? Infinity : 0 }}
               className={cn(
                 "inline-block transition-colors",
                 m === true && "text-success font-bold",
-                m === false && "text-destructive line-through decoration-2",
+                isNext && "text-primary underline decoration-primary decoration-2 underline-offset-4",
+                m === false && !isNext && finished && "text-destructive line-through decoration-2",
               )}
             >
               {tok}
@@ -176,7 +252,9 @@ export function VoiceReader({ expected, onResult, className }: Props) {
       </motion.button>
 
       <p className="text-xs text-muted-foreground">
-        {listening ? "🔴 A ouvir… lê devagarinho!" : `Toca no microfone e lê as ${expTokens.length} palavras`}
+        {listening
+          ? "🔴 A ouvir… lê devagarinho, palavra a palavra!"
+          : `Toca no microfone e lê as ${expTokens.length} palavras (${locale})`}
       </p>
 
       {matches && (
@@ -190,10 +268,12 @@ export function VoiceReader({ expected, onResult, className }: Props) {
         >
           <div className="flex items-center justify-center gap-2 font-display text-base">
             {allOk ? <Check className="h-4 w-4" /> : <X className="h-4 w-4" />}
-            {allOk ? `Perfeito! 🎉 (${accuracy}%)` : `Fluência: ${accuracy}% — ${accuracy! >= 70 ? "quase!" : "tenta outra vez"}`}
+            {allOk
+              ? `Perfeito! 🎉 ${wpm > 0 ? `· ${wpm} palavras/min` : ""}`
+              : `Fluência: ${accuracy}% — ${accuracy! >= 70 ? "quase!" : "tenta outra vez"}`}
           </div>
-          {transcript && <p className="mt-1 italic text-foreground/70">Ouvi: “{transcript}”</p>}
-          {!allOk && matches && (
+          {transcript && <p className="mt-1 italic text-foreground/70">Ouvi: "{transcript}"</p>}
+          {finished && !allOk && matches && (
             <ul className="mt-2 space-y-1 text-left">
               {expTokens.map((word, i) => {
                 if (matches[i]) return null;
