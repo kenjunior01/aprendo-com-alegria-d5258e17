@@ -325,6 +325,69 @@ export const getMyChildren = createServerFn({ method: "GET" })
     };
   });
 
+// ===================== Light child signup (parent-managed) =====================
+// Cria um perfil de criança gerido pelo encarregado, sem email/password reais.
+// O perfil fica imediatamente ligado via parent_links (status=accepted).
+
+const NewChildSchema = z.object({
+  name: z.string().trim().min(1).max(40),
+  age: z.number().int().min(3).max(16),
+  mascot: z.enum(["fox", "owl", "bunny", "turtle"]),
+  grade: z.number().int().min(1).max(7),
+});
+
+function ageToGrade(age: number): number {
+  // PT/MZ aprox: 6→1.º ... 12→7.º
+  return Math.max(1, Math.min(7, age - 5));
+}
+
+export const createChildProfile = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => NewChildSchema.parse(d))
+  .handler(async ({ data, context }) => {
+    const parentId = context.userId;
+
+    // Email sintético único — não é usado para login
+    const synthEmail = `child+${parentId.slice(0, 8)}-${Date.now().toString(36)}@kidoz.local`;
+    const synthPassword = crypto.randomUUID() + crypto.randomUUID();
+
+    const { data: created, error: createErr } = await supabaseAdmin.auth.admin.createUser({
+      email: synthEmail,
+      password: synthPassword,
+      email_confirm: true,
+      user_metadata: { name: data.name, role: "child", managed_by: parentId },
+    });
+    if (createErr || !created.user) throw new Error(createErr?.message ?? "Falha a criar perfil");
+
+    const childId = created.user.id;
+
+    // O trigger handle_new_user já cria o profile com defaults; atualizamos com os dados escolhidos
+    await supabaseAdmin
+      .from("profiles")
+      .update({
+        name: data.name,
+        age: data.age,
+        mascot: data.mascot,
+        grade: data.grade,
+        role: "child",
+      })
+      .eq("id", childId);
+
+    // Liga ao pai imediatamente
+    const code = Math.random().toString(36).slice(2, 8).toUpperCase();
+    await supabaseAdmin.from("parent_links").insert({
+      parent_id: parentId,
+      child_id: childId,
+      invite_code: code,
+      status: "accepted",
+      accepted_at: new Date().toISOString(),
+    });
+
+    return { ok: true as const, childId, name: data.name, mascot: data.mascot, grade: data.grade };
+  });
+
+export { ageToGrade };
+
 // ===================== Parental controls (cloud-synced) =====================
 
 const ControlsSchema = z.object({
