@@ -100,7 +100,7 @@ function AppHome() {
   );
 }
 
-function QuickLink({ to, emoji, title, subtitle, tone }: { to: "/leitura" | "/jardim"; emoji: string; title: string; subtitle: string; tone: "primary" | "success" }) {
+function QuickLink({ to, emoji, title, subtitle, tone }: { to: "/leitura" | "/jardim" | "/mundo"; emoji: string; title: string; subtitle: string; tone: "primary" | "success" }) {
   const ring = tone === "primary" ? "from-primary/20" : "from-success/20";
   return (
     <Link
