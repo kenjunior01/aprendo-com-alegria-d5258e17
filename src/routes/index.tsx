@@ -126,8 +126,14 @@ function Landing() {
         </div>
 
         <div className="mt-8 flex w-full max-w-xs flex-col items-stretch gap-3 sm:max-w-none sm:flex-row sm:justify-center">
+          <Link to="/junior" className="flex-1 sm:flex-none">
+            <ChunkyButton tone="secondary" className="w-full">🌱 Kidoz Júnior — 2 a 5 anos</ChunkyButton>
+          </Link>
           <Link to="/escolas" className="flex-1 sm:flex-none">
-            <ChunkyButton tone="ghost" className="w-full">🏫 Para escolas — 0,99€/aluno</ChunkyButton>
+            <ChunkyButton tone="ghost" className="w-full">🏫 Escolas — 0,99€/aluno</ChunkyButton>
+          </Link>
+          <Link to="/creches" className="flex-1 sm:flex-none">
+            <ChunkyButton tone="ghost" className="w-full">🏡 Creches — planos B2B</ChunkyButton>
           </Link>
         </div>
       </div>
