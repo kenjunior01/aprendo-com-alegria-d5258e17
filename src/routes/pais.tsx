@@ -14,6 +14,7 @@ import { listChildren as listTutorChildren, type TutorHistory } from "@/lib/tuto
 import { Copy, LogOut, Plus, BarChart3, Clock, Target, Flame, MessageCircle, ShieldCheck, Moon, Hourglass, UserPlus } from "lucide-react";
 import { PurchaseHistoryPanel } from "@/components/PurchaseHistoryPanel";
 import { QuickChildSignup } from "@/components/QuickChildSignup";
+import { JuniorParentPanel } from "@/components/JuniorParentPanel";
 
 const GATE_KEY = "kidoz-parent-gate-ts";
 const GATE_TTL_MIN = 30;
@@ -241,6 +242,7 @@ function ParentDashboard() {
               />
             )}
             {dashboard && <DashboardView data={dashboard} />}
+            <div className="mt-5"><JuniorParentPanel /></div>
             <PurchaseHistoryPanel />
           </>
         )}
