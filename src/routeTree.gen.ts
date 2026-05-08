@@ -17,10 +17,12 @@ import { Route as PaisRouteImport } from './routes/pais'
 import { Route as MundoRouteImport } from './routes/mundo'
 import { Route as LojaRouteImport } from './routes/loja'
 import { Route as LeituraRouteImport } from './routes/leitura'
+import { Route as JuniorRouteImport } from './routes/junior'
 import { Route as JardimRouteImport } from './routes/jardim'
 import { Route as EscolasRouteImport } from './routes/escolas'
 import { Route as EscolaRouteImport } from './routes/escola'
 import { Route as DesafiosRouteImport } from './routes/desafios'
+import { Route as CrechesRouteImport } from './routes/creches'
 import { Route as ConquistasRouteImport } from './routes/conquistas'
 import { Route as ComecarRouteImport } from './routes/comecar'
 import { Route as AuthRouteImport } from './routes/auth'
@@ -73,6 +75,11 @@ const LeituraRoute = LeituraRouteImport.update({
   path: '/leitura',
   getParentRoute: () => rootRouteImport,
 } as any)
+const JuniorRoute = JuniorRouteImport.update({
+  id: '/junior',
+  path: '/junior',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const JardimRoute = JardimRouteImport.update({
   id: '/jardim',
   path: '/jardim',
@@ -91,6 +98,11 @@ const EscolaRoute = EscolaRouteImport.update({
 const DesafiosRoute = DesafiosRouteImport.update({
   id: '/desafios',
   path: '/desafios',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CrechesRoute = CrechesRouteImport.update({
+  id: '/creches',
+  path: '/creches',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ConquistasRoute = ConquistasRouteImport.update({
@@ -157,10 +169,12 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/comecar': typeof ComecarRoute
   '/conquistas': typeof ConquistasRoute
+  '/creches': typeof CrechesRoute
   '/desafios': typeof DesafiosRoute
   '/escola': typeof EscolaRoute
   '/escolas': typeof EscolasRoute
   '/jardim': typeof JardimRoute
+  '/junior': typeof JuniorRoute
   '/leitura': typeof LeituraRoute
   '/loja': typeof LojaRoute
   '/mundo': typeof MundoRoute
@@ -182,10 +196,12 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/comecar': typeof ComecarRoute
   '/conquistas': typeof ConquistasRoute
+  '/creches': typeof CrechesRoute
   '/desafios': typeof DesafiosRoute
   '/escola': typeof EscolaRoute
   '/escolas': typeof EscolasRoute
   '/jardim': typeof JardimRoute
+  '/junior': typeof JuniorRoute
   '/leitura': typeof LeituraRoute
   '/loja': typeof LojaRoute
   '/mundo': typeof MundoRoute
@@ -208,10 +224,12 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/comecar': typeof ComecarRoute
   '/conquistas': typeof ConquistasRoute
+  '/creches': typeof CrechesRoute
   '/desafios': typeof DesafiosRoute
   '/escola': typeof EscolaRoute
   '/escolas': typeof EscolasRoute
   '/jardim': typeof JardimRoute
+  '/junior': typeof JuniorRoute
   '/leitura': typeof LeituraRoute
   '/loja': typeof LojaRoute
   '/mundo': typeof MundoRoute
@@ -235,10 +253,12 @@ export interface FileRouteTypes {
     | '/auth'
     | '/comecar'
     | '/conquistas'
+    | '/creches'
     | '/desafios'
     | '/escola'
     | '/escolas'
     | '/jardim'
+    | '/junior'
     | '/leitura'
     | '/loja'
     | '/mundo'
@@ -260,10 +280,12 @@ export interface FileRouteTypes {
     | '/auth'
     | '/comecar'
     | '/conquistas'
+    | '/creches'
     | '/desafios'
     | '/escola'
     | '/escolas'
     | '/jardim'
+    | '/junior'
     | '/leitura'
     | '/loja'
     | '/mundo'
@@ -285,10 +307,12 @@ export interface FileRouteTypes {
     | '/auth'
     | '/comecar'
     | '/conquistas'
+    | '/creches'
     | '/desafios'
     | '/escola'
     | '/escolas'
     | '/jardim'
+    | '/junior'
     | '/leitura'
     | '/loja'
     | '/mundo'
@@ -311,10 +335,12 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   ComecarRoute: typeof ComecarRoute
   ConquistasRoute: typeof ConquistasRoute
+  CrechesRoute: typeof CrechesRoute
   DesafiosRoute: typeof DesafiosRoute
   EscolaRoute: typeof EscolaRoute
   EscolasRoute: typeof EscolasRoute
   JardimRoute: typeof JardimRoute
+  JuniorRoute: typeof JuniorRoute
   LeituraRoute: typeof LeituraRoute
   LojaRoute: typeof LojaRoute
   MundoRoute: typeof MundoRoute
@@ -389,6 +415,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LeituraRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/junior': {
+      id: '/junior'
+      path: '/junior'
+      fullPath: '/junior'
+      preLoaderRoute: typeof JuniorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/jardim': {
       id: '/jardim'
       path: '/jardim'
@@ -415,6 +448,13 @@ declare module '@tanstack/react-router' {
       path: '/desafios'
       fullPath: '/desafios'
       preLoaderRoute: typeof DesafiosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/creches': {
+      id: '/creches'
+      path: '/creches'
+      fullPath: '/creches'
+      preLoaderRoute: typeof CrechesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/conquistas': {
@@ -503,10 +543,12 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   ComecarRoute: ComecarRoute,
   ConquistasRoute: ConquistasRoute,
+  CrechesRoute: CrechesRoute,
   DesafiosRoute: DesafiosRoute,
   EscolaRoute: EscolaRoute,
   EscolasRoute: EscolasRoute,
   JardimRoute: JardimRoute,
+  JuniorRoute: JuniorRoute,
   LeituraRoute: LeituraRoute,
   LojaRoute: LojaRoute,
   MundoRoute: MundoRoute,
@@ -525,3 +567,12 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}
