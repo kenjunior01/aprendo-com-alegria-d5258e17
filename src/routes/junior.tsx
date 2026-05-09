@@ -13,6 +13,11 @@ import {
 import {
   GameJardimCores, GameOrquestraAnimais, GameRotinasKido, GameLivroMagico,
 } from "@/components/junior/JuniorGames";
+import {
+  GameContaPatinhos, GameBolhas, GameMeuCorpo, GameMemoria, GameLetraAventura,
+  GameFormas, GameMercado, GameSoletrar, GameMatematica, GameCientista,
+  GameRelogio, GamePalop,
+} from "@/components/junior/JuniorGamesExtra";
 import { JuniorChildSwitcher } from "@/components/junior/JuniorChildSwitcher";
 import { Mascot } from "@/components/Mascot";
 
