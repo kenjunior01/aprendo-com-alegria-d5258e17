@@ -30,10 +30,27 @@ export const GARDENS: JuniorGarden[] = [
 ];
 
 export const GAMES: JuniorGame[] = [
-  { id: "jardim-cores",      title: "Jardim das Cores e Formas", emoji: "🌸", description: "Arrasta flores e frutas para o canteiro da cor certa.", benefits: ["Cores", "Formas", "Coordenação olho-mão"], age: "2-3", garden: "primeiros-passos" },
-  { id: "orquestra-animais", title: "Orquestra dos Animais",     emoji: "🐮", description: "Toca nos animais para ouvir os seus sons e nomes.",      benefits: ["Vocabulário", "Audição"],                age: "2-3", garden: "primeiros-passos" },
-  { id: "rotinas-kido",      title: "Rotinas do Amigo Kido",     emoji: "🪥", description: "Ajuda o Kido nas suas rotinas: lavar dentes, comer, dormir.", benefits: ["Sequências", "Higiene"],             age: "3-4", garden: "descobertas" },
-  { id: "livro-magico",      title: "Livro Mágico de Histórias", emoji: "📖", description: "Toca no cenário para que a história ganhe vida.",        benefits: ["Linguagem", "Imaginação"],               age: "4-5", garden: "preparacao" },
+  // 🌱 Jardim dos Primeiros Passos (2-3)
+  { id: "jardim-cores",      title: "Jardim das Cores e Formas", emoji: "🌸", description: "Arrasta flores e frutas para o canteiro da cor certa.", benefits: ["Cores", "Formas", "Coordenação"], age: "2-3", garden: "primeiros-passos" },
+  { id: "orquestra-animais", title: "Orquestra dos Animais",     emoji: "🐮", description: "Toca nos animais para ouvir os seus sons e nomes.",      benefits: ["Vocabulário", "Audição"],         age: "2-3", garden: "primeiros-passos" },
+  { id: "conta-patinhos",    title: "Conta os Patinhos",         emoji: "🦆", description: "Aprende a contar de 1 a 5 com patinhos no lago.",        benefits: ["Números", "Contagem"],            age: "2-3", garden: "primeiros-passos" },
+  { id: "bolhas-sabao",      title: "Bolhas de Sabão",           emoji: "🫧", description: "Rebenta as bolhas e descobre as cores escondidas.",      benefits: ["Reflexos", "Cores"],              age: "2-3", garden: "primeiros-passos" },
+  { id: "meu-corpo",         title: "O Meu Corpo",               emoji: "👶", description: "Aponta as partes do corpo do Kido.",                     benefits: ["Vocabulário", "Esquema corporal"], age: "2-3", garden: "primeiros-passos" },
+
+  // 🏝️ Ilha das Descobertas (3-4)
+  { id: "rotinas-kido",      title: "Rotinas do Amigo Kido",     emoji: "🪥", description: "Ajuda o Kido nas suas rotinas diárias.",                 benefits: ["Sequências", "Higiene"],          age: "3-4", garden: "descobertas" },
+  { id: "memoria-animais",   title: "Memória dos Animais",       emoji: "🧠", description: "Encontra os pares de cartas com animais.",               benefits: ["Memória", "Concentração"],        age: "3-4", garden: "descobertas" },
+  { id: "letra-aventura",    title: "Aventura das Letras",       emoji: "🔤", description: "Descobre a letra que falta em cada palavra.",            benefits: ["Alfabeto", "Pré-leitura"],        age: "3-4", garden: "descobertas" },
+  { id: "formas-geo",        title: "Mestre das Formas",         emoji: "🔺", description: "Encaixa cada forma no sítio certo.",                     benefits: ["Geometria", "Lógica"],            age: "3-4", garden: "descobertas" },
+  { id: "frutas-mercado",    title: "Mercado das Frutas",        emoji: "🥭", description: "Conta e ordena frutas africanas no mercado.",            benefits: ["Números", "Cultura PALOP"],       age: "3-4", garden: "descobertas" },
+
+  // 🎓 Vale da Preparação Escolar (4-5)
+  { id: "livro-magico",      title: "Livro Mágico de Histórias", emoji: "📖", description: "Escolhe o caminho da história e vê o que acontece.",     benefits: ["Linguagem", "Imaginação"],        age: "4-5", garden: "preparacao" },
+  { id: "soletrar",          title: "Soletrar com o Kido",       emoji: "✏️", description: "Arrasta as letras para formar palavras simples.",        benefits: ["Pré-escrita", "Fonética"],        age: "4-5", garden: "preparacao" },
+  { id: "matematica-magica", title: "Matemática Mágica",         emoji: "➕", description: "Resolve pequenas somas com objetos mágicos.",           benefits: ["Aritmética", "Lógica"],           age: "4-5", garden: "preparacao" },
+  { id: "pequeno-cientista", title: "Pequeno Cientista",         emoji: "🧪", description: "Mistura cores e descobre o que acontece.",               benefits: ["Ciência", "Causa-efeito"],        age: "4-5", garden: "preparacao" },
+  { id: "relogio-kido",      title: "Que Horas São?",            emoji: "⏰", description: "Aprende as horas certas e as rotinas do dia.",           benefits: ["Tempo", "Rotinas"],               age: "4-5", garden: "preparacao" },
+  { id: "mapa-palop",        title: "Viagem pela Lusofonia",     emoji: "🌍", description: "Conhece bandeiras e palavras dos países PALOP.",         benefits: ["Geografia", "Cultura"],           age: "4-5", garden: "preparacao" },
 ];
 
 export const getGardenGames = (gardenId: JuniorGarden["id"]) =>

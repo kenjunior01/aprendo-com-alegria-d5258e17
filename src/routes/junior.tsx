@@ -13,6 +13,11 @@ import {
 import {
   GameJardimCores, GameOrquestraAnimais, GameRotinasKido, GameLivroMagico,
 } from "@/components/junior/JuniorGames";
+import {
+  GameContaPatinhos, GameBolhas, GameMeuCorpo, GameMemoria, GameLetraAventura,
+  GameFormas, GameMercado, GameSoletrar, GameMatematica, GameCientista,
+  GameRelogio, GamePalop,
+} from "@/components/junior/JuniorGamesExtra";
 import { JuniorChildSwitcher } from "@/components/junior/JuniorChildSwitcher";
 import { Mascot } from "@/components/Mascot";
 
@@ -128,6 +133,18 @@ function JuniorPage() {
             {active?.id === "orquestra-animais" && <GameOrquestraAnimais />}
             {active?.id === "rotinas-kido" && <GameRotinasKido />}
             {active?.id === "livro-magico" && <GameLivroMagico />}
+            {active?.id === "conta-patinhos" && <GameContaPatinhos />}
+            {active?.id === "bolhas-sabao" && <GameBolhas />}
+            {active?.id === "meu-corpo" && <GameMeuCorpo />}
+            {active?.id === "memoria-animais" && <GameMemoria />}
+            {active?.id === "letra-aventura" && <GameLetraAventura />}
+            {active?.id === "formas-geo" && <GameFormas />}
+            {active?.id === "frutas-mercado" && <GameMercado />}
+            {active?.id === "soletrar" && <GameSoletrar />}
+            {active?.id === "matematica-magica" && <GameMatematica />}
+            {active?.id === "pequeno-cientista" && <GameCientista />}
+            {active?.id === "relogio-kido" && <GameRelogio />}
+            {active?.id === "mapa-palop" && <GamePalop />}
           </div>
           <div className="mt-2 flex justify-end">
             <ChunkyButton tone="ghost" onClick={() => setActive(null)}>Fechar</ChunkyButton>
