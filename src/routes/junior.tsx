@@ -5,13 +5,16 @@ import { BottomNav } from "@/components/BottomNav";
 import { ChunkyButton } from "@/components/ChunkyButton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ArrowLeft, Sparkles } from "lucide-react";
-import { GARDENS, GAMES, getGardenGames, loadJuniorProgress, type JuniorGame, type JuniorProgress } from "@/lib/junior";
 import {
-  GameJardimCores,
-  GameOrquestraAnimais,
-  GameRotinasKido,
-  GameLivroMagico,
+  GARDENS, GAMES, getGardenGames,
+  loadJuniorProgress, getActiveJuniorChildId, listJuniorChildren,
+  type JuniorGame, type JuniorProgress, type JuniorChild,
+} from "@/lib/junior";
+import {
+  GameJardimCores, GameOrquestraAnimais, GameRotinasKido, GameLivroMagico,
 } from "@/components/junior/JuniorGames";
+import { JuniorChildSwitcher } from "@/components/junior/JuniorChildSwitcher";
+import { Mascot } from "@/components/Mascot";
 
 export const Route = createFileRoute("/junior")({
   head: () => ({
@@ -27,9 +30,21 @@ export const Route = createFileRoute("/junior")({
 
 function JuniorPage() {
   const [active, setActive] = useState<JuniorGame | null>(null);
+  const [activeChildId, setActiveChildId] = useState<string | null>(null);
+  const [activeChild, setActiveChild] = useState<JuniorChild | null>(null);
   const [progress, setProgress] = useState<JuniorProgress>({ playedGames: [], totalSessions: 0, lastPlayedAt: null, highlights: [] });
 
-  useEffect(() => { setProgress(loadJuniorProgress()); }, [active]);
+  const refresh = (childId?: string | null) => {
+    const id = childId ?? getActiveJuniorChildId();
+    setActiveChildId(id);
+    setActiveChild(listJuniorChildren().find((c) => c.id === id) ?? null);
+    setProgress(loadJuniorProgress(id));
+  };
+
+  useEffect(() => { refresh(); }, []);
+  useEffect(() => { if (!active) refresh(activeChildId); }, [active, activeChildId]);
+
+  const greet = activeChild ? `Olá, ${activeChild.name}! 🌟` : "Os meus Jardins Mágicos 🌷";
 
   return (
     <div className="bg-sky-island min-h-[100dvh] pb-28">
@@ -44,9 +59,24 @@ function JuniorPage() {
 
       <main className="mx-auto max-w-5xl px-4 sm:px-6">
         <motion.section initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="text-center">
-          <h1 className="font-display text-4xl sm:text-5xl">Os meus Jardins Mágicos 🌷</h1>
+          {activeChild && (
+            <div className="mb-2 flex justify-center"><Mascot id={activeChild.mascot} size="md" /></div>
+          )}
+          <h1 className="font-display text-4xl sm:text-5xl">{greet}</h1>
           <p className="mt-2 text-base text-muted-foreground">Escolhe um jardim e vamos brincar!</p>
         </motion.section>
+
+        <div className="mt-6">
+          <JuniorChildSwitcher onChange={(id) => refresh(id)} />
+        </div>
+
+        {activeChild && (
+          <section className="mt-4 grid grid-cols-3 gap-3 text-center">
+            <Stat label="Jogos" value={`${progress.playedGames.length}/${GAMES.length}`} />
+            <Stat label="Sessões" value={String(progress.totalSessions)} />
+            <Stat label="Última" value={progress.lastPlayedAt ? new Date(progress.lastPlayedAt).toLocaleDateString("pt-PT") : "—"} />
+          </section>
+        )}
 
         <section className="mt-8 space-y-8">
           {GARDENS.map((g) => (
@@ -65,7 +95,7 @@ function JuniorPage() {
                   return (
                     <button
                       key={game.id}
-                      onClick={() => setActive(game)}
+                      onClick={() => activeChildId ? setActive(game) : alert("Cria primeiro um perfil de criança ✨")}
                       className="touch-target-kid card-chunky group flex items-center gap-3 rounded-2xl border-2 border-border bg-card p-4 text-left transition-transform hover:-translate-y-0.5"
                     >
                       <span className="text-4xl">{game.emoji}</span>
@@ -83,7 +113,7 @@ function JuniorPage() {
         </section>
 
         <section className="mt-10 rounded-2xl border border-dashed border-border bg-card/60 p-5 text-center text-sm">
-          És pai/mãe? Vê o progresso da tua criança em{" "}
+          És pai/mãe? Vê o progresso de cada criança em{" "}
           <Link to="/pais" className="font-display text-primary underline">Painel de Pais</Link>.
         </section>
       </main>
@@ -94,7 +124,7 @@ function JuniorPage() {
             <DialogTitle className="font-display text-2xl">{active?.emoji} {active?.title}</DialogTitle>
           </DialogHeader>
           <div className="py-2">
-            {active?.id === "jardim-cores" && <GameJardimCores onDone={() => { /* keep open */ }} />}
+            {active?.id === "jardim-cores" && <GameJardimCores />}
             {active?.id === "orquestra-animais" && <GameOrquestraAnimais />}
             {active?.id === "rotinas-kido" && <GameRotinasKido />}
             {active?.id === "livro-magico" && <GameLivroMagico />}
@@ -110,5 +140,13 @@ function JuniorPage() {
   );
 }
 
-// satisfy TS that GAMES is referenced (used by getGardenGames)
+function Stat({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-2xl bg-card/80 p-3">
+      <p className="text-[10px] uppercase tracking-wide text-muted-foreground">{label}</p>
+      <p className="mt-1 font-display text-xl">{value}</p>
+    </div>
+  );
+}
+
 void GAMES;
