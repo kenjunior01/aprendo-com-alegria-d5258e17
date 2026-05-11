@@ -33,18 +33,20 @@ export function useSubscription() {
   const [sub, setSub] = useState<SubscriptionRow | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const [trialUntil, setTrialUntil] = useState<string | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
+
   const refetch = useCallback(async () => {
-    if (!user) { setSub(null); setLoading(false); return; }
+    if (!user) { setSub(null); setTrialUntil(null); setIsAdmin(false); setLoading(false); return; }
     const env = getStripeEnvironment();
-    const { data } = await supabase
-      .from("subscriptions")
-      .select("*")
-      .eq("user_id", user.id)
-      .eq("environment", env)
-      .order("created_at", { ascending: false })
-      .limit(1)
-      .maybeSingle();
-    setSub((data as unknown as SubscriptionRow) ?? null);
+    const [subRes, profileRes, roleRes] = await Promise.all([
+      supabase.from("subscriptions").select("*").eq("user_id", user.id).eq("environment", env).order("created_at", { ascending: false }).limit(1).maybeSingle(),
+      supabase.from("profiles").select("trial_until").eq("id", user.id).maybeSingle(),
+      supabase.from("user_roles").select("role").eq("user_id", user.id).eq("role", "admin").maybeSingle(),
+    ]);
+    setSub((subRes.data as unknown as SubscriptionRow) ?? null);
+    setTrialUntil((profileRes.data as any)?.trial_until ?? null);
+    setIsAdmin(!!roleRes.data);
     setLoading(false);
   }, [user]);
 
