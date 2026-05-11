@@ -9,6 +9,7 @@ import {
   getActiveJuniorChildId, setActiveJuniorChild,
   type JuniorChild,
 } from "@/lib/junior";
+import { scheduleJuniorCloudPush } from "@/lib/juniorCloud";
 
 interface Props {
   onChange?: (childId: string | null) => void;
