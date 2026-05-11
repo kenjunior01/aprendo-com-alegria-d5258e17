@@ -142,6 +142,7 @@ function LessonPage() {
       setProfile(updated);
       setDone(true);
       playLevelUp();
+      haptic("celebrate");
       confetti({ particleCount: 200, spread: 110, origin: { y: 0.6 } });
       // Verifica conquistas em background
       void checkAndUnlockAchievements({ wasPerfect: finalCorrect === total }).then((unlocked) => {

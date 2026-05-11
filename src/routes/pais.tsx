@@ -15,6 +15,7 @@ import { Copy, LogOut, Plus, BarChart3, Clock, Target, Flame, MessageCircle, Shi
 import { PurchaseHistoryPanel } from "@/components/PurchaseHistoryPanel";
 import { QuickChildSignup } from "@/components/QuickChildSignup";
 import { JuniorParentPanel } from "@/components/JuniorParentPanel";
+import { ParentRealtimeFeed } from "@/components/ParentRealtimeFeed";
 
 const GATE_KEY = "kidoz-parent-gate-ts";
 const GATE_TTL_MIN = 30;
@@ -242,6 +243,7 @@ function ParentDashboard() {
               />
             )}
             {dashboard && <DashboardView data={dashboard} />}
+            <div className="mt-5"><ParentRealtimeFeed children={children.map((c) => ({ id: c.id, name: c.name }))} /></div>
             <div className="mt-5"><JuniorParentPanel /></div>
             <PurchaseHistoryPanel />
           </>
