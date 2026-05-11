@@ -155,6 +155,12 @@ function JuniorPage() {
           ))}
         </section>
 
+        {activeChild && (
+          <section className="mt-8">
+            <JuniorStickerBook childId={activeChildId} refreshKey={stickerBump} />
+          </section>
+        )}
+
         <section className="mt-10 rounded-2xl border border-dashed border-border bg-card/60 p-5 text-center text-sm">
           És pai/mãe? Vê o progresso de cada criança em{" "}
           <Link to="/pais" className="font-display text-primary underline">Painel de Pais</Link>.
