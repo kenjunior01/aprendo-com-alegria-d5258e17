@@ -25,11 +25,11 @@ export function ContentSettingsTab() {
 
   const setSubj = (id: string, patch: any) => setDraft({
     ...draft,
-    subjects: { ...draft.subjects, [id]: { enabled: true, minAge: 6, maxAge: 12, ...draft.subjects[id], ...patch } },
+    subjects: { ...draft.subjects, [id]: { ...{ enabled: true, minAge: 6, maxAge: 12 }, ...draft.subjects[id], ...patch } },
   });
   const setGame = (id: string, patch: any) => setDraft({
     ...draft,
-    games: { ...draft.games, [id]: { enabled: true, minAge: 2, maxAge: 12, ...draft.games[id], ...patch } },
+    games: { ...draft.games, [id]: { ...{ enabled: true, minAge: 2, maxAge: 12 }, ...draft.games[id], ...patch } },
   });
   const setCount = (cat: string, n: number) => setDraft({
     ...draft, triviaCounts: { ...draft.triviaCounts, [cat]: n },
@@ -69,7 +69,7 @@ export function ContentSettingsTab() {
             return (
               <div key={s.id} className="rounded-xl border p-3">
                 <div className="flex items-center justify-between gap-2">
-                  <div className="font-display">{s.icon} {s.name}</div>
+                  <div className="font-display">{s.emoji} {s.name}</div>
                   <Switch checked={v.enabled} onCheckedChange={(c)=>setSubj(s.id,{enabled:c})}/>
                 </div>
                 <div className="mt-2 grid grid-cols-2 gap-2">
