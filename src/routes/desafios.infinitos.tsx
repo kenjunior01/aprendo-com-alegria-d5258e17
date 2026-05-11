@@ -130,6 +130,14 @@ function InfinitePage() {
                 </div>
               </div>
             )}
+
+            <RankingPanels
+              weekly={weekly}
+              season={season}
+              scope={filterScope}
+              onScope={setFilterScope}
+              meId={profile.id ?? null}
+            />
           </>
         )}
 
