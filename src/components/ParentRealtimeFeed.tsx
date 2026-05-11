@@ -21,14 +21,14 @@ const SUBJECT_EMOJI: Record<string, string> = {
   "estudo-do-meio": "🌍",
 };
 
-export function ParentRealtimeFeed({ children }: { children: ChildSummary[] }) {
+export function ParentRealtimeFeed({ childList }: { childList: ChildSummary[] }) {
   const [items, setItems] = useState<FeedItem[]>([]);
   const [enabled, setEnabled] = useState(false);
 
   useEffect(() => {
-    if (!children.length) return;
-    const childMap = new Map(children.map((c) => [c.id, c.name]));
-    const childIds = children.map((c) => c.id);
+    if (!childList.length) return;
+    const childMap = new Map(childList.map((c) => [c.id, c.name]));
+    const childIds = childList.map((c) => c.id);
 
     const ch = supabase
       .channel("parent-feed")
