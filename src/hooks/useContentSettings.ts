@@ -38,11 +38,11 @@ export function useContentSettings() {
 
   const save = useCallback(async (next: ContentSettings) => {
     const rows = [
-      { key: "subjects",     value: next.subjects },
-      { key: "games",        value: next.games },
-      { key: "triviaCounts", value: next.triviaCounts },
+      { key: "subjects",     value: next.subjects as any },
+      { key: "games",        value: next.games as any },
+      { key: "triviaCounts", value: next.triviaCounts as any },
     ];
-    const { error } = await supabase.from("content_settings").upsert(rows);
+    const { error } = await supabase.from("content_settings").upsert(rows as any);
     if (!error) setSettings(next);
     return { error };
   }, []);
