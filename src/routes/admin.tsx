@@ -1235,6 +1235,7 @@ type AuditRow = {
   created_at: string;
 };
 function AuditTab() {
+  const { isAdmin, loading: roleLoading } = useIsAdmin();
   const [rows, setRows] = useState<AuditRow[]>([]);
   const [actors, setActors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
@@ -1242,6 +1243,7 @@ function AuditTab() {
   const [actionFilter, setActionFilter] = useState<string>("all");
 
   const load = async () => {
+    if (!isAdmin) return;
     setLoading(true);
     const { data, error } = await supabase
       .from("audit_log" as any)
@@ -1260,7 +1262,16 @@ function AuditTab() {
     }
     setLoading(false);
   };
-  useEffect(() => { load(); }, []);
+  useEffect(() => { if (!roleLoading && isAdmin) load(); else if (!roleLoading) setLoading(false); }, [roleLoading, isAdmin]);
+
+  if (!roleLoading && !isAdmin) {
+    return (
+      <Card className="p-6 text-center text-sm text-muted-foreground">
+        <Shield className="h-6 w-6 mx-auto mb-2 text-muted-foreground" />
+        Acesso restrito: apenas administradores podem ver o registo de auditoria.
+      </Card>
+    );
+  }
 
   const filtered = rows.filter((r) => {
     if (entityFilter !== "all" && r.entity !== entityFilter) return false;
