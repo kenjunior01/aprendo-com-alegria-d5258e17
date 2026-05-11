@@ -256,6 +256,24 @@ function PremiumPage() {
         <p className="mt-6 text-center text-xs text-muted-foreground">
           🔒 Pagamento seguro. IVA e impostos incluídos. Podes cancelar a qualquer momento.
         </p>
+
+        <section className="mt-10">
+          <h2 className="font-display text-2xl">Perguntas frequentes</h2>
+          <div className="mt-3 grid gap-2 sm:grid-cols-2">
+            {FAQS.map((f) => (
+              <div key={f.q} className="card-chunky rounded-2xl border-2 border-border bg-card p-4">
+                <p className="font-display text-base">{f.q}</p>
+                <p className="mt-1 text-xs text-muted-foreground">{f.a}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <div className="card-chunky mt-8 rounded-3xl border-2 border-primary/40 bg-gradient-to-br from-primary/10 to-accent/10 p-5 text-center">
+          <Heart className="mx-auto h-7 w-7 text-primary" />
+          <p className="mt-2 font-display text-lg">Cresce sem limites com o Kidoz Premium</p>
+          <p className="text-xs text-muted-foreground">Mais de 10 000 perguntas, jogos e desafios à tua espera.</p>
+        </div>
       </main>
 
       <Dialog open={!!checkoutPriceId} onOpenChange={(o) => !o && setCheckoutPriceId(null)}>
