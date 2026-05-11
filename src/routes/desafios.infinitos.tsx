@@ -136,7 +136,6 @@ function InfinitePage() {
               season={season}
               scope={filterScope}
               onScope={setFilterScope}
-              meId={profile.id ?? null}
             />
           </>
         )}
