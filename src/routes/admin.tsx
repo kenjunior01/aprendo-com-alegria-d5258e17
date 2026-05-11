@@ -1241,6 +1241,9 @@ function AuditTab() {
   const [loading, setLoading] = useState(true);
   const [entityFilter, setEntityFilter] = useState<string>("all");
   const [actionFilter, setActionFilter] = useState<string>("all");
+  const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
+  const PAGE_SIZE = 25;
 
   const load = async () => {
     if (!isAdmin) return;
