@@ -151,6 +151,7 @@ function AdminDashboard() {
               <TabsTrigger value="shop"><ShoppingBag className="h-4 w-4 mr-1" />Loja</TabsTrigger>
               <TabsTrigger value="achievements"><Trophy className="h-4 w-4 mr-1" />Conquistas</TabsTrigger>
               <TabsTrigger value="roles"><UserCog className="h-4 w-4 mr-1" />Funções</TabsTrigger>
+              <TabsTrigger value="audit"><History className="h-4 w-4 mr-1" />Auditoria</TabsTrigger>
             </TabsList>
 
             <TabsContent value="overview" className="mt-6"><OverviewTab /></TabsContent>
@@ -163,6 +164,7 @@ function AdminDashboard() {
             <TabsContent value="shop" className="mt-6"><ShopTab /></TabsContent>
             <TabsContent value="achievements" className="mt-6"><AchievementsTab /></TabsContent>
             <TabsContent value="roles" className="mt-6"><RolesTab /></TabsContent>
+            <TabsContent value="audit" className="mt-6"><AuditTab /></TabsContent>
           </Tabs>
         </main>
       </div>
