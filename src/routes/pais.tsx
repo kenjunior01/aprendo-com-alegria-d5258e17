@@ -15,6 +15,7 @@ import { Copy, LogOut, Plus, BarChart3, Clock, Target, Flame, MessageCircle, Shi
 import { PurchaseHistoryPanel } from "@/components/PurchaseHistoryPanel";
 import { QuickChildSignup } from "@/components/QuickChildSignup";
 import { JuniorParentPanel } from "@/components/JuniorParentPanel";
+import { JuniorParentReport } from "@/components/JuniorParentReport";
 import { ParentRealtimeFeed } from "@/components/ParentRealtimeFeed";
 import { FamilyChallengePanel } from "@/components/FamilyChallengePanel";
 
