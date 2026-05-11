@@ -62,23 +62,34 @@ function DesafiosPage() {
 
   useEffect(() => {
     (async () => {
-      const cloud = await pullProfileFromCloud();
-      setProfile(cloud ?? loadProfile());
-      const { data: u } = await supabase.auth.getUser();
-      setMyUserId(u.user?.id ?? "");
       try {
-        const [list, ai, rank, fr] = await Promise.all([
-          fnList(), fnAi(), fnRank(), fnFriends(),
-        ]);
-        setChallenges(list.challenges);
-        setAiChallenge(ai.challenge);
-        setRanking(rank);
-        setFriends(fr.friends);
-      } catch (e) {
-        console.error(e);
-      } finally {
-        setLoading(false);
+        const cloud = await pullProfileFromCloud();
+        setProfile(cloud ?? loadProfile());
+      } catch {
+        setProfile(loadProfile());
       }
+      const { data: u } = await supabase.auth.getUser();
+      const uid = u.user?.id ?? "";
+      setMyUserId(uid);
+      if (!uid) {
+        // Não autenticado — não chama server fns (401). Mostra estado vazio.
+        setLoading(false);
+        return;
+      }
+      const settle = async <T,>(p: Promise<T>, fallback: T): Promise<T> => {
+        try { return await p; } catch (e) { console.error(e); return fallback; }
+      };
+      const [list, ai, rank, fr] = await Promise.all([
+        settle(fnList(), { challenges: [] as ChallengeRow[] }),
+        settle(fnAi(), { challenge: null as ChallengeRow | null }),
+        settle(fnRank(), { ranking: [], me: null } as Awaited<ReturnType<typeof getWeeklyRanking>>),
+        settle(fnFriends(), { friends: [] as Awaited<ReturnType<typeof listFriends>>["friends"] }),
+      ]);
+      setChallenges(list.challenges ?? []);
+      setAiChallenge(ai.challenge ?? null);
+      setRanking(rank ?? { ranking: [], me: null });
+      setFriends(fr.friends ?? []);
+      setLoading(false);
     })();
   }, [fnList, fnAi, fnRank, fnFriends]);
 
