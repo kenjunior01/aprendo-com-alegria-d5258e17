@@ -148,6 +148,11 @@ function LessonPage() {
       playLevelUp();
       haptic("celebrate");
       confetti({ particleCount: 200, spread: 110, origin: { y: 0.6 } });
+      // Submete pontuação ao desafio (PvP ou IA) se aplicável
+      if (challengeId) {
+        const score = total > 0 ? Math.round((finalCorrect / total) * 100) : 0;
+        void fnSubmitChallenge({ data: { challengeId, score } }).catch((e) => console.error("submitChallengeScore", e));
+      }
       // Verifica conquistas em background
       void checkAndUnlockAchievements({ wasPerfect: finalCorrect === total }).then((unlocked) => {
         if (unlocked.length > 0) {
