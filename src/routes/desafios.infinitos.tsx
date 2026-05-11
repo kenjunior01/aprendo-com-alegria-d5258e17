@@ -122,13 +122,17 @@ function InfinitePage() {
             trackId={trackId}
             level={level}
             onDone={(correct, total) => {
-              const next = recordResult(trackId, level, correct, total);
-              setProgress(next);
-              const xpGained = correct * (5 + Math.floor(level / 2));
+              const r = recordResult(trackId, level, correct, total);
+              setProgress(r.progress);
               if (profile) {
-                const updated = updateProfile({ xp: (profile.xp ?? 0) + xpGained, coins: (profile.coins ?? 0) + correct });
+                const updated = updateProfile({ xp: (profile.xp ?? 0) + r.xpGained, coins: (profile.coins ?? 0) + correct });
                 setProfile(updated);
               }
+              void scheduleInfiniteCloudPush();
+              void submitInfiniteScoreFn({ data: {
+                trackId, level, score: r.xpGained, stars: r.stars,
+                age: profile?.age ?? null, region: profile?.region ?? null,
+              }}).catch(() => {});
               setView("result");
             }}
             onBack={() => setView("levels")}
