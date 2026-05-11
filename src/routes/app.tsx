@@ -9,6 +9,7 @@ import { loadProfile, pullProfileFromCloud, type Profile } from "@/lib/storage";
 import { getMascot } from "@/lib/mascots";
 import { AdaptiveTip } from "@/components/AdaptiveTip";
 import { MissionOfTheDay } from "@/components/MissionOfTheDay";
+import { SeasonalBanner } from "@/components/SeasonalBanner";
 import { Lock, Star, CheckCircle2, Crown, Play } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { haptic } from "@/lib/haptics";
@@ -75,6 +76,8 @@ function AppHome() {
             </div>
           </div>
         </motion.section>
+
+        <SeasonalBanner region={profile.region ?? null} />
 
         <MissionOfTheDay completedLessons={profile.completedLessons} grade={profile.grade} />
 
