@@ -121,6 +121,56 @@ function ParentDashboard() {
     void getChildDashboard({ data: { childId: selectedChild } }).then(setDashboard).catch(() => setDashboard(null));
   }, [selectedChild]);
 
+  // Compute badges (counters/alerts) for tabs based on Supabase data + last-seen timestamps.
+  useEffect(() => {
+    if (children.length === 0) return;
+    const childIds = children.map((c) => c.id);
+    let cancelled = false;
+    void (async () => {
+      const next: Partial<Record<TabId, number>> = {};
+      const sinceResumo = new Date(seen.resumo ?? 0).toISOString();
+      const sinceDesafios = new Date(seen.desafios ?? 0).toISOString();
+      const sinceAtividade = new Date(seen.atividade ?? 0).toISOString();
+      const sinceCompras = new Date(seen.compras ?? 0).toISOString();
+      try {
+        const [practiceNew, infiniteNew, sessionsToday, subsNew, pendingLinks] = await Promise.all([
+          supabase.from("practice_sessions").select("id", { count: "exact", head: true })
+            .in("user_id", childIds).gt("created_at", sinceResumo),
+          supabase.from("infinite_scores").select("id", { count: "exact", head: true })
+            .in("user_id", childIds).gt("created_at", sinceDesafios),
+          supabase.from("practice_sessions").select("id", { count: "exact", head: true })
+            .in("user_id", childIds).gt("created_at", sinceAtividade),
+          supabase.from("subscriptions").select("id", { count: "exact", head: true })
+            .gt("updated_at", sinceCompras),
+          supabase.from("parent_links").select("id", { count: "exact", head: true })
+            .eq("parent_id", user!.id).eq("status", "pending"),
+        ]);
+        if (cancelled) return;
+        next.resumo = practiceNew.count ?? 0;
+        next.desafios = infiniteNew.count ?? 0;
+        next.atividade = sessionsToday.count ?? 0;
+        next.compras = subsNew.count ?? 0;
+        next.controlos = pendingLinks.count ?? 0;
+        setBadges(next);
+      } catch { /* noop */ }
+    })();
+    return () => { cancelled = true; };
+  }, [children, seen, user]);
+
+  // Mark current tab as seen + smooth scroll to content.
+  useEffect(() => {
+    setSeen((prev) => {
+      const updated = { ...prev, [activeTab]: Date.now() };
+      saveSeen(updated);
+      return updated;
+    });
+    setBadges((prev) => ({ ...prev, [activeTab]: 0 }));
+    if (typeof window !== "undefined" && tabContentRef.current) {
+      const top = tabContentRef.current.getBoundingClientRect().top + window.scrollY - 130;
+      window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
+    }
+  }, [activeTab]);
+
   if (!user || !profile) return null;
 
   const generateInvite = async () => {
