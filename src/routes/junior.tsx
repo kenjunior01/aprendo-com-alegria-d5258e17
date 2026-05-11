@@ -56,7 +56,7 @@ function JuniorPage() {
   const [active, setActive] = useState<JuniorGame | null>(null);
   const [activeChildId, setActiveChildId] = useState<string | null>(null);
   const [activeChild, setActiveChild] = useState<JuniorChild | null>(null);
-  const [progress, setProgress] = useState<JuniorProgress>({ playedGames: [], totalSessions: 0, lastPlayedAt: null, highlights: [] });
+  const [progress, setProgress] = useState<JuniorProgress>({ playedGames: [], totalSessions: 0, lastPlayedAt: null, highlights: [], points: 0, streak: 0, bestStreak: 0, lastDay: null, medals: [] });
   const [celebrating, setCelebrating] = useState<{ sticker: JuniorSticker; isNew: boolean } | null>(null);
   const [stickerBump, setStickerBump] = useState(0);
 
