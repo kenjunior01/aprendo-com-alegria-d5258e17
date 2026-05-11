@@ -1439,6 +1439,25 @@ function AuditTab() {
           </Button>
         ))}
       </div>
+      <div className="flex items-center justify-between gap-2 flex-wrap">
+        <h2 className="text-lg font-semibold sr-only">Registo de auditoria</h2>
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button size="sm" variant="outline">Colunas ({Object.values(visibleCols).filter(Boolean).length}/{COLS.length})</Button>
+          </PopoverTrigger>
+          <PopoverContent align="end" className="w-56 p-2">
+            <div className="text-xs font-semibold px-2 py-1 text-muted-foreground">Mostrar colunas</div>
+            <div className="space-y-1">
+              {COLS.map((c) => (
+                <label key={c.key} className="flex items-center gap-2 px-2 py-1 rounded hover:bg-muted cursor-pointer text-sm">
+                  <Checkbox checked={showCol(c.key)} onCheckedChange={() => toggleCol(c.key)} />
+                  <span>{c.label}</span>
+                </label>
+              ))}
+            </div>
+          </PopoverContent>
+        </Popover>
+      </div>
       <Input
         placeholder="Procurar por entidade, ID, admin ou valor alterado..."
         value={search}
