@@ -150,6 +150,10 @@ function ProfilePage() {
         </section>
 
         <section className="mt-6 sm:mt-8">
+          <RegionInterestsPanel profile={profile} onChange={setProfile} />
+        </section>
+
+        <section className="mt-6 sm:mt-8">
           <PremiumStatusPanel />
         </section>
 
@@ -178,6 +182,9 @@ function ProfilePage() {
           <Link to="/premium">
             <ChunkyButton tone="primary" className="w-full">{profile.isPremium ? "💎 Gerir Premium" : "💎 Conhecer o Premium"}</ChunkyButton>
           </Link>
+          {completed >= total && total > 0 && user && (
+            <CertificateButton childName={profile.name} grade={profile.grade} mascot={profile.mascot} />
+          )}
           {user && (
             <ChunkyButton tone="ghost" onClick={signOut} className="w-full">
               <LogOut className="mr-1 h-4 w-4" /> Sair da conta
