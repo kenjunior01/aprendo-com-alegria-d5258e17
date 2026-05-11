@@ -135,11 +135,27 @@ export interface JuniorChild {
   createdAt: string;    // ISO
 }
 
+export interface JuniorMedal {
+  id: string;          // e.g. "first-game", "streak-3", "garden-1-complete"
+  emoji: string;
+  label: string;
+  awardedAt: string;
+}
 export interface JuniorProgress {
   playedGames: string[];
   totalSessions: number;
   lastPlayedAt: string | null;
   highlights: { gameId: string; at: string; note: string }[];
+  /** Total points earned across all sessions. */
+  points: number;
+  /** Current daily streak in days. */
+  streak: number;
+  /** Best streak ever reached. */
+  bestStreak: number;
+  /** Last calendar day (YYYY-MM-DD) the child played. */
+  lastDay: string | null;
+  /** Medals/badges unlocked. */
+  medals: JuniorMedal[];
 }
 
 const CHILDREN_KEY = "kidoz-junior-children-v1";
@@ -149,7 +165,27 @@ const progressKey  = (childId: string) => `kidoz-junior-progress::${childId}`;
 
 const emptyProgress = (): JuniorProgress => ({
   playedGames: [], totalSessions: 0, lastPlayedAt: null, highlights: [],
+  points: 0, streak: 0, bestStreak: 0, lastDay: null, medals: [],
 });
+
+const ymd = (d = new Date()) => d.toISOString().slice(0, 10);
+function addMedalsIfEarned(p: JuniorProgress): JuniorMedal[] {
+  const have = new Set(p.medals.map((m) => m.id));
+  const add: JuniorMedal[] = [];
+  const push = (id: string, emoji: string, label: string) => {
+    if (!have.has(id)) add.push({ id, emoji, label, awardedAt: new Date().toISOString() });
+  };
+  if (p.playedGames.length >= 1) push("first-game", "🎉", "Primeiro jogo!");
+  if (p.playedGames.length >= 5) push("five-games", "🖐️", "5 jogos diferentes");
+  if (p.playedGames.length >= 15) push("fifteen-games", "🏅", "15 jogos diferentes");
+  if (p.totalSessions >= 10) push("ten-sessions", "🔁", "10 sessões");
+  if (p.totalSessions >= 50) push("fifty-sessions", "🥇", "50 sessões");
+  if (p.streak >= 3) push("streak-3", "🔥", "3 dias seguidos");
+  if (p.streak >= 7) push("streak-7", "🔥🔥", "Semana completa");
+  if (p.points >= 200) push("points-200", "💎", "200 pontos");
+  if (p.points >= 1000) push("points-1000", "👑", "1000 pontos");
+  return [...p.medals, ...add];
+}
 
 const isBrowser = () => typeof window !== "undefined";
 const uid = () => (globalThis.crypto?.randomUUID?.() ?? `c_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`);
