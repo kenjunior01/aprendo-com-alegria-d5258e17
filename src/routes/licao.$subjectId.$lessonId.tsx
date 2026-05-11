@@ -18,6 +18,9 @@ import { cn } from "@/lib/utils";
 import { haptic } from "@/lib/haptics";
 
 export const Route = createFileRoute("/licao/$subjectId/$lessonId")({
+  validateSearch: (search: Record<string, unknown>) => ({
+    challenge: typeof search.challenge === "string" ? search.challenge : undefined,
+  }),
   head: () => ({
     meta: [
       { title: "Lição — Kidoz" },
