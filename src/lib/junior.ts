@@ -269,12 +269,33 @@ export function recordJuniorPlay(gameId: string, note: string, childId?: string 
   const id = childId ?? getActiveJuniorChildId();
   if (!id) return emptyProgress();
   const p = loadJuniorProgress(id);
-  const next: JuniorProgress = {
+  const today = ymd();
+  const isNewGame = !p.playedGames.includes(gameId);
+  // pontos: 25 jogo novo, 8 repetição
+  const earned = isNewGame ? 25 : 8;
+  // streak: +1 se ontem, mantém se hoje, reset se >1 dia
+  let streak = p.streak;
+  if (p.lastDay === today) {
+    // mesmo dia, mantém
+    if (streak < 1) streak = 1;
+  } else if (p.lastDay) {
+    const diff = Math.round((Date.parse(today) - Date.parse(p.lastDay)) / 86400000);
+    streak = diff === 1 ? streak + 1 : 1;
+  } else {
+    streak = 1;
+  }
+  const partial: JuniorProgress = {
     playedGames: Array.from(new Set([...p.playedGames, gameId])),
     totalSessions: p.totalSessions + 1,
     lastPlayedAt: new Date().toISOString(),
     highlights: [{ gameId, at: new Date().toISOString(), note }, ...p.highlights].slice(0, 12),
+    points: p.points + earned,
+    streak,
+    bestStreak: Math.max(p.bestStreak, streak),
+    lastDay: today,
+    medals: p.medals,
   };
-  if (isBrowser()) localStorage.setItem(progressKey(id), JSON.stringify(next));
-  return next;
+  partial.medals = addMedalsIfEarned(partial);
+  if (isBrowser()) localStorage.setItem(progressKey(id), JSON.stringify(partial));
+  return partial;
 }
