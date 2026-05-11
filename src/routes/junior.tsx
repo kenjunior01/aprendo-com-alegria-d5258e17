@@ -39,6 +39,7 @@ import { JuniorChildSwitcher } from "@/components/junior/JuniorChildSwitcher";
 import { JuniorMascotStage } from "@/components/junior/JuniorMascotStage";
 import { Mascot } from "@/components/Mascot";
 import { Lock } from "lucide-react";
+import { useContentSettings } from "@/hooks/useContentSettings";
 
 export const Route = createFileRoute("/junior")({
   head: () => ({
@@ -112,10 +113,21 @@ function JuniorPage() {
         </div>
 
         {activeChild && (
-          <section className="mt-4 grid grid-cols-3 gap-3 text-center">
-            <Stat label="Jogos" value={`${progress.playedGames.length}/${GAMES.length}`} />
-            <Stat label="Sessões" value={String(progress.totalSessions)} />
-            <Stat label="Última" value={progress.lastPlayedAt ? new Date(progress.lastPlayedAt).toLocaleDateString("pt-PT") : "—"} />
+          <section className="mt-4 grid grid-cols-2 gap-3 text-center sm:grid-cols-4">
+            <Stat label="Pontos" value={String(progress.points)} />
+            <Stat label="Streak" value={`${progress.streak}🔥`} />
+            <Stat label="Jogos" value={`${progress.playedGames.length}`} />
+            <Stat label="Medalhas" value={String(progress.medals.length)} />
+          </section>
+        )}
+
+        {activeChild && progress.medals.length > 0 && (
+          <section className="mt-3 flex flex-wrap justify-center gap-2">
+            {progress.medals.slice(-8).map((m) => (
+              <span key={m.id} title={m.label} className="rounded-full bg-card px-3 py-1 font-display text-xs shadow-sm">
+                {m.emoji} {m.label}
+              </span>
+            ))}
           </section>
         )}
 
