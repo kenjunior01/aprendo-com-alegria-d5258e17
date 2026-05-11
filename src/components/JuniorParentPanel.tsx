@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
-import { Sparkles, Compass, Heart } from "lucide-react";
+import { Sparkles, Compass, Heart, Trophy } from "lucide-react";
 import {
-  loadJuniorProgress, listJuniorChildren, GAMES,
+  loadJuniorProgress, listJuniorChildren, gardenProgressFor, currentLevel, GAMES,
   type JuniorProgress, type JuniorChild,
 } from "@/lib/junior";
 import { Mascot } from "@/components/Mascot";
