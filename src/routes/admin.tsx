@@ -1254,6 +1254,31 @@ function AuditTab() {
   const [detail, setDetail] = useState<AuditRow | null>(null);
   const PAGE_SIZE = 25;
 
+  // Column visibility (persisted)
+  const COLS: { key: string; label: string }[] = [
+    { key: "entity", label: "Entidade" },
+    { key: "action", label: "Ação" },
+    { key: "actor", label: "Admin" },
+    { key: "summary", label: "Resumo" },
+    { key: "entity_id", label: "Entity ID" },
+    { key: "audit_id", label: "Audit ID" },
+    { key: "created_at", label: "Data" },
+  ];
+  const COLS_KEY = "admin.audit.cols.v1";
+  const [visibleCols, setVisibleCols] = useState<Record<string, boolean>>(() => {
+    if (typeof window === "undefined") return Object.fromEntries(COLS.map((c) => [c.key, c.key !== "audit_id"]));
+    try {
+      const raw = localStorage.getItem(COLS_KEY);
+      if (raw) return JSON.parse(raw);
+    } catch {}
+    return Object.fromEntries(COLS.map((c) => [c.key, c.key !== "audit_id"]));
+  });
+  useEffect(() => {
+    try { localStorage.setItem(COLS_KEY, JSON.stringify(visibleCols)); } catch {}
+  }, [visibleCols]);
+  const toggleCol = (k: string) => setVisibleCols((v) => ({ ...v, [k]: !v[k] }));
+  const showCol = (k: string) => visibleCols[k] !== false;
+
   // Debounce search input (300ms)
   useEffect(() => {
     const t = setTimeout(() => setDebouncedSearch(search.trim()), 300);
