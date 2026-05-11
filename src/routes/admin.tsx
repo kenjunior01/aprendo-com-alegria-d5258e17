@@ -1263,7 +1263,7 @@ function AuditTab() {
   const [detail, setDetail] = useState<AuditRow | null>(null);
   const PAGE_SIZE = 25;
 
-  // Column visibility (persisted)
+  // Column visibility + order (persisted)
   const COLS: { key: string; label: string }[] = [
     { key: "entity", label: "Entidade" },
     { key: "action", label: "Ação" },
@@ -1274,6 +1274,8 @@ function AuditTab() {
     { key: "created_at", label: "Data" },
   ];
   const COLS_KEY = "admin.audit.cols.v1";
+  const COLS_ORDER_KEY = "admin.audit.cols.order.v1";
+  const DEFAULT_ORDER = COLS.map((c) => c.key);
   const [visibleCols, setVisibleCols] = useState<Record<string, boolean>>(() => {
     if (typeof window === "undefined") return Object.fromEntries(COLS.map((c) => [c.key, c.key !== "audit_id"]));
     try {
@@ -1282,11 +1284,44 @@ function AuditTab() {
     } catch {}
     return Object.fromEntries(COLS.map((c) => [c.key, c.key !== "audit_id"]));
   });
+  const [colOrder, setColOrder] = useState<string[]>(() => {
+    if (typeof window === "undefined") return DEFAULT_ORDER;
+    try {
+      const raw = localStorage.getItem(COLS_ORDER_KEY);
+      if (raw) {
+        const saved: string[] = JSON.parse(raw);
+        // Merge: keep saved order, append any new keys at the end
+        const merged = saved.filter((k) => DEFAULT_ORDER.includes(k));
+        DEFAULT_ORDER.forEach((k) => { if (!merged.includes(k)) merged.push(k); });
+        return merged;
+      }
+    } catch {}
+    return DEFAULT_ORDER;
+  });
   useEffect(() => {
     try { localStorage.setItem(COLS_KEY, JSON.stringify(visibleCols)); } catch {}
   }, [visibleCols]);
+  useEffect(() => {
+    try { localStorage.setItem(COLS_ORDER_KEY, JSON.stringify(colOrder)); } catch {}
+  }, [colOrder]);
   const toggleCol = (k: string) => setVisibleCols((v) => ({ ...v, [k]: !v[k] }));
   const showCol = (k: string) => visibleCols[k] !== false;
+  const resetCols = () => { setColOrder(DEFAULT_ORDER); setVisibleCols(Object.fromEntries(COLS.map((c) => [c.key, c.key !== "audit_id"]))); };
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  );
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    setColOrder((prev) => {
+      const oldIndex = prev.indexOf(String(active.id));
+      const newIndex = prev.indexOf(String(over.id));
+      if (oldIndex < 0 || newIndex < 0) return prev;
+      return arrayMove(prev, oldIndex, newIndex);
+    });
+  };
+  const colByKey = Object.fromEntries(COLS.map((c) => [c.key, c]));
 
   // Debounce search input (300ms)
   useEffect(() => {
