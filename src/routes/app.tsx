@@ -8,8 +8,10 @@ import { CHAPTERS, type Chapter, type Mission } from "@/lib/chapters";
 import { loadProfile, pullProfileFromCloud, type Profile } from "@/lib/storage";
 import { getMascot } from "@/lib/mascots";
 import { AdaptiveTip } from "@/components/AdaptiveTip";
+import { MissionOfTheDay } from "@/components/MissionOfTheDay";
 import { Lock, Star, CheckCircle2, Crown, Play } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { haptic } from "@/lib/haptics";
 
 export const Route = createFileRoute("/app")({
   head: () => ({
@@ -73,6 +75,8 @@ function AppHome() {
             </div>
           </div>
         </motion.section>
+
+        <MissionOfTheDay completedLessons={profile.completedLessons} grade={profile.grade} />
 
         <AdaptiveTip />
 
