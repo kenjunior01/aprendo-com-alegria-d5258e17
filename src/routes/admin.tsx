@@ -510,27 +510,36 @@ function UsersTab() {
     setSelected(s);
   };
 
-  const bulkGrant = async (days: number) => {
+  const [results, setResults] = useState<{ id: string; name: string; ok: boolean; error?: string }[] | null>(null);
+  const [confirmRevoke, setConfirmRevoke] = useState(false);
+
+  const runBulk = async (mode: "grant" | "revoke", days?: number) => {
     if (selected.size === 0) return toast.error("Seleciona pelo menos um utilizador");
     setBusy(true);
-    const until = new Date(Date.now() + days * 86400000).toISOString();
-    const { error } = await supabase.from("profiles").update({ trial_until: until, is_premium: true }).in("id", [...selected]);
+    setResults(null);
+    const ids = [...selected];
+    const nameById = new Map(rows.map((r) => [r.id, r.name || "(sem nome)"]));
+    const update = mode === "grant"
+      ? { trial_until: new Date(Date.now() + (days ?? 30) * 86400000).toISOString(), is_premium: true }
+      : { trial_until: null, is_premium: false };
+
+    const out: { id: string; name: string; ok: boolean; error?: string }[] = [];
+    for (const id of ids) {
+      const { error } = await supabase.from("profiles").update(update).eq("id", id);
+      out.push({ id, name: nameById.get(id) ?? id, ok: !error, error: error?.message });
+    }
     setBusy(false);
-    if (error) return toast.error(error.message);
-    toast.success(`${selected.size} utilizadores receberam trial de ${days}d`);
-    setSelected(new Set());
+    setResults(out);
+    const okCount = out.filter((r) => r.ok).length;
+    const failCount = out.length - okCount;
+    if (failCount === 0) toast.success(`${okCount} utilizadores atualizados`);
+    else toast.warning(`${okCount} ok · ${failCount} falharam`);
+    if (okCount > 0) setSelected(new Set());
     load();
   };
-  const bulkRevoke = async () => {
-    if (selected.size === 0) return toast.error("Seleciona pelo menos um utilizador");
-    setBusy(true);
-    const { error } = await supabase.from("profiles").update({ trial_until: null, is_premium: false }).in("id", [...selected]);
-    setBusy(false);
-    if (error) return toast.error(error.message);
-    toast.success(`Trial removido de ${selected.size} utilizadores`);
-    setSelected(new Set());
-    load();
-  };
+
+  const bulkGrant = (days: number) => runBulk("grant", days);
+  const bulkRevoke = () => runBulk("revoke");
 
   const grantTrial = async (id: string, days: number) => {
     const until = new Date(Date.now() + days * 86400000).toISOString();
