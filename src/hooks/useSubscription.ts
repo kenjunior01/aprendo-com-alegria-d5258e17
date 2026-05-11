@@ -60,5 +60,6 @@ export function useSubscription() {
     return () => { supabase.removeChannel(channel); };
   }, [user, refetch]);
 
-  return { subscription: sub, isActive: computeActive(sub), loading, refetch };
+  const trialActive = !!trialUntil && new Date(trialUntil).getTime() > Date.now();
+  return { subscription: sub, isActive: isAdmin || trialActive || computeActive(sub), loading, refetch, trialUntil, isAdmin, isTrial: trialActive };
 }
