@@ -125,6 +125,12 @@ function Landing() {
           <FeatureCard emoji="🌍" title="Estudo do Meio" text="Portugal, história, ambiente" />
         </div>
 
+        {/* Como funciona — estilo Duolingo ABC */}
+        <HowItWorks />
+
+        {/* Mini caminho de lições, mobile-first */}
+        <LessonPathPreview />
+
         {/* Prova social */}
         <Testimonials />
 
@@ -141,6 +147,73 @@ function Landing() {
         </div>
       </div>
     </main>
+  );
+}
+
+function HowItWorks() {
+  const steps = [
+    { n: "1", emoji: "👶", title: "Escolhe o teu mascote", text: "Cria um perfil divertido em segundos." },
+    { n: "2", emoji: "📚", title: "Lições curtinhas", text: "5 minutos por dia chega para evoluir." },
+    { n: "3", emoji: "🏆", title: "Sobe de nível", text: "Ganha estrelas, medalhas e mantém a streak 🔥" },
+  ];
+  return (
+    <section className="mt-12 w-full sm:mt-16">
+      <h2 className="mb-1 text-center font-display text-2xl sm:text-3xl">Como funciona</h2>
+      <p className="mb-5 text-center text-sm text-muted-foreground">Aprender pouco e muitas vezes — como o Duolingo, mas para o programa português.</p>
+      <ol className="grid gap-3 sm:gap-4 md:grid-cols-3">
+        {steps.map((s) => (
+          <motion.li
+            key={s.n}
+            initial={{ opacity: 0, y: 12 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="card-chunky relative overflow-hidden rounded-3xl border border-border bg-card p-5 text-left"
+          >
+            <span className="absolute -right-3 -top-3 text-7xl opacity-10">{s.n}</span>
+            <div className="text-3xl">{s.emoji}</div>
+            <h3 className="mt-2 font-display text-lg sm:text-xl">{s.title}</h3>
+            <p className="text-sm text-muted-foreground">{s.text}</p>
+          </motion.li>
+        ))}
+      </ol>
+    </section>
+  );
+}
+
+function LessonPathPreview() {
+  const nodes = [
+    { e: "🅰️", t: "Vogais", tone: "bg-primary text-primary-foreground" },
+    { e: "🔢", t: "Contar", tone: "bg-secondary text-secondary-foreground" },
+    { e: "📖", t: "Ler", tone: "bg-accent text-accent-foreground" },
+    { e: "✖️", t: "Tabuada", tone: "bg-success text-success-foreground" },
+    { e: "🌍", t: "Mundo", tone: "bg-xp text-foreground" },
+  ];
+  return (
+    <section className="mt-12 w-full sm:mt-16">
+      <h2 className="mb-1 text-center font-display text-2xl sm:text-3xl">O caminho da aprendizagem</h2>
+      <p className="mb-6 text-center text-sm text-muted-foreground">Cada nó é uma mini-lição, com sons, animações e mascotes.</p>
+      <div className="relative mx-auto max-w-md">
+        {nodes.map((n, i) => (
+          <motion.div
+            key={n.t}
+            initial={{ opacity: 0, x: i % 2 === 0 ? -20 : 20 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: i * 0.08 }}
+            className={`relative mb-4 flex items-center gap-3 ${i % 2 === 0 ? "ml-0 mr-auto" : "ml-auto mr-0"}`}
+            style={{ width: "min(85%, 22rem)" }}
+          >
+            <div className={`grid h-16 w-16 shrink-0 place-items-center rounded-full text-3xl shadow-md ring-4 ring-card ${n.tone}`}>
+              {n.e}
+            </div>
+            <div className="card-chunky flex-1 rounded-2xl border border-border bg-card px-4 py-3">
+              <p className="font-display text-base">{n.t}</p>
+              <p className="text-xs text-muted-foreground">5 min · {(i + 1) * 10} XP</p>
+            </div>
+          </motion.div>
+        ))}
+      </div>
+    </section>
   );
 }
 
