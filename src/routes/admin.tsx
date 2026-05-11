@@ -25,8 +25,17 @@ import {
   Shield, Users, CreditCard, Trophy, ShoppingBag, GraduationCap,
   Swords, BarChart3, Search, Crown, UserCog, Loader2, RefreshCw,
   Calendar, Sparkles, ArrowLeft, FileText, Plus, Trash2, Save, Eye,
-  History, AlertTriangle, CheckCircle2, XCircle,
+  History, AlertTriangle, CheckCircle2, XCircle, GripVertical, RotateCcw,
 } from "lucide-react";
+import {
+  DndContext, closestCenter, PointerSensor, KeyboardSensor,
+  useSensor, useSensors, type DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  SortableContext, sortableKeyboardCoordinates, useSortable,
+  verticalListSortingStrategy, arrayMove,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import {
   ResponsiveContainer, LineChart, Line, BarChart, Bar, XAxis, YAxis,
   Tooltip as RTooltip, CartesianGrid, Legend,
