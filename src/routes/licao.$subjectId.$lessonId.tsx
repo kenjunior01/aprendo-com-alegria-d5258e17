@@ -30,6 +30,8 @@ export const Route = createFileRoute("/licao/$subjectId/$lessonId")({
 function LessonPage() {
   const { subjectId, lessonId } = useParams({ from: "/licao/$subjectId/$lessonId" });
   const navigate = useNavigate();
+  const fnSubmitChallenge = useServerFn(submitChallengeScore);
+  const challengeId = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("challenge") : null;
 
   const subject = getSubject(subjectId);
   const lesson = getLesson(subjectId, lessonId);
