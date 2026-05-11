@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Award, Loader2 } from "lucide-react";
 import { ChunkyButton } from "@/components/ChunkyButton";
 import { generateCertificate } from "@/lib/certificate.functions";
-import { MASCOTS, type MascotId } from "@/lib/mascots";
+import type { MascotId } from "@/lib/mascots";
 import { toast } from "sonner";
 
 interface Props {
@@ -42,7 +42,6 @@ export function CertificateButton({ childName, grade, mascot }: Props) {
       setLoading(false);
     }
   };
-  void MASCOTS;
 
   return (
     <ChunkyButton tone="primary" onClick={download} className="w-full gap-2">
