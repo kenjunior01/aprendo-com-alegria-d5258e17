@@ -385,12 +385,14 @@ export type Database = {
           grade: number
           hearts: number
           id: string
+          interests: string[]
           is_premium: boolean
           last_played: string | null
           mascot: string
           name: string
           owned_items: string[]
           parent_pin: string | null
+          region: string | null
           role: string
           streak: number
           updated_at: string
@@ -409,12 +411,14 @@ export type Database = {
           grade?: number
           hearts?: number
           id: string
+          interests?: string[]
           is_premium?: boolean
           last_played?: string | null
           mascot?: string
           name?: string
           owned_items?: string[]
           parent_pin?: string | null
+          region?: string | null
           role?: string
           streak?: number
           updated_at?: string
@@ -433,12 +437,14 @@ export type Database = {
           grade?: number
           hearts?: number
           id?: string
+          interests?: string[]
           is_premium?: boolean
           last_played?: string | null
           mascot?: string
           name?: string
           owned_items?: string[]
           parent_pin?: string | null
+          region?: string | null
           role?: string
           streak?: number
           updated_at?: string
