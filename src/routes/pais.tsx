@@ -119,7 +119,7 @@ function ParentDashboard() {
 
   const signOut = async () => {
     await supabase.auth.signOut();
-    navigate({ to: "/" });
+    window.location.href = "/";
   };
 
   if (!unlocked) {
