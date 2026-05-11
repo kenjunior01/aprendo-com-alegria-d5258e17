@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { loadProfile, type Profile } from "@/lib/storage";
 import { useAuth } from "@/hooks/useAuth";
 import { useSubscription } from "@/hooks/useSubscription";
-import { ArrowLeft, Check, Crown, Sparkles, Star } from "lucide-react";
+import { ArrowLeft, Brain, Check, Crown, Gamepad2, Globe2, GraduationCap, Heart, Infinity as InfinityIcon, Palette, Sparkles, Star, Trophy, Users, Zap } from "lucide-react";
 
 export const Route = createFileRoute("/premium")({
   head: () => ({
