@@ -156,9 +156,59 @@ function PremiumPage() {
               <Sparkles className="h-4 w-4" /> Premium ativo
             </div>
           )}
+          <div className="mt-5 grid grid-cols-3 gap-2 text-center text-[11px] sm:text-xs">
+            {[
+              { n: "12", l: "disciplinas" },
+              { n: "∞", l: "níveis" },
+              { n: "2–99", l: "anos" },
+            ].map((s) => (
+              <div key={s.l} className="rounded-2xl border-2 border-border/60 bg-card/70 p-2">
+                <p className="font-display text-2xl text-primary">{s.n}</p>
+                <p className="text-muted-foreground">{s.l}</p>
+              </div>
+            ))}
+          </div>
         </motion.section>
 
-        <div className="mt-6 grid gap-4 md:grid-cols-3">
+        <section className="mt-8">
+          <h2 className="font-display text-2xl">Tudo o que recebes</h2>
+          <p className="text-sm text-muted-foreground">Mais de 100 funcionalidades premium para crescer sem fim.</p>
+          <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3">
+            {FEATURES.map((f) => {
+              const Icon = f.icon;
+              return (
+                <motion.div key={f.title} whileHover={{ y: -3 }} className="card-chunky rounded-2xl border-2 border-border bg-card p-4">
+                  <div className="flex items-center gap-2">
+                    <div className="rounded-xl bg-primary/10 p-2"><Icon className="h-5 w-5 text-primary" /></div>
+                    <p className="font-display text-base">{f.title}</p>
+                  </div>
+                  <p className="mt-2 text-xs text-muted-foreground">{f.desc}</p>
+                </motion.div>
+              );
+            })}
+          </div>
+        </section>
+
+        <section className="card-chunky mt-8 rounded-3xl border-2 border-primary/40 bg-gradient-to-br from-primary/15 via-secondary/15 to-accent/20 p-5 sm:p-6">
+          <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center">
+            <InfinityIcon className="h-10 w-10 text-primary" />
+            <div className="flex-1">
+              <p className="font-display text-2xl">Desafios Infinitos</p>
+              <p className="mt-1 text-sm text-muted-foreground">Aritmética, álgebra, frações, geometria, gramática, vocabulário, geografia, história, ciências e lógica — milhares de níveis procedurais que se ajustam a ti.</p>
+            </div>
+            <Link to="/desafios/infinitos" className="self-stretch sm:self-center">
+              <ChunkyButton className="w-full sm:w-auto"><Sparkles className="mr-1 inline h-4 w-4" /> Experimentar</ChunkyButton>
+            </Link>
+          </div>
+          <div className="mt-4 grid grid-cols-2 gap-2 text-[11px] sm:grid-cols-4">
+            {["Pré-escolar 2–5", "Básico 6–9", "Avançado 10–13", "Adulto 14+"].map((b) => (
+              <div key={b} className="rounded-xl border border-border/60 bg-card/70 p-2 text-center font-display">{b}</div>
+            ))}
+          </div>
+        </section>
+
+        <h2 className="mt-8 font-display text-2xl">Escolhe o teu plano</h2>
+        <div className="mt-3 grid gap-4 md:grid-cols-3">
           {PLANS.map((plan) => {
             const isCurrent = isActive && subscription?.price_id === plan.priceId;
             return (
