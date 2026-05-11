@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { BottomNav } from "@/components/BottomNav";
 import { Mascot } from "@/components/Mascot";
 import { ChunkyButton } from "@/components/ChunkyButton";
@@ -11,7 +11,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { getMyChildren, createParentInvite, acceptParentInvite, getChildDashboard, getChildControls, setChildControls, type ParentDashboardData } from "@/server/parent.functions";
 import { listChildren as listTutorChildren, type TutorHistory } from "@/lib/tutorHistory";
-import { Copy, LogOut, Plus, BarChart3, Clock, Target, Flame, MessageCircle, ShieldCheck, Moon, Hourglass, UserPlus, Home, Swords, Baby, Activity, ShoppingBag, School, Menu, X } from "lucide-react";
+import { Copy, LogOut, Plus, BarChart3, Clock, Target, Flame, MessageCircle, ShieldCheck, Moon, Hourglass, UserPlus, Home, Swords, Baby, Activity, ShoppingBag, School, Menu, X, Search, ChevronUp, Filter } from "lucide-react";
 import { PurchaseHistoryPanel } from "@/components/PurchaseHistoryPanel";
 import { QuickChildSignup } from "@/components/QuickChildSignup";
 import { JuniorParentPanel } from "@/components/JuniorParentPanel";
@@ -19,6 +19,7 @@ import { JuniorParentReport } from "@/components/JuniorParentReport";
 import { ParentRealtimeFeed } from "@/components/ParentRealtimeFeed";
 import { FamilyChallengePanel } from "@/components/FamilyChallengePanel";
 import { ChildChallengesPanel } from "@/components/ChildChallengesPanel";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 
 const GATE_KEY = "kidoz-parent-gate-ts";
 const GATE_TTL_MIN = 30;
