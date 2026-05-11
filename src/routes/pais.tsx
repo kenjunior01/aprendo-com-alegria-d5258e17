@@ -23,6 +23,18 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/co
 
 const GATE_KEY = "kidoz-parent-gate-ts";
 const GATE_TTL_MIN = 30;
+const SEEN_KEY = "kidoz-parent-tab-seen";
+type TabId = "resumo" | "controlos" | "desafios" | "junior" | "atividade" | "compras";
+type SeenMap = Partial<Record<TabId, number>>;
+
+function loadSeen(): SeenMap {
+  if (typeof window === "undefined") return {};
+  try { return JSON.parse(localStorage.getItem(SEEN_KEY) ?? "{}") as SeenMap; } catch { return {}; }
+}
+function saveSeen(m: SeenMap) {
+  if (typeof window === "undefined") return;
+  localStorage.setItem(SEEN_KEY, JSON.stringify(m));
+}
 
 export const Route = createFileRoute("/pais")({
   head: () => ({
