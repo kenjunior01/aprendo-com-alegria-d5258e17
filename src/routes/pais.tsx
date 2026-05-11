@@ -208,14 +208,27 @@ function ParentDashboard() {
   }
 
   const selectedChildName = children.find((c) => c.id === selectedChild)?.name ?? "";
-  const tabs: { id: typeof activeTab; label: string; icon: typeof Home }[] = [
+  const tabs: { id: TabId; label: string; icon: typeof Home; tone?: string }[] = [
     { id: "resumo", label: "Resumo", icon: Home },
-    { id: "controlos", label: "Controlos", icon: ShieldCheck },
+    { id: "controlos", label: "Controlos", icon: ShieldCheck, tone: "warn" },
     { id: "desafios", label: "Desafios", icon: Swords },
     { id: "junior", label: "Júnior", icon: Baby },
     { id: "atividade", label: "Atividade", icon: Activity },
     { id: "compras", label: "Compras", icon: ShoppingBag },
   ];
+  const activeTabMeta = tabs.find((t) => t.id === activeTab)!;
+  const totalAlerts = Object.values(badges).reduce<number>((s, n) => s + (n ?? 0), 0);
+
+  // Filter + search children
+  const availableGrades = Array.from(new Set(children.map((c) => c.grade))).sort((a, b) => a - b);
+  const filteredChildren = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    return children.filter((c) => {
+      if (gradeFilter !== "all" && c.grade !== gradeFilter) return false;
+      if (q && !c.name.toLowerCase().includes(q)) return false;
+      return true;
+    });
+  }, [children, searchQuery, gradeFilter]);
 
   return (
     <div className="min-h-[100dvh] bg-gradient-to-b from-background via-background to-muted/30 pb-28 md:pb-12">
