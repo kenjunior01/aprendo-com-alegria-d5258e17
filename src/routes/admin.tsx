@@ -72,25 +72,46 @@ function AdminPage() {
   }
 
   if (!isAdmin) {
-    return (
-      <div className="min-h-screen grid place-items-center bg-background p-6">
-        <Card className="max-w-md p-8 text-center space-y-4">
-          <AlertTriangle className="h-10 w-10 mx-auto text-destructive" />
-          <h1 className="text-2xl font-bold">Acesso restrito</h1>
-          <p className="text-muted-foreground">
-            Esta área é exclusiva para administradores da plataforma.
-          </p>
-          <Button asChild variant="outline">
-            <Link to="/">
-              <ArrowLeft className="h-4 w-4 mr-2" /> Voltar
-            </Link>
-          </Button>
-        </Card>
-      </div>
-    );
+    return <BootstrapOrDeny userId={user!.id} />;
   }
 
   return <AdminDashboard />;
+}
+
+function BootstrapOrDeny({ userId }: { userId: string }) {
+  const [claiming, setClaiming] = useState(false);
+  const claim = async () => {
+    setClaiming(true);
+    const { data, error } = await supabase.rpc("claim_first_admin");
+    setClaiming(false);
+    if (error) return toast.error(error.message);
+    if (data) {
+      toast.success("És agora administrador. A recarregar...");
+      setTimeout(() => window.location.reload(), 800);
+    } else {
+      toast.error("Já existe um admin. Pede a um admin para te promover.");
+    }
+  };
+  return (
+    <div className="min-h-screen grid place-items-center bg-background p-6">
+      <Card className="max-w-md p-8 text-center space-y-4">
+        <Shield className="h-10 w-10 mx-auto text-primary" />
+        <h1 className="text-2xl font-bold">Acesso restrito</h1>
+        <p className="text-muted-foreground">
+          Esta área é exclusiva para administradores. Se ainda não existe nenhum admin nesta plataforma,
+          podes reivindicar o primeiro acesso de admin com a tua conta.
+        </p>
+        <p className="text-xs text-muted-foreground font-mono break-all">{userId}</p>
+        <div className="flex flex-col gap-2">
+          <Button onClick={claim} disabled={claiming}>
+            {claiming ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Sparkles className="h-4 w-4 mr-2" />}
+            Reivindicar primeiro admin
+          </Button>
+          <Button asChild variant="ghost"><Link to="/"><ArrowLeft className="h-4 w-4 mr-2" /> Voltar</Link></Button>
+        </div>
+      </Card>
+    </div>
+  );
 }
 
 function AdminDashboard() {
