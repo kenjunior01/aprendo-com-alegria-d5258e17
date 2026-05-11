@@ -1234,18 +1234,23 @@ type AuditRow = {
   after: any;
   created_at: string;
 };
+type AuditCursor = { created_at: string; id: string } | null;
+
 function AuditTab() {
   // 1) ALL hooks declared unconditionally and in stable order
   const { isAdmin, loading: roleLoading } = useIsAdmin();
   const [rows, setRows] = useState<AuditRow[]>([]);
   const [actors, setActors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
-  const [totalCount, setTotalCount] = useState(0);
+  const [hasNext, setHasNext] = useState(false);
   const [entityFilter, setEntityFilter] = useState<string>("all");
   const [actionFilter, setActionFilter] = useState<string>("all");
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
-  const [page, setPage] = useState(1);
+  // Stack of cursors: cursors[i] = cursor used to fetch page i (index 0 = first page = null)
+  const [cursors, setCursors] = useState<AuditCursor[]>([null]);
+  const [reloadTick, setReloadTick] = useState(0);
+  const [detail, setDetail] = useState<AuditRow | null>(null);
   const PAGE_SIZE = 25;
 
   // Debounce search input (300ms)
@@ -1254,10 +1259,13 @@ function AuditTab() {
     return () => clearTimeout(t);
   }, [search]);
 
-  // Reset to page 1 whenever filters/search change
-  useEffect(() => { setPage(1); }, [entityFilter, actionFilter, debouncedSearch]);
+  // Reset cursor stack whenever filters/search change
+  useEffect(() => { setCursors([null]); }, [entityFilter, actionFilter, debouncedSearch]);
 
-  // Server-side fetch with limit/offset + filters
+  const currentCursor = cursors[cursors.length - 1] ?? null;
+  const pageNumber = cursors.length;
+
+  // Server-side keyset (cursor) pagination
   useEffect(() => {
     if (roleLoading) return;
     if (!isAdmin) { setLoading(false); return; }
@@ -1265,22 +1273,27 @@ function AuditTab() {
     let cancelled = false;
     (async () => {
       setLoading(true);
-      const from = (page - 1) * PAGE_SIZE;
-      const to = from + PAGE_SIZE - 1;
 
       let q = supabase
         .from("audit_log" as any)
-        .select("*", { count: "exact" })
+        .select("*")
         .order("created_at", { ascending: false })
-        .range(from, to);
+        .order("id", { ascending: false })
+        .limit(PAGE_SIZE + 1);
 
       if (entityFilter !== "all") q = q.eq("entity", entityFilter);
       if (actionFilter !== "all") q = q.eq("action", actionFilter);
 
+      if (currentCursor) {
+        // Keyset: (created_at, id) < (cursor.created_at, cursor.id)
+        q = q.or(
+          `created_at.lt.${currentCursor.created_at},and(created_at.eq.${currentCursor.created_at},id.lt.${currentCursor.id})`,
+        );
+      }
+
       if (debouncedSearch) {
         const s = debouncedSearch.replace(/[%,()]/g, "");
         const like = `%${s}%`;
-        // Search across entity, action, entity_id, actor_id, before, after (jsonb cast to text)
         q = q.or(
           [
             `entity.ilike.${like}`,
@@ -1293,39 +1306,48 @@ function AuditTab() {
         );
       }
 
-      const { data, error, count } = await q;
+      const { data, error } = await q;
       if (cancelled) return;
 
       if (error) {
         toast.error(error.message);
         setRows([]);
-        setTotalCount(0);
+        setHasNext(false);
         setLoading(false);
         return;
       }
       const list = ((data as any) ?? []) as AuditRow[];
-      setRows(list);
-      setTotalCount(count ?? list.length);
+      const more = list.length > PAGE_SIZE;
+      const pageRows = more ? list.slice(0, PAGE_SIZE) : list;
+      setRows(pageRows);
+      setHasNext(more);
 
-      const ids = [...new Set(list.map((r) => r.actor_id).filter(Boolean))] as string[];
+      const ids = [...new Set(pageRows.map((r) => r.actor_id).filter(Boolean))] as string[];
       if (ids.length > 0) {
         const { data: profs } = await supabase.from("profiles").select("id, name").in("id", ids);
         if (cancelled) return;
-        const map: Record<string, string> = { ...actors };
-        (profs ?? []).forEach((p: any) => { map[p.id] = p.name || p.id.slice(0, 8); });
-        setActors(map);
+        setActors((prev) => {
+          const map = { ...prev };
+          (profs ?? []).forEach((p: any) => { map[p.id] = p.name || p.id.slice(0, 8); });
+          return map;
+        });
       }
       setLoading(false);
     })();
 
     return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [roleLoading, isAdmin, page, entityFilter, actionFilter, debouncedSearch]);
+  }, [roleLoading, isAdmin, cursors, entityFilter, actionFilter, debouncedSearch, reloadTick]);
 
-  const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
-  const currentPage = Math.min(page, totalPages);
-
-  const reload = () => setPage((p) => (p === 1 ? 1 : 1));
+  const goNext = () => {
+    if (!hasNext || rows.length === 0) return;
+    const last = rows[rows.length - 1];
+    setCursors((cs) => [...cs, { created_at: last.created_at, id: last.id }]);
+  };
+  const goPrev = () => {
+    setCursors((cs) => (cs.length > 1 ? cs.slice(0, -1) : cs));
+  };
+  const reload = () => { setCursors([null]); setReloadTick((t) => t + 1); };
 
   const summarize = (r: AuditRow): string => {
     if (r.entity === "profile_trial") {
@@ -1374,7 +1396,7 @@ function AuditTab() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between flex-wrap gap-2">
-        <h2 className="text-lg font-semibold">Registo de auditoria ({totalCount})</h2>
+        <h2 className="text-lg font-semibold">Registo de auditoria</h2>
         <Button size="sm" variant="outline" onClick={reload}><RefreshCw className="h-4 w-4" /></Button>
       </div>
       <div className="flex flex-wrap gap-2 items-center">
@@ -1405,7 +1427,14 @@ function AuditTab() {
         <>
           <div className="space-y-2">
             {rows.map((r) => (
-              <Card key={r.id} className="p-3 text-sm">
+              <Card
+                key={r.id}
+                className="p-3 text-sm cursor-pointer hover:bg-muted/40 transition-colors"
+                onClick={() => setDetail(r)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setDetail(r); } }}
+              >
                 <div className="flex items-start justify-between gap-2 flex-wrap">
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2 flex-wrap">
@@ -1427,15 +1456,66 @@ function AuditTab() {
           </div>
           <div className="flex items-center justify-between gap-2 pt-2">
             <span className="text-xs text-muted-foreground">
-              Página {currentPage} de {totalPages} · {totalCount} resultado{totalCount === 1 ? "" : "s"}
+              Página {pageNumber} · {rows.length} resultado{rows.length === 1 ? "" : "s"}
             </span>
             <div className="flex gap-2">
-              <Button size="sm" variant="outline" disabled={currentPage <= 1} onClick={() => setPage((p) => Math.max(1, p - 1))}>Anterior</Button>
-              <Button size="sm" variant="outline" disabled={currentPage >= totalPages} onClick={() => setPage((p) => Math.min(totalPages, p + 1))}>Seguinte</Button>
+              <Button size="sm" variant="outline" disabled={pageNumber <= 1} onClick={goPrev}>Anterior</Button>
+              <Button size="sm" variant="outline" disabled={!hasNext} onClick={goNext}>Seguinte</Button>
             </div>
           </div>
         </>
       )}
+
+      <Dialog open={!!detail} onOpenChange={(o) => { if (!o) setDetail(null); }}>
+        <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Detalhe do registo</DialogTitle>
+          </DialogHeader>
+          {detail && (
+            <div className="space-y-3 text-sm">
+              <div className="flex flex-wrap gap-2 items-center">
+                <Badge variant="secondary">{entityLabel[detail.entity] ?? detail.entity}</Badge>
+                <Badge variant="outline">{detail.action}</Badge>
+                <span className="text-xs text-muted-foreground">
+                  {new Date(detail.created_at).toLocaleString("pt-PT")}
+                </span>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                <div><span className="text-muted-foreground">Admin:</span> {detail.actor_id ? (actors[detail.actor_id] ?? detail.actor_id) : "sistema"}</div>
+                <div className="break-all"><span className="text-muted-foreground">Entity ID:</span> <span className="font-mono">{detail.entity_id ?? "—"}</span></div>
+                <div className="break-all sm:col-span-2"><span className="text-muted-foreground">Audit ID:</span> <span className="font-mono">{detail.id}</span></div>
+              </div>
+              <div>
+                <div className="text-xs font-semibold mb-1">Resumo</div>
+                <div className="text-xs break-all">{summarize(detail) || "—"}</div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                  <div className="text-xs font-semibold mb-1">Antes (before)</div>
+                  <pre className="text-[11px] bg-muted/50 rounded p-2 overflow-x-auto max-h-72 whitespace-pre-wrap break-all">
+{detail.before ? JSON.stringify(detail.before, null, 2) : "—"}
+                  </pre>
+                </div>
+                <div>
+                  <div className="text-xs font-semibold mb-1">Depois (after)</div>
+                  <pre className="text-[11px] bg-muted/50 rounded p-2 overflow-x-auto max-h-72 whitespace-pre-wrap break-all">
+{detail.after ? JSON.stringify(detail.after, null, 2) : "—"}
+                  </pre>
+                </div>
+              </div>
+              <div>
+                <div className="text-xs font-semibold mb-1">Payload completo</div>
+                <pre className="text-[11px] bg-muted/50 rounded p-2 overflow-x-auto max-h-72 whitespace-pre-wrap break-all">
+{JSON.stringify(detail, null, 2)}
+                </pre>
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDetail(null)}>Fechar</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
