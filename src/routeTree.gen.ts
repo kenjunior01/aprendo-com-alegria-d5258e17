@@ -28,6 +28,7 @@ import { Route as ComecarRouteImport } from './routes/comecar'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AppRouteImport } from './routes/app'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as DesafiosInfinitosRouteImport } from './routes/desafios.infinitos'
 import { Route as CheckoutReturnRouteImport } from './routes/checkout.return'
 import { Route as CapituloChapterIdRouteImport } from './routes/capitulo.$chapterId'
 import { Route as LicaoSubjectIdLessonIdRouteImport } from './routes/licao.$subjectId.$lessonId'
@@ -130,6 +131,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DesafiosInfinitosRoute = DesafiosInfinitosRouteImport.update({
+  id: '/infinitos',
+  path: '/infinitos',
+  getParentRoute: () => DesafiosRoute,
+} as any)
 const CheckoutReturnRoute = CheckoutReturnRouteImport.update({
   id: '/checkout/return',
   path: '/checkout/return',
@@ -170,7 +176,7 @@ export interface FileRoutesByFullPath {
   '/comecar': typeof ComecarRoute
   '/conquistas': typeof ConquistasRoute
   '/creches': typeof CrechesRoute
-  '/desafios': typeof DesafiosRoute
+  '/desafios': typeof DesafiosRouteWithChildren
   '/escola': typeof EscolaRoute
   '/escolas': typeof EscolasRoute
   '/jardim': typeof JardimRoute
@@ -185,6 +191,7 @@ export interface FileRoutesByFullPath {
   '/tutor': typeof TutorRoute
   '/capitulo/$chapterId': typeof CapituloChapterIdRoute
   '/checkout/return': typeof CheckoutReturnRoute
+  '/desafios/infinitos': typeof DesafiosInfinitosRoute
   '/api/public/tutor-stream': typeof ApiPublicTutorStreamRoute
   '/licao/$subjectId/$lessonId': typeof LicaoSubjectIdLessonIdRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
@@ -197,7 +204,7 @@ export interface FileRoutesByTo {
   '/comecar': typeof ComecarRoute
   '/conquistas': typeof ConquistasRoute
   '/creches': typeof CrechesRoute
-  '/desafios': typeof DesafiosRoute
+  '/desafios': typeof DesafiosRouteWithChildren
   '/escola': typeof EscolaRoute
   '/escolas': typeof EscolasRoute
   '/jardim': typeof JardimRoute
@@ -212,6 +219,7 @@ export interface FileRoutesByTo {
   '/tutor': typeof TutorRoute
   '/capitulo/$chapterId': typeof CapituloChapterIdRoute
   '/checkout/return': typeof CheckoutReturnRoute
+  '/desafios/infinitos': typeof DesafiosInfinitosRoute
   '/api/public/tutor-stream': typeof ApiPublicTutorStreamRoute
   '/licao/$subjectId/$lessonId': typeof LicaoSubjectIdLessonIdRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
@@ -225,7 +233,7 @@ export interface FileRoutesById {
   '/comecar': typeof ComecarRoute
   '/conquistas': typeof ConquistasRoute
   '/creches': typeof CrechesRoute
-  '/desafios': typeof DesafiosRoute
+  '/desafios': typeof DesafiosRouteWithChildren
   '/escola': typeof EscolaRoute
   '/escolas': typeof EscolasRoute
   '/jardim': typeof JardimRoute
@@ -240,6 +248,7 @@ export interface FileRoutesById {
   '/tutor': typeof TutorRoute
   '/capitulo/$chapterId': typeof CapituloChapterIdRoute
   '/checkout/return': typeof CheckoutReturnRoute
+  '/desafios/infinitos': typeof DesafiosInfinitosRoute
   '/api/public/tutor-stream': typeof ApiPublicTutorStreamRoute
   '/licao/$subjectId/$lessonId': typeof LicaoSubjectIdLessonIdRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
@@ -269,6 +278,7 @@ export interface FileRouteTypes {
     | '/tutor'
     | '/capitulo/$chapterId'
     | '/checkout/return'
+    | '/desafios/infinitos'
     | '/api/public/tutor-stream'
     | '/licao/$subjectId/$lessonId'
     | '/api/public/payments/webhook'
@@ -296,6 +306,7 @@ export interface FileRouteTypes {
     | '/tutor'
     | '/capitulo/$chapterId'
     | '/checkout/return'
+    | '/desafios/infinitos'
     | '/api/public/tutor-stream'
     | '/licao/$subjectId/$lessonId'
     | '/api/public/payments/webhook'
@@ -323,6 +334,7 @@ export interface FileRouteTypes {
     | '/tutor'
     | '/capitulo/$chapterId'
     | '/checkout/return'
+    | '/desafios/infinitos'
     | '/api/public/tutor-stream'
     | '/licao/$subjectId/$lessonId'
     | '/api/public/payments/webhook'
@@ -336,7 +348,7 @@ export interface RootRouteChildren {
   ComecarRoute: typeof ComecarRoute
   ConquistasRoute: typeof ConquistasRoute
   CrechesRoute: typeof CrechesRoute
-  DesafiosRoute: typeof DesafiosRoute
+  DesafiosRoute: typeof DesafiosRouteWithChildren
   EscolaRoute: typeof EscolaRoute
   EscolasRoute: typeof EscolasRoute
   JardimRoute: typeof JardimRoute
@@ -492,6 +504,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/desafios/infinitos': {
+      id: '/desafios/infinitos'
+      path: '/infinitos'
+      fullPath: '/desafios/infinitos'
+      preLoaderRoute: typeof DesafiosInfinitosRouteImport
+      parentRoute: typeof DesafiosRoute
+    }
     '/checkout/return': {
       id: '/checkout/return'
       path: '/checkout/return'
@@ -537,6 +556,18 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface DesafiosRouteChildren {
+  DesafiosInfinitosRoute: typeof DesafiosInfinitosRoute
+}
+
+const DesafiosRouteChildren: DesafiosRouteChildren = {
+  DesafiosInfinitosRoute: DesafiosInfinitosRoute,
+}
+
+const DesafiosRouteWithChildren = DesafiosRoute._addFileChildren(
+  DesafiosRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AppRoute: AppRoute,
@@ -544,7 +575,7 @@ const rootRouteChildren: RootRouteChildren = {
   ComecarRoute: ComecarRoute,
   ConquistasRoute: ConquistasRoute,
   CrechesRoute: CrechesRoute,
-  DesafiosRoute: DesafiosRoute,
+  DesafiosRoute: DesafiosRouteWithChildren,
   EscolaRoute: EscolaRoute,
   EscolasRoute: EscolasRoute,
   JardimRoute: JardimRoute,

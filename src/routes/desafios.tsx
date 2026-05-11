@@ -113,6 +113,15 @@ function DesafiosPage() {
           </div>
         </motion.div>
 
+        <Link to="/desafios/infinitos" className="card-chunky mb-4 flex items-center gap-3 rounded-2xl border-2 border-primary/40 bg-gradient-to-br from-primary/15 via-secondary/15 to-accent/20 p-3 transition hover:border-primary">
+          <div className="text-3xl">♾️</div>
+          <div className="flex-1">
+            <p className="font-display text-base">Desafios Infinitos</p>
+            <p className="text-xs text-muted-foreground">Milhares de níveis em 12 disciplinas, todas as idades.</p>
+          </div>
+          <span className="font-display text-sm text-primary">Abrir →</span>
+        </Link>
+
         {!myUserId && !loading && (
           <div className="card-chunky mb-4 rounded-2xl border-2 border-primary bg-primary/10 p-3 text-sm">
             🔐 Faz <Link to="/auth" className="font-display text-primary underline">login</Link> para participares em desafios PvP, IA e ranking semanal.

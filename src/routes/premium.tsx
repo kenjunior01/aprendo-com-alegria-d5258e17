@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { loadProfile, type Profile } from "@/lib/storage";
 import { useAuth } from "@/hooks/useAuth";
 import { useSubscription } from "@/hooks/useSubscription";
-import { ArrowLeft, Check, Crown, Sparkles, Star } from "lucide-react";
+import { ArrowLeft, Brain, Check, Crown, Gamepad2, Globe2, GraduationCap, Heart, Infinity as InfinityIcon, Palette, Sparkles, Star, Trophy, Users, Zap } from "lucide-react";
 
 export const Route = createFileRoute("/premium")({
   head: () => ({
@@ -41,45 +41,77 @@ const PLANS: Plan[] = [
     price: "4,99€",
     priceLabel: "/mês",
     perks: [
-      "Acesso ilimitado a todas as disciplinas",
-      "Tutor Mocha IA com explicações detalhadas",
-      "Modo família — até 4 crianças",
-      "Relatórios semanais para pais",
-      "Sem anúncios",
+      "Tudo grátis incluído",
+      "♾️ Desafios Infinitos (todos os níveis)",
+      "🤖 Tutor Mocha IA com explicações detalhadas",
+      "🥽 Realidade Aumentada com mascotes",
+      "👨‍👩‍👧 Modo família — até 4 crianças",
+      "📊 Relatórios semanais aos pais",
+      "Sem anúncios, sem limites de leitura por voz",
     ],
     cta: "Começar mensal",
   },
   {
     priceId: "familia_anual",
-    badge: "Poupa 33%",
+    badge: "Mais popular · Poupa 33%",
     name: "Família Anual",
     price: "39,99€",
     priceLabel: "/ano (≈3,33€/mês)",
     highlight: true,
     perks: [
       "Tudo do plano mensal",
-      "Poupança equivalente a 4 meses grátis",
-      "Acesso prioritário a novos conteúdos",
+      "💰 Equivalente a 4 meses grátis",
+      "🎁 Itens exclusivos de loja todos os meses",
+      "🚀 Acesso prioritário a novos conteúdos",
+      "📜 Certificados imprimíveis das conquistas",
       "Faturação anual única",
     ],
     cta: "Escolher anual",
   },
   {
     priceId: "vitalicio_lifetime",
-    badge: "Lançamento",
+    badge: "Lançamento · Edição limitada",
     name: "Vitalício",
     price: "79,99€",
     priceLabel: "uma vez · oferta limitada",
     perks: [
-      "Acesso vitalício a tudo no Kidoz",
+      "👑 Acesso vitalício a tudo no Kidoz",
       "Para os primeiros early-adopters",
       "Sem renovações nem cobranças futuras",
-      "Inclui atualizações futuras",
+      "Inclui todas as atualizações futuras",
+      "🏷️ Mascote dourada exclusiva 'Founder'",
+      "Suporte prioritário",
     ],
     cta: "Ser vitalício",
     oneTime: true,
   },
 ];
+
+interface Feature {
+  icon: typeof Crown;
+  title: string;
+  desc: string;
+}
+
+const FEATURES: Feature[] = [
+  { icon: InfinityIcon, title: "Desafios Infinitos", desc: "Milhares de níveis procedurais em 12 disciplinas. Aritmética, álgebra, geometria, gramática, vocabulário, geografia, história, lógica e mais — sem fim." },
+  { icon: GraduationCap, title: "Para todas as idades", desc: "Do Kidoz Júnior (2–5) ao avançado (10+). Conteúdo ajustado à idade, ano escolar e região (PT, BR, AO, MZ, CV)." },
+  { icon: Brain, title: "Tutor Mocha IA", desc: "Explicações passo-a-passo, exemplos personalizados e respostas adaptadas ao nível da criança." },
+  { icon: Gamepad2, title: "Jogos exclusivos", desc: "Mini-jogos premium, modo família 1v1, desafios PvP com amigos e ranking semanal." },
+  { icon: Palette, title: "Personalização total", desc: "Mascotes dourados, fatos exclusivos, cenários animados, jardim e mundo personalizáveis." },
+  { icon: Globe2, title: "Realidade Aumentada", desc: "Vê os mascotes em 3D no teu quarto. Aprende explorando objetos reais à tua volta." },
+  { icon: Trophy, title: "Conquistas premium", desc: "Centenas de medalhas, certificados imprimíveis e desafios sazonais únicos." },
+  { icon: Users, title: "Modo família", desc: "Até 4 perfis de criança, painel de pais avançado, controlos de tempo de ecrã e relatórios detalhados." },
+  { icon: Zap, title: "Sem limites", desc: "Vidas infinitas, leitura por voz ilimitada, modo offline e zero anúncios." },
+];
+
+const FAQS: Array<{ q: string; a: string }> = [
+  { q: "Posso cancelar quando quiser?", a: "Sim. O cancelamento é instantâneo no painel de perfil e mantém o acesso até ao fim do período pago." },
+  { q: "Quantas crianças posso registar?", a: "Até 4 perfis distintos por conta família, cada um com mascote e progresso próprios." },
+  { q: "Funciona offline?", a: "Sim. As lições e desafios infinitos funcionam offline depois da primeira sincronização." },
+  { q: "É seguro para crianças?", a: "Sem anúncios, sem dados partilhados com terceiros e modo pais com PIN para gerir tudo." },
+];
+
 
 function PremiumPage() {
   const navigate = useNavigate();
@@ -124,9 +156,59 @@ function PremiumPage() {
               <Sparkles className="h-4 w-4" /> Premium ativo
             </div>
           )}
+          <div className="mt-5 grid grid-cols-3 gap-2 text-center text-[11px] sm:text-xs">
+            {[
+              { n: "12", l: "disciplinas" },
+              { n: "∞", l: "níveis" },
+              { n: "2–99", l: "anos" },
+            ].map((s) => (
+              <div key={s.l} className="rounded-2xl border-2 border-border/60 bg-card/70 p-2">
+                <p className="font-display text-2xl text-primary">{s.n}</p>
+                <p className="text-muted-foreground">{s.l}</p>
+              </div>
+            ))}
+          </div>
         </motion.section>
 
-        <div className="mt-6 grid gap-4 md:grid-cols-3">
+        <section className="mt-8">
+          <h2 className="font-display text-2xl">Tudo o que recebes</h2>
+          <p className="text-sm text-muted-foreground">Mais de 100 funcionalidades premium para crescer sem fim.</p>
+          <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3">
+            {FEATURES.map((f) => {
+              const Icon = f.icon;
+              return (
+                <motion.div key={f.title} whileHover={{ y: -3 }} className="card-chunky rounded-2xl border-2 border-border bg-card p-4">
+                  <div className="flex items-center gap-2">
+                    <div className="rounded-xl bg-primary/10 p-2"><Icon className="h-5 w-5 text-primary" /></div>
+                    <p className="font-display text-base">{f.title}</p>
+                  </div>
+                  <p className="mt-2 text-xs text-muted-foreground">{f.desc}</p>
+                </motion.div>
+              );
+            })}
+          </div>
+        </section>
+
+        <section className="card-chunky mt-8 rounded-3xl border-2 border-primary/40 bg-gradient-to-br from-primary/15 via-secondary/15 to-accent/20 p-5 sm:p-6">
+          <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center">
+            <InfinityIcon className="h-10 w-10 text-primary" />
+            <div className="flex-1">
+              <p className="font-display text-2xl">Desafios Infinitos</p>
+              <p className="mt-1 text-sm text-muted-foreground">Aritmética, álgebra, frações, geometria, gramática, vocabulário, geografia, história, ciências e lógica — milhares de níveis procedurais que se ajustam a ti.</p>
+            </div>
+            <Link to="/desafios/infinitos" className="self-stretch sm:self-center">
+              <ChunkyButton className="w-full sm:w-auto"><Sparkles className="mr-1 inline h-4 w-4" /> Experimentar</ChunkyButton>
+            </Link>
+          </div>
+          <div className="mt-4 grid grid-cols-2 gap-2 text-[11px] sm:grid-cols-4">
+            {["Pré-escolar 2–5", "Básico 6–9", "Avançado 10–13", "Adulto 14+"].map((b) => (
+              <div key={b} className="rounded-xl border border-border/60 bg-card/70 p-2 text-center font-display">{b}</div>
+            ))}
+          </div>
+        </section>
+
+        <h2 className="mt-8 font-display text-2xl">Escolhe o teu plano</h2>
+        <div className="mt-3 grid gap-4 md:grid-cols-3">
           {PLANS.map((plan) => {
             const isCurrent = isActive && subscription?.price_id === plan.priceId;
             return (
@@ -174,6 +256,24 @@ function PremiumPage() {
         <p className="mt-6 text-center text-xs text-muted-foreground">
           🔒 Pagamento seguro. IVA e impostos incluídos. Podes cancelar a qualquer momento.
         </p>
+
+        <section className="mt-10">
+          <h2 className="font-display text-2xl">Perguntas frequentes</h2>
+          <div className="mt-3 grid gap-2 sm:grid-cols-2">
+            {FAQS.map((f) => (
+              <div key={f.q} className="card-chunky rounded-2xl border-2 border-border bg-card p-4">
+                <p className="font-display text-base">{f.q}</p>
+                <p className="mt-1 text-xs text-muted-foreground">{f.a}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <div className="card-chunky mt-8 rounded-3xl border-2 border-primary/40 bg-gradient-to-br from-primary/10 to-accent/10 p-5 text-center">
+          <Heart className="mx-auto h-7 w-7 text-primary" />
+          <p className="mt-2 font-display text-lg">Cresce sem limites com o Kidoz Premium</p>
+          <p className="text-xs text-muted-foreground">Mais de 10 000 perguntas, jogos e desafios à tua espera.</p>
+        </div>
       </main>
 
       <Dialog open={!!checkoutPriceId} onOpenChange={(o) => !o && setCheckoutPriceId(null)}>
