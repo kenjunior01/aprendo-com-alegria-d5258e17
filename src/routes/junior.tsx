@@ -8,8 +8,13 @@ import { ArrowLeft, Sparkles } from "lucide-react";
 import {
   GARDENS, GAMES, getGardenGames, gardenProgressFor, currentLevel,
   loadJuniorProgress, getActiveJuniorChildId, listJuniorChildren,
+  recordJuniorPlay,
   type JuniorGame, type JuniorProgress, type JuniorChild,
 } from "@/lib/junior";
+import { grantSticker, type JuniorSticker } from "@/lib/juniorRewards";
+import { JuniorCelebration } from "@/components/junior/JuniorCelebration";
+import { JuniorStickerBook } from "@/components/junior/JuniorStickerBook";
+import { haptic } from "@/lib/haptics";
 import {
   GameJardimCores, GameOrquestraAnimais, GameRotinasKido, GameLivroMagico,
 } from "@/components/junior/JuniorGames";
@@ -42,6 +47,8 @@ function JuniorPage() {
   const [activeChildId, setActiveChildId] = useState<string | null>(null);
   const [activeChild, setActiveChild] = useState<JuniorChild | null>(null);
   const [progress, setProgress] = useState<JuniorProgress>({ playedGames: [], totalSessions: 0, lastPlayedAt: null, highlights: [] });
+  const [celebrating, setCelebrating] = useState<{ sticker: JuniorSticker; isNew: boolean } | null>(null);
+  const [stickerBump, setStickerBump] = useState(0);
 
   const refresh = (childId?: string | null) => {
     const id = childId ?? getActiveJuniorChildId();
@@ -148,6 +155,12 @@ function JuniorPage() {
           ))}
         </section>
 
+        {activeChild && (
+          <section className="mt-8">
+            <JuniorStickerBook childId={activeChildId} refreshKey={stickerBump} />
+          </section>
+        )}
+
         <section className="mt-10 rounded-2xl border border-dashed border-border bg-card/60 p-5 text-center text-sm">
           És pai/mãe? Vê o progresso de cada criança em{" "}
           <Link to="/pais" className="font-display text-primary underline">Painel de Pais</Link>.
@@ -184,11 +197,33 @@ function JuniorPage() {
             {active?.id === "estacoes-ano" && <GameEstacoes />}
             {active?.id === "emocoes-kido" && <GameEmocoes />}
           </div>
-          <div className="mt-2 flex justify-end">
-            <ChunkyButton tone="ghost" onClick={() => setActive(null)}>Fechar</ChunkyButton>
+          <div className="mt-2 flex flex-col-reverse gap-2 sm:flex-row sm:justify-between">
+            <ChunkyButton tone="ghost" onClick={() => setActive(null)}>Sair</ChunkyButton>
+            <ChunkyButton
+              tone="success"
+              onClick={() => {
+                if (!active) return;
+                haptic("celebrate");
+                recordJuniorPlay(active.id, `Terminou ${active.title}`, activeChildId);
+                const { granted, sticker } = grantSticker(active.id, activeChildId);
+                if (sticker) setCelebrating({ sticker, isNew: granted });
+                setStickerBump((n) => n + 1);
+                setActive(null);
+              }}
+            >
+              Terminei! 🎉
+            </ChunkyButton>
           </div>
         </DialogContent>
       </Dialog>
+
+      <JuniorCelebration
+        open={!!celebrating}
+        sticker={celebrating?.sticker ?? null}
+        isNew={celebrating?.isNew ?? false}
+        mascot={activeChild?.mascot ?? "fox"}
+        onClose={() => setCelebrating(null)}
+      />
 
       <BottomNav />
     </div>
