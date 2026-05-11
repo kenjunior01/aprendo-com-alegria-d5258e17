@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useServerFn } from "@tanstack/react-start";
 import { TopBar } from "@/components/TopBar";
 import { BottomNav } from "@/components/BottomNav";
 import { ChunkyButton } from "@/components/ChunkyButton";
@@ -13,7 +14,9 @@ import {
   type GenQuestion,
   type TrackId,
 } from "@/lib/infiniteChallenges";
-import { ArrowLeft, Crown, Infinity as InfinityIcon, Lock, Sparkles, Star, Trophy } from "lucide-react";
+import { pullInfiniteCloud, scheduleInfiniteCloudPush } from "@/lib/infiniteCloud";
+import { submitInfiniteScore, getInfiniteWeeklyRanking, getInfiniteSeasonalTournament, type RankingRow } from "@/lib/infiniteRanking.functions";
+import { ArrowLeft, Crown, Infinity as InfinityIcon, Lock, Sparkles, Star, Trophy, Medal } from "lucide-react";
 
 export const Route = createFileRoute("/desafios/infinitos")({
   head: () => ({
