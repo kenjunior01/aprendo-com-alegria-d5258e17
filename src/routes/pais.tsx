@@ -11,7 +11,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { getMyChildren, createParentInvite, acceptParentInvite, getChildDashboard, getChildControls, setChildControls, type ParentDashboardData } from "@/server/parent.functions";
 import { listChildren as listTutorChildren, type TutorHistory } from "@/lib/tutorHistory";
-import { Copy, LogOut, Plus, BarChart3, Clock, Target, Flame, MessageCircle, ShieldCheck, Moon, Hourglass, UserPlus } from "lucide-react";
+import { Copy, LogOut, Plus, BarChart3, Clock, Target, Flame, MessageCircle, ShieldCheck, Moon, Hourglass, UserPlus, Home, Swords, Baby, Activity, ShoppingBag, School, Menu, X } from "lucide-react";
 import { PurchaseHistoryPanel } from "@/components/PurchaseHistoryPanel";
 import { QuickChildSignup } from "@/components/QuickChildSignup";
 import { JuniorParentPanel } from "@/components/JuniorParentPanel";
@@ -48,6 +48,8 @@ function ParentDashboard() {
   const [unlocked, setUnlocked] = useState(false);
   const [showQuickSignup, setShowQuickSignup] = useState(false);
   const [showInviteCode, setShowInviteCode] = useState(false);
+  const [activeTab, setActiveTab] = useState<"resumo" | "controlos" | "desafios" | "junior" | "atividade" | "compras">("resumo");
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const reloadChildren = async () => {
     try {
@@ -136,39 +138,75 @@ function ParentDashboard() {
     );
   }
 
+  const selectedChildName = children.find((c) => c.id === selectedChild)?.name ?? "";
+  const tabs: { id: typeof activeTab; label: string; icon: typeof Home }[] = [
+    { id: "resumo", label: "Resumo", icon: Home },
+    { id: "controlos", label: "Controlos", icon: ShieldCheck },
+    { id: "desafios", label: "Desafios", icon: Swords },
+    { id: "junior", label: "Júnior", icon: Baby },
+    { id: "atividade", label: "Atividade", icon: Activity },
+    { id: "compras", label: "Compras", icon: ShoppingBag },
+  ];
+
   return (
-    <div className="min-h-[100dvh] bg-background pb-28 md:pb-12">
-      <header className="sticky top-0 z-30 border-b border-border bg-background/90 backdrop-blur" style={{ paddingTop: "env(safe-area-inset-top)" }}>
-        <div className="mx-auto flex max-w-4xl items-center justify-between px-4 py-3">
-          <div className="flex items-center gap-2">
-            <BarChart3 className="h-6 w-6 text-primary" />
-            <p className="font-display text-lg">Painel de Pais</p>
+    <div className="min-h-[100dvh] bg-gradient-to-b from-background via-background to-muted/30 pb-28 md:pb-12">
+      {/* HEADER */}
+      <header className="sticky top-0 z-30 border-b border-border/60 bg-background/85 backdrop-blur-xl" style={{ paddingTop: "env(safe-area-inset-top)" }}>
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-3 py-2.5 sm:px-5 sm:py-3">
+          <div className="flex min-w-0 items-center gap-2.5">
+            <div className="grid h-9 w-9 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-primary to-primary/70 text-primary-foreground shadow-md sm:h-10 sm:w-10">
+              <BarChart3 className="h-5 w-5" />
+            </div>
+            <div className="min-w-0">
+              <p className="font-display text-base leading-tight sm:text-lg">Painel de Pais</p>
+              <p className="truncate text-[11px] text-muted-foreground">Olá, {profile.name} 👋</p>
+            </div>
           </div>
-          <div className="flex items-center gap-3">
-            <a href="/escola" className="text-sm font-display text-primary hover:underline">🏫 Escola</a>
-            <button onClick={signOut} className="text-sm text-muted-foreground hover:text-foreground">
-              <LogOut className="inline h-4 w-4" /> Sair
+          <div className="hidden items-center gap-2 md:flex">
+            <Link to="/escola" className="flex items-center gap-1.5 rounded-full bg-card px-3 py-1.5 text-sm font-display hover:bg-muted">
+              <School className="h-4 w-4" /> Escola
+            </Link>
+            <Link to="/perfil" className="flex items-center gap-1.5 rounded-full bg-card px-3 py-1.5 text-sm font-display hover:bg-muted">Perfil</Link>
+            <button onClick={signOut} className="flex items-center gap-1.5 rounded-full bg-card px-3 py-1.5 text-sm text-muted-foreground hover:bg-muted hover:text-foreground">
+              <LogOut className="h-4 w-4" /> Sair
             </button>
           </div>
+          <button onClick={() => setMenuOpen((v) => !v)} className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl border border-border bg-card md:hidden" aria-label="Menu">
+            {menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </button>
         </div>
+        {menuOpen && (
+          <div className="border-t border-border bg-card/95 px-3 py-2 md:hidden">
+            <div className="mx-auto grid max-w-md grid-cols-3 gap-2">
+              <Link to="/escola" onClick={() => setMenuOpen(false)} className="flex flex-col items-center gap-1 rounded-2xl border border-border bg-background px-2 py-2.5 text-xs font-display">
+                <School className="h-4 w-4" /> Escola
+              </Link>
+              <Link to="/perfil" onClick={() => setMenuOpen(false)} className="flex flex-col items-center gap-1 rounded-2xl border border-border bg-background px-2 py-2.5 text-xs font-display">
+                <UserPlus className="h-4 w-4" /> Perfil
+              </Link>
+              <button onClick={signOut} className="flex flex-col items-center gap-1 rounded-2xl border border-border bg-background px-2 py-2.5 text-xs font-display text-muted-foreground">
+                <LogOut className="h-4 w-4" /> Sair
+              </button>
+            </div>
+          </div>
+        )}
       </header>
 
-      <main className="mx-auto max-w-4xl px-4 py-6 sm:py-8">
-        {/* Children selector or empty state */}
+      <main className="mx-auto max-w-6xl px-3 py-4 sm:px-5 sm:py-6">
         {children.length === 0 ? (
-          <motion.section initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="card-chunky rounded-3xl border border-border bg-card p-5 sm:p-6">
-            <h1 className="font-display text-2xl sm:text-3xl">Olá, {profile.name}! 👋</h1>
-            <p className="mt-1 text-sm text-muted-foreground">Cria um perfil para a tua criança em poucos segundos.</p>
-
+          <motion.section initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="card-chunky rounded-3xl border border-border bg-card p-5 sm:p-8">
+            <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center">
+              <div className="grid h-16 w-16 place-items-center rounded-3xl bg-gradient-to-br from-primary to-secondary text-3xl">👨‍👩‍👧</div>
+              <div>
+                <h1 className="font-display text-2xl sm:text-3xl">Bem-vindo(a), {profile.name}!</h1>
+                <p className="mt-1 text-sm text-muted-foreground">Cria um perfil para a tua criança em poucos segundos e começa a acompanhar a aprendizagem.</p>
+              </div>
+            </div>
             <div className="mt-5">
               {showQuickSignup ? (
                 <QuickChildSignup
                   onClose={() => setShowQuickSignup(false)}
-                  onCreated={async ({ childId }) => {
-                    setShowQuickSignup(false);
-                    setSelectedChild(childId);
-                    await reloadChildren();
-                  }}
+                  onCreated={async ({ childId }) => { setShowQuickSignup(false); setSelectedChild(childId); await reloadChildren(); }}
                 />
               ) : (
                 <ChunkyButton onClick={() => setShowQuickSignup(true)} className="w-full sm:w-auto">
@@ -176,18 +214,11 @@ function ParentDashboard() {
                 </ChunkyButton>
               )}
             </div>
-
             <details className="mt-5 rounded-2xl bg-muted/40 p-3">
               <summary className="cursor-pointer font-display text-sm">Tenho um código de convite</summary>
               <div className="mt-3">
                 <p className="text-xs text-muted-foreground">Introduz aqui o código que te foi dado (na conta da criança).</p>
-                <input
-                  value={acceptCode}
-                  onChange={(e) => setAcceptCode(e.target.value.toUpperCase())}
-                  placeholder="ABC123"
-                  maxLength={8}
-                  className="mt-2 w-full rounded-xl border-2 border-border bg-card px-3 py-2 text-center font-mono text-lg tracking-widest outline-none focus:border-primary"
-                />
+                <input value={acceptCode} onChange={(e) => setAcceptCode(e.target.value.toUpperCase())} placeholder="ABC123" maxLength={8} className="mt-2 w-full rounded-xl border-2 border-border bg-card px-3 py-2 text-center font-mono text-lg tracking-widest outline-none focus:border-primary" />
                 <ChunkyButton tone="secondary" onClick={acceptInvite} className="mt-2 w-full">Ligar conta</ChunkyButton>
                 {acceptMsg && <p className="mt-2 text-center text-xs">{acceptMsg}</p>}
               </div>
@@ -195,38 +226,43 @@ function ParentDashboard() {
           </motion.section>
         ) : (
           <>
-            <div className="mb-4 flex flex-wrap gap-2">
-              {children.map((c) => (
-                <button
-                  key={c.id}
-                  onClick={() => setSelectedChild(c.id)}
-                  className={`flex items-center gap-2 rounded-full px-3 py-1.5 font-display text-sm font-semibold transition-colors ${
-                    selectedChild === c.id ? "bg-primary text-primary-foreground" : "bg-card"
-                  }`}
-                >
-                  <Mascot id={c.mascot as never} size="sm" />
-                  {c.name}
+            {/* Children chips - scrollable */}
+            <div className="-mx-3 mb-3 overflow-x-auto px-3 sm:mx-0 sm:px-0">
+              <div className="flex w-max min-w-full items-center gap-2 pb-1 sm:flex-wrap">
+                {children.map((c) => {
+                  const active = selectedChild === c.id;
+                  return (
+                    <button
+                      key={c.id}
+                      onClick={() => setSelectedChild(c.id)}
+                      className={`flex shrink-0 items-center gap-2 rounded-2xl border-2 px-3 py-2 font-display text-sm transition-all ${
+                        active ? "scale-[1.02] border-primary bg-primary text-primary-foreground shadow-md" : "border-border bg-card hover:border-primary/40"
+                      }`}
+                    >
+                      <Mascot id={c.mascot as never} size="sm" />
+                      <span className="text-left leading-tight">
+                        <span className="block">{c.name}</span>
+                        <span className={`block text-[10px] font-normal ${active ? "text-primary-foreground/80" : "text-muted-foreground"}`}>{c.grade}.º · ⭐{c.xp} · 🔥{c.streak}d</span>
+                      </span>
+                    </button>
+                  );
+                })}
+                <button onClick={() => setShowQuickSignup(true)} className="flex shrink-0 items-center gap-1.5 rounded-2xl border-2 border-dashed border-primary/40 bg-primary/5 px-3 py-2 font-display text-sm text-primary">
+                  <UserPlus className="h-4 w-4" /> Novo
                 </button>
-              ))}
-              <button onClick={() => setShowQuickSignup(true)} className="rounded-full bg-primary/15 px-3 py-1.5 font-display text-sm text-primary"><UserPlus className="inline h-4 w-4" /> Novo perfil</button>
-              <button onClick={() => setShowInviteCode((v) => !v)} className="rounded-full bg-card px-3 py-1.5 font-display text-sm text-muted-foreground"><Plus className="inline h-4 w-4" /> Por código</button>
+                <button onClick={() => setShowInviteCode((v) => !v)} className="flex shrink-0 items-center gap-1.5 rounded-2xl border-2 border-border bg-card px-3 py-2 font-display text-sm text-muted-foreground">
+                  <Plus className="h-4 w-4" /> Código
+                </button>
+              </div>
             </div>
 
             {showQuickSignup && (
               <div className="mb-4">
-                <QuickChildSignup
-                  onClose={() => setShowQuickSignup(false)}
-                  onCreated={async ({ childId }) => {
-                    setShowQuickSignup(false);
-                    setSelectedChild(childId);
-                    await reloadChildren();
-                  }}
-                />
+                <QuickChildSignup onClose={() => setShowQuickSignup(false)} onCreated={async ({ childId }) => { setShowQuickSignup(false); setSelectedChild(childId); await reloadChildren(); }} />
               </div>
             )}
-
             {showInviteCode && (
-              <div className="mb-4 rounded-2xl bg-accent/40 p-3">
+              <div className="mb-4 rounded-2xl border border-border bg-accent/40 p-3">
                 <p className="text-xs text-muted-foreground">Gera um código para ligar uma conta de criança já existente:</p>
                 {pendingCode ? (
                   <div className="mt-2 flex items-center gap-2 rounded-xl bg-card px-3 py-2 font-mono text-lg font-bold tracking-widest">
@@ -239,43 +275,85 @@ function ParentDashboard() {
               </div>
             )}
 
-            {selectedChild && (
-              <ChildControlsCard
-                childId={selectedChild}
-                childName={children.find((c) => c.id === selectedChild)?.name ?? ""}
-              />
-            )}
-            {dashboard && <DashboardView data={dashboard} />}
-            {selectedChild && (
-              <div className="mt-5">
-                <ChildChallengesPanel
-                  childId={selectedChild}
-                  childName={children.find((c) => c.id === selectedChild)?.name ?? ""}
-                />
+            {/* SECTION TABS */}
+            <nav className="mb-5 -mx-3 sticky top-[60px] z-20 border-b border-border/60 bg-background/85 px-3 py-2 backdrop-blur-xl sm:top-[68px] sm:mx-0 sm:rounded-2xl sm:border sm:border-border sm:bg-card sm:px-2 sm:shadow-sm">
+              <div className="flex gap-1 overflow-x-auto">
+                {tabs.map((t) => {
+                  const Icon = t.icon;
+                  const active = activeTab === t.id;
+                  return (
+                    <button
+                      key={t.id}
+                      onClick={() => setActiveTab(t.id)}
+                      className={`flex shrink-0 items-center gap-1.5 rounded-xl px-3 py-2 font-display text-sm transition-colors ${
+                        active ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:bg-muted"
+                      }`}
+                    >
+                      <Icon className="h-4 w-4" />
+                      {t.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </nav>
+
+            {activeTab === "resumo" && (
+              <div className="grid gap-5 lg:grid-cols-3">
+                <div className="space-y-5 lg:col-span-2">
+                  {dashboard ? <DashboardView data={dashboard} /> : <SkeletonCard />}
+                </div>
+                <aside className="space-y-5">
+                  {selectedChild && <ChildChallengesPanel childId={selectedChild} childName={selectedChildName} />}
+                  <FamilyChallengePanel lastSubject={dashboard?.bySubject?.[0]?.subject_id} childName={selectedChildName} />
+                </aside>
               </div>
             )}
-            <div className="mt-5">
-              <FamilyChallengePanel
-                lastSubject={dashboard?.bySubject?.[0]?.subject_id}
-                childName={children.find((c) => c.id === selectedChild)?.name}
-              />
-            </div>
-            {profile && (
-              <p className="mt-3 text-center text-[11px] text-muted-foreground">
-                ✨ A personalização (país e interesses) é definida pela criança em <strong>/perfil</strong>.
-              </p>
+
+            {activeTab === "controlos" && selectedChild && (
+              <ChildControlsCard childId={selectedChild} childName={selectedChildName} />
             )}
-            <div className="mt-5"><ParentRealtimeFeed childList={children.map((c) => ({ id: c.id, name: c.name }))} /></div>
-            <div className="mt-5"><JuniorParentPanel /></div>
-            <section className="mt-6">
-              <h3 className="mb-3 font-display text-xl">🧸 Atividade Kidoz Júnior (2-5 anos)</h3>
-              <JuniorParentReport />
-            </section>
-            <PurchaseHistoryPanel />
+
+            {activeTab === "desafios" && selectedChild && (
+              <div className="grid gap-5 md:grid-cols-2">
+                <ChildChallengesPanel childId={selectedChild} childName={selectedChildName} />
+                <FamilyChallengePanel lastSubject={dashboard?.bySubject?.[0]?.subject_id} childName={selectedChildName} />
+              </div>
+            )}
+
+            {activeTab === "junior" && (
+              <div className="space-y-5">
+                <JuniorParentPanel />
+                <section>
+                  <h3 className="mb-3 font-display text-xl">🧸 Atividade Kidoz Júnior (2-5 anos)</h3>
+                  <JuniorParentReport />
+                </section>
+              </div>
+            )}
+
+            {activeTab === "atividade" && (
+              <ParentRealtimeFeed childList={children.map((c) => ({ id: c.id, name: c.name }))} />
+            )}
+
+            {activeTab === "compras" && <PurchaseHistoryPanel />}
+
+            <p className="mt-6 text-center text-[11px] text-muted-foreground">
+              ✨ A personalização (país e interesses) é definida pela criança em <strong>/perfil</strong>.
+            </p>
           </>
         )}
       </main>
       <BottomNav />
+    </div>
+  );
+}
+
+function SkeletonCard() {
+  return (
+    <div className="card-chunky animate-pulse rounded-3xl border border-border bg-card p-6">
+      <div className="h-6 w-1/3 rounded bg-muted" />
+      <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
+        {[0,1,2,3].map((i) => <div key={i} className="h-16 rounded-2xl bg-muted" />)}
+      </div>
     </div>
   );
 }
