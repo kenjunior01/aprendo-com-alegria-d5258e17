@@ -1348,31 +1348,48 @@ function AuditTab() {
           </Button>
         ))}
       </div>
+      <Input
+        placeholder="Procurar por entidade, ID, nome do admin, valor alterado..."
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        className="max-w-md"
+      />
       {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : filtered.length === 0 ? (
         <Card className="p-6 text-center text-muted-foreground text-sm">Sem registos.</Card>
       ) : (
-        <div className="space-y-2">
-          {filtered.map((r) => (
-            <Card key={r.id} className="p-3 text-sm">
-              <div className="flex items-start justify-between gap-2 flex-wrap">
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <Badge variant="secondary" className="text-xs">{entityLabel[r.entity] ?? r.entity}</Badge>
-                    <Badge variant="outline" className="text-xs">{r.action}</Badge>
-                    <span className="text-xs text-muted-foreground">
-                      por {r.actor_id ? (actors[r.actor_id] ?? r.actor_id.slice(0, 8)) : "sistema"}
-                    </span>
+        <>
+          <div className="space-y-2">
+            {pageRows.map((r) => (
+              <Card key={r.id} className="p-3 text-sm">
+                <div className="flex items-start justify-between gap-2 flex-wrap">
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <Badge variant="secondary" className="text-xs">{entityLabel[r.entity] ?? r.entity}</Badge>
+                      <Badge variant="outline" className="text-xs">{r.action}</Badge>
+                      <span className="text-xs text-muted-foreground">
+                        por {r.actor_id ? (actors[r.actor_id] ?? r.actor_id.slice(0, 8)) : "sistema"}
+                      </span>
+                    </div>
+                    <div className="text-xs mt-1 break-all">{summarize(r)}</div>
+                    {r.entity_id && <div className="text-[10px] text-muted-foreground font-mono mt-1">{r.entity_id}</div>}
                   </div>
-                  <div className="text-xs mt-1 break-all">{summarize(r)}</div>
-                  {r.entity_id && <div className="text-[10px] text-muted-foreground font-mono mt-1">{r.entity_id}</div>}
+                  <div className="text-xs text-muted-foreground whitespace-nowrap">
+                    {new Date(r.created_at).toLocaleString("pt-PT")}
+                  </div>
                 </div>
-                <div className="text-xs text-muted-foreground whitespace-nowrap">
-                  {new Date(r.created_at).toLocaleString("pt-PT")}
-                </div>
-              </div>
-            </Card>
-          ))}
-        </div>
+              </Card>
+            ))}
+          </div>
+          <div className="flex items-center justify-between gap-2 pt-2">
+            <span className="text-xs text-muted-foreground">
+              Página {currentPage} de {totalPages} · {filtered.length} resultado{filtered.length === 1 ? "" : "s"}
+            </span>
+            <div className="flex gap-2">
+              <Button size="sm" variant="outline" disabled={currentPage <= 1} onClick={() => setPage((p) => Math.max(1, p - 1))}>Anterior</Button>
+              <Button size="sm" variant="outline" disabled={currentPage >= totalPages} onClick={() => setPage((p) => Math.min(totalPages, p + 1))}>Seguinte</Button>
+            </div>
+          </div>
+        </>
       )}
     </div>
   );
