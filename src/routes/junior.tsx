@@ -197,11 +197,33 @@ function JuniorPage() {
             {active?.id === "estacoes-ano" && <GameEstacoes />}
             {active?.id === "emocoes-kido" && <GameEmocoes />}
           </div>
-          <div className="mt-2 flex justify-end">
-            <ChunkyButton tone="ghost" onClick={() => setActive(null)}>Fechar</ChunkyButton>
+          <div className="mt-2 flex flex-col-reverse gap-2 sm:flex-row sm:justify-between">
+            <ChunkyButton tone="ghost" onClick={() => setActive(null)}>Sair</ChunkyButton>
+            <ChunkyButton
+              tone="success"
+              onClick={() => {
+                if (!active) return;
+                haptic("celebrate");
+                recordJuniorPlay(active.id, `Terminou ${active.title}`, activeChildId);
+                const { granted, sticker } = grantSticker(active.id, activeChildId);
+                if (sticker) setCelebrating({ sticker, isNew: granted });
+                setStickerBump((n) => n + 1);
+                setActive(null);
+              }}
+            >
+              Terminei! 🎉
+            </ChunkyButton>
           </div>
         </DialogContent>
       </Dialog>
+
+      <JuniorCelebration
+        open={!!celebrating}
+        sticker={celebrating?.sticker ?? null}
+        isNew={celebrating?.isNew ?? false}
+        mascot={activeChild?.mascot ?? "fox"}
+        onClose={() => setCelebrating(null)}
+      />
 
       <BottomNav />
     </div>
