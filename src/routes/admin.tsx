@@ -1276,11 +1276,26 @@ function AuditTab() {
     );
   }
 
-  const filtered = rows.filter((r) => {
-    if (entityFilter !== "all" && r.entity !== entityFilter) return false;
-    if (actionFilter !== "all" && r.action !== actionFilter) return false;
-    return true;
-  });
+  const filtered = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    return rows.filter((r) => {
+      if (entityFilter !== "all" && r.entity !== entityFilter) return false;
+      if (actionFilter !== "all" && r.action !== actionFilter) return false;
+      if (!q) return true;
+      const actorName = r.actor_id ? (actors[r.actor_id] ?? "") : "";
+      const hay = [
+        r.entity, r.action, r.entity_id ?? "", r.actor_id ?? "", actorName,
+        JSON.stringify(r.before ?? {}), JSON.stringify(r.after ?? {}),
+      ].join(" ").toLowerCase();
+      return hay.includes(q);
+    });
+  }, [rows, entityFilter, actionFilter, search, actors]);
+
+  useEffect(() => { setPage(1); }, [entityFilter, actionFilter, search]);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const currentPage = Math.min(page, totalPages);
+  const pageRows = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
 
   const summarize = (r: AuditRow): string => {
     if (r.entity === "profile_trial") {
