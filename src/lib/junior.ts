@@ -57,10 +57,52 @@ export const GAMES: JuniorGame[] = [
   { id: "pequeno-cientista", title: "Pequeno Cientista",         emoji: "🧪", description: "Mistura cores e descobre o que acontece.",               benefits: ["Ciência", "Causa-efeito"],        age: "4-5", garden: "preparacao" },
   { id: "relogio-kido",      title: "Que Horas São?",            emoji: "⏰", description: "Aprende as horas certas e as rotinas do dia.",           benefits: ["Tempo", "Rotinas"],               age: "4-5", garden: "preparacao" },
   { id: "mapa-palop",        title: "Viagem pela Lusofonia",     emoji: "🌍", description: "Conhece bandeiras e palavras dos países PALOP.",         benefits: ["Geografia", "Cultura"],           age: "4-5", garden: "preparacao" },
+
+  // 🌳 Floresta dos Sonhos (4-5)
+  { id: "pinta-desenho",     title: "Pinta o Desenho",           emoji: "🎨", description: "Toca para pintar cada parte do desenho.",                 benefits: ["Criatividade", "Cores"],          age: "4-5", garden: "floresta-sonhos" },
+  { id: "eco-som",           title: "Eco do Som",                emoji: "🎵", description: "Repete a sequência de sons dos animais.",                 benefits: ["Memória auditiva", "Sequências"], age: "4-5", garden: "floresta-sonhos" },
+  { id: "jardim-magico",     title: "Jardim Mágico",             emoji: "🌷", description: "Planta sementes, rega e vê-as crescer.",                  benefits: ["Causa-efeito", "Paciência"],      age: "4-5", garden: "floresta-sonhos" },
+  { id: "puzzle-kido",       title: "Quebra-Cabeças do Kido",    emoji: "🧩", description: "Reorganiza as peças para formar a imagem.",               benefits: ["Lógica espacial"],                age: "4-5", garden: "floresta-sonhos" },
+
+  // 🌟 Estrela da Imaginação (4-5)
+  { id: "caca-tesouro",      title: "Caça ao Tesouro",           emoji: "💎", description: "Procura o tesouro escondido na ilha.",                    benefits: ["Atenção", "Exploração"],          age: "4-5", garden: "estrela-imaginacao" },
+  { id: "estacoes-ano",      title: "Estações do Ano",           emoji: "🍂", description: "Associa cada paisagem à sua estação.",                    benefits: ["Natureza", "Vocabulário"],        age: "4-5", garden: "estrela-imaginacao" },
+  { id: "emocoes-kido",      title: "Como te sentes?",           emoji: "😊", description: "Identifica as emoções nas caras do Kido.",                benefits: ["Emoções", "Empatia"],             age: "4-5", garden: "estrela-imaginacao" },
 ];
 
-export const getGardenGames = (gardenId: JuniorGarden["id"]) =>
+export const getGardenGames = (gardenId: GardenId) =>
   GAMES.filter((g) => g.garden === gardenId);
+
+// ----- Níveis / desbloqueio de jardins -----
+
+export interface GardenStats {
+  garden: JuniorGarden;
+  total: number;
+  played: number;
+  pct: number;
+  unlocked: boolean;
+}
+
+export function gardenProgressFor(progress: JuniorProgress): GardenStats[] {
+  const stats: GardenStats[] = [];
+  let prevPct = 100;
+  for (const g of GARDENS) {
+    const games = GAMES.filter((x) => x.garden === g.id);
+    const played = games.filter((x) => progress.playedGames.includes(x.id)).length;
+    const pct = games.length ? Math.round((played / games.length) * 100) : 0;
+    const unlocked = prevPct >= g.unlockThreshold;
+    stats.push({ garden: g, total: games.length, played, pct, unlocked });
+    prevPct = pct;
+  }
+  return stats;
+}
+
+export function currentLevel(progress: JuniorProgress): number {
+  const stats = gardenProgressFor(progress);
+  let lvl = 1;
+  for (const s of stats) if (s.unlocked && s.played > 0) lvl = s.garden.level;
+  return lvl;
+}
 
 // ============== Perfis por criança ==============
 
