@@ -11,22 +11,28 @@ export interface JuniorGame {
   description: string;
   benefits: string[];
   age: JuniorAgeGroup;
-  garden: "primeiros-passos" | "descobertas" | "preparacao";
+  garden: GardenId;
 }
 
+export type GardenId = "primeiros-passos" | "descobertas" | "preparacao" | "floresta-sonhos" | "estrela-imaginacao";
+
 export interface JuniorGarden {
-  id: "primeiros-passos" | "descobertas" | "preparacao";
+  id: GardenId;
   name: string;
   age: JuniorAgeGroup;
   tagline: string;
   emoji: string;
   color: string;
+  level: number;          // 1..5 — etapa de progresso
+  unlockThreshold: number; // % do jardim anterior necessário (0-100)
 }
 
 export const GARDENS: JuniorGarden[] = [
-  { id: "primeiros-passos", name: "Jardim dos Primeiros Passos", age: "2-3", tagline: "Cores, formas, sons e o meu corpo", emoji: "🌱", color: "bg-pt-world/20" },
-  { id: "descobertas",      name: "Ilha das Descobertas",        age: "3-4", tagline: "Letras, números e puzzles",          emoji: "🏝️", color: "bg-secondary/30" },
-  { id: "preparacao",       name: "Vale da Preparação Escolar",  age: "4-5", tagline: "Pré-leitura, pré-escrita e pequenos cientistas", emoji: "🎓", color: "bg-primary/20" },
+  { id: "primeiros-passos",  name: "Jardim dos Primeiros Passos", age: "2-3", tagline: "Cores, formas, sons e o meu corpo",                emoji: "🌱", color: "bg-pt-world/20",  level: 1, unlockThreshold: 0 },
+  { id: "descobertas",       name: "Ilha das Descobertas",        age: "3-4", tagline: "Letras, números e puzzles",                       emoji: "🏝️", color: "bg-secondary/30", level: 2, unlockThreshold: 60 },
+  { id: "preparacao",        name: "Vale da Preparação Escolar",  age: "4-5", tagline: "Pré-leitura, pré-escrita e pequenos cientistas", emoji: "🎓", color: "bg-primary/20",   level: 3, unlockThreshold: 60 },
+  { id: "floresta-sonhos",   name: "Floresta dos Sonhos",         age: "4-5", tagline: "Aventura, criatividade e arte",                  emoji: "🌳", color: "bg-accent/30",    level: 4, unlockThreshold: 60 },
+  { id: "estrela-imaginacao",name: "Estrela da Imaginação",       age: "4-5", tagline: "Pequenos exploradores do mundo",                 emoji: "🌟", color: "bg-xp/20",        level: 5, unlockThreshold: 70 },
 ];
 
 export const GAMES: JuniorGame[] = [
