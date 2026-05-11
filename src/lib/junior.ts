@@ -11,22 +11,28 @@ export interface JuniorGame {
   description: string;
   benefits: string[];
   age: JuniorAgeGroup;
-  garden: "primeiros-passos" | "descobertas" | "preparacao";
+  garden: GardenId;
 }
 
+export type GardenId = "primeiros-passos" | "descobertas" | "preparacao" | "floresta-sonhos" | "estrela-imaginacao";
+
 export interface JuniorGarden {
-  id: "primeiros-passos" | "descobertas" | "preparacao";
+  id: GardenId;
   name: string;
   age: JuniorAgeGroup;
   tagline: string;
   emoji: string;
   color: string;
+  level: number;          // 1..5 — etapa de progresso
+  unlockThreshold: number; // % do jardim anterior necessário (0-100)
 }
 
 export const GARDENS: JuniorGarden[] = [
-  { id: "primeiros-passos", name: "Jardim dos Primeiros Passos", age: "2-3", tagline: "Cores, formas, sons e o meu corpo", emoji: "🌱", color: "bg-pt-world/20" },
-  { id: "descobertas",      name: "Ilha das Descobertas",        age: "3-4", tagline: "Letras, números e puzzles",          emoji: "🏝️", color: "bg-secondary/30" },
-  { id: "preparacao",       name: "Vale da Preparação Escolar",  age: "4-5", tagline: "Pré-leitura, pré-escrita e pequenos cientistas", emoji: "🎓", color: "bg-primary/20" },
+  { id: "primeiros-passos",  name: "Jardim dos Primeiros Passos", age: "2-3", tagline: "Cores, formas, sons e o meu corpo",                emoji: "🌱", color: "bg-pt-world/20",  level: 1, unlockThreshold: 0 },
+  { id: "descobertas",       name: "Ilha das Descobertas",        age: "3-4", tagline: "Letras, números e puzzles",                       emoji: "🏝️", color: "bg-secondary/30", level: 2, unlockThreshold: 60 },
+  { id: "preparacao",        name: "Vale da Preparação Escolar",  age: "4-5", tagline: "Pré-leitura, pré-escrita e pequenos cientistas", emoji: "🎓", color: "bg-primary/20",   level: 3, unlockThreshold: 60 },
+  { id: "floresta-sonhos",   name: "Floresta dos Sonhos",         age: "4-5", tagline: "Aventura, criatividade e arte",                  emoji: "🌳", color: "bg-accent/30",    level: 4, unlockThreshold: 60 },
+  { id: "estrela-imaginacao",name: "Estrela da Imaginação",       age: "4-5", tagline: "Pequenos exploradores do mundo",                 emoji: "🌟", color: "bg-xp/20",        level: 5, unlockThreshold: 70 },
 ];
 
 export const GAMES: JuniorGame[] = [
@@ -51,10 +57,52 @@ export const GAMES: JuniorGame[] = [
   { id: "pequeno-cientista", title: "Pequeno Cientista",         emoji: "🧪", description: "Mistura cores e descobre o que acontece.",               benefits: ["Ciência", "Causa-efeito"],        age: "4-5", garden: "preparacao" },
   { id: "relogio-kido",      title: "Que Horas São?",            emoji: "⏰", description: "Aprende as horas certas e as rotinas do dia.",           benefits: ["Tempo", "Rotinas"],               age: "4-5", garden: "preparacao" },
   { id: "mapa-palop",        title: "Viagem pela Lusofonia",     emoji: "🌍", description: "Conhece bandeiras e palavras dos países PALOP.",         benefits: ["Geografia", "Cultura"],           age: "4-5", garden: "preparacao" },
+
+  // 🌳 Floresta dos Sonhos (4-5)
+  { id: "pinta-desenho",     title: "Pinta o Desenho",           emoji: "🎨", description: "Toca para pintar cada parte do desenho.",                 benefits: ["Criatividade", "Cores"],          age: "4-5", garden: "floresta-sonhos" },
+  { id: "eco-som",           title: "Eco do Som",                emoji: "🎵", description: "Repete a sequência de sons dos animais.",                 benefits: ["Memória auditiva", "Sequências"], age: "4-5", garden: "floresta-sonhos" },
+  { id: "jardim-magico",     title: "Jardim Mágico",             emoji: "🌷", description: "Planta sementes, rega e vê-as crescer.",                  benefits: ["Causa-efeito", "Paciência"],      age: "4-5", garden: "floresta-sonhos" },
+  { id: "puzzle-kido",       title: "Quebra-Cabeças do Kido",    emoji: "🧩", description: "Reorganiza as peças para formar a imagem.",               benefits: ["Lógica espacial"],                age: "4-5", garden: "floresta-sonhos" },
+
+  // 🌟 Estrela da Imaginação (4-5)
+  { id: "caca-tesouro",      title: "Caça ao Tesouro",           emoji: "💎", description: "Procura o tesouro escondido na ilha.",                    benefits: ["Atenção", "Exploração"],          age: "4-5", garden: "estrela-imaginacao" },
+  { id: "estacoes-ano",      title: "Estações do Ano",           emoji: "🍂", description: "Associa cada paisagem à sua estação.",                    benefits: ["Natureza", "Vocabulário"],        age: "4-5", garden: "estrela-imaginacao" },
+  { id: "emocoes-kido",      title: "Como te sentes?",           emoji: "😊", description: "Identifica as emoções nas caras do Kido.",                benefits: ["Emoções", "Empatia"],             age: "4-5", garden: "estrela-imaginacao" },
 ];
 
-export const getGardenGames = (gardenId: JuniorGarden["id"]) =>
+export const getGardenGames = (gardenId: GardenId) =>
   GAMES.filter((g) => g.garden === gardenId);
+
+// ----- Níveis / desbloqueio de jardins -----
+
+export interface GardenStats {
+  garden: JuniorGarden;
+  total: number;
+  played: number;
+  pct: number;
+  unlocked: boolean;
+}
+
+export function gardenProgressFor(progress: JuniorProgress): GardenStats[] {
+  const stats: GardenStats[] = [];
+  let prevPct = 100;
+  for (const g of GARDENS) {
+    const games = GAMES.filter((x) => x.garden === g.id);
+    const played = games.filter((x) => progress.playedGames.includes(x.id)).length;
+    const pct = games.length ? Math.round((played / games.length) * 100) : 0;
+    const unlocked = prevPct >= g.unlockThreshold;
+    stats.push({ garden: g, total: games.length, played, pct, unlocked });
+    prevPct = pct;
+  }
+  return stats;
+}
+
+export function currentLevel(progress: JuniorProgress): number {
+  const stats = gardenProgressFor(progress);
+  let lvl = 1;
+  for (const s of stats) if (s.unlocked && s.played > 0) lvl = s.garden.level;
+  return lvl;
+}
 
 // ============== Perfis por criança ==============
 

@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
-import { Sparkles, Compass, Heart } from "lucide-react";
+import { Sparkles, Compass, Heart, Trophy } from "lucide-react";
 import {
-  loadJuniorProgress, listJuniorChildren, GAMES,
+  loadJuniorProgress, listJuniorChildren, gardenProgressFor, currentLevel, GAMES,
   type JuniorProgress, type JuniorChild,
 } from "@/lib/junior";
 import { Mascot } from "@/components/Mascot";
@@ -92,7 +92,8 @@ function ChildCard({ child }: { child: JuniorChild }) {
         </div>
       </div>
 
-      <div className="mt-3 grid gap-2 sm:grid-cols-3">
+      <div className="mt-3 grid gap-2 sm:grid-cols-4">
+        <Stat icon={<Trophy className="h-4 w-4 text-xp" />} label="Nível" value={`${currentLevel(progress)}/5`} />
         <Stat icon={<Compass className="h-4 w-4 text-primary" />} label="Jogos" value={`${playedCount}/${totalGames}`} />
         <Stat icon={<Sparkles className="h-4 w-4 text-xp" />} label="Sessões" value={String(progress.totalSessions)} />
         <Stat icon={<Heart className="h-4 w-4 text-destructive" />} label="Última" value={progress.lastPlayedAt ? new Date(progress.lastPlayedAt).toLocaleDateString("pt-PT") : "—"} />
@@ -100,12 +101,33 @@ function ChildCard({ child }: { child: JuniorChild }) {
 
       <div className="mt-3">
         <div className="flex items-center justify-between text-xs text-muted-foreground">
-          <span>Progresso</span><span>{pct}%</span>
+          <span>Progresso global</span><span>{pct}%</span>
         </div>
         <div className="mt-1 h-2.5 w-full overflow-hidden rounded-full bg-muted">
           <motion.div initial={{ width: 0 }} animate={{ width: `${pct}%` }}
             className="h-full rounded-full bg-gradient-to-r from-primary via-xp to-success" />
         </div>
+      </div>
+
+      <div className="mt-4">
+        <p className="mb-2 text-xs font-display uppercase tracking-wide text-muted-foreground">Progresso por jardim</p>
+        <ul className="space-y-2">
+          {gardenProgressFor(progress).map((s) => (
+            <li key={s.garden.id} className="flex items-center gap-3">
+              <span className="w-7 text-center text-lg">{s.garden.emoji}</span>
+              <span className="w-32 truncate text-xs sm:w-44">{s.garden.name}</span>
+              <span className="relative h-3 flex-1 overflow-hidden rounded-full bg-muted">
+                <motion.span
+                  initial={{ width: 0 }} animate={{ width: `${s.pct}%` }}
+                  className={`absolute inset-y-0 left-0 ${s.unlocked ? "bg-gradient-to-r from-primary to-success" : "bg-muted-foreground/30"}`}
+                />
+              </span>
+              <span className="w-14 text-right text-xs font-display tabular-nums">
+                {s.unlocked ? `${s.played}/${s.total}` : "🔒"}
+              </span>
+            </li>
+          ))}
+        </ul>
       </div>
 
       {progress.highlights.length > 0 && (
