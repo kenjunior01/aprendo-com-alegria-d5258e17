@@ -171,6 +171,16 @@ function ParentDashboard() {
     }
   }, [activeTab]);
 
+  // Filter + search children (must run before any early return — Rules of Hooks)
+  const filteredChildren = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    return children.filter((c) => {
+      if (gradeFilter !== "all" && c.grade !== gradeFilter) return false;
+      if (q && !c.name.toLowerCase().includes(q)) return false;
+      return true;
+    });
+  }, [children, searchQuery, gradeFilter]);
+
   if (!user || !profile) return null;
 
   const generateInvite = async () => {
