@@ -601,12 +601,54 @@ function UsersTab() {
               <Calendar className="h-3 w-3 mr-1" /> Atribuir +30d trial
             </Button>
             <Button size="sm" variant="outline" disabled={busy || selected.size === 0} onClick={() => bulkGrant(365)}>+1 ano</Button>
-            <Button size="sm" variant="ghost" disabled={busy || selected.size === 0} onClick={bulkRevoke}>
+            <Button size="sm" variant="ghost" disabled={busy || selected.size === 0} onClick={() => setConfirmRevoke(true)}>
               <Trash2 className="h-3 w-3 mr-1" /> Remover trial
             </Button>
           </div>
         </div>
       </Card>
+
+      <AlertDialog open={confirmRevoke} onOpenChange={setConfirmRevoke}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 text-destructive" />
+              Remover trial em massa?
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              Vais remover o trial e o estado premium de <strong>{selected.size}</strong> utilizadores.
+              Esta ação fica registada na auditoria e não pode ser desfeita automaticamente.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={() => { setConfirmRevoke(false); bulkRevoke(); }}>
+              Sim, remover
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {results && (
+        <Card className="p-3 space-y-2">
+          <div className="flex items-center justify-between">
+            <h3 className="font-semibold text-sm">
+              Resultado da operação · {results.filter((r) => r.ok).length} ok · {results.filter((r) => !r.ok).length} falhas
+            </h3>
+            <Button size="sm" variant="ghost" onClick={() => setResults(null)}>Fechar</Button>
+          </div>
+          <div className="max-h-64 overflow-y-auto space-y-1">
+            {results.map((r) => (
+              <div key={r.id} className="flex items-center gap-2 text-xs">
+                {r.ok ? <CheckCircle2 className="h-4 w-4 text-green-600" /> : <XCircle className="h-4 w-4 text-destructive" />}
+                <span className="font-medium truncate">{r.name}</span>
+                <span className="text-muted-foreground font-mono truncate">{r.id.slice(0, 8)}</span>
+                {r.error && <span className="text-destructive truncate">— {r.error}</span>}
+              </div>
+            ))}
+          </div>
+        </Card>
+      )}
 
       {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : (
         <div className="space-y-2">
