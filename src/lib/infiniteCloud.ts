@@ -22,9 +22,8 @@ export async function pushInfiniteCloud(): Promise<boolean> {
     if (!auth.user) return false;
     const local = loadInfiniteProgress();
     const snap: InfiniteCloudSnapshot = { v: 1, savedAt: new Date().toISOString(), ...local };
-    const { error } = await supabase
-      .from("infinite_progress" as never)
-      .upsert({ user_id: auth.user.id, data: snap as unknown as never }, { onConflict: "user_id" });
+    const { error } = await (supabase.from("infinite_progress" as never) as any)
+      .upsert({ user_id: auth.user.id, data: snap }, { onConflict: "user_id" });
     return !error;
   } catch { return false; }
 }
