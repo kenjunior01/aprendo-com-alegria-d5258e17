@@ -1,79 +1,97 @@
-## Plano
+# Plano
 
-### Parte 1 — AuditTab: reordenar colunas com drag & drop
+## 1. Importação Open Trivia DB (PT-PT) com cache + fallback
 
-**Onde:** `src/routes/admin.tsx` (componente `AuditTab`).
+**Edge function** `supabase/functions/trivia-import/index.ts`:
+- Chama `https://opentdb.com/api.php?amount=50&category=...&type=multiple` (sem chave, free).
+- Tradução para PT-PT via Lovable AI (`google/gemini-2.5-flash`) em batch (1 prompt por lote de 50).
+- Devolve `{ questions: [...] }` normalizado para o formato do `triviaBank`.
 
-- Adicionar `dnd-kit` (`@dnd-kit/core`, `@dnd-kit/sortable`, `@dnd-kit/utilities`) — biblioteca leve, acessível, suporta touch.
-- Substituir o array fixo `COLS` por estado `colOrder: string[]` persistido em `localStorage` (chave nova `admin.audit.cols.order.v1`, mantendo `admin.audit.cols.v1` para visibilidade).
-- No popover "Colunas":
-  - Cada item da lista passa a ser um `SortableItem` com handle (ícone `GripVertical` do lucide) + checkbox de visibilidade já existente.
-  - `DndContext` + `SortableContext` (estratégia vertical) com sensores Pointer e Keyboard (acessível).
-- A renderização das células (header e linhas) passa a iterar `colOrder.filter(showCol)` em vez da ordem hardcoded.
-- Migração: se `localStorage` não tiver `colOrder`, usa a ordem default; ao receber colunas novas no futuro, faz merge (append das novas no fim).
-- Botão "Repor ordem" no popover para limpar a preferência.
+**Tabela nova** `trivia_cache` (RLS: leitura autenticada, escrita só admin):
+- `category text`, `difficulty text`, `lang text default 'pt-PT'`, `questions jsonb`, `fetched_at timestamptz`.
+- TTL: 7 dias. Se `fetched_at` < 7d → devolve cache; senão → re-fetch.
 
-### Parte 2 — Expandir jogos, desafios e conteúdo (versão free, em massa)
+**Cliente** `src/lib/triviaSource.ts`:
+```ts
+export async function getTrivia(category, count): Promise<TriviaQ[]> {
+  try {
+    const cached = await supabase.from('trivia_cache').select(...)...
+    if (cached fresh) return pick(cached, count);
+    const { data } = await supabase.functions.invoke('trivia-import', { body: { category, count } });
+    return data.questions;
+  } catch {
+    return triviaBank.filter(q => q.category === category).slice(0, count); // fallback offline
+  }
+}
+```
 
-**Estratégia:** gerar conteúdo em larga escala usando o **Lovable AI Gateway** (já configurado, sem API key extra, gratuito dentro da quota do projeto) — modelo `google/gemini-2.5-flash` para volume e `gemini-2.5-pro` para validação. Tudo gerado **em build-time** (script offline) e guardado como JSON estático no repositório, para não consumir créditos em runtime.
+`GameTriviaJr` e usos do `triviaBank` passam por `getTrivia()`.
 
-**APIs externas opcionais (todas gratuitas, sem cartão):**
-- **Open Trivia DB** (`opentdb.com/api.php`) — milhares de perguntas multi-categoria, multi-dificuldade, free, sem chave.
-- **Numbers API** (`numbersapi.com`) — factos matemáticos para mini-jogos de curiosidades, free, sem chave.
-- **REST Countries** (`restcountries.com`) — dados de países (bandeiras, capitais) para Estudo do Meio / geografia, free.
-- **Wikipedia REST API** — resumos para "sabias que…", free, sem chave.
-- **PoetryDB** (`poetrydb.org`) — para mini-jogos de leitura/rima em PT/EN, free.
-- (Opcional, se quiseres conteúdo PT-PT específico) **DBnomics** / **INE open data** para curiosidades regionais.
+## 2. Mais 10+ mini-jogos Junior (com `subject` + `ageRange`)
 
-Para todas as APIs externas usadas, faço fetch **uma única vez no script de geração**, traduzo/adapto para PT-PT via Lovable AI, e guardo o resultado como JSON no repo. Em runtime a app **não chama nada** — tudo continua offline-first, free, sem custos recorrentes.
+Estendo `JuniorGame` em `src/lib/junior.ts` com `subject: SubjectId | 'logica' | 'musica'` e `ageRange: [min, max]` (anos: 6–10 → 1.º–4.º ano).
 
-**O que vou gerar (alvo: muito conteúdo, todas as idades 3–12, todas as categorias):**
+Novos jogos (`src/components/junior/JuniorGamesV4.tsx`, `V5.tsx`):
 
-1. **`src/lib/curriculum.ts`** (atualmente ~30 lições) → expandir para **120+ lições**:
-   - Português, Matemática, Estudo do Meio, **+ Inglês, + Ciências, + Cidadania, + Arte/Música**.
-   - 1.º ao 4.º ano (idades 6–10) com 4–6 lições por matéria/ano.
-   - Cada lição com **8–12 perguntas** (vs 3–4 atuais) com hints.
+| # | Nome | Disciplina | Anos |
+|---|------|-----------|------|
+| 1 | Soma Rápida (flashes) | matematica | 1–2 |
+| 2 | Tabuada Express | matematica | 3–4 |
+| 3 | Frações Visuais (pizza) | matematica | 3–4 |
+| 4 | Caça-Sílabas | portugues | 1–2 |
+| 5 | Forma Frase (drag palavras) | portugues | 2–4 |
+| 6 | Antónimos Pares | portugues | 2–4 |
+| 7 | Mapa de Portugal (regiões) | estudo-meio | 3–4 |
+| 8 | Ciclo da Água (ordenar) | ciencias | 2–4 |
+| 9 | Animais & Habitats | ciencias | 1–3 |
+| 10 | Bandeiras do Mundo | cidadania | 3–4 |
+| 11 | Spelling EN (ouve & escreve) | ingles | 2–4 |
+| 12 | Cores & Números EN | ingles | 1–2 |
+| 13 | Memória Musical (Simon) | musica | 1–4 |
+| 14 | Quebra-Cabeças Lógico | logica | 2–4 |
 
-2. **`src/lib/juniorContent.ts`** (novo) para idades 3–5 (Junior):
-   - 60+ mini-jogos: cores, formas, sons de animais, contar até 10, vogais, opostos, padrões, memória, sombras, primeiro-último, etc.
-   - JuniorGamesV2/Extra ganham 8–10 modos novos (puzzle de arrastar, encontra-o-igual, sequência, jogo da memória com mais cartas, labirinto simples, ditado de cores, ritmo, etc.).
+Cada jogo: componente React puro, sem deps novas, integra com `awardCoins`/`awardXp` existentes.
 
-3. **`src/lib/infiniteChallenges.ts`** → banco com **500+ desafios** infinitos por faixa etária e tema (cálculo mental, ortografia, lógica, padrões, geografia, ciências, inglês básico).
+## 3. Admin: matérias/jogos on/off por idade + quantidade de perguntas
 
-4. **`src/lib/dailyMissions.ts`** + **`src/lib/labMissions.ts`** → pools com 100+ missões cada, rotativas por dia/estação.
+**Tabela** `content_settings` (singleton ou key/value, RLS: admin only):
+- `key text primary key`, `value jsonb`.
+- Chaves: `subjects.enabled` → `{ matematica: { enabled: true, ages: [6,10] }, ... }`, `games.enabled` → idem, `trivia.counts` → `{ animals: 20, space: 15, ... }`.
 
-5. **`src/lib/chapters.ts`** → +10 capítulos de história/aventura com 5–8 cenas cada (modo leitura interativa).
+**Hook** `useContentSettings()` lê com cache TanStack Query e expõe helpers `isSubjectEnabled(id, age)`, `isGameEnabled(id, age)`, `triviaCount(cat)`.
 
-6. **`src/lib/triviaBank.ts`** (novo) → 1000+ perguntas de trivia categorizadas (animais, espaço, Portugal, mundo, desporto, arte, música), por faixa etária.
+**Aba nova** no Admin: `ContentSettingsTab` em `src/routes/admin.tsx`:
+- Lista matérias com Switch + slider de idades (6–10).
+- Lista jogos idem.
+- Lista categorias trivia com input numérico (5–100) por categoria.
+- Botão Guardar → upsert em `content_settings`.
 
-7. **`src/lib/funFacts.ts`** (novo) → 500+ "Sabias que…" curtos para mostrar em loading/recompensas.
+`junior.tsx` e `curriculum.ts` filtram via `useContentSettings`.
 
-**Pipeline de geração (one-off, offline):**
-- Script `scripts/generate-content.ts` que:
-  1. Faz fetch das APIs públicas listadas.
-  2. Para cada item, chama Lovable AI para traduzir/adaptar para PT-PT, ajustar idade, criar 4 opções, marcar resposta certa, adicionar hint.
-  3. Valida com schema Zod (descarta inválidos).
-  4. Escreve JSON em `src/data/*.json`.
-- O script corre uma vez (eu corro-o por ti); o conteúdo fica versionado no repo. **Zero custo em runtime, zero APIs externas no cliente.**
+## 4. Conta admin
 
-**UI/Jogos novos no Junior (componentes React):**
-- `JuniorMemoryGame` (cartas viradas, 3 níveis de dificuldade).
-- `JuniorPatternGame` (completa o padrão).
-- `JuniorMazeGame` (labirinto SVG simples).
-- `JuniorRhythmGame` (toca a sequência).
-- `JuniorShadowMatch` (associa sombra ao animal).
-- `JuniorCountingGame` (arrasta n objetos).
-- Integrados no `JuniorGamesV2` com seletor.
+Migration:
+- INSERT em `auth.users` não é possível via SQL direto fiável → uso edge function `bootstrap-admin`:
+  - Recebe `email`, `password`, `setupKey` (secret guardado).
+  - Usa service role para `auth.admin.createUser({ email, password, email_confirm: true })`.
+  - Insere `user_roles` com `role='admin'`.
 
-### Detalhes técnicos
+Em alternativa **mais simples** (recomendado): a função `claim_first_admin()` já existe. Crio um **botão "Tornar-me admin"** na página `/admin` visível quando ainda não há admin, que chama `claim_first_admin()`. O utilizador só precisa de:
+1. Registar-se normalmente em `/auth` (ou como já está autenticado).
+2. Clicar no botão → vira admin.
 
-- Persistência de ordem das colunas: `localStorage["admin.audit.cols.order.v1"] = JSON.stringify(string[])`.
-- `dnd-kit` instalado via `bun add @dnd-kit/core @dnd-kit/sortable @dnd-kit/utilities`.
-- Geração de conteúdo: `bun run scripts/generate-content.ts` usando `LOVABLE_API_KEY` do ambiente; output em `src/data/`.
-- Tipos partilhados em `src/lib/contentTypes.ts` para validar JSON em build.
+**Credenciais sugeridas** (se quiser que crie já uma conta dedicada via edge function): peço-lhe email + password e crio na hora. Caso contrário usa a sua conta atual + claim.
 
-### Confirmações que preciso
+## Arquivos
 
-1. **Avanço com este pipeline (Lovable AI + APIs free) sem pedires nada extra?** As APIs listadas são todas free e sem chave — nada para configurares.
-2. **Volume**: confirmas alvo de **~120 lições + ~500 desafios infinitos + ~1000 trivia + 6 jogos novos no Junior** num só lote? (A geração demora alguns minutos mas corre uma vez só.)
-3. **Idiomas**: tudo em **PT-PT**, com módulo de Inglês básico à parte? Ou também queres versão EN completa?
+**Novos**: `supabase/functions/trivia-import/index.ts`, `src/lib/triviaSource.ts`, `src/components/junior/JuniorGamesV4.tsx`, `src/components/junior/JuniorGamesV5.tsx`, `src/hooks/useContentSettings.ts`, `src/components/admin/ContentSettingsTab.tsx`.
+
+**Migrations**: tabela `trivia_cache`, tabela `content_settings`, política RLS.
+
+**Editados**: `src/lib/junior.ts` (subject+ageRange + registo dos novos jogos), `src/routes/admin.tsx` (nova aba + claim admin button), `src/routes/junior.tsx` (filtro por settings).
+
+## Perguntas
+
+1. **Conta admin**: usar `claim_first_admin` (botão na UI, mais seguro) ou quer que crie uma conta dedicada via edge function (precisa email+password)?
+2. **Tradução trivia**: confirmar uso do Lovable AI Gateway (já configurado, sem custo direto) — ok?
+3. Faço **tudo numa só batch** (tabelas + função + 14 jogos + aba admin) ou divido em passos?
