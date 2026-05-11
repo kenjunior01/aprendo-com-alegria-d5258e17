@@ -20,26 +20,45 @@ export const Route = createFileRoute("/comecar")({
 
 const STEPS_TOTAL = 5;
 
+type Track = "junior" | "child" | "parent";
+
 function Onboarding() {
   const navigate = useNavigate();
   const [step, setStep] = useState(0);
-  const [role, setRole] = useState<"child" | "parent">("child");
+  const [track, setTrack] = useState<Track>("child");
   const [name, setName] = useState("");
   const [age, setAge] = useState(7);
   const [grade, setGrade] = useState(1);
   const [mascot, setMascot] = useState<MascotId>("fox");
 
+  const role: "child" | "parent" = track === "parent" ? "parent" : "child";
+
   const finish = () => {
-    const p = { ...defaultProfile(), role, name: name.trim() || (role === "parent" ? "Adulto" : "Amigo"), age, grade, mascot };
+    const finalAge = track === "junior" ? 4 : age;
+    const finalGrade = track === "junior" ? 0 : grade;
+    const p = {
+      ...defaultProfile(),
+      role,
+      name: name.trim() || (track === "parent" ? "Adulto" : "Amigo"),
+      age: finalAge,
+      grade: finalGrade,
+      mascot,
+    };
     saveProfile(p);
-    navigate({ to: role === "parent" ? "/pais" : "/app" });
+    if (track === "parent") navigate({ to: "/pais" });
+    else if (track === "junior") navigate({ to: "/junior" });
+    else navigate({ to: "/app" });
   };
 
-  // Skip steps not relevant to parents
+  // Skip steps not relevant to parents/junior
   const goNext = () => {
-    if (role === "parent" && step === 1) {
-      // Adultos saltam idade/ano/mascote — vão direto ao fim
+    if (track === "parent" && step === 1) {
       finish();
+      return;
+    }
+    if (track === "junior" && step === 1) {
+      // Junior: pula idade/ano, vai direto para escolher mascote
+      setStep(4);
       return;
     }
     setStep((s) => s + 1);
@@ -66,28 +85,39 @@ function Onboarding() {
               <Mascot id="owl" size="lg" bouncing />
               <h1 className="font-display text-3xl sm:text-4xl">Quem está a chegar?</h1>
               <p className="text-muted-foreground">Conta-nos para te darmos a melhor experiência.</p>
-              <div className="grid w-full max-w-md grid-cols-2 gap-3">
+              <div className="grid w-full max-w-2xl grid-cols-1 gap-3 sm:grid-cols-3">
                 <button
-                  onClick={() => setRole("child")}
+                  onClick={() => setTrack("junior")}
                   className={cn(
                     "card-chunky rounded-3xl border-2 border-border bg-card p-5 text-center transition-transform hover:-translate-y-1",
-                    role === "child" && "border-primary ring-4 ring-primary/25",
+                    track === "junior" && "border-primary ring-4 ring-primary/25",
+                  )}
+                >
+                  <div className="text-4xl">🧸</div>
+                  <p className="mt-2 font-display text-lg">Kidoz Júnior</p>
+                  <p className="text-xs text-muted-foreground">2 a 5 anos · jogos simples</p>
+                </button>
+                <button
+                  onClick={() => setTrack("child")}
+                  className={cn(
+                    "card-chunky rounded-3xl border-2 border-border bg-card p-5 text-center transition-transform hover:-translate-y-1",
+                    track === "child" && "border-primary ring-4 ring-primary/25",
                   )}
                 >
                   <div className="text-4xl">🧒</div>
                   <p className="mt-2 font-display text-lg">Sou criança</p>
-                  <p className="text-xs text-muted-foreground">Vou aprender e jogar</p>
+                  <p className="text-xs text-muted-foreground">6+ anos · aprender e jogar</p>
                 </button>
                 <button
-                  onClick={() => setRole("parent")}
+                  onClick={() => setTrack("parent")}
                   className={cn(
                     "card-chunky rounded-3xl border-2 border-border bg-card p-5 text-center transition-transform hover:-translate-y-1",
-                    role === "parent" && "border-primary ring-4 ring-primary/25",
+                    track === "parent" && "border-primary ring-4 ring-primary/25",
                   )}
                 >
                   <div className="text-4xl">👨‍👩‍👧</div>
                   <p className="mt-2 font-display text-lg">Sou adulto</p>
-                  <p className="text-xs text-muted-foreground">Quero acompanhar uma criança</p>
+                  <p className="text-xs text-muted-foreground">Acompanhar uma criança</p>
                 </button>
               </div>
               <ChunkyButton onClick={() => setStep(1)} className="w-full sm:w-auto">
