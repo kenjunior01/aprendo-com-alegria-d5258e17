@@ -1396,7 +1396,7 @@ function AuditTab() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between flex-wrap gap-2">
-        <h2 className="text-lg font-semibold">Registo de auditoria ({totalCount})</h2>
+        <h2 className="text-lg font-semibold">Registo de auditoria</h2>
         <Button size="sm" variant="outline" onClick={reload}><RefreshCw className="h-4 w-4" /></Button>
       </div>
       <div className="flex flex-wrap gap-2 items-center">
@@ -1427,7 +1427,14 @@ function AuditTab() {
         <>
           <div className="space-y-2">
             {rows.map((r) => (
-              <Card key={r.id} className="p-3 text-sm">
+              <Card
+                key={r.id}
+                className="p-3 text-sm cursor-pointer hover:bg-muted/40 transition-colors"
+                onClick={() => setDetail(r)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setDetail(r); } }}
+              >
                 <div className="flex items-start justify-between gap-2 flex-wrap">
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2 flex-wrap">
@@ -1449,15 +1456,66 @@ function AuditTab() {
           </div>
           <div className="flex items-center justify-between gap-2 pt-2">
             <span className="text-xs text-muted-foreground">
-              Página {currentPage} de {totalPages} · {totalCount} resultado{totalCount === 1 ? "" : "s"}
+              Página {pageNumber} · {rows.length} resultado{rows.length === 1 ? "" : "s"}
             </span>
             <div className="flex gap-2">
-              <Button size="sm" variant="outline" disabled={currentPage <= 1} onClick={() => setPage((p) => Math.max(1, p - 1))}>Anterior</Button>
-              <Button size="sm" variant="outline" disabled={currentPage >= totalPages} onClick={() => setPage((p) => Math.min(totalPages, p + 1))}>Seguinte</Button>
+              <Button size="sm" variant="outline" disabled={pageNumber <= 1} onClick={goPrev}>Anterior</Button>
+              <Button size="sm" variant="outline" disabled={!hasNext} onClick={goNext}>Seguinte</Button>
             </div>
           </div>
         </>
       )}
+
+      <Dialog open={!!detail} onOpenChange={(o) => { if (!o) setDetail(null); }}>
+        <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Detalhe do registo</DialogTitle>
+          </DialogHeader>
+          {detail && (
+            <div className="space-y-3 text-sm">
+              <div className="flex flex-wrap gap-2 items-center">
+                <Badge variant="secondary">{entityLabel[detail.entity] ?? detail.entity}</Badge>
+                <Badge variant="outline">{detail.action}</Badge>
+                <span className="text-xs text-muted-foreground">
+                  {new Date(detail.created_at).toLocaleString("pt-PT")}
+                </span>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                <div><span className="text-muted-foreground">Admin:</span> {detail.actor_id ? (actors[detail.actor_id] ?? detail.actor_id) : "sistema"}</div>
+                <div className="break-all"><span className="text-muted-foreground">Entity ID:</span> <span className="font-mono">{detail.entity_id ?? "—"}</span></div>
+                <div className="break-all sm:col-span-2"><span className="text-muted-foreground">Audit ID:</span> <span className="font-mono">{detail.id}</span></div>
+              </div>
+              <div>
+                <div className="text-xs font-semibold mb-1">Resumo</div>
+                <div className="text-xs break-all">{summarize(detail) || "—"}</div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                  <div className="text-xs font-semibold mb-1">Antes (before)</div>
+                  <pre className="text-[11px] bg-muted/50 rounded p-2 overflow-x-auto max-h-72 whitespace-pre-wrap break-all">
+{detail.before ? JSON.stringify(detail.before, null, 2) : "—"}
+                  </pre>
+                </div>
+                <div>
+                  <div className="text-xs font-semibold mb-1">Depois (after)</div>
+                  <pre className="text-[11px] bg-muted/50 rounded p-2 overflow-x-auto max-h-72 whitespace-pre-wrap break-all">
+{detail.after ? JSON.stringify(detail.after, null, 2) : "—"}
+                  </pre>
+                </div>
+              </div>
+              <div>
+                <div className="text-xs font-semibold mb-1">Payload completo</div>
+                <pre className="text-[11px] bg-muted/50 rounded p-2 overflow-x-auto max-h-72 whitespace-pre-wrap break-all">
+{JSON.stringify(detail, null, 2)}
+                </pre>
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDetail(null)}>Fechar</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
