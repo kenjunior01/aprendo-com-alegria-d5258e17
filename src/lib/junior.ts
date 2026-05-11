@@ -68,6 +68,10 @@ export const GAMES: JuniorGame[] = [
   { id: "caca-tesouro",      title: "Caça ao Tesouro",           emoji: "💎", description: "Procura o tesouro escondido na ilha.",                    benefits: ["Atenção", "Exploração"],          age: "4-5", garden: "estrela-imaginacao" },
   { id: "estacoes-ano",      title: "Estações do Ano",           emoji: "🍂", description: "Associa cada paisagem à sua estação.",                    benefits: ["Natureza", "Vocabulário"],        age: "4-5", garden: "estrela-imaginacao" },
   { id: "emocoes-kido",      title: "Como te sentes?",           emoji: "😊", description: "Identifica as emoções nas caras do Kido.",                benefits: ["Emoções", "Empatia"],             age: "4-5", garden: "estrela-imaginacao" },
+  { id: "sombras",           title: "Associa a Sombra",          emoji: "🌑", description: "Encontra a sombra de cada animal.",                       benefits: ["Observação", "Memória visual"],   age: "3-4", garden: "descobertas" },
+  { id: "padroes",           title: "Completa o Padrão",         emoji: "🔁", description: "Que figura vem a seguir na sequência?",                   benefits: ["Lógica", "Sequências"],           age: "4-5", garden: "preparacao" },
+  { id: "labirinto",         title: "Labirinto do Ratinho",      emoji: "🐭", description: "Leva o ratinho até ao queijo sem bater nas paredes.",     benefits: ["Orientação", "Resolução"],        age: "4-5", garden: "floresta-sonhos" },
+  { id: "trivia-jr",         title: "Sabichão Júnior",           emoji: "❓", description: "Mini-trivia divertida sobre tudo!",                       benefits: ["Conhecimento geral"],             age: "4-5", garden: "estrela-imaginacao" },
 ];
 
 export const getGardenGames = (gardenId: GardenId) =>
