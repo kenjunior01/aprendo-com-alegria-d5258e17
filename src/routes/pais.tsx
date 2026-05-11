@@ -16,6 +16,7 @@ import { PurchaseHistoryPanel } from "@/components/PurchaseHistoryPanel";
 import { QuickChildSignup } from "@/components/QuickChildSignup";
 import { JuniorParentPanel } from "@/components/JuniorParentPanel";
 import { ParentRealtimeFeed } from "@/components/ParentRealtimeFeed";
+import { FamilyChallengePanel } from "@/components/FamilyChallengePanel";
 
 const GATE_KEY = "kidoz-parent-gate-ts";
 const GATE_TTL_MIN = 30;
@@ -243,6 +244,17 @@ function ParentDashboard() {
               />
             )}
             {dashboard && <DashboardView data={dashboard} />}
+            <div className="mt-5">
+              <FamilyChallengePanel
+                lastSubject={dashboard?.bySubject?.[0]?.subject_id}
+                childName={children.find((c) => c.id === selectedChild)?.name}
+              />
+            </div>
+            {profile && (
+              <p className="mt-3 text-center text-[11px] text-muted-foreground">
+                ✨ A personalização (país e interesses) é definida pela criança em <strong>/perfil</strong>.
+              </p>
+            )}
             <div className="mt-5"><ParentRealtimeFeed childList={children.map((c) => ({ id: c.id, name: c.name }))} /></div>
             <div className="mt-5"><JuniorParentPanel /></div>
             <PurchaseHistoryPanel />

@@ -23,6 +23,7 @@ import {
   type WorldState,
   type WorldCategory,
 } from "@/lib/world";
+import { livingOrnaments, ecosystemSummary } from "@/lib/ecosystem";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/mundo")({
@@ -233,7 +234,33 @@ function MundoPage() {
               </motion.button>
             );
           })}
+
+          {/* Ecossistema vivo: ornamentos automáticos pelo progresso */}
+          {livingOrnaments(profile).map((orn) => (
+            orn.positions.map((pos, i) => (
+              <span
+                key={`${orn.id}-${i}`}
+                className="pointer-events-none absolute select-none drop-shadow"
+                style={{
+                  top: `${pos.top}%`,
+                  left: `${pos.left}%`,
+                  transform: `translate(-50%, -50%) rotate(${pos.rot}deg) scale(${pos.scale})`,
+                  fontSize: "1.6rem",
+                  filter: "drop-shadow(0 1px 1px rgba(0,0,0,0.25))",
+                  animation: `floaty 4s ease-in-out ${(i % 5) * 0.4}s infinite alternate`,
+                }}
+                aria-hidden
+              >
+                {orn.emoji}
+              </span>
+            ))
+          ))}
         </div>
+
+        <p className="mt-2 text-center text-[11px] text-muted-foreground">
+          {ecosystemSummary(profile)}
+        </p>
+        <style>{`@keyframes floaty { from { translate: 0 0 } to { translate: 0 -4px } }`}</style>
 
         {/* Acções */}
         <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
