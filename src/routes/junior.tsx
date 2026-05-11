@@ -119,6 +119,12 @@ function JuniorPage() {
           </div>
         )}
 
+        {activeChild && (
+          <section className="mt-6">
+            <JuniorMascotStage child={activeChild} progress={progress} />
+          </section>
+        )}
+
         <section className="mt-6 flex flex-wrap items-center justify-center gap-2">
           <span className="text-xs font-display text-muted-foreground">Idade:</span>
           {([
