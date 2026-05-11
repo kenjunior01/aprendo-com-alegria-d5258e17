@@ -382,66 +382,92 @@ function ParentDashboard() {
               </div>
             )}
 
-            {/* SECTION TABS */}
-            <nav className="mb-5 -mx-3 sticky top-[60px] z-20 border-b border-border/60 bg-background/85 px-3 py-2 backdrop-blur-xl sm:top-[68px] sm:mx-0 sm:rounded-2xl sm:border sm:border-border sm:bg-card sm:px-2 sm:shadow-sm">
+            {/* SECTION TABS — desktop only with badges + animated indicator */}
+            <nav className="mb-5 sticky top-[68px] z-20 hidden rounded-2xl border border-border bg-card p-1.5 shadow-sm md:block">
               <div className="flex gap-1 overflow-x-auto">
                 {tabs.map((t) => {
                   const Icon = t.icon;
                   const active = activeTab === t.id;
+                  const count = badges[t.id] ?? 0;
                   return (
                     <button
                       key={t.id}
                       onClick={() => setActiveTab(t.id)}
-                      className={`flex shrink-0 items-center gap-1.5 rounded-xl px-3 py-2 font-display text-sm transition-colors ${
-                        active ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:bg-muted"
+                      className={`relative flex shrink-0 items-center gap-1.5 rounded-xl px-3.5 py-2 font-display text-sm transition-all ${
+                        active ? "bg-primary text-primary-foreground shadow-md" : "text-muted-foreground hover:bg-muted hover:text-foreground"
                       }`}
                     >
                       <Icon className="h-4 w-4" />
                       {t.label}
+                      {count > 0 && (
+                        <span className={`ml-0.5 inline-flex h-5 min-w-[20px] items-center justify-center rounded-full px-1.5 text-[10px] font-bold ${active ? "bg-primary-foreground text-primary" : "animate-pulse bg-destructive text-destructive-foreground"}`}>
+                          {count > 99 ? "99+" : count}
+                        </span>
+                      )}
                     </button>
                   );
                 })}
               </div>
             </nav>
 
-            {activeTab === "resumo" && (
-              <div className="grid gap-5 lg:grid-cols-3">
-                <div className="space-y-5 lg:col-span-2">
-                  {dashboard ? <DashboardView data={dashboard} /> : <SkeletonCard />}
-                </div>
-                <aside className="space-y-5">
-                  {selectedChild && <ChildChallengesPanel childId={selectedChild} childName={selectedChildName} />}
-                  <FamilyChallengePanel lastSubject={dashboard?.bySubject?.[0]?.subject_id} childName={selectedChildName} />
-                </aside>
+            {/* Mobile active-tab indicator pill */}
+            <div className="mb-3 flex items-center justify-between md:hidden">
+              <div className="flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1.5 font-display text-sm text-primary">
+                <activeTabMeta.icon className="h-4 w-4" />
+                {activeTabMeta.label}
+                {(badges[activeTab] ?? 0) > 0 && (
+                  <span className="rounded-full bg-destructive px-1.5 text-[10px] text-destructive-foreground">{badges[activeTab]}</span>
+                )}
               </div>
-            )}
+              <button onClick={() => setBottomSheetOpen(true)} className="rounded-full border border-border bg-card px-3 py-1.5 text-xs font-display text-muted-foreground">Trocar secção</button>
+            </div>
 
-            {activeTab === "controlos" && selectedChild && (
-              <ChildControlsCard childId={selectedChild} childName={selectedChildName} />
-            )}
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={activeTab}
+                ref={tabContentRef}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -4 }}
+                transition={{ duration: 0.18 }}
+                className="scroll-mt-32"
+              >
+                {activeTab === "resumo" && (
+                  <div className="grid gap-5 lg:grid-cols-3">
+                    <div className="space-y-5 lg:col-span-2">
+                      {dashboard ? <DashboardView data={dashboard} /> : <SkeletonCard />}
+                    </div>
+                    <aside className="space-y-5">
+                      {selectedChild && <ChildChallengesPanel childId={selectedChild} childName={selectedChildName} />}
+                      <FamilyChallengePanel lastSubject={dashboard?.bySubject?.[0]?.subject_id} childName={selectedChildName} />
+                    </aside>
+                  </div>
+                )}
+                {activeTab === "controlos" && selectedChild && (
+                  <ChildControlsCard childId={selectedChild} childName={selectedChildName} />
+                )}
+                {activeTab === "desafios" && selectedChild && (
+                  <div className="grid gap-5 md:grid-cols-2">
+                    <ChildChallengesPanel childId={selectedChild} childName={selectedChildName} />
+                    <FamilyChallengePanel lastSubject={dashboard?.bySubject?.[0]?.subject_id} childName={selectedChildName} />
+                  </div>
+                )}
+                {activeTab === "junior" && (
+                  <div className="space-y-5">
+                    <JuniorParentPanel />
+                    <section>
+                      <h3 className="mb-3 font-display text-xl">🧸 Atividade Kidoz Júnior (2-5 anos)</h3>
+                      <JuniorParentReport />
+                    </section>
+                  </div>
+                )}
+                {activeTab === "atividade" && (
+                  <ParentRealtimeFeed childList={children.map((c) => ({ id: c.id, name: c.name }))} />
+                )}
+                {activeTab === "compras" && <PurchaseHistoryPanel />}
+              </motion.div>
+            </AnimatePresence>
 
-            {activeTab === "desafios" && selectedChild && (
-              <div className="grid gap-5 md:grid-cols-2">
-                <ChildChallengesPanel childId={selectedChild} childName={selectedChildName} />
-                <FamilyChallengePanel lastSubject={dashboard?.bySubject?.[0]?.subject_id} childName={selectedChildName} />
-              </div>
-            )}
-
-            {activeTab === "junior" && (
-              <div className="space-y-5">
-                <JuniorParentPanel />
-                <section>
-                  <h3 className="mb-3 font-display text-xl">🧸 Atividade Kidoz Júnior (2-5 anos)</h3>
-                  <JuniorParentReport />
-                </section>
-              </div>
-            )}
-
-            {activeTab === "atividade" && (
-              <ParentRealtimeFeed childList={children.map((c) => ({ id: c.id, name: c.name }))} />
-            )}
-
-            {activeTab === "compras" && <PurchaseHistoryPanel />}
 
             <p className="mt-6 text-center text-[11px] text-muted-foreground">
               ✨ A personalização (país e interesses) é definida pela criança em <strong>/perfil</strong>.
