@@ -8,8 +8,10 @@ import { CHAPTERS, type Chapter, type Mission } from "@/lib/chapters";
 import { loadProfile, pullProfileFromCloud, type Profile } from "@/lib/storage";
 import { getMascot } from "@/lib/mascots";
 import { AdaptiveTip } from "@/components/AdaptiveTip";
+import { MissionOfTheDay } from "@/components/MissionOfTheDay";
 import { Lock, Star, CheckCircle2, Crown, Play } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { haptic } from "@/lib/haptics";
 
 export const Route = createFileRoute("/app")({
   head: () => ({
@@ -73,6 +75,8 @@ function AppHome() {
             </div>
           </div>
         </motion.section>
+
+        <MissionOfTheDay completedLessons={profile.completedLessons} grade={profile.grade} />
 
         <AdaptiveTip />
 
@@ -150,9 +154,28 @@ function ChapterPath({ chapter, completedLessons }: { chapter: Chapter; complete
             </h3>
             <p className="text-xs text-muted-foreground">{chapter.subtitle}</p>
           </div>
-          <span className="rounded-full bg-card px-2.5 py-1 font-display text-xs font-bold">
-            {doneCount}/{missions.length}
-          </span>
+        </div>
+
+        {/* Stars + colored progress bar (substitui 0/3) */}
+        <div className="mt-3 flex items-center gap-2">
+          <div className="flex gap-0.5" aria-label={`${doneCount} de ${missions.length} estrelas`}>
+            {missions.map((m, i) => (
+              <Star
+                key={m.lessonId}
+                className={cn("h-4 w-4", i < doneCount ? "fill-current text-xp" : "text-muted-foreground/40")}
+              />
+            ))}
+          </div>
+          <div className="relative h-2.5 flex-1 overflow-hidden rounded-full bg-muted">
+            <motion.div
+              initial={{ width: 0 }}
+              animate={{ width: `${(doneCount / missions.length) * 100}%` }}
+              transition={{ duration: 0.6, ease: "easeOut" }}
+              className="h-full rounded-full"
+              style={{ backgroundColor: `var(${chapter.themeColorVar})` }}
+            />
+          </div>
+          <span className="font-display text-xs font-bold tabular-nums">{doneCount}/{missions.length}</span>
         </div>
       </div>
 
@@ -255,6 +278,7 @@ function PathNode({
     <Link
       to="/licao/$subjectId/$lessonId"
       params={{ subjectId: mission.subjectId, lessonId: mission.lessonId }}
+      onClick={() => haptic(state === "active" ? "celebrate" : "tap")}
       className="flex flex-col items-center gap-1.5"
       aria-label={`Iniciar missão: ${mission.title}`}
     >

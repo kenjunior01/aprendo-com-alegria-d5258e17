@@ -2,6 +2,8 @@ import { Outlet, Link, createRootRoute, HeadContent, Scripts } from "@tanstack/r
 import { useEffect } from "react";
 import { UsageGuard } from "@/components/UsageGuard";
 import { installServerFnAuthInterceptor } from "@/integrations/supabase/serverFnAuth";
+import { registerServiceWorker } from "@/lib/registerSW";
+import { loadHapticsPref } from "@/lib/haptics";
 
 import appCss from "../styles.css?url";
 
@@ -77,6 +79,8 @@ function RootShell({ children }: { children: React.ReactNode }) {
 function RootComponent() {
   useEffect(() => {
     installServerFnAuthInterceptor();
+    loadHapticsPref();
+    registerServiceWorker();
   }, []);
   return (
     <>

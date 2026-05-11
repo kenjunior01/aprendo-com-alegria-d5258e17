@@ -125,6 +125,9 @@ function Landing() {
           <FeatureCard emoji="🌍" title="Estudo do Meio" text="Portugal, história, ambiente" />
         </div>
 
+        {/* Prova social */}
+        <Testimonials />
+
         <div className="mt-8 flex w-full max-w-xs flex-col items-stretch gap-3 sm:max-w-none sm:flex-row sm:justify-center">
           <Link to="/junior" className="flex-1 sm:flex-none">
             <ChunkyButton tone="secondary" className="w-full">🌱 Kidoz Júnior — 2 a 5 anos</ChunkyButton>
@@ -148,6 +151,43 @@ function FeatureCard({ emoji, title, text }: { emoji: string; title: string; tex
       <h3 className="mt-2 font-display text-lg sm:text-xl">{title}</h3>
       <p className="text-sm text-muted-foreground">{text}</p>
     </div>
+  );
+}
+
+const TESTIMONIALS = [
+  { name: "Sofia M.", role: "Mãe do Tomás (6)", text: "O meu filho pede para fazer 'mais uma' lição todos os dias. Aprende sem perceber!", emoji: "👩" },
+  { name: "Prof. Ana", role: "1.º ciclo · Lisboa", text: "Uso na sala de aula. Os miúdos adoram e o currículo está mesmo alinhado com o programa nacional.", emoji: "👩‍🏫" },
+  { name: "Ricardo P.", role: "Pai da Beatriz (8)", text: "O painel de pais ajuda-me a perceber onde ela tem mais dificuldade. Recomendo!", emoji: "👨" },
+];
+
+function Testimonials() {
+  return (
+    <section className="mt-12 w-full sm:mt-16">
+      <h2 className="mb-1 font-display text-2xl sm:text-3xl">O que dizem pais e professores</h2>
+      <p className="mb-5 text-sm text-muted-foreground">Famílias reais a aprender com a Kidoz em Portugal e países PALOP.</p>
+      <div className="grid gap-3 sm:gap-4 md:grid-cols-3">
+        {TESTIMONIALS.map((t, i) => (
+          <motion.figure
+            key={t.name}
+            initial={{ opacity: 0, y: 12 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: i * 0.1 }}
+            className="card-chunky rounded-3xl border border-border bg-card p-4 text-left sm:p-5"
+          >
+            <div className="mb-2 flex gap-0.5 text-xp text-sm">★★★★★</div>
+            <blockquote className="text-sm leading-snug">“{t.text}”</blockquote>
+            <figcaption className="mt-3 flex items-center gap-2 text-xs">
+              <span className="text-2xl">{t.emoji}</span>
+              <div>
+                <p className="font-display font-bold leading-tight">{t.name}</p>
+                <p className="text-muted-foreground">{t.role}</p>
+              </div>
+            </figcaption>
+          </motion.figure>
+        ))}
+      </div>
+    </section>
   );
 }
 

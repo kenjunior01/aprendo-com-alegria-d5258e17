@@ -13,6 +13,7 @@ import { checkAndUnlockAchievements, type Achievement } from "@/lib/achievements
 import { useVoiceMatch, isVoiceAvailable } from "@/lib/voice";
 import { Check, Coins, Heart, Mic, Trophy, Volume2, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { haptic } from "@/lib/haptics";
 
 export const Route = createFileRoute("/licao/$subjectId/$lessonId")({
   head: () => ({
@@ -106,6 +107,7 @@ function LessonPage() {
     if (selected === q.answerIndex) {
       setCorrect((c) => c + 1);
       playCorrect();
+      haptic("success");
       speak("Boa! Resposta certa!");
       confetti({
         particleCount: 60,
@@ -116,6 +118,7 @@ function LessonPage() {
     } else {
       setHearts((h) => Math.max(0, h - 1));
       playWrong();
+      haptic("error");
       speak(`Quase! A resposta certa é ${q.options[q.answerIndex]}.`);
     }
   };
@@ -139,6 +142,7 @@ function LessonPage() {
       setProfile(updated);
       setDone(true);
       playLevelUp();
+      haptic("celebrate");
       confetti({ particleCount: 200, spread: 110, origin: { y: 0.6 } });
       // Verifica conquistas em background
       void checkAndUnlockAchievements({ wasPerfect: finalCorrect === total }).then((unlocked) => {
