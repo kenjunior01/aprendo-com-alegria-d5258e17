@@ -1482,19 +1482,36 @@ function AuditTab() {
               >
                 <div className="flex items-start justify-between gap-2 flex-wrap">
                   <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <Badge variant="secondary" className="text-xs">{entityLabel[r.entity] ?? r.entity}</Badge>
-                      <Badge variant="outline" className="text-xs">{r.action}</Badge>
-                      <span className="text-xs text-muted-foreground">
-                        por {r.actor_id ? (actors[r.actor_id] ?? r.actor_id.slice(0, 8)) : "sistema"}
-                      </span>
+                    {(showCol("entity") || showCol("action") || showCol("actor")) && (
+                      <div className="flex items-center gap-2 flex-wrap">
+                        {showCol("entity") && (
+                          <Badge variant="secondary" className="text-xs">{entityLabel[r.entity] ?? r.entity}</Badge>
+                        )}
+                        {showCol("action") && (
+                          <Badge variant="outline" className="text-xs">{r.action}</Badge>
+                        )}
+                        {showCol("actor") && (
+                          <span className="text-xs text-muted-foreground">
+                            por {r.actor_id ? (actors[r.actor_id] ?? r.actor_id.slice(0, 8)) : "sistema"}
+                          </span>
+                        )}
+                      </div>
+                    )}
+                    {showCol("summary") && (
+                      <div className="text-xs mt-1 break-all">{summarize(r)}</div>
+                    )}
+                    {showCol("entity_id") && r.entity_id && (
+                      <div className="text-[10px] text-muted-foreground font-mono mt-1">ent: {r.entity_id}</div>
+                    )}
+                    {showCol("audit_id") && (
+                      <div className="text-[10px] text-muted-foreground font-mono mt-1">id: {r.id}</div>
+                    )}
+                  </div>
+                  {showCol("created_at") && (
+                    <div className="text-xs text-muted-foreground whitespace-nowrap">
+                      {new Date(r.created_at).toLocaleString("pt-PT")}
                     </div>
-                    <div className="text-xs mt-1 break-all">{summarize(r)}</div>
-                    {r.entity_id && <div className="text-[10px] text-muted-foreground font-mono mt-1">{r.entity_id}</div>}
-                  </div>
-                  <div className="text-xs text-muted-foreground whitespace-nowrap">
-                    {new Date(r.created_at).toLocaleString("pt-PT")}
-                  </div>
+                  )}
                 </div>
               </Card>
             ))}
