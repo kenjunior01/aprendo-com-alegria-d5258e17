@@ -246,6 +246,7 @@ function JuniorPage() {
                 const { granted, sticker } = grantSticker(active.id, activeChildId);
                 if (sticker) setCelebrating({ sticker, isNew: granted });
                 setStickerBump((n) => n + 1);
+                scheduleJuniorCloudPush();
                 setActive(null);
               }}
             >
