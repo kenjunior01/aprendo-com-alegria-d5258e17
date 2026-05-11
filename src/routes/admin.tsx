@@ -1222,3 +1222,129 @@ function RolesTab() {
     </div>
   );
 }
+
+/* ───────────────── Audit ───────────────── */
+type AuditRow = {
+  id: string;
+  actor_id: string | null;
+  entity: string;
+  entity_id: string | null;
+  action: string;
+  before: any;
+  after: any;
+  created_at: string;
+};
+function AuditTab() {
+  const [rows, setRows] = useState<AuditRow[]>([]);
+  const [actors, setActors] = useState<Record<string, string>>({});
+  const [loading, setLoading] = useState(true);
+  const [entityFilter, setEntityFilter] = useState<string>("all");
+  const [actionFilter, setActionFilter] = useState<string>("all");
+
+  const load = async () => {
+    setLoading(true);
+    const { data, error } = await supabase
+      .from("audit_log" as any)
+      .select("*")
+      .order("created_at", { ascending: false })
+      .limit(500);
+    if (error) toast.error(error.message);
+    const list = ((data as any) ?? []) as AuditRow[];
+    setRows(list);
+    const ids = [...new Set(list.map((r) => r.actor_id).filter(Boolean))] as string[];
+    if (ids.length > 0) {
+      const { data: profs } = await supabase.from("profiles").select("id, name").in("id", ids);
+      const map: Record<string, string> = {};
+      (profs ?? []).forEach((p: any) => { map[p.id] = p.name || p.id.slice(0, 8); });
+      setActors(map);
+    }
+    setLoading(false);
+  };
+  useEffect(() => { load(); }, []);
+
+  const filtered = rows.filter((r) => {
+    if (entityFilter !== "all" && r.entity !== entityFilter) return false;
+    if (actionFilter !== "all" && r.action !== actionFilter) return false;
+    return true;
+  });
+
+  const summarize = (r: AuditRow): string => {
+    if (r.entity === "profile_trial") {
+      const b = r.before ?? {}; const a = r.after ?? {};
+      const trial = b.trial_until !== a.trial_until
+        ? `trial: ${b.trial_until ? new Date(b.trial_until).toLocaleDateString("pt-PT") : "—"} → ${a.trial_until ? new Date(a.trial_until).toLocaleDateString("pt-PT") : "—"}`
+        : "";
+      const prem = b.is_premium !== a.is_premium ? `premium: ${b.is_premium} → ${a.is_premium}` : "";
+      return [trial, prem].filter(Boolean).join(" · ");
+    }
+    if (r.action === "insert") return `criado: ${r.after?.name ?? r.after?.title ?? r.entity_id}`;
+    if (r.action === "delete") return `apagado: ${r.before?.name ?? r.before?.title ?? r.entity_id}`;
+    if (r.action === "update") {
+      const changes: string[] = [];
+      const b = r.before ?? {}; const a = r.after ?? {};
+      Object.keys(a).forEach((k) => {
+        if (k === "updated_at" || k === "created_at") return;
+        if (JSON.stringify(b[k]) !== JSON.stringify(a[k])) {
+          changes.push(`${k}: ${JSON.stringify(b[k])} → ${JSON.stringify(a[k])}`);
+        }
+      });
+      return changes.slice(0, 3).join(" · ") || "(sem alterações)";
+    }
+    return "";
+  };
+
+  const entityLabel: Record<string, string> = {
+    profile_trial: "Trial",
+    shop_item: "Loja",
+    content_item: "Conteúdo",
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between flex-wrap gap-2">
+        <h2 className="text-lg font-semibold">Registo de auditoria ({filtered.length})</h2>
+        <Button size="sm" variant="outline" onClick={load}><RefreshCw className="h-4 w-4" /></Button>
+      </div>
+      <div className="flex flex-wrap gap-2 items-center">
+        <span className="text-xs text-muted-foreground">Entidade:</span>
+        {["all", "profile_trial", "shop_item", "content_item"].map((e) => (
+          <Button key={e} size="sm" variant={entityFilter === e ? "default" : "outline"} onClick={() => setEntityFilter(e)}>
+            {e === "all" ? "Todas" : entityLabel[e] ?? e}
+          </Button>
+        ))}
+        <span className="text-xs text-muted-foreground ml-2">Ação:</span>
+        {["all", "insert", "update", "delete"].map((a) => (
+          <Button key={a} size="sm" variant={actionFilter === a ? "default" : "outline"} onClick={() => setActionFilter(a)}>
+            {a === "all" ? "Todas" : a}
+          </Button>
+        ))}
+      </div>
+      {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : filtered.length === 0 ? (
+        <Card className="p-6 text-center text-muted-foreground text-sm">Sem registos.</Card>
+      ) : (
+        <div className="space-y-2">
+          {filtered.map((r) => (
+            <Card key={r.id} className="p-3 text-sm">
+              <div className="flex items-start justify-between gap-2 flex-wrap">
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <Badge variant="secondary" className="text-xs">{entityLabel[r.entity] ?? r.entity}</Badge>
+                    <Badge variant="outline" className="text-xs">{r.action}</Badge>
+                    <span className="text-xs text-muted-foreground">
+                      por {r.actor_id ? (actors[r.actor_id] ?? r.actor_id.slice(0, 8)) : "sistema"}
+                    </span>
+                  </div>
+                  <div className="text-xs mt-1 break-all">{summarize(r)}</div>
+                  {r.entity_id && <div className="text-[10px] text-muted-foreground font-mono mt-1">{r.entity_id}</div>}
+                </div>
+                <div className="text-xs text-muted-foreground whitespace-nowrap">
+                  {new Date(r.created_at).toLocaleString("pt-PT")}
+                </div>
+              </div>
+            </Card>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
