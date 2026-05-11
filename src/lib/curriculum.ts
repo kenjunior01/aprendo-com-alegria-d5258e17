@@ -1,7 +1,7 @@
 // Conteúdo curricular para 1.º ciclo (Portugal — 1.º ao 4.º ano)
 // Cada lição tem perguntas de múltipla escolha.
 
-export type SubjectId = "portugues" | "matematica" | "estudo-do-meio";
+export type SubjectId = "portugues" | "matematica" | "estudo-do-meio" | "ingles" | "ciencias" | "cidadania" | string;
 export type GradeLevel = 1 | 2 | 3 | 4;
 
 export interface Question {
