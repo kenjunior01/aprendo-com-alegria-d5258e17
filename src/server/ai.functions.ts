@@ -16,6 +16,15 @@ export const getAdaptiveRecommendation = createServerFn({ method: "POST" })
   .handler(async ({ context }): Promise<Recommendation> => {
     const { supabase, userId } = context;
 
+    // Profile (region + interests)
+    const { data: prof } = await supabase
+      .from("profiles")
+      .select("region, interests, name")
+      .eq("id", userId)
+      .maybeSingle();
+    const region = (prof as { region?: string | null } | null)?.region ?? "PT";
+    const interests = ((prof as { interests?: string[] } | null)?.interests ?? []) as string[];
+
     // Last 20 sessions
     const { data: sessions } = await supabase
       .from("practice_sessions")
@@ -58,7 +67,12 @@ export const getAdaptiveRecommendation = createServerFn({ method: "POST" })
       };
     }
 
-    const prompt = `És um tutor educacional para crianças do 1.º ciclo em Portugal, simpático e encorajador.
+    // Lazy-import server-only helper to keep this file lean
+    const { regionalContextPrompt } = await import("@/lib/region");
+    const ctx = regionalContextPrompt(region as never, interests);
+
+    const prompt = `És um tutor educacional infantil simpático e encorajador.
+${ctx}
 Analisa o desempenho recente e recomenda em que se devem focar a seguir.
 Responde APENAS via tool calling.
 
@@ -74,7 +88,7 @@ ${summary.map((s) => `- ${s.sub}: ${Math.round(s.acc * 100)}% de acerto em ${s.t
         body: JSON.stringify({
           model: "google/gemini-3-flash-preview",
           messages: [
-            { role: "system", content: "És um tutor educacional infantil em pt-PT. Sê breve, caloroso e motivador." },
+            { role: "system", content: `És um tutor educacional infantil. ${ctx} Sê breve, caloroso e motivador.` },
             { role: "user", content: prompt },
           ],
           tools: [{
