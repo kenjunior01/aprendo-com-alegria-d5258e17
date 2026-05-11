@@ -87,36 +87,63 @@ function JuniorPage() {
           </section>
         )}
 
+        {activeChild && (
+          <div className="mt-4 rounded-2xl bg-card/80 p-4 text-center">
+            <p className="text-xs uppercase tracking-wide text-muted-foreground">Nível atual</p>
+            <p className="font-display text-3xl">⭐ Nível {currentLevel(progress)} / {GARDENS.length}</p>
+            <p className="mt-1 text-xs text-muted-foreground">Completa cada jardim para desbloquear o próximo!</p>
+          </div>
+        )}
+
         <section className="mt-8 space-y-8">
-          {GARDENS.map((g) => (
-            <div key={g.id} className={`card-chunky rounded-3xl border-2 border-border ${g.color} p-5 sm:p-7`}>
+          {gardenProgressFor(progress).map(({ garden: g, played, total, pct, unlocked }) => (
+            <div key={g.id} className={`card-chunky relative rounded-3xl border-2 border-border ${g.color} p-5 sm:p-7 ${!unlocked ? "opacity-70" : ""}`}>
               <div className="flex items-center gap-3">
                 <span className="text-4xl">{g.emoji}</span>
-                <div>
-                  <h2 className="font-display text-2xl">{g.name}</h2>
+                <div className="flex-1">
+                  <h2 className="font-display text-2xl flex items-center gap-2">
+                    {g.name}
+                    <span className="rounded-full bg-primary/15 px-2 py-0.5 text-xs text-primary">Nv {g.level}</span>
+                    {!unlocked && <Lock className="h-4 w-4 text-muted-foreground" />}
+                  </h2>
                   <p className="text-xs text-muted-foreground">{g.age} anos · {g.tagline}</p>
+                </div>
+                <div className="text-right">
+                  <p className="font-display text-lg">{played}/{total}</p>
+                  <p className="text-[10px] text-muted-foreground">{pct}%</p>
                 </div>
               </div>
 
-              <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                {getGardenGames(g.id).map((game) => {
-                  const played = progress.playedGames.includes(game.id);
-                  return (
-                    <button
-                      key={game.id}
-                      onClick={() => activeChildId ? setActive(game) : alert("Cria primeiro um perfil de criança ✨")}
-                      className="touch-target-kid card-chunky group flex items-center gap-3 rounded-2xl border-2 border-border bg-card p-4 text-left transition-transform hover:-translate-y-0.5"
-                    >
-                      <span className="text-4xl">{game.emoji}</span>
-                      <span className="flex-1">
-                        <span className="block font-display text-lg">{game.title}</span>
-                        <span className="block text-xs text-muted-foreground">{game.description}</span>
-                      </span>
-                      {played && <span className="rounded-full bg-success/20 px-2 py-0.5 text-xs text-success">⭐</span>}
-                    </button>
-                  );
-                })}
+              <div className="mt-2 h-2 overflow-hidden rounded-full bg-muted">
+                <motion.div initial={{ width: 0 }} animate={{ width: `${pct}%` }}
+                  className="h-full bg-gradient-to-r from-primary via-xp to-success" />
               </div>
+
+              {!unlocked ? (
+                <p className="mt-4 rounded-2xl bg-background/60 p-3 text-center text-sm">
+                  🔒 Completa pelo menos {g.unlockThreshold}% do jardim anterior para desbloquear.
+                </p>
+              ) : (
+                <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                  {getGardenGames(g.id).map((game) => {
+                    const done = progress.playedGames.includes(game.id);
+                    return (
+                      <button
+                        key={game.id}
+                        onClick={() => activeChildId ? setActive(game) : alert("Cria primeiro um perfil de criança ✨")}
+                        className="touch-target-kid card-chunky group flex items-center gap-3 rounded-2xl border-2 border-border bg-card p-4 text-left transition-transform hover:-translate-y-0.5"
+                      >
+                        <span className="text-4xl">{game.emoji}</span>
+                        <span className="flex-1">
+                          <span className="block font-display text-lg">{game.title}</span>
+                          <span className="block text-xs text-muted-foreground">{game.description}</span>
+                        </span>
+                        {done && <span className="rounded-full bg-success/20 px-2 py-0.5 text-xs text-success">⭐</span>}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           ))}
         </section>
