@@ -1,4 +1,5 @@
 import type { MascotId } from "./mascots";
+import type { RegionCode } from "./region";
 import { supabase } from "@/integrations/supabase/client";
 
 export interface Profile {
@@ -19,9 +20,11 @@ export interface Profile {
   role: "child" | "parent";
   createdAt: string;
   // Parental controls (configured from /pais)
-  parentPin?: string | null; // 4-digit PIN
-  dailyLimitMin?: number | null; // null/undefined = no limit
-  bedtimeHour?: number | null; // 0-23 hour after which app is blocked (until 6am)
+  parentPin?: string | null;
+  dailyLimitMin?: number | null;
+  bedtimeHour?: number | null;
+  region?: RegionCode | null;
+  interests?: string[];
 }
 
 const KEY = "lusis-profile-v2";
@@ -46,6 +49,8 @@ export const defaultProfile = (): Profile => ({
   parentPin: null,
   dailyLimitMin: null,
   bedtimeHour: null,
+  region: null,
+  interests: [],
 });
 
 export const loadProfile = (): Profile | null => {
@@ -194,6 +199,8 @@ async function syncProfileToCloud(p: Profile) {
       parent_pin: p.parentPin ?? null,
       daily_limit_min: p.dailyLimitMin ?? null,
       bedtime_hour: p.bedtimeHour ?? null,
+      region: p.region ?? null,
+      interests: p.interests ?? [],
     });
   } catch {
     // offline ou sem sessão — ignora
@@ -250,6 +257,8 @@ export async function pullProfileFromCloud(): Promise<Profile | null> {
       parentPin: (data as { parent_pin?: string | null }).parent_pin ?? null,
       dailyLimitMin: (data as { daily_limit_min?: number | null }).daily_limit_min ?? null,
       bedtimeHour: (data as { bedtime_hour?: number | null }).bedtime_hour ?? null,
+      region: ((data as { region?: RegionCode | null }).region ?? null),
+      interests: ((data as { interests?: string[] }).interests ?? []),
     };
     const local = loadProfile();
     const merged = mergeProfiles(local, cloudProfile);
@@ -287,6 +296,8 @@ function mergeProfiles(local: Profile | null, cloud: Profile): Profile {
     parentPin: cloud.parentPin ?? local.parentPin ?? null,
     dailyLimitMin: cloud.dailyLimitMin ?? local.dailyLimitMin ?? null,
     bedtimeHour: cloud.bedtimeHour ?? local.bedtimeHour ?? null,
+    region: cloud.region ?? local.region ?? null,
+    interests: (cloud.interests?.length ? cloud.interests : local.interests) ?? [],
   };
 }
 
