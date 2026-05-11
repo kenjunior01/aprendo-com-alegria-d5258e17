@@ -171,6 +171,16 @@ function ParentDashboard() {
     }
   }, [activeTab]);
 
+  // Filter + search children (must run before any early return — Rules of Hooks)
+  const filteredChildren = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    return children.filter((c) => {
+      if (gradeFilter !== "all" && c.grade !== gradeFilter) return false;
+      if (q && !c.name.toLowerCase().includes(q)) return false;
+      return true;
+    });
+  }, [children, searchQuery, gradeFilter]);
+
   if (!user || !profile) return null;
 
   const generateInvite = async () => {
@@ -219,16 +229,8 @@ function ParentDashboard() {
   const activeTabMeta = tabs.find((t) => t.id === activeTab)!;
   const totalAlerts = Object.values(badges).reduce<number>((s, n) => s + (n ?? 0), 0);
 
-  // Filter + search children
+  // Available grades for filter
   const availableGrades = Array.from(new Set(children.map((c) => c.grade))).sort((a, b) => a - b);
-  const filteredChildren = useMemo(() => {
-    const q = searchQuery.trim().toLowerCase();
-    return children.filter((c) => {
-      if (gradeFilter !== "all" && c.grade !== gradeFilter) return false;
-      if (q && !c.name.toLowerCase().includes(q)) return false;
-      return true;
-    });
-  }, [children, searchQuery, gradeFilter]);
 
   return (
     <div className="min-h-[100dvh] bg-gradient-to-b from-background via-background to-muted/30 pb-28 md:pb-12">
