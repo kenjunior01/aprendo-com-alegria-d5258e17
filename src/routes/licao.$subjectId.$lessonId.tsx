@@ -1,4 +1,6 @@
 import { createFileRoute, Link, useNavigate, useParams } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
+import { submitChallengeScore } from "@/server/challenges.functions";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import confetti from "canvas-confetti";
@@ -28,6 +30,8 @@ export const Route = createFileRoute("/licao/$subjectId/$lessonId")({
 function LessonPage() {
   const { subjectId, lessonId } = useParams({ from: "/licao/$subjectId/$lessonId" });
   const navigate = useNavigate();
+  const fnSubmitChallenge = useServerFn(submitChallengeScore);
+  const challengeId = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("challenge") : null;
 
   const subject = getSubject(subjectId);
   const lesson = getLesson(subjectId, lessonId);
@@ -144,6 +148,11 @@ function LessonPage() {
       playLevelUp();
       haptic("celebrate");
       confetti({ particleCount: 200, spread: 110, origin: { y: 0.6 } });
+      // Submete pontuação ao desafio (PvP ou IA) se aplicável
+      if (challengeId) {
+        const score = total > 0 ? Math.round((finalCorrect / total) * 100) : 0;
+        void fnSubmitChallenge({ data: { challengeId, score } }).catch((e) => console.error("submitChallengeScore", e));
+      }
       // Verifica conquistas em background
       void checkAndUnlockAchievements({ wasPerfect: finalCorrect === total }).then((unlocked) => {
         if (unlocked.length > 0) {
