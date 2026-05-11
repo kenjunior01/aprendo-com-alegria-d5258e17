@@ -47,6 +47,8 @@ function JuniorPage() {
   const [activeChildId, setActiveChildId] = useState<string | null>(null);
   const [activeChild, setActiveChild] = useState<JuniorChild | null>(null);
   const [progress, setProgress] = useState<JuniorProgress>({ playedGames: [], totalSessions: 0, lastPlayedAt: null, highlights: [] });
+  const [celebrating, setCelebrating] = useState<{ sticker: JuniorSticker; isNew: boolean } | null>(null);
+  const [stickerBump, setStickerBump] = useState(0);
 
   const refresh = (childId?: string | null) => {
     const id = childId ?? getActiveJuniorChildId();
