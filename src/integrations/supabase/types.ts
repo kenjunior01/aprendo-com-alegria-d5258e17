@@ -183,6 +183,51 @@ export type Database = {
           },
         ]
       }
+      content_items: {
+        Row: {
+          active: boolean
+          body: Json
+          created_at: string
+          created_by: string | null
+          grade: number | null
+          id: string
+          lesson_id: string | null
+          sort_order: number
+          subject_id: string | null
+          title: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          body?: Json
+          created_at?: string
+          created_by?: string | null
+          grade?: number | null
+          id?: string
+          lesson_id?: string | null
+          sort_order?: number
+          subject_id?: string | null
+          title: string
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          body?: Json
+          created_at?: string
+          created_by?: string | null
+          grade?: number | null
+          id?: string
+          lesson_id?: string | null
+          sort_order?: number
+          subject_id?: string | null
+          title?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       email_send_log: {
         Row: {
           created_at: string
@@ -566,30 +611,36 @@ export type Database = {
       }
       shop_items: {
         Row: {
+          active: boolean
           emoji: string
           id: string
           mascot: string | null
           name: string
+          period: string | null
           premium: boolean
           price: number
           sort_order: number
           type: string
         }
         Insert: {
+          active?: boolean
           emoji?: string
           id: string
           mascot?: string | null
           name: string
+          period?: string | null
           premium?: boolean
           price?: number
           sort_order?: number
           type: string
         }
         Update: {
+          active?: boolean
           emoji?: string
           id?: string
           mascot?: string | null
           name?: string
+          period?: string | null
           premium?: boolean
           price?: number
           sort_order?: number
