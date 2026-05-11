@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { motion } from "framer-motion";
 import { TopBar } from "@/components/TopBar";
@@ -8,10 +8,14 @@ import { Mascot } from "@/components/Mascot";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Sparkles, Swords, Trophy, UserPlus, Check, X, Crown } from "lucide-react";
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger,
+} from "@/components/ui/dialog";
+import { Sparkles, Swords, Trophy, UserPlus, Check, X, Crown, Send } from "lucide-react";
 import { loadProfile, pullProfileFromCloud, type Profile } from "@/lib/storage";
 import { supabase } from "@/integrations/supabase/client";
 import type { MascotId } from "@/lib/mascots";
+import { SUBJECTS, getSubject } from "@/lib/curriculum";
 import {
   listMyChallenges,
   getOrCreateDailyAiChallenge,
@@ -19,6 +23,7 @@ import {
   listFriends,
   respondFriendship,
   requestFriendship,
+  createPvpChallenge,
   type ChallengeRow,
 } from "@/server/challenges.functions";
 import { toast } from "sonner";
@@ -48,6 +53,12 @@ function DesafiosPage() {
   const fnFriends = useServerFn(listFriends);
   const fnRespond = useServerFn(respondFriendship);
   const fnRequest = useServerFn(requestFriendship);
+  const fnCreatePvp = useServerFn(createPvpChallenge);
+
+  const refreshChallenges = async () => {
+    const list = await fnList();
+    setChallenges(list.challenges);
+  };
 
   useEffect(() => {
     (async () => {
@@ -57,10 +68,7 @@ function DesafiosPage() {
       setMyUserId(u.user?.id ?? "");
       try {
         const [list, ai, rank, fr] = await Promise.all([
-          fnList(),
-          fnAi(),
-          fnRank(),
-          fnFriends(),
+          fnList(), fnAi(), fnRank(), fnFriends(),
         ]);
         setChallenges(list.challenges);
         setAiChallenge(ai.challenge);
@@ -115,10 +123,17 @@ function DesafiosPage() {
                   A IA escolheu para ti uma missão de <strong className="capitalize text-foreground">{aiChallenge.subject_id.replace("-", " ")}</strong> baseada nos teus pontos a melhorar.
                 </p>
                 <Button asChild className="w-full">
-                  <Link to="/licao/$subjectId/$lessonId" params={{ subjectId: aiChallenge.subject_id, lessonId: aiChallenge.lesson_id }}>
+                  <Link
+                    to="/licao/$subjectId/$lessonId"
+                    params={{ subjectId: aiChallenge.subject_id, lessonId: aiChallenge.lesson_id }}
+                    search={{ challenge: aiChallenge.id } as never}
+                  >
                     Aceitar desafio →
                   </Link>
                 </Button>
+                {aiChallenge.status === "completed" && (
+                  <p className="mt-2 text-center text-xs text-success">✅ Já concluído hoje — volta amanhã para um novo!</p>
+                )}
               </div>
             ) : (
               <p className="text-center text-muted-foreground">Faz algumas missões primeiro para a IA te conhecer.</p>
@@ -128,6 +143,8 @@ function DesafiosPage() {
           <TabsContent value="pvp">
             <FriendsBlock
               friends={friends}
+              myUserId={myUserId}
+              myGrade={profile.grade ?? 1}
               onRespond={async (id, accept) => {
                 const r = await fnRespond({ data: { friendshipId: id, accept } });
                 if (r.ok) {
@@ -144,27 +161,47 @@ function DesafiosPage() {
                   setFriends(fr.friends);
                 } else toast.error(r.error);
               }}
-              myUserId={myUserId}
+              onChallenge={async (opponentId, subjectId, lessonId) => {
+                const r = await fnCreatePvp({ data: { opponentId, subjectId, lessonId } });
+                if (r.ok) {
+                  toast.success("Desafio enviado! 🚀");
+                  await refreshChallenges();
+                } else toast.error(r.error);
+              }}
             />
 
             <h3 className="mb-2 mt-6 font-display text-lg">Os meus desafios</h3>
             {challenges.filter((c) => c.kind === "pvp").length === 0 ? (
               <p className="text-sm text-muted-foreground">Ainda não há desafios PvP. Convida um amigo!</p>
             ) : (
-              <ul className="space-y-2">
-                {challenges.filter((c) => c.kind === "pvp").map((c) => (
-                  <li key={c.id} className="card-chunky flex items-center justify-between rounded-2xl border-2 border-border bg-card p-3">
-                    <div>
-                      <p className="font-display capitalize">{c.subject_id.replace("-", " ")}</p>
-                      <p className="text-xs text-muted-foreground">{c.status === "completed" ? (c.winner_id ? "✅ Concluído" : "🤝 Empate") : "⏳ A decorrer"}</p>
-                    </div>
-                    {c.status === "open" && (
-                      <Button size="sm" asChild>
-                        <Link to="/licao/$subjectId/$lessonId" params={{ subjectId: c.subject_id, lessonId: c.lesson_id }}>Jogar</Link>
-                      </Button>
-                    )}
-                  </li>
-                ))}
+              <ul className="grid grid-cols-2 gap-2 md:grid-cols-2">
+                {challenges.filter((c) => c.kind === "pvp").map((c) => {
+                  const myScore = c.creator_id === myUserId ? c.creator_score : c.opponent_score;
+                  const oppScore = c.creator_id === myUserId ? c.opponent_score : c.creator_score;
+                  const result = c.status === "completed"
+                    ? c.winner_id === myUserId ? "🏆 Ganhaste!"
+                      : c.winner_id == null ? "🤝 Empate"
+                      : "💪 Tenta outra vez"
+                    : "⏳ A decorrer";
+                  return (
+                    <li key={c.id} className="card-chunky flex flex-col gap-2 rounded-2xl border-2 border-border bg-card p-3">
+                      <p className="font-display text-sm capitalize leading-tight">{c.subject_id.replace("-", " ")}</p>
+                      <p className="text-[11px] text-muted-foreground">{result}</p>
+                      <p className="text-[11px]">Tu: <strong>{myScore ?? "—"}</strong> · Adv: <strong>{oppScore ?? "—"}</strong></p>
+                      {myScore == null && c.status !== "expired" && (
+                        <Button size="sm" asChild className="mt-1 h-8 text-xs">
+                          <Link
+                            to="/licao/$subjectId/$lessonId"
+                            params={{ subjectId: c.subject_id, lessonId: c.lesson_id }}
+                            search={{ challenge: c.id } as never}
+                          >
+                            Jogar
+                          </Link>
+                        </Button>
+                      )}
+                    </li>
+                  );
+                })}
               </ul>
             )}
           </TabsContent>
@@ -179,15 +216,17 @@ function DesafiosPage() {
               {ranking.ranking.length === 0 ? (
                 <p className="text-sm text-muted-foreground">Sem dados desta semana ainda. Joga uma lição!</p>
               ) : (
-                <ol className="space-y-2">
+                <ol className="grid grid-cols-2 gap-2 md:grid-cols-2">
                   {ranking.ranking.map((r, i) => (
-                    <li key={r.userId} className="flex items-center gap-3 rounded-xl border border-border bg-card/60 p-2">
-                      <span className="w-6 text-center font-display text-lg">
+                    <li key={r.userId} className="flex items-center gap-2 rounded-xl border border-border bg-card/60 p-2">
+                      <span className="w-5 text-center font-display text-base">
                         {i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : i + 1}
                       </span>
                       <Mascot id={r.mascot as MascotId} size="sm" />
-                      <span className="flex-1 truncate font-display">{r.name}</span>
-                      <span className="font-display text-primary">{r.xp} XP</span>
+                      <div className="flex min-w-0 flex-1 flex-col">
+                        <span className="truncate font-display text-sm">{r.name}</span>
+                        <span className="text-[11px] font-semibold text-primary">{r.xp} XP</span>
+                      </div>
                     </li>
                   ))}
                 </ol>
@@ -202,15 +241,14 @@ function DesafiosPage() {
 }
 
 function FriendsBlock({
-  friends,
-  onRespond,
-  onAdd,
-  myUserId,
+  friends, onRespond, onAdd, onChallenge, myUserId, myGrade,
 }: {
   friends: Awaited<ReturnType<typeof listFriends>>["friends"];
   onRespond: (id: string, accept: boolean) => Promise<void>;
   onAdd: (userId: string) => Promise<void>;
+  onChallenge: (opponentId: string, subjectId: string, lessonId: string) => Promise<void>;
   myUserId: string;
+  myGrade: number;
 }) {
   const [addId, setAddId] = useState("");
   const incoming = friends.filter((f) => f.incoming);
@@ -241,7 +279,7 @@ function FriendsBlock({
       {incoming.length > 0 && (
         <div>
           <p className="mb-1 font-display text-sm">Pedidos recebidos</p>
-          <ul className="space-y-2">
+          <ul className="grid grid-cols-2 gap-2">
             {incoming.map((f) => (
               <li key={f.friendshipId} className="flex items-center gap-2 rounded-xl border border-border bg-card p-2">
                 <Mascot id={f.mascot as MascotId} size="sm" />
@@ -256,18 +294,104 @@ function FriendsBlock({
 
       {accepted.length > 0 && (
         <div>
-          <p className="mb-1 font-display text-sm">Amigos</p>
+          <p className="mb-1 font-display text-sm">Amigos · Desafia-os!</p>
           <ul className="grid grid-cols-2 gap-2">
             {accepted.map((f) => (
-              <li key={f.friendshipId} className="flex items-center gap-2 rounded-xl border border-border bg-card p-2">
+              <li key={f.friendshipId} className="flex flex-col items-center gap-2 rounded-xl border border-border bg-card p-2 text-center">
                 <Mascot id={f.mascot as MascotId} size="sm" />
-                <span className="truncate font-display text-sm">{f.name}</span>
-                <Crown className="ml-auto h-3 w-3 text-primary" />
+                <span className="line-clamp-1 w-full font-display text-sm">{f.name}</span>
+                <ChallengeFriendDialog
+                  friendName={f.name}
+                  myGrade={myGrade}
+                  onConfirm={(subjectId, lessonId) => onChallenge(f.userId, subjectId, lessonId)}
+                />
               </li>
             ))}
           </ul>
         </div>
       )}
     </div>
+  );
+}
+
+function ChallengeFriendDialog({
+  friendName, myGrade, onConfirm,
+}: {
+  friendName: string;
+  myGrade: number;
+  onConfirm: (subjectId: string, lessonId: string) => Promise<void>;
+}) {
+  const [open, setOpen] = useState(false);
+  const [subjectId, setSubjectId] = useState<string>("portugues");
+  const subject = useMemo(() => getSubject(subjectId), [subjectId]);
+  const lessonsForGrade = useMemo(
+    () => subject?.lessons.filter((l) => l.grade === myGrade) ?? subject?.lessons ?? [],
+    [subject, myGrade],
+  );
+  const [lessonId, setLessonId] = useState<string>(lessonsForGrade[0]?.id ?? "");
+  const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    setLessonId(lessonsForGrade[0]?.id ?? "");
+  }, [lessonsForGrade]);
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button size="sm" variant="secondary" className="h-8 w-full text-xs">
+          <Swords className="mr-1 h-3.5 w-3.5" />Desafiar
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle>Desafiar {friendName}</DialogTitle>
+        </DialogHeader>
+        <div className="space-y-3">
+          <div>
+            <label className="mb-1 block text-xs font-semibold uppercase text-muted-foreground">Disciplina</label>
+            <div className="grid grid-cols-3 gap-2">
+              {SUBJECTS.map((s) => (
+                <button
+                  key={s.id}
+                  type="button"
+                  onClick={() => setSubjectId(s.id)}
+                  className={`rounded-xl border-2 p-2 text-center text-xs transition ${
+                    subjectId === s.id ? "border-primary bg-primary/10 font-display" : "border-border bg-card"
+                  }`}
+                >
+                  <div className="text-lg">{s.emoji}</div>
+                  <div className="leading-tight">{s.name}</div>
+                </button>
+              ))}
+            </div>
+          </div>
+          <div>
+            <label className="mb-1 block text-xs font-semibold uppercase text-muted-foreground">Lição</label>
+            <select
+              value={lessonId}
+              onChange={(e) => setLessonId(e.target.value)}
+              className="w-full rounded-md border border-border bg-background px-2 py-2 text-sm"
+            >
+              {lessonsForGrade.map((l) => (
+                <option key={l.id} value={l.id}>{l.emoji} {l.title} ({l.grade}.º ano)</option>
+              ))}
+            </select>
+          </div>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => setOpen(false)}>Cancelar</Button>
+          <Button
+            disabled={!lessonId || busy}
+            onClick={async () => {
+              setBusy(true);
+              try { await onConfirm(subjectId, lessonId); setOpen(false); }
+              finally { setBusy(false); }
+            }}
+          >
+            <Send className="mr-1 h-4 w-4" />Enviar desafio
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
