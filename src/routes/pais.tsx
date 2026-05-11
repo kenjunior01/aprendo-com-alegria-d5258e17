@@ -475,6 +475,58 @@ function ParentDashboard() {
           </>
         )}
       </main>
+
+      {children.length > 0 && (
+        <Sheet open={bottomSheetOpen} onOpenChange={setBottomSheetOpen}>
+          <SheetTrigger asChild>
+            <button
+              className="fixed bottom-20 right-4 z-40 flex items-center gap-2 rounded-full bg-primary px-4 py-3 font-display text-sm text-primary-foreground shadow-2xl ring-4 ring-primary/20 md:hidden"
+              aria-label="Trocar secção"
+            >
+              <activeTabMeta.icon className="h-5 w-5" />
+              <span>{activeTabMeta.label}</span>
+              {totalAlerts > 0 && (
+                <span className="ml-1 inline-flex h-5 min-w-[20px] items-center justify-center rounded-full bg-destructive px-1.5 text-[10px] font-bold text-destructive-foreground">
+                  {totalAlerts > 99 ? "99+" : totalAlerts}
+                </span>
+              )}
+              <ChevronUp className="h-4 w-4" />
+            </button>
+          </SheetTrigger>
+          <SheetContent side="bottom" className="rounded-t-3xl border-t-2 px-4 pb-8 pt-5">
+            <SheetHeader className="mb-3">
+              <SheetTitle className="font-display">Secções do painel</SheetTitle>
+            </SheetHeader>
+            <div className="grid grid-cols-2 gap-2">
+              {tabs.map((t) => {
+                const Icon = t.icon;
+                const active = activeTab === t.id;
+                const count = badges[t.id] ?? 0;
+                return (
+                  <button
+                    key={t.id}
+                    onClick={() => { setActiveTab(t.id); setBottomSheetOpen(false); }}
+                    className={`relative flex items-center gap-3 rounded-2xl border-2 px-3 py-3 text-left font-display transition-all ${
+                      active ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card"
+                    }`}
+                  >
+                    <div className={`grid h-9 w-9 shrink-0 place-items-center rounded-xl ${active ? "bg-primary-foreground/20" : "bg-muted"}`}>
+                      <Icon className="h-5 w-5" />
+                    </div>
+                    <span className="text-sm leading-tight">{t.label}</span>
+                    {count > 0 && (
+                      <span className={`absolute right-2 top-2 inline-flex h-5 min-w-[20px] items-center justify-center rounded-full px-1.5 text-[10px] font-bold ${active ? "bg-primary-foreground text-primary" : "animate-pulse bg-destructive text-destructive-foreground"}`}>
+                        {count > 99 ? "99+" : count}
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </SheetContent>
+        </Sheet>
+      )}
+
       <BottomNav />
     </div>
   );
