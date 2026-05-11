@@ -30,6 +30,11 @@ import {
 import {
   GameSombras, GamePadroes, GameLabirinto, GameTriviaJr,
 } from "@/components/junior/JuniorGamesV3";
+import {
+  GameSomaRapida, GameTabuada, GameFracoes, GameSilabas, GameFormaFrase, GameAntonimos,
+  GameMapaPT, GameCicloAgua, GameHabitats, GameBandeiras, GameSpellingEN, GameColorsEN,
+  GameSimon, GameLogica, GameTriviaOnline,
+} from "@/components/junior/JuniorGamesV4";
 import { JuniorChildSwitcher } from "@/components/junior/JuniorChildSwitcher";
 import { JuniorMascotStage } from "@/components/junior/JuniorMascotStage";
 import { Mascot } from "@/components/Mascot";
@@ -248,6 +253,21 @@ function JuniorPage() {
             {active?.id === "padroes" && <GamePadroes />}
             {active?.id === "labirinto" && <GameLabirinto />}
             {active?.id === "trivia-jr" && <GameTriviaJr />}
+            {active?.id === "soma-rapida" && <GameSomaRapida />}
+            {active?.id === "tabuada" && <GameTabuada />}
+            {active?.id === "fracoes" && <GameFracoes />}
+            {active?.id === "silabas" && <GameSilabas />}
+            {active?.id === "forma-frase" && <GameFormaFrase />}
+            {active?.id === "antonimos" && <GameAntonimos />}
+            {active?.id === "mapa-pt" && <GameMapaPT />}
+            {active?.id === "ciclo-agua" && <GameCicloAgua />}
+            {active?.id === "habitats" && <GameHabitats />}
+            {active?.id === "bandeiras" && <GameBandeiras />}
+            {active?.id === "spelling-en" && <GameSpellingEN />}
+            {active?.id === "colors-en" && <GameColorsEN />}
+            {active?.id === "simon" && <GameSimon />}
+            {active?.id === "logica" && <GameLogica />}
+            {active?.id === "trivia-online" && <GameTriviaOnline category="general" count={8} />}
           </div>
           <div className="mt-2 flex flex-col-reverse gap-2 sm:flex-row sm:justify-between">
             <ChunkyButton tone="ghost" onClick={() => setActive(null)}>Sair</ChunkyButton>

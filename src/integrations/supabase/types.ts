@@ -261,6 +261,27 @@ export type Database = {
         }
         Relationships: []
       }
+      content_settings: {
+        Row: {
+          key: string
+          updated_at: string
+          updated_by: string | null
+          value: Json
+        }
+        Insert: {
+          key: string
+          updated_at?: string
+          updated_by?: string | null
+          value?: Json
+        }
+        Update: {
+          key?: string
+          updated_at?: string
+          updated_by?: string | null
+          value?: Json
+        }
+        Relationships: []
+      }
       email_send_log: {
         Row: {
           created_at: string
@@ -750,6 +771,33 @@ export type Database = {
           id?: string
           metadata?: Json | null
           reason?: string
+        }
+        Relationships: []
+      }
+      trivia_cache: {
+        Row: {
+          category: string
+          difficulty: string
+          fetched_at: string
+          id: string
+          lang: string
+          questions: Json
+        }
+        Insert: {
+          category: string
+          difficulty?: string
+          fetched_at?: string
+          id?: string
+          lang?: string
+          questions?: Json
+        }
+        Update: {
+          category?: string
+          difficulty?: string
+          fetched_at?: string
+          id?: string
+          lang?: string
+          questions?: Json
         }
         Relationships: []
       }

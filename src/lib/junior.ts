@@ -72,6 +72,23 @@ export const GAMES: JuniorGame[] = [
   { id: "padroes",           title: "Completa o Padrão",         emoji: "🔁", description: "Que figura vem a seguir na sequência?",                   benefits: ["Lógica", "Sequências"],           age: "4-5", garden: "preparacao" },
   { id: "labirinto",         title: "Labirinto do Ratinho",      emoji: "🐭", description: "Leva o ratinho até ao queijo sem bater nas paredes.",     benefits: ["Orientação", "Resolução"],        age: "4-5", garden: "floresta-sonhos" },
   { id: "trivia-jr",         title: "Sabichão Júnior",           emoji: "❓", description: "Mini-trivia divertida sobre tudo!",                       benefits: ["Conhecimento geral"],             age: "4-5", garden: "estrela-imaginacao" },
+
+  // ---- Novos (1.º–4.º ano) — disponíveis no Vale & Estrela
+  { id: "soma-rapida",       title: "Soma Rápida",               emoji: "⚡", description: "Quantas somas acertas em 1 minuto?",                       benefits: ["Cálculo mental", "Matemática"],   age: "4-5", garden: "preparacao" },
+  { id: "tabuada",           title: "Tabuada Express",           emoji: "✖️", description: "Treina a tabuada do 2 ao 9.",                              benefits: ["Multiplicação"],                  age: "4-5", garden: "preparacao" },
+  { id: "fracoes",           title: "Frações Visuais",           emoji: "🍕", description: "Identifica que fração da pizza está pintada.",            benefits: ["Frações", "Geometria"],           age: "4-5", garden: "preparacao" },
+  { id: "silabas",           title: "Caça-Sílabas",              emoji: "🔡", description: "Completa a sílaba que falta na palavra.",                  benefits: ["Pré-leitura"],                    age: "3-4", garden: "descobertas" },
+  { id: "forma-frase",       title: "Forma a Frase",             emoji: "✍️", description: "Ordena as palavras para formar uma frase.",                benefits: ["Sintaxe", "Leitura"],             age: "4-5", garden: "preparacao" },
+  { id: "antonimos",         title: "Antónimos",                 emoji: "↔️", description: "Encontra o oposto da palavra.",                            benefits: ["Vocabulário"],                    age: "4-5", garden: "preparacao" },
+  { id: "mapa-pt",           title: "Mapa de Portugal",          emoji: "🗺️", description: "Adivinha a região portuguesa pela pista.",                 benefits: ["Geografia"],                      age: "4-5", garden: "estrela-imaginacao" },
+  { id: "ciclo-agua",        title: "Ciclo da Água",             emoji: "💧", description: "Ordena as fases do ciclo da água.",                        benefits: ["Ciências"],                       age: "4-5", garden: "estrela-imaginacao" },
+  { id: "habitats",          title: "Animais & Habitats",        emoji: "🦁", description: "Onde vive cada animal?",                                    benefits: ["Ciências", "Natureza"],           age: "3-4", garden: "descobertas" },
+  { id: "bandeiras",         title: "Bandeiras do Mundo",        emoji: "🚩", description: "Reconhece bandeiras de países.",                            benefits: ["Geografia", "Cidadania"],         age: "4-5", garden: "estrela-imaginacao" },
+  { id: "spelling-en",       title: "Spelling EN",               emoji: "🔊", description: "Ouve a palavra em inglês e escreve-a.",                    benefits: ["Inglês", "Audição"],              age: "4-5", garden: "estrela-imaginacao" },
+  { id: "colors-en",         title: "Cores & Números EN",        emoji: "🎨", description: "Aprende cores e números em inglês.",                        benefits: ["Inglês"],                         age: "3-4", garden: "descobertas" },
+  { id: "simon",             title: "Memória Musical",           emoji: "🎹", description: "Repete a sequência (Simon Says).",                          benefits: ["Memória", "Música"],              age: "4-5", garden: "floresta-sonhos" },
+  { id: "logica",            title: "Quebra-Cabeças Lógico",     emoji: "🧠", description: "Pequenos puzzles de lógica e padrões.",                     benefits: ["Lógica"],                         age: "4-5", garden: "preparacao" },
+  { id: "trivia-online",     title: "Mega Trivia",               emoji: "🌐", description: "Perguntas dinâmicas (cache + offline).",                    benefits: ["Conhecimento geral"],             age: "4-5", garden: "estrela-imaginacao" },
 ];
 
 export const getGardenGames = (gardenId: GardenId) =>
