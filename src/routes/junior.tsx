@@ -15,6 +15,7 @@ import { grantSticker, type JuniorSticker } from "@/lib/juniorRewards";
 import { JuniorCelebration } from "@/components/junior/JuniorCelebration";
 import { JuniorStickerBook } from "@/components/junior/JuniorStickerBook";
 import { haptic } from "@/lib/haptics";
+import { pullJuniorCloud, scheduleJuniorCloudPush } from "@/lib/juniorCloud";
 import {
   GameJardimCores, GameOrquestraAnimais, GameRotinasKido, GameLivroMagico,
 } from "@/components/junior/JuniorGames";
