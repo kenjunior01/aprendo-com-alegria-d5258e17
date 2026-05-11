@@ -27,6 +27,9 @@ import {
 import {
   GamePinta, GameEco, GameJardimMagico, GamePuzzle, GameCacaTesouro, GameEstacoes, GameEmocoes,
 } from "@/components/junior/JuniorGamesV2";
+import {
+  GameSombras, GamePadroes, GameLabirinto, GameTriviaJr,
+} from "@/components/junior/JuniorGamesV3";
 import { JuniorChildSwitcher } from "@/components/junior/JuniorChildSwitcher";
 import { JuniorMascotStage } from "@/components/junior/JuniorMascotStage";
 import { Mascot } from "@/components/Mascot";
@@ -241,6 +244,10 @@ function JuniorPage() {
             {active?.id === "caca-tesouro" && <GameCacaTesouro />}
             {active?.id === "estacoes-ano" && <GameEstacoes />}
             {active?.id === "emocoes-kido" && <GameEmocoes />}
+            {active?.id === "sombras" && <GameSombras />}
+            {active?.id === "padroes" && <GamePadroes />}
+            {active?.id === "labirinto" && <GameLabirinto />}
+            {active?.id === "trivia-jr" && <GameTriviaJr />}
           </div>
           <div className="mt-2 flex flex-col-reverse gap-2 sm:flex-row sm:justify-between">
             <ChunkyButton tone="ghost" onClick={() => setActive(null)}>Sair</ChunkyButton>

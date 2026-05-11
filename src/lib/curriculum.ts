@@ -1,7 +1,7 @@
 // Conteúdo curricular para 1.º ciclo (Portugal — 1.º ao 4.º ano)
 // Cada lição tem perguntas de múltipla escolha.
 
-export type SubjectId = "portugues" | "matematica" | "estudo-do-meio";
+export type SubjectId = "portugues" | "matematica" | "estudo-do-meio" | "ingles" | "ciencias" | "cidadania" | string;
 export type GradeLevel = 1 | 2 | 3 | 4;
 
 export interface Question {
@@ -28,7 +28,9 @@ export interface Subject {
   lessons: Lesson[];
 }
 
-export const SUBJECTS: Subject[] = [
+import { SUBJECTS_EXTRA } from "./curriculumExtra";
+
+const SUBJECTS_CORE: Subject[] = [
   {
     id: "portugues",
     name: "Português",
@@ -317,9 +319,12 @@ export const SUBJECTS: Subject[] = [
   },
 ];
 
+export const SUBJECTS: Subject[] = [...SUBJECTS_CORE, ...SUBJECTS_EXTRA];
+
 export const getSubject = (id: string) => SUBJECTS.find((s) => s.id === id);
 export const getLesson = (subjectId: string, lessonId: string) =>
   getSubject(subjectId)?.lessons.find((l) => l.id === lessonId);
+
 
 export const GRADE_LABEL: Record<GradeLevel, string> = {
   1: "1.º ano",

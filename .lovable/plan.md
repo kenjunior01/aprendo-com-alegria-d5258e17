@@ -1,65 +1,79 @@
-# Plano faseado
+## Plano
 
-O pedido cobre 6 áreas independentes. Vou entregar em fases para garantir qualidade — cada fase é testável isoladamente.
+### Parte 1 — AuditTab: reordenar colunas com drag & drop
 
-## Fase 1 — AGORA (esta iteração)
+**Onde:** `src/routes/admin.tsx` (componente `AuditTab`).
 
-### A) Página de histórico de compras + recibos/faturas
-- Novo server function `listUserInvoices` em `src/utils/payments.functions.ts` protegido por `requireSupabaseAuth`:
-  - lê `subscriptions.stripe_customer_id` do utilizador (sandbox e live)
-  - chama `stripe.invoices.list({ customer })` e `stripe.charges.list({ customer })`
-  - devolve `[{ id, date, amount, currency, status, hosted_invoice_url, invoice_pdf, receipt_url, description }]`
-- Novo componente `PurchaseHistoryPanel.tsx`:
-  - tabela responsiva (mobile-first 390px) com data, descrição, valor, estado
-  - botões "Ver recibo" (`receipt_url`) e "Descarregar fatura" (`invoice_pdf`) — abrem em nova aba
-  - estados: vazio (nunca comprou), loading, erro
-- Integrar em `/pais` (já é o dashboard parental) numa nova secção "Histórico de pagamentos", abaixo do `PremiumStatusPanel`
+- Adicionar `dnd-kit` (`@dnd-kit/core`, `@dnd-kit/sortable`, `@dnd-kit/utilities`) — biblioteca leve, acessível, suporta touch.
+- Substituir o array fixo `COLS` por estado `colOrder: string[]` persistido em `localStorage` (chave nova `admin.audit.cols.order.v1`, mantendo `admin.audit.cols.v1` para visibilidade).
+- No popover "Colunas":
+  - Cada item da lista passa a ser um `SortableItem` com handle (ícone `GripVertical` do lucide) + checkbox de visibilidade já existente.
+  - `DndContext` + `SortableContext` (estratégia vertical) com sensores Pointer e Keyboard (acessível).
+- A renderização das células (header e linhas) passa a iterar `colOrder.filter(showCol)` em vez da ordem hardcoded.
+- Migração: se `localStorage` não tiver `colOrder`, usa a ordem default; ao receber colunas novas no futuro, faz merge (append das novas no fim).
+- Botão "Repor ordem" no popover para limpar a preferência.
 
-### B) Ativar gestão fiscal automática (IVA por país)
-- Atualizar `createCheckoutSession` para incluir `automatic_tax: { enabled: true }` (opção 2: cálculo + cobrança, +0,5%/transação — tu fazes filing)
-  - Decisão: opção 2 e não managed_payments porque os teus produtos estão registados em PT e queres controlo sobre filing
-- Set `tax_code` nos 3 produtos via script único (`txcd_10103001` — SaaS/serviços eletrónicos, adequado para subscrição educativa digital)
-- Adicionar `customer_update: { address: 'auto' }` e `tax_id_collection: { enabled: true }` para faturas com NIF
-- Banner informativo no `/premium`: "Preço inclui IVA do teu país"
+### Parte 2 — Expandir jogos, desafios e conteúdo (versão free, em massa)
 
-## Fases seguintes (iterações dedicadas)
+**Estratégia:** gerar conteúdo em larga escala usando o **Lovable AI Gateway** (já configurado, sem API key extra, gratuito dentro da quota do projeto) — modelo `google/gemini-2.5-flash` para volume e `gemini-2.5-pro` para validação. Tudo gerado **em build-time** (script offline) e guardado como JSON estático no repositório, para não consumir créditos em runtime.
 
-**Fase 2 — Registo leve da criança.** Fluxo onde o pai cria perfis-filho sem email/password (já existe `parent_links` + `profiles`). Página `/pais/criar-perfil` que cria profile com PIN curto, sem fluxo Supabase Auth para a criança.
+**APIs externas opcionais (todas gratuitas, sem cartão):**
+- **Open Trivia DB** (`opentdb.com/api.php`) — milhares de perguntas multi-categoria, multi-dificuldade, free, sem chave.
+- **Numbers API** (`numbersapi.com`) — factos matemáticos para mini-jogos de curiosidades, free, sem chave.
+- **REST Countries** (`restcountries.com`) — dados de países (bandeiras, capitais) para Estudo do Meio / geografia, free.
+- **Wikipedia REST API** — resumos para "sabias que…", free, sem chave.
+- **PoetryDB** (`poetrydb.org`) — para mini-jogos de leitura/rima em PT/EN, free.
+- (Opcional, se quiseres conteúdo PT-PT específico) **DBnomics** / **INE open data** para curiosidades regionais.
 
-**Fase 3 — Plano Escolas (0,99€/aluno/mês, mín. 20).** Novo produto Stripe `escola_aluno_mensal` com quantity 20-1000, página `/escolas` com formulário de subscrição por turma, ligação a `schools` + `classes` + `class_members` que já existem.
+Para todas as APIs externas usadas, faço fetch **uma única vez no script de geração**, traduzo/adapto para PT-PT via Lovable AI, e guardo o resultado como JSON no repo. Em runtime a app **não chama nada** — tudo continua offline-first, free, sem custos recorrentes.
 
-**Fase 4 — Expansão até 7.ª classe + conteúdo regional.** Auditar `src/lib/curriculum.ts` e `chapters.ts`, adicionar grades 5-7, criar variantes por região (PT/BR/MZ/AO/CV) para Estudo do Meio/Ciências Sociais (história, geografia, cidadania local). Estrutura: `curriculum[grade][subject][region]`. Trabalho de conteúdo pesado — vou pedir-te para validar pelo menos um exemplo por país antes de escalar.
+**O que vou gerar (alvo: muito conteúdo, todas as idades 3–12, todas as categorias):**
 
-**Fase 5 — PayPal + Clicpay + Vouchers.**
-- PayPal: botão separado em `/premium`, server route `/api/public/paypal/webhook` e `/api/paypal/create-order` usando a tua API key (vais precisar de adicionar `PAYPAL_CLIENT_ID` e `PAYPAL_SECRET` como secrets)
-- Clicpay (M-Pesa/eMola para MZ): integração via API REST, página de checkout próprio
-- Vouchers: tabela `vouchers (code, plan, used_by, expires_at)`, página `/resgatar-codigo`, função admin para gerar lotes
+1. **`src/lib/curriculum.ts`** (atualmente ~30 lições) → expandir para **120+ lições**:
+   - Português, Matemática, Estudo do Meio, **+ Inglês, + Ciências, + Cidadania, + Arte/Música**.
+   - 1.º ao 4.º ano (idades 6–10) com 4–6 lições por matéria/ano.
+   - Cada lição com **8–12 perguntas** (vs 3–4 atuais) com hints.
 
-## Detalhes técnicos da Fase 1
+2. **`src/lib/juniorContent.ts`** (novo) para idades 3–5 (Junior):
+   - 60+ mini-jogos: cores, formas, sons de animais, contar até 10, vogais, opostos, padrões, memória, sombras, primeiro-último, etc.
+   - JuniorGamesV2/Extra ganham 8–10 modos novos (puzzle de arrastar, encontra-o-igual, sequência, jogo da memória com mais cartas, labirinto simples, ditado de cores, ritmo, etc.).
 
-```
-src/utils/payments.functions.ts
-  + listUserInvoices (server fn, requireSupabaseAuth)
-  ~ createCheckoutSession (adicionar automatic_tax + tax_id_collection)
+3. **`src/lib/infiniteChallenges.ts`** → banco com **500+ desafios** infinitos por faixa etária e tema (cálculo mental, ortografia, lógica, padrões, geografia, ciências, inglês básico).
 
-src/components/PurchaseHistoryPanel.tsx (novo)
-src/routes/pais.tsx (adicionar secção)
+4. **`src/lib/dailyMissions.ts`** + **`src/lib/labMissions.ts`** → pools com 100+ missões cada, rotativas por dia/estação.
 
-scripts/setup-tax-codes.ts (one-shot, atualiza os 3 products no Stripe)
-```
+5. **`src/lib/chapters.ts`** → +10 capítulos de história/aventura com 5–8 cenas cada (modo leitura interativa).
 
-Stripe APIs usadas:
-- `stripe.invoices.list({ customer, limit: 100 })` — para subscrições
-- `stripe.charges.list({ customer, limit: 100 })` — para pagamentos one-time (vitalício)
-- `stripe.products.update(id, { tax_code: 'txcd_10103001' })`
+6. **`src/lib/triviaBank.ts`** (novo) → 1000+ perguntas de trivia categorizadas (animais, espaço, Portugal, mundo, desporto, arte, música), por faixa etária.
 
-Sem alterações de DB nesta fase — `subscriptions.stripe_customer_id` já existe.
+7. **`src/lib/funFacts.ts`** (novo) → 500+ "Sabias que…" curtos para mostrar em loading/recompensas.
 
-## O que NÃO faço nesta iteração
+**Pipeline de geração (one-off, offline):**
+- Script `scripts/generate-content.ts` que:
+  1. Faz fetch das APIs públicas listadas.
+  2. Para cada item, chama Lovable AI para traduzir/adaptar para PT-PT, ajustar idade, criar 4 opções, marcar resposta certa, adicionar hint.
+  3. Valida com schema Zod (descarta inválidos).
+  4. Escreve JSON em `src/data/*.json`.
+- O script corre uma vez (eu corro-o por ti); o conteúdo fica versionado no repo. **Zero custo em runtime, zero APIs externas no cliente.**
 
-- Fases 2-5 (já mapeadas acima, faço a seguir uma a uma)
-- Não toco no curriculum/chapters
-- Não adiciono PayPal/Clicpay/vouchers ainda
-- Não crio plano Escolas ainda
+**UI/Jogos novos no Junior (componentes React):**
+- `JuniorMemoryGame` (cartas viradas, 3 níveis de dificuldade).
+- `JuniorPatternGame` (completa o padrão).
+- `JuniorMazeGame` (labirinto SVG simples).
+- `JuniorRhythmGame` (toca a sequência).
+- `JuniorShadowMatch` (associa sombra ao animal).
+- `JuniorCountingGame` (arrasta n objetos).
+- Integrados no `JuniorGamesV2` com seletor.
 
-Confirma e arranco com a Fase 1. Se quiseres trocar a ordem das fases seguintes, diz-me.
+### Detalhes técnicos
+
+- Persistência de ordem das colunas: `localStorage["admin.audit.cols.order.v1"] = JSON.stringify(string[])`.
+- `dnd-kit` instalado via `bun add @dnd-kit/core @dnd-kit/sortable @dnd-kit/utilities`.
+- Geração de conteúdo: `bun run scripts/generate-content.ts` usando `LOVABLE_API_KEY` do ambiente; output em `src/data/`.
+- Tipos partilhados em `src/lib/contentTypes.ts` para validar JSON em build.
+
+### Confirmações que preciso
+
+1. **Avanço com este pipeline (Lovable AI + APIs free) sem pedires nada extra?** As APIs listadas são todas free e sem chave — nada para configurares.
+2. **Volume**: confirmas alvo de **~120 lições + ~500 desafios infinitos + ~1000 trivia + 6 jogos novos no Junior** num só lote? (A geração demora alguns minutos mas corre uma vez só.)
+3. **Idiomas**: tudo em **PT-PT**, com módulo de Inglês básico à parte? Ou também queres versão EN completa?
