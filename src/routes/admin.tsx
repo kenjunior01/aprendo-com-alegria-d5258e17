@@ -13,6 +13,10 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
@@ -20,6 +24,7 @@ import {
   Shield, Users, CreditCard, Trophy, ShoppingBag, GraduationCap,
   Swords, BarChart3, Search, Crown, UserCog, Loader2, RefreshCw,
   Calendar, Sparkles, ArrowLeft, FileText, Plus, Trash2, Save, Eye,
+  History, AlertTriangle, CheckCircle2, XCircle,
 } from "lucide-react";
 import {
   ResponsiveContainer, LineChart, Line, BarChart, Bar, XAxis, YAxis,
@@ -146,6 +151,7 @@ function AdminDashboard() {
               <TabsTrigger value="shop"><ShoppingBag className="h-4 w-4 mr-1" />Loja</TabsTrigger>
               <TabsTrigger value="achievements"><Trophy className="h-4 w-4 mr-1" />Conquistas</TabsTrigger>
               <TabsTrigger value="roles"><UserCog className="h-4 w-4 mr-1" />Funções</TabsTrigger>
+              <TabsTrigger value="audit"><History className="h-4 w-4 mr-1" />Auditoria</TabsTrigger>
             </TabsList>
 
             <TabsContent value="overview" className="mt-6"><OverviewTab /></TabsContent>
@@ -158,6 +164,7 @@ function AdminDashboard() {
             <TabsContent value="shop" className="mt-6"><ShopTab /></TabsContent>
             <TabsContent value="achievements" className="mt-6"><AchievementsTab /></TabsContent>
             <TabsContent value="roles" className="mt-6"><RolesTab /></TabsContent>
+            <TabsContent value="audit" className="mt-6"><AuditTab /></TabsContent>
           </Tabs>
         </main>
       </div>
@@ -503,27 +510,36 @@ function UsersTab() {
     setSelected(s);
   };
 
-  const bulkGrant = async (days: number) => {
+  const [results, setResults] = useState<{ id: string; name: string; ok: boolean; error?: string }[] | null>(null);
+  const [confirmRevoke, setConfirmRevoke] = useState(false);
+
+  const runBulk = async (mode: "grant" | "revoke", days?: number) => {
     if (selected.size === 0) return toast.error("Seleciona pelo menos um utilizador");
     setBusy(true);
-    const until = new Date(Date.now() + days * 86400000).toISOString();
-    const { error } = await supabase.from("profiles").update({ trial_until: until, is_premium: true }).in("id", [...selected]);
+    setResults(null);
+    const ids = [...selected];
+    const nameById = new Map(rows.map((r) => [r.id, r.name || "(sem nome)"]));
+    const update = mode === "grant"
+      ? { trial_until: new Date(Date.now() + (days ?? 30) * 86400000).toISOString(), is_premium: true }
+      : { trial_until: null, is_premium: false };
+
+    const out: { id: string; name: string; ok: boolean; error?: string }[] = [];
+    for (const id of ids) {
+      const { error } = await supabase.from("profiles").update(update).eq("id", id);
+      out.push({ id, name: nameById.get(id) ?? id, ok: !error, error: error?.message });
+    }
     setBusy(false);
-    if (error) return toast.error(error.message);
-    toast.success(`${selected.size} utilizadores receberam trial de ${days}d`);
-    setSelected(new Set());
+    setResults(out);
+    const okCount = out.filter((r) => r.ok).length;
+    const failCount = out.length - okCount;
+    if (failCount === 0) toast.success(`${okCount} utilizadores atualizados`);
+    else toast.warning(`${okCount} ok · ${failCount} falharam`);
+    if (okCount > 0) setSelected(new Set());
     load();
   };
-  const bulkRevoke = async () => {
-    if (selected.size === 0) return toast.error("Seleciona pelo menos um utilizador");
-    setBusy(true);
-    const { error } = await supabase.from("profiles").update({ trial_until: null, is_premium: false }).in("id", [...selected]);
-    setBusy(false);
-    if (error) return toast.error(error.message);
-    toast.success(`Trial removido de ${selected.size} utilizadores`);
-    setSelected(new Set());
-    load();
-  };
+
+  const bulkGrant = (days: number) => runBulk("grant", days);
+  const bulkRevoke = () => runBulk("revoke");
 
   const grantTrial = async (id: string, days: number) => {
     const until = new Date(Date.now() + days * 86400000).toISOString();
@@ -585,12 +601,54 @@ function UsersTab() {
               <Calendar className="h-3 w-3 mr-1" /> Atribuir +30d trial
             </Button>
             <Button size="sm" variant="outline" disabled={busy || selected.size === 0} onClick={() => bulkGrant(365)}>+1 ano</Button>
-            <Button size="sm" variant="ghost" disabled={busy || selected.size === 0} onClick={bulkRevoke}>
+            <Button size="sm" variant="ghost" disabled={busy || selected.size === 0} onClick={() => setConfirmRevoke(true)}>
               <Trash2 className="h-3 w-3 mr-1" /> Remover trial
             </Button>
           </div>
         </div>
       </Card>
+
+      <AlertDialog open={confirmRevoke} onOpenChange={setConfirmRevoke}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 text-destructive" />
+              Remover trial em massa?
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              Vais remover o trial e o estado premium de <strong>{selected.size}</strong> utilizadores.
+              Esta ação fica registada na auditoria e não pode ser desfeita automaticamente.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={() => { setConfirmRevoke(false); bulkRevoke(); }}>
+              Sim, remover
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {results && (
+        <Card className="p-3 space-y-2">
+          <div className="flex items-center justify-between">
+            <h3 className="font-semibold text-sm">
+              Resultado da operação · {results.filter((r) => r.ok).length} ok · {results.filter((r) => !r.ok).length} falhas
+            </h3>
+            <Button size="sm" variant="ghost" onClick={() => setResults(null)}>Fechar</Button>
+          </div>
+          <div className="max-h-64 overflow-y-auto space-y-1">
+            {results.map((r) => (
+              <div key={r.id} className="flex items-center gap-2 text-xs">
+                {r.ok ? <CheckCircle2 className="h-4 w-4 text-green-600" /> : <XCircle className="h-4 w-4 text-destructive" />}
+                <span className="font-medium truncate">{r.name}</span>
+                <span className="text-muted-foreground font-mono truncate">{r.id.slice(0, 8)}</span>
+                {r.error && <span className="text-destructive truncate">— {r.error}</span>}
+              </div>
+            ))}
+          </div>
+        </Card>
+      )}
 
       {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : (
         <div className="space-y-2">
@@ -1161,6 +1219,132 @@ function RolesTab() {
           </Card>
         ))}
       </div>
+    </div>
+  );
+}
+
+/* ───────────────── Audit ───────────────── */
+type AuditRow = {
+  id: string;
+  actor_id: string | null;
+  entity: string;
+  entity_id: string | null;
+  action: string;
+  before: any;
+  after: any;
+  created_at: string;
+};
+function AuditTab() {
+  const [rows, setRows] = useState<AuditRow[]>([]);
+  const [actors, setActors] = useState<Record<string, string>>({});
+  const [loading, setLoading] = useState(true);
+  const [entityFilter, setEntityFilter] = useState<string>("all");
+  const [actionFilter, setActionFilter] = useState<string>("all");
+
+  const load = async () => {
+    setLoading(true);
+    const { data, error } = await supabase
+      .from("audit_log" as any)
+      .select("*")
+      .order("created_at", { ascending: false })
+      .limit(500);
+    if (error) toast.error(error.message);
+    const list = ((data as any) ?? []) as AuditRow[];
+    setRows(list);
+    const ids = [...new Set(list.map((r) => r.actor_id).filter(Boolean))] as string[];
+    if (ids.length > 0) {
+      const { data: profs } = await supabase.from("profiles").select("id, name").in("id", ids);
+      const map: Record<string, string> = {};
+      (profs ?? []).forEach((p: any) => { map[p.id] = p.name || p.id.slice(0, 8); });
+      setActors(map);
+    }
+    setLoading(false);
+  };
+  useEffect(() => { load(); }, []);
+
+  const filtered = rows.filter((r) => {
+    if (entityFilter !== "all" && r.entity !== entityFilter) return false;
+    if (actionFilter !== "all" && r.action !== actionFilter) return false;
+    return true;
+  });
+
+  const summarize = (r: AuditRow): string => {
+    if (r.entity === "profile_trial") {
+      const b = r.before ?? {}; const a = r.after ?? {};
+      const trial = b.trial_until !== a.trial_until
+        ? `trial: ${b.trial_until ? new Date(b.trial_until).toLocaleDateString("pt-PT") : "—"} → ${a.trial_until ? new Date(a.trial_until).toLocaleDateString("pt-PT") : "—"}`
+        : "";
+      const prem = b.is_premium !== a.is_premium ? `premium: ${b.is_premium} → ${a.is_premium}` : "";
+      return [trial, prem].filter(Boolean).join(" · ");
+    }
+    if (r.action === "insert") return `criado: ${r.after?.name ?? r.after?.title ?? r.entity_id}`;
+    if (r.action === "delete") return `apagado: ${r.before?.name ?? r.before?.title ?? r.entity_id}`;
+    if (r.action === "update") {
+      const changes: string[] = [];
+      const b = r.before ?? {}; const a = r.after ?? {};
+      Object.keys(a).forEach((k) => {
+        if (k === "updated_at" || k === "created_at") return;
+        if (JSON.stringify(b[k]) !== JSON.stringify(a[k])) {
+          changes.push(`${k}: ${JSON.stringify(b[k])} → ${JSON.stringify(a[k])}`);
+        }
+      });
+      return changes.slice(0, 3).join(" · ") || "(sem alterações)";
+    }
+    return "";
+  };
+
+  const entityLabel: Record<string, string> = {
+    profile_trial: "Trial",
+    shop_item: "Loja",
+    content_item: "Conteúdo",
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between flex-wrap gap-2">
+        <h2 className="text-lg font-semibold">Registo de auditoria ({filtered.length})</h2>
+        <Button size="sm" variant="outline" onClick={load}><RefreshCw className="h-4 w-4" /></Button>
+      </div>
+      <div className="flex flex-wrap gap-2 items-center">
+        <span className="text-xs text-muted-foreground">Entidade:</span>
+        {["all", "profile_trial", "shop_item", "content_item"].map((e) => (
+          <Button key={e} size="sm" variant={entityFilter === e ? "default" : "outline"} onClick={() => setEntityFilter(e)}>
+            {e === "all" ? "Todas" : entityLabel[e] ?? e}
+          </Button>
+        ))}
+        <span className="text-xs text-muted-foreground ml-2">Ação:</span>
+        {["all", "insert", "update", "delete"].map((a) => (
+          <Button key={a} size="sm" variant={actionFilter === a ? "default" : "outline"} onClick={() => setActionFilter(a)}>
+            {a === "all" ? "Todas" : a}
+          </Button>
+        ))}
+      </div>
+      {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : filtered.length === 0 ? (
+        <Card className="p-6 text-center text-muted-foreground text-sm">Sem registos.</Card>
+      ) : (
+        <div className="space-y-2">
+          {filtered.map((r) => (
+            <Card key={r.id} className="p-3 text-sm">
+              <div className="flex items-start justify-between gap-2 flex-wrap">
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <Badge variant="secondary" className="text-xs">{entityLabel[r.entity] ?? r.entity}</Badge>
+                    <Badge variant="outline" className="text-xs">{r.action}</Badge>
+                    <span className="text-xs text-muted-foreground">
+                      por {r.actor_id ? (actors[r.actor_id] ?? r.actor_id.slice(0, 8)) : "sistema"}
+                    </span>
+                  </div>
+                  <div className="text-xs mt-1 break-all">{summarize(r)}</div>
+                  {r.entity_id && <div className="text-[10px] text-muted-foreground font-mono mt-1">{r.entity_id}</div>}
+                </div>
+                <div className="text-xs text-muted-foreground whitespace-nowrap">
+                  {new Date(r.created_at).toLocaleString("pt-PT")}
+                </div>
+              </div>
+            </Card>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
