@@ -37,12 +37,29 @@ function InfinitePage() {
   const [view, setView] = useState<View>("tracks");
   const [trackId, setTrackId] = useState<TrackId | null>(null);
   const [level, setLevel] = useState<number>(1);
+  const [weekly, setWeekly] = useState<{ ranking: RankingRow[]; mePosition: number | null } | null>(null);
+  const [season, setSeason] = useState<{ season: { name: string; emoji: string; endsAt: string }; ranking: RankingRow[]; mePosition: number | null } | null>(null);
+  const [filterScope, setFilterScope] = useState<"all" | "age" | "region">("all");
+
+  const submitInfiniteScoreFn = useServerFn(submitInfiniteScore);
+  const getWeeklyFn = useServerFn(getInfiniteWeeklyRanking);
+  const getSeasonFn = useServerFn(getInfiniteSeasonalTournament);
 
   useEffect(() => {
     const p = loadProfile();
     if (!p || !p.name) { navigate({ to: "/comecar" }); return; }
     setProfile(p);
+    void pullInfiniteCloud().then((merged) => { if (merged) setProgress(merged); });
   }, [navigate]);
+
+  useEffect(() => {
+    if (!profile) return;
+    const ageGroup = filterScope === "age" ? (profile.age <= 5 ? "2-5" : profile.age <= 9 ? "6-9" : profile.age <= 13 ? "10-13" : "14+") : null;
+    const region = filterScope === "region" ? (profile.region ?? null) : null;
+    void getWeeklyFn({ data: { ageGroup, region } }).then(setWeekly).catch(() => setWeekly({ ranking: [], mePosition: null }));
+    void getSeasonFn({ data: { ageGroup, region } }).then(setSeason).catch(() => setSeason(null));
+  }, [profile, filterScope, getWeeklyFn, getSeasonFn]);
+
 
   if (!profile) return null;
   const isPremium = !!profile.isPremium;
