@@ -61,8 +61,14 @@ function ParentDashboard() {
   const [unlocked, setUnlocked] = useState(false);
   const [showQuickSignup, setShowQuickSignup] = useState(false);
   const [showInviteCode, setShowInviteCode] = useState(false);
-  const [activeTab, setActiveTab] = useState<"resumo" | "controlos" | "desafios" | "junior" | "atividade" | "compras">("resumo");
+  const [activeTab, setActiveTab] = useState<TabId>("resumo");
   const [menuOpen, setMenuOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [gradeFilter, setGradeFilter] = useState<number | "all">("all");
+  const [seen, setSeen] = useState<SeenMap>(() => loadSeen());
+  const [badges, setBadges] = useState<Partial<Record<TabId, number>>>({});
+  const [bottomSheetOpen, setBottomSheetOpen] = useState(false);
+  const tabContentRef = useRef<HTMLDivElement | null>(null);
 
   const reloadChildren = async () => {
     try {
