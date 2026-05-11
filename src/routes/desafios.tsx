@@ -106,7 +106,7 @@ function DesafiosPage() {
           <TabsList className="mb-4 grid w-full grid-cols-4">
             <TabsTrigger value="ai" className="gap-1 px-1 text-xs sm:text-sm"><Sparkles className="h-4 w-4" />IA</TabsTrigger>
             <TabsTrigger value="pvp" className="gap-1 px-1 text-xs sm:text-sm"><Swords className="h-4 w-4" />PvP</TabsTrigger>
-            <TabsTrigger value="historico" className="gap-1 px-1 text-xs sm:text-sm"><History className="h-4 w-4" />Histórico</TabsTrigger>
+            <TabsTrigger value="historico" className="gap-1 px-1 text-xs sm:text-sm"><HistoryIcon className="h-4 w-4" />Histórico</TabsTrigger>
             <TabsTrigger value="ranking" className="gap-1 px-1 text-xs sm:text-sm"><Trophy className="h-4 w-4" />Ranking</TabsTrigger>
           </TabsList>
 
