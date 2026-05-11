@@ -300,6 +300,69 @@ export type Database = {
         }
         Relationships: []
       }
+      infinite_progress: {
+        Row: {
+          data: Json
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          data?: Json
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          data?: Json
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      infinite_scores: {
+        Row: {
+          age: number | null
+          age_group: string | null
+          created_at: string
+          id: string
+          level: number
+          region: string | null
+          score: number
+          season: string
+          stars: number
+          track_id: string
+          user_id: string
+          week_start: string
+        }
+        Insert: {
+          age?: number | null
+          age_group?: string | null
+          created_at?: string
+          id?: string
+          level?: number
+          region?: string | null
+          score?: number
+          season?: string
+          stars?: number
+          track_id: string
+          user_id: string
+          week_start?: string
+        }
+        Update: {
+          age?: number | null
+          age_group?: string | null
+          created_at?: string
+          id?: string
+          level?: number
+          region?: string | null
+          score?: number
+          season?: string
+          stars?: number
+          track_id?: string
+          user_id?: string
+          week_start?: string
+        }
+        Relationships: []
+      }
       junior_cloud: {
         Row: {
           data: Json

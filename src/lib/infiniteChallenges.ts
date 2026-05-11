@@ -280,30 +280,48 @@ export interface InfiniteProgress {
   levels: Partial<Record<TrackId, number>>; // current unlocked level per track
   bestStars: Partial<Record<string, number>>; // `${track}:${level}` -> stars
   totalXp: number;
+  wins: number;     // questions answered correctly (lifetime)
+  errors: number;   // questions answered incorrectly (lifetime)
+  lastPlayedAt: string | null;
 }
+const empty = (): InfiniteProgress => ({
+  levels: {}, bestStars: {}, totalXp: 0, wins: 0, errors: 0, lastPlayedAt: null,
+});
 export function loadInfiniteProgress(): InfiniteProgress {
-  if (typeof window === "undefined") return { levels: {}, bestStars: {}, totalXp: 0 };
+  if (typeof window === "undefined") return empty();
   try {
     const raw = localStorage.getItem(PROG_KEY);
-    if (!raw) return { levels: {}, bestStars: {}, totalXp: 0 };
-    return { levels: {}, bestStars: {}, totalXp: 0, ...JSON.parse(raw) };
+    if (!raw) return empty();
+    return { ...empty(), ...JSON.parse(raw) };
   } catch {
-    return { levels: {}, bestStars: {}, totalXp: 0 };
+    return empty();
   }
 }
 export function saveInfiniteProgress(p: InfiniteProgress) {
   if (typeof window === "undefined") return;
   localStorage.setItem(PROG_KEY, JSON.stringify(p));
 }
-export function recordResult(track: TrackId, level: number, correct: number, total: number): InfiniteProgress {
+export interface RecordResult {
+  progress: InfiniteProgress;
+  stars: number;
+  xpGained: number;
+  advanced: boolean;
+}
+export function recordResult(track: TrackId, level: number, correct: number, total: number): RecordResult {
   const p = loadInfiniteProgress();
   const ratio = correct / Math.max(1, total);
   const stars = ratio >= 0.95 ? 3 : ratio >= 0.7 ? 2 : ratio >= 0.5 ? 1 : 0;
   const key = `${track}:${level}`;
   p.bestStars[key] = Math.max(p.bestStars[key] ?? 0, stars);
   const cur = p.levels[track] ?? 1;
-  if (stars >= 2 && level >= cur) p.levels[track] = level + 1;
-  p.totalXp = (p.totalXp ?? 0) + correct * (5 + Math.floor(level / 2));
+  const advanced = stars >= 2 && level >= cur;
+  if (advanced) p.levels[track] = level + 1;
+  const xpGained = correct * (5 + Math.floor(level / 2));
+  p.totalXp = (p.totalXp ?? 0) + xpGained;
+  p.wins = (p.wins ?? 0) + correct;
+  p.errors = (p.errors ?? 0) + Math.max(0, total - correct);
+  p.lastPlayedAt = new Date().toISOString();
   saveInfiniteProgress(p);
-  return p;
+  return { progress: p, stars, xpGained, advanced };
 }
+

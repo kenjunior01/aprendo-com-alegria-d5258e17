@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useServerFn } from "@tanstack/react-start";
 import { TopBar } from "@/components/TopBar";
 import { BottomNav } from "@/components/BottomNav";
 import { ChunkyButton } from "@/components/ChunkyButton";
@@ -13,7 +14,9 @@ import {
   type GenQuestion,
   type TrackId,
 } from "@/lib/infiniteChallenges";
-import { ArrowLeft, Crown, Infinity as InfinityIcon, Lock, Sparkles, Star, Trophy } from "lucide-react";
+import { pullInfiniteCloud, scheduleInfiniteCloudPush } from "@/lib/infiniteCloud";
+import { submitInfiniteScore, getInfiniteWeeklyRanking, getInfiniteSeasonalTournament, type RankingRow } from "@/lib/infiniteRanking.functions";
+import { ArrowLeft, Crown, Infinity as InfinityIcon, Lock, Sparkles, Star, Trophy, Medal } from "lucide-react";
 
 export const Route = createFileRoute("/desafios/infinitos")({
   head: () => ({
@@ -34,12 +37,29 @@ function InfinitePage() {
   const [view, setView] = useState<View>("tracks");
   const [trackId, setTrackId] = useState<TrackId | null>(null);
   const [level, setLevel] = useState<number>(1);
+  const [weekly, setWeekly] = useState<{ ranking: RankingRow[]; mePosition: number | null } | null>(null);
+  const [season, setSeason] = useState<{ season: { name: string; emoji: string; endsAt: string }; ranking: RankingRow[]; mePosition: number | null } | null>(null);
+  const [filterScope, setFilterScope] = useState<"all" | "age" | "region">("all");
+
+  const submitInfiniteScoreFn = useServerFn(submitInfiniteScore);
+  const getWeeklyFn = useServerFn(getInfiniteWeeklyRanking);
+  const getSeasonFn = useServerFn(getInfiniteSeasonalTournament);
 
   useEffect(() => {
     const p = loadProfile();
     if (!p || !p.name) { navigate({ to: "/comecar" }); return; }
     setProfile(p);
+    void pullInfiniteCloud().then((merged) => { if (merged) setProgress(merged); });
   }, [navigate]);
+
+  useEffect(() => {
+    if (!profile) return;
+    const ageGroup = filterScope === "age" ? (profile.age <= 5 ? "2-5" : profile.age <= 9 ? "6-9" : profile.age <= 13 ? "10-13" : "14+") : null;
+    const region = filterScope === "region" ? (profile.region ?? null) : null;
+    void getWeeklyFn({ data: { ageGroup, region } }).then(setWeekly).catch(() => setWeekly({ ranking: [], mePosition: null }));
+    void getSeasonFn({ data: { ageGroup, region } }).then(setSeason).catch(() => setSeason(null));
+  }, [profile, filterScope, getWeeklyFn, getSeasonFn]);
+
 
   if (!profile) return null;
   const isPremium = !!profile.isPremium;
@@ -122,13 +142,17 @@ function InfinitePage() {
             trackId={trackId}
             level={level}
             onDone={(correct, total) => {
-              const next = recordResult(trackId, level, correct, total);
-              setProgress(next);
-              const xpGained = correct * (5 + Math.floor(level / 2));
+              const r = recordResult(trackId, level, correct, total);
+              setProgress(r.progress);
               if (profile) {
-                const updated = updateProfile({ xp: (profile.xp ?? 0) + xpGained, coins: (profile.coins ?? 0) + correct });
+                const updated = updateProfile({ xp: (profile.xp ?? 0) + r.xpGained, coins: (profile.coins ?? 0) + correct });
                 setProfile(updated);
               }
+              void scheduleInfiniteCloudPush();
+              void submitInfiniteScoreFn({ data: {
+                trackId, level, score: r.xpGained, stars: r.stars,
+                age: profile?.age ?? null, region: profile?.region ?? null,
+              }}).catch(() => {});
               setView("result");
             }}
             onBack={() => setView("levels")}
