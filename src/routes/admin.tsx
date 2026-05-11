@@ -7,14 +7,24 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger,
+} from "@/components/ui/dialog";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import {
   Shield, Users, CreditCard, Trophy, ShoppingBag, GraduationCap,
   Swords, BarChart3, Search, Crown, UserCog, Loader2, RefreshCw,
-  Calendar, Sparkles, ArrowLeft,
+  Calendar, Sparkles, ArrowLeft, FileText, Plus, Trash2, Save, Eye,
 } from "lucide-react";
+import {
+  ResponsiveContainer, LineChart, Line, BarChart, Bar, XAxis, YAxis,
+  Tooltip as RTooltip, CartesianGrid, Legend,
+} from "recharts";
 
 export const Route = createFileRoute("/admin")({
   head: () => ({
@@ -43,17 +53,6 @@ type Profile = {
   last_played: string | null;
 };
 
-type SubRow = {
-  id: string;
-  user_id: string;
-  status: string;
-  price_id: string;
-  environment: string;
-  current_period_end: string | null;
-  cancel_at_period_end: boolean | null;
-  created_at: string;
-};
-
 function AdminPage() {
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
@@ -71,10 +70,7 @@ function AdminPage() {
     );
   }
 
-  if (!isAdmin) {
-    return <BootstrapOrDeny userId={user!.id} />;
-  }
-
+  if (!isAdmin) return <BootstrapOrDeny userId={user!.id} />;
   return <AdminDashboard />;
 }
 
@@ -132,9 +128,7 @@ function AdminDashboard() {
               </div>
             </div>
             <Button asChild variant="ghost" size="sm">
-              <Link to="/">
-                <ArrowLeft className="h-4 w-4 mr-1" /> Sair
-              </Link>
+              <Link to="/"><ArrowLeft className="h-4 w-4 mr-1" /> Sair</Link>
             </Button>
           </div>
         </header>
@@ -143,8 +137,10 @@ function AdminDashboard() {
           <Tabs value={tab} onValueChange={setTab}>
             <TabsList className="flex flex-wrap h-auto gap-1">
               <TabsTrigger value="overview"><BarChart3 className="h-4 w-4 mr-1" />Visão geral</TabsTrigger>
+              <TabsTrigger value="analytics"><BarChart3 className="h-4 w-4 mr-1" />Analytics</TabsTrigger>
               <TabsTrigger value="users"><Users className="h-4 w-4 mr-1" />Utilizadores</TabsTrigger>
               <TabsTrigger value="subs"><CreditCard className="h-4 w-4 mr-1" />Subscrições</TabsTrigger>
+              <TabsTrigger value="content"><FileText className="h-4 w-4 mr-1" />Conteúdos</TabsTrigger>
               <TabsTrigger value="challenges"><Swords className="h-4 w-4 mr-1" />Desafios</TabsTrigger>
               <TabsTrigger value="schools"><GraduationCap className="h-4 w-4 mr-1" />Escolas</TabsTrigger>
               <TabsTrigger value="shop"><ShoppingBag className="h-4 w-4 mr-1" />Loja</TabsTrigger>
@@ -153,8 +149,10 @@ function AdminDashboard() {
             </TabsList>
 
             <TabsContent value="overview" className="mt-6"><OverviewTab /></TabsContent>
+            <TabsContent value="analytics" className="mt-6"><AnalyticsTab /></TabsContent>
             <TabsContent value="users" className="mt-6"><UsersTab /></TabsContent>
             <TabsContent value="subs" className="mt-6"><SubsTab /></TabsContent>
+            <TabsContent value="content" className="mt-6"><ContentTab /></TabsContent>
             <TabsContent value="challenges" className="mt-6"><ChallengesTab /></TabsContent>
             <TabsContent value="schools" className="mt-6"><SchoolsTab /></TabsContent>
             <TabsContent value="shop" className="mt-6"><ShopTab /></TabsContent>
@@ -190,8 +188,7 @@ function OverviewTab() {
     setStats({
       totalUsers,
       newUsers7d: (profiles.data ?? []).filter((p: any) => new Date(p.created_at) > new Date(since)).length,
-      trialActive,
-      activeSubs,
+      trialActive, activeSubs,
       sessions7d: (sessions.data ?? []).length,
       xp7d,
       challenges: challenges.count ?? 0,
@@ -202,7 +199,6 @@ function OverviewTab() {
   };
 
   useEffect(() => { load(); }, []);
-
   if (loading) return <Loader2 className="h-5 w-5 animate-spin" />;
 
   const cards = [
@@ -219,9 +215,7 @@ function OverviewTab() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-semibold">Visão geral</h2>
-        <Button variant="outline" size="sm" onClick={load}>
-          <RefreshCw className="h-4 w-4 mr-1" /> Atualizar
-        </Button>
+        <Button variant="outline" size="sm" onClick={load}><RefreshCw className="h-4 w-4 mr-1" /> Atualizar</Button>
       </div>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {cards.map((c) => (
@@ -239,55 +233,308 @@ function OverviewTab() {
   );
 }
 
-/* ───────────────── Users ───────────────── */
-function UsersTab() {
-  const [rows, setRows] = useState<Profile[]>([]);
-  const [q, setQ] = useState("");
-  const [roleFilter, setRoleFilter] = useState<string>("all");
+/* ───────────────── Analytics ───────────────── */
+function AnalyticsTab() {
+  const [days, setDays] = useState(30);
   const [loading, setLoading] = useState(true);
+  const [data, setData] = useState<{
+    daily: { date: string; sessions: number; xp: number; activeUsers: number }[];
+    weekly: { week: string; sessions: number }[];
+    bySchool: { name: string; xp: number }[];
+    funnel: { trials: number; converted: number; rate: number };
+    retention: { day: string; pct: number }[];
+  } | null>(null);
 
   const load = async () => {
     setLoading(true);
-    const { data } = await supabase
-      .from("profiles")
-      .select("id, name, role, grade, age, mascot, xp, coins, gems, streak, is_premium, trial_until, created_at, last_played")
-      .order("created_at", { ascending: false })
-      .limit(500);
-    setRows((data as any) ?? []);
+    const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+    const sinceIso = since.toISOString();
+
+    const [sessRes, profRes, subRes, schoolsRes, classMembersRes] = await Promise.all([
+      supabase.from("practice_sessions").select("user_id, xp_earned, created_at").gte("created_at", sinceIso).limit(5000),
+      supabase.from("profiles").select("id, created_at, trial_until").limit(5000),
+      supabase.from("subscriptions").select("user_id, status, created_at").limit(2000),
+      supabase.from("schools").select("id, name"),
+      supabase.from("class_members").select("student_id, class_id, classes(school_id)").limit(5000),
+    ]);
+
+    const sessions = sessRes.data ?? [];
+
+    // Daily series
+    const dayMap: Record<string, { sessions: number; xp: number; users: Set<string> }> = {};
+    for (let i = 0; i < days; i++) {
+      const d = new Date(Date.now() - i * 86400000);
+      const k = d.toISOString().slice(0, 10);
+      dayMap[k] = { sessions: 0, xp: 0, users: new Set() };
+    }
+    sessions.forEach((s: any) => {
+      const k = (s.created_at as string).slice(0, 10);
+      if (!dayMap[k]) dayMap[k] = { sessions: 0, xp: 0, users: new Set() };
+      dayMap[k].sessions++;
+      dayMap[k].xp += s.xp_earned ?? 0;
+      dayMap[k].users.add(s.user_id);
+    });
+    const daily = Object.entries(dayMap)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([date, v]) => ({ date: date.slice(5), sessions: v.sessions, xp: v.xp, activeUsers: v.users.size }));
+
+    // Weekly aggregation
+    const weekMap: Record<string, number> = {};
+    sessions.forEach((s: any) => {
+      const d = new Date(s.created_at);
+      const dayOfWeek = (d.getDay() + 6) % 7;
+      const weekStart = new Date(d.getTime() - dayOfWeek * 86400000).toISOString().slice(0, 10);
+      weekMap[weekStart] = (weekMap[weekStart] ?? 0) + 1;
+    });
+    const weekly = Object.entries(weekMap).sort(([a], [b]) => a.localeCompare(b)).map(([week, sessionsCount]) => ({ week: week.slice(5), sessions: sessionsCount }));
+
+    // XP by school
+    const schoolByStudent: Record<string, string> = {};
+    (classMembersRes.data ?? []).forEach((cm: any) => {
+      if (cm.classes?.school_id) schoolByStudent[cm.student_id] = cm.classes.school_id;
+    });
+    const schoolNames: Record<string, string> = {};
+    (schoolsRes.data ?? []).forEach((s: any) => { schoolNames[s.id] = s.name; });
+    const xpBySchool: Record<string, number> = {};
+    sessions.forEach((s: any) => {
+      const sid = schoolByStudent[s.user_id];
+      if (!sid) return;
+      xpBySchool[sid] = (xpBySchool[sid] ?? 0) + (s.xp_earned ?? 0);
+    });
+    const bySchool = Object.entries(xpBySchool)
+      .map(([sid, xp]) => ({ name: schoolNames[sid] ?? sid.slice(0, 6), xp }))
+      .sort((a, b) => b.xp - a.xp).slice(0, 10);
+
+    // Trial → Premium funnel
+    const profiles = profRes.data ?? [];
+    const trialUsers = new Set(profiles.filter((p: any) => p.trial_until).map((p: any) => p.id));
+    const subUsers = new Set((subRes.data ?? []).filter((s: any) => s.status === "active").map((s: any) => s.user_id));
+    const converted = [...trialUsers].filter((u) => subUsers.has(u as string)).length;
+    const trials = trialUsers.size;
+    const funnel = { trials, converted, rate: trials > 0 ? Math.round((converted / trials) * 100) : 0 };
+
+    // Retention: % of new users from N days ago who returned in the last 7 days
+    const cohorts = [1, 7, 14, 30].filter((n) => n <= days);
+    const recent7 = new Date(Date.now() - 7 * 86400000);
+    const returnedUsers = new Set(sessions.filter((s: any) => new Date(s.created_at) > recent7).map((s: any) => s.user_id));
+    const retention = cohorts.map((n) => {
+      const cohortStart = new Date(Date.now() - n * 86400000);
+      const cohortEnd = new Date(Date.now() - (n - 1) * 86400000);
+      const cohort = profiles.filter((p: any) => {
+        const c = new Date(p.created_at);
+        return c >= cohortStart && c < cohortEnd;
+      });
+      const returned = cohort.filter((p: any) => returnedUsers.has(p.id)).length;
+      return { day: `D-${n}`, pct: cohort.length > 0 ? Math.round((returned / cohort.length) * 100) : 0 };
+    });
+
+    setData({ daily, weekly, bySchool, funnel, retention });
     setLoading(false);
   };
 
+  useEffect(() => { load(); }, [days]);
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between flex-wrap gap-2">
+        <h2 className="text-lg font-semibold">Analytics</h2>
+        <div className="flex gap-1">
+          {[7, 30, 90].map((n) => (
+            <Button key={n} size="sm" variant={days === n ? "default" : "outline"} onClick={() => setDays(n)}>{n}d</Button>
+          ))}
+          <Button size="sm" variant="outline" onClick={load}><RefreshCw className="h-4 w-4" /></Button>
+        </div>
+      </div>
+
+      {loading || !data ? <Loader2 className="h-5 w-5 animate-spin" /> : (
+        <>
+          <div className="grid md:grid-cols-3 gap-3">
+            <Card className="p-4">
+              <div className="text-xs text-muted-foreground">Trials → Premium</div>
+              <div className="text-2xl font-bold">{data.funnel.rate}%</div>
+              <div className="text-xs text-muted-foreground">{data.funnel.converted} de {data.funnel.trials}</div>
+            </Card>
+            <Card className="p-4">
+              <div className="text-xs text-muted-foreground">Sessões no período</div>
+              <div className="text-2xl font-bold">{data.daily.reduce((a, d) => a + d.sessions, 0).toLocaleString("pt-PT")}</div>
+            </Card>
+            <Card className="p-4">
+              <div className="text-xs text-muted-foreground">XP total</div>
+              <div className="text-2xl font-bold">{data.daily.reduce((a, d) => a + d.xp, 0).toLocaleString("pt-PT")}</div>
+            </Card>
+          </div>
+
+          <Card className="p-4">
+            <h3 className="font-semibold mb-2">Sessões diárias e utilizadores ativos</h3>
+            <div className="h-64">
+              <ResponsiveContainer>
+                <LineChart data={data.daily}>
+                  <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
+                  <XAxis dataKey="date" fontSize={11} />
+                  <YAxis fontSize={11} />
+                  <RTooltip />
+                  <Legend />
+                  <Line type="monotone" dataKey="sessions" stroke="hsl(var(--primary))" name="Sessões" />
+                  <Line type="monotone" dataKey="activeUsers" stroke="hsl(var(--accent))" name="Ativos" />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </Card>
+
+          <Card className="p-4">
+            <h3 className="font-semibold mb-2">Sessões semanais</h3>
+            <div className="h-56">
+              <ResponsiveContainer>
+                <BarChart data={data.weekly}>
+                  <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
+                  <XAxis dataKey="week" fontSize={11} />
+                  <YAxis fontSize={11} />
+                  <RTooltip />
+                  <Bar dataKey="sessions" fill="hsl(var(--primary))" />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </Card>
+
+          <div className="grid md:grid-cols-2 gap-4">
+            <Card className="p-4">
+              <h3 className="font-semibold mb-2">XP por escola (top 10)</h3>
+              <div className="h-64">
+                <ResponsiveContainer>
+                  <BarChart data={data.bySchool} layout="vertical">
+                    <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
+                    <XAxis type="number" fontSize={11} />
+                    <YAxis type="category" dataKey="name" fontSize={11} width={100} />
+                    <RTooltip />
+                    <Bar dataKey="xp" fill="hsl(var(--accent))" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+              {data.bySchool.length === 0 && <p className="text-xs text-muted-foreground">Sem dados por escola.</p>}
+            </Card>
+
+            <Card className="p-4">
+              <h3 className="font-semibold mb-2">Retenção de novos utilizadores</h3>
+              <div className="h-64">
+                <ResponsiveContainer>
+                  <BarChart data={data.retention}>
+                    <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
+                    <XAxis dataKey="day" fontSize={11} />
+                    <YAxis fontSize={11} unit="%" />
+                    <RTooltip />
+                    <Bar dataKey="pct" fill="hsl(var(--primary))" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+              <p className="text-xs text-muted-foreground">% que voltou nos últimos 7 dias.</p>
+            </Card>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+/* ───────────────── Users (with bulk actions + filters) ───────────────── */
+function UsersTab() {
+  const [rows, setRows] = useState<Profile[]>([]);
+  const [classMap, setClassMap] = useState<Record<string, { classId: string; schoolId: string | null }>>({});
+  const [classes, setClasses] = useState<{ id: string; name: string; school_id: string | null }[]>([]);
+  const [schools, setSchools] = useState<{ id: string; name: string }[]>([]);
+  const [q, setQ] = useState("");
+  const [roleFilter, setRoleFilter] = useState<string>("all");
+  const [premiumFilter, setPremiumFilter] = useState<"all" | "premium" | "trial" | "free">("all");
+  const [schoolFilter, setSchoolFilter] = useState<string>("all");
+  const [classFilter, setClassFilter] = useState<string>("all");
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [loading, setLoading] = useState(true);
+  const [busy, setBusy] = useState(false);
+
+  const load = async () => {
+    setLoading(true);
+    const [profRes, clsRes, schRes, memRes] = await Promise.all([
+      supabase.from("profiles").select("id, name, role, grade, age, mascot, xp, coins, gems, streak, is_premium, trial_until, created_at, last_played").order("created_at", { ascending: false }).limit(1000),
+      supabase.from("classes").select("id, name, school_id"),
+      supabase.from("schools").select("id, name"),
+      supabase.from("class_members").select("student_id, class_id, classes(school_id)").limit(5000),
+    ]);
+    setRows((profRes.data as any) ?? []);
+    setClasses((clsRes.data as any) ?? []);
+    setSchools((schRes.data as any) ?? []);
+    const map: Record<string, { classId: string; schoolId: string | null }> = {};
+    (memRes.data ?? []).forEach((cm: any) => {
+      map[cm.student_id] = { classId: cm.class_id, schoolId: cm.classes?.school_id ?? null };
+    });
+    setClassMap(map);
+    setLoading(false);
+  };
   useEffect(() => { load(); }, []);
+
+  const filteredClasses = useMemo(() =>
+    schoolFilter === "all" ? classes : classes.filter((c) => c.school_id === schoolFilter)
+  , [classes, schoolFilter]);
 
   const filtered = useMemo(() => {
     const term = q.trim().toLowerCase();
     return rows.filter((r) => {
       if (roleFilter !== "all" && r.role !== roleFilter) return false;
+      const trialActive = r.trial_until && new Date(r.trial_until) > new Date();
+      if (premiumFilter === "premium" && !r.is_premium) return false;
+      if (premiumFilter === "trial" && !trialActive) return false;
+      if (premiumFilter === "free" && (r.is_premium || trialActive)) return false;
+      const m = classMap[r.id];
+      if (schoolFilter !== "all" && m?.schoolId !== schoolFilter) return false;
+      if (classFilter !== "all" && m?.classId !== classFilter) return false;
       if (!term) return true;
       return r.name?.toLowerCase().includes(term) || r.id.toLowerCase().includes(term);
     });
-  }, [rows, q, roleFilter]);
+  }, [rows, q, roleFilter, premiumFilter, schoolFilter, classFilter, classMap]);
 
-  const grantTrial = async (id: string, days: number) => {
-    const until = new Date(Date.now() + days * 24 * 60 * 60 * 1000).toISOString();
-    const { error } = await supabase.from("profiles").update({ trial_until: until, is_premium: true }).eq("id", id);
+  const allSelected = filtered.length > 0 && filtered.every((r) => selected.has(r.id));
+  const toggleAll = () => {
+    const s = new Set(selected);
+    if (allSelected) filtered.forEach((r) => s.delete(r.id));
+    else filtered.forEach((r) => s.add(r.id));
+    setSelected(s);
+  };
+  const toggleOne = (id: string) => {
+    const s = new Set(selected);
+    if (s.has(id)) s.delete(id); else s.add(id);
+    setSelected(s);
+  };
+
+  const bulkGrant = async (days: number) => {
+    if (selected.size === 0) return toast.error("Seleciona pelo menos um utilizador");
+    setBusy(true);
+    const until = new Date(Date.now() + days * 86400000).toISOString();
+    const { error } = await supabase.from("profiles").update({ trial_until: until, is_premium: true }).in("id", [...selected]);
+    setBusy(false);
     if (error) return toast.error(error.message);
-    toast.success(`Trial de ${days} dias atribuído`);
+    toast.success(`${selected.size} utilizadores receberam trial de ${days}d`);
+    setSelected(new Set());
+    load();
+  };
+  const bulkRevoke = async () => {
+    if (selected.size === 0) return toast.error("Seleciona pelo menos um utilizador");
+    setBusy(true);
+    const { error } = await supabase.from("profiles").update({ trial_until: null, is_premium: false }).in("id", [...selected]);
+    setBusy(false);
+    if (error) return toast.error(error.message);
+    toast.success(`Trial removido de ${selected.size} utilizadores`);
+    setSelected(new Set());
     load();
   };
 
+  const grantTrial = async (id: string, days: number) => {
+    const until = new Date(Date.now() + days * 86400000).toISOString();
+    const { error } = await supabase.from("profiles").update({ trial_until: until, is_premium: true }).eq("id", id);
+    if (error) return toast.error(error.message);
+    toast.success(`Trial de ${days} dias atribuído`); load();
+  };
   const revokeTrial = async (id: string) => {
     const { error } = await supabase.from("profiles").update({ trial_until: null, is_premium: false }).eq("id", id);
     if (error) return toast.error(error.message);
-    toast.success("Trial removido");
-    load();
-  };
-
-  const togglePremium = async (id: string, current: boolean) => {
-    const { error } = await supabase.from("profiles").update({ is_premium: !current }).eq("id", id);
-    if (error) return toast.error(error.message);
-    toast.success(!current ? "Premium ativado" : "Premium desativado");
-    load();
+    toast.success("Trial removido"); load();
   };
 
   return (
@@ -297,19 +544,55 @@ function UsersTab() {
           <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Pesquisar por nome ou ID..." className="pl-9" />
         </div>
-        <div className="flex gap-1 overflow-x-auto">
-          {["all", "child", "parent", "teacher"].map((r) => (
-            <Button key={r} size="sm" variant={roleFilter === r ? "default" : "outline"} onClick={() => setRoleFilter(r)}>
-              {r === "all" ? "Todos" : r}
-            </Button>
-          ))}
-        </div>
         <Button variant="outline" size="sm" onClick={load}><RefreshCw className="h-4 w-4" /></Button>
       </div>
 
-      {loading ? (
-        <Loader2 className="h-5 w-5 animate-spin" />
-      ) : (
+      <div className="flex flex-wrap gap-2 items-center">
+        <span className="text-xs text-muted-foreground">Papel:</span>
+        {["all", "child", "parent", "teacher"].map((r) => (
+          <Button key={r} size="sm" variant={roleFilter === r ? "default" : "outline"} onClick={() => setRoleFilter(r)}>
+            {r === "all" ? "Todos" : r}
+          </Button>
+        ))}
+        <span className="text-xs text-muted-foreground ml-2">Premium:</span>
+        {(["all", "premium", "trial", "free"] as const).map((p) => (
+          <Button key={p} size="sm" variant={premiumFilter === p ? "default" : "outline"} onClick={() => setPremiumFilter(p)}>
+            {p === "all" ? "Todos" : p}
+          </Button>
+        ))}
+      </div>
+
+      <div className="flex flex-wrap gap-2 items-center">
+        <span className="text-xs text-muted-foreground">Escola:</span>
+        <select className="h-9 rounded-md border bg-background px-2 text-sm" value={schoolFilter}
+          onChange={(e) => { setSchoolFilter(e.target.value); setClassFilter("all"); }}>
+          <option value="all">Todas</option>
+          {schools.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
+        </select>
+        <span className="text-xs text-muted-foreground">Turma:</span>
+        <select className="h-9 rounded-md border bg-background px-2 text-sm" value={classFilter} onChange={(e) => setClassFilter(e.target.value)}>
+          <option value="all">Todas</option>
+          {filteredClasses.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+        </select>
+      </div>
+
+      <Card className="p-3 bg-muted/40">
+        <div className="flex flex-wrap items-center gap-2">
+          <Checkbox checked={allSelected} onCheckedChange={toggleAll} />
+          <span className="text-sm font-medium">{selected.size} seleccionados</span>
+          <div className="ml-auto flex flex-wrap gap-2">
+            <Button size="sm" disabled={busy || selected.size === 0} onClick={() => bulkGrant(30)}>
+              <Calendar className="h-3 w-3 mr-1" /> Atribuir +30d trial
+            </Button>
+            <Button size="sm" variant="outline" disabled={busy || selected.size === 0} onClick={() => bulkGrant(365)}>+1 ano</Button>
+            <Button size="sm" variant="ghost" disabled={busy || selected.size === 0} onClick={bulkRevoke}>
+              <Trash2 className="h-3 w-3 mr-1" /> Remover trial
+            </Button>
+          </div>
+        </div>
+      </Card>
+
+      {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : (
         <div className="space-y-2">
           <p className="text-xs text-muted-foreground">{filtered.length} de {rows.length} utilizadores</p>
           {filtered.map((p) => {
@@ -317,6 +600,7 @@ function UsersTab() {
             return (
               <Card key={p.id} className="p-3">
                 <div className="flex flex-col md:flex-row md:items-center gap-3">
+                  <Checkbox checked={selected.has(p.id)} onCheckedChange={() => toggleOne(p.id)} />
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
                       <span className="font-medium truncate">{p.name || "(sem nome)"}</span>
@@ -329,21 +613,9 @@ function UsersTab() {
                     </div>
                   </div>
                   <div className="flex flex-wrap gap-1">
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button size="sm" variant="outline" onClick={() => grantTrial(p.id, 30)}>
-                          <Calendar className="h-3 w-3 mr-1" /> +30d
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent>Atribuir 30 dias premium grátis</TooltipContent>
-                    </Tooltip>
+                    <Button size="sm" variant="outline" onClick={() => grantTrial(p.id, 30)}>+30d</Button>
                     <Button size="sm" variant="outline" onClick={() => grantTrial(p.id, 365)}>+1 ano</Button>
-                    {trialActive && (
-                      <Button size="sm" variant="ghost" onClick={() => revokeTrial(p.id)}>Remover trial</Button>
-                    )}
-                    <Button size="sm" variant={p.is_premium ? "secondary" : "default"} onClick={() => togglePremium(p.id, p.is_premium)}>
-                      <Crown className="h-3 w-3 mr-1" /> {p.is_premium ? "Tirar" : "Dar"} premium
-                    </Button>
+                    {trialActive && <Button size="sm" variant="ghost" onClick={() => revokeTrial(p.id)}>Remover</Button>}
                   </div>
                 </div>
               </Card>
@@ -357,13 +629,12 @@ function UsersTab() {
 
 /* ───────────────── Subscriptions ───────────────── */
 function SubsTab() {
-  const [rows, setRows] = useState<SubRow[]>([]);
+  const [rows, setRows] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-
   const load = async () => {
     setLoading(true);
     const { data } = await supabase.from("subscriptions").select("*").order("created_at", { ascending: false }).limit(200);
-    setRows((data as any) ?? []);
+    setRows(data ?? []);
     setLoading(false);
   };
   useEffect(() => { load(); }, []);
@@ -394,6 +665,182 @@ function SubsTab() {
         </Card>
       ))}
     </div>
+  );
+}
+
+/* ───────────────── Content (lessons, exercises, etc.) ───────────────── */
+type ContentItem = {
+  id: string; type: string; subject_id: string | null; lesson_id: string | null;
+  title: string; body: any; grade: number | null; active: boolean; sort_order: number;
+};
+function ContentTab() {
+  const [rows, setRows] = useState<ContentItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [typeFilter, setTypeFilter] = useState<string>("all");
+  const [open, setOpen] = useState(false);
+  const [edit, setEdit] = useState<Partial<ContentItem> | null>(null);
+
+  const load = async () => {
+    setLoading(true);
+    const { data, error } = await supabase.from("content_items" as any).select("*").order("sort_order");
+    if (error) toast.error(error.message);
+    setRows(((data as any) ?? []) as ContentItem[]);
+    setLoading(false);
+  };
+  useEffect(() => { load(); }, []);
+
+  const startNew = () => {
+    setEdit({ type: "lesson", title: "", subject_id: "", lesson_id: "", body: {}, grade: 1, active: true, sort_order: 0 });
+    setOpen(true);
+  };
+  const startEdit = (it: ContentItem) => { setEdit({ ...it }); setOpen(true); };
+  const remove = async (id: string) => {
+    if (!confirm("Apagar este conteúdo?")) return;
+    const { error } = await supabase.from("content_items" as any).delete().eq("id", id);
+    if (error) return toast.error(error.message);
+    toast.success("Apagado"); load();
+  };
+  const toggleActive = async (it: ContentItem) => {
+    const { error } = await supabase.from("content_items" as any).update({ active: !it.active }).eq("id", it.id);
+    if (error) return toast.error(error.message);
+    load();
+  };
+
+  const filtered = typeFilter === "all" ? rows : rows.filter((r) => r.type === typeFilter);
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between flex-wrap gap-2">
+        <h2 className="text-lg font-semibold">Conteúdos infantis ({rows.length})</h2>
+        <div className="flex gap-2">
+          <Button size="sm" onClick={startNew}><Plus className="h-4 w-4 mr-1" /> Novo</Button>
+          <Button size="sm" variant="outline" onClick={load}><RefreshCw className="h-4 w-4" /></Button>
+        </div>
+      </div>
+      <div className="flex flex-wrap gap-1">
+        {["all", "lesson", "level", "exercise", "challenge", "text"].map((t) => (
+          <Button key={t} size="sm" variant={typeFilter === t ? "default" : "outline"} onClick={() => setTypeFilter(t)}>{t === "all" ? "Todos" : t}</Button>
+        ))}
+      </div>
+      {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : filtered.length === 0 ? (
+        <Card className="p-6 text-center text-muted-foreground text-sm">Sem conteúdos. Cria o primeiro com "Novo".</Card>
+      ) : (
+        <div className="space-y-2">
+          {filtered.map((it) => (
+            <Card key={it.id} className="p-3">
+              <div className="flex items-center justify-between gap-3 flex-wrap">
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <Badge variant="secondary" className="text-xs">{it.type}</Badge>
+                    <span className="font-medium truncate">{it.title}</span>
+                    {!it.active && <Badge variant="outline" className="text-xs">inativo</Badge>}
+                  </div>
+                  <div className="text-xs text-muted-foreground mt-1">
+                    {it.subject_id || "—"} · {it.lesson_id || "—"} · {it.grade ? `${it.grade}.º` : "todos"} · ordem {it.sort_order}
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Switch checked={it.active} onCheckedChange={() => toggleActive(it)} />
+                  <Button size="sm" variant="outline" onClick={() => startEdit(it)}>Editar</Button>
+                  <Button size="sm" variant="ghost" onClick={() => remove(it.id)}><Trash2 className="h-4 w-4" /></Button>
+                </div>
+              </div>
+            </Card>
+          ))}
+        </div>
+      )}
+      <ContentDialog open={open} onOpenChange={setOpen} value={edit} onSaved={() => { setOpen(false); load(); }} />
+    </div>
+  );
+}
+
+function ContentDialog({ open, onOpenChange, value, onSaved }: {
+  open: boolean; onOpenChange: (b: boolean) => void; value: Partial<ContentItem> | null; onSaved: () => void;
+}) {
+  const [draft, setDraft] = useState<Partial<ContentItem>>({});
+  const [bodyText, setBodyText] = useState("{}");
+  const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    if (value) {
+      setDraft(value);
+      setBodyText(JSON.stringify(value.body ?? {}, null, 2));
+    }
+  }, [value]);
+
+  const save = async () => {
+    if (!draft.title?.trim()) return toast.error("Título obrigatório");
+    if (!draft.type) return toast.error("Tipo obrigatório");
+    let body: any;
+    try { body = JSON.parse(bodyText || "{}"); } catch { return toast.error("Body não é JSON válido"); }
+
+    setBusy(true);
+    const payload = {
+      type: draft.type,
+      title: draft.title.trim(),
+      subject_id: draft.subject_id || null,
+      lesson_id: draft.lesson_id || null,
+      grade: draft.grade ?? null,
+      active: draft.active ?? true,
+      sort_order: draft.sort_order ?? 0,
+      body,
+    };
+    const res = draft.id
+      ? await supabase.from("content_items" as any).update(payload).eq("id", draft.id)
+      : await supabase.from("content_items" as any).insert(payload);
+    setBusy(false);
+    if (res.error) return toast.error(res.error.message);
+    toast.success("Guardado");
+    onSaved();
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader><DialogTitle>{draft.id ? "Editar conteúdo" : "Novo conteúdo"}</DialogTitle></DialogHeader>
+        <div className="space-y-3">
+          <div className="grid grid-cols-2 gap-2">
+            <label className="text-sm">Tipo
+              <select className="mt-1 w-full h-9 rounded-md border bg-background px-2 text-sm"
+                value={draft.type ?? "lesson"} onChange={(e) => setDraft({ ...draft, type: e.target.value })}>
+                {["lesson", "level", "exercise", "challenge", "text"].map((t) => <option key={t}>{t}</option>)}
+              </select>
+            </label>
+            <label className="text-sm">Ano
+              <Input type="number" value={draft.grade ?? ""} onChange={(e) => setDraft({ ...draft, grade: e.target.value ? Number(e.target.value) : null })} />
+            </label>
+          </div>
+          <label className="text-sm block">Título
+            <Input value={draft.title ?? ""} onChange={(e) => setDraft({ ...draft, title: e.target.value })} />
+          </label>
+          <div className="grid grid-cols-2 gap-2">
+            <label className="text-sm">Subject ID
+              <Input value={draft.subject_id ?? ""} onChange={(e) => setDraft({ ...draft, subject_id: e.target.value })} />
+            </label>
+            <label className="text-sm">Lesson ID
+              <Input value={draft.lesson_id ?? ""} onChange={(e) => setDraft({ ...draft, lesson_id: e.target.value })} />
+            </label>
+          </div>
+          <div className="grid grid-cols-2 gap-2 items-center">
+            <label className="text-sm">Ordem
+              <Input type="number" value={draft.sort_order ?? 0} onChange={(e) => setDraft({ ...draft, sort_order: Number(e.target.value) })} />
+            </label>
+            <label className="text-sm flex items-center gap-2 mt-5">
+              <Switch checked={draft.active ?? true} onCheckedChange={(c) => setDraft({ ...draft, active: c })} /> Ativo
+            </label>
+          </div>
+          <label className="text-sm block">Body (JSON — perguntas, opções, conteúdo)
+            <Textarea value={bodyText} onChange={(e) => setBodyText(e.target.value)} className="font-mono text-xs h-40" />
+          </label>
+        </div>
+        <DialogFooter>
+          <Button variant="ghost" onClick={() => onOpenChange(false)}>Cancelar</Button>
+          <Button onClick={save} disabled={busy}>
+            {busy ? <Loader2 className="h-4 w-4 mr-1 animate-spin" /> : <Save className="h-4 w-4 mr-1" />} Guardar
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
 
@@ -452,40 +899,193 @@ function SchoolsTab() {
   );
 }
 
-/* ───────────────── Shop ───────────────── */
+/* ───────────────── Shop (full edit + preview) ───────────────── */
+type ShopRow = {
+  id: string; name: string; type: string; price: number; emoji: string;
+  premium: boolean; mascot: string | null; sort_order: number;
+  period: string | null; active: boolean;
+};
 function ShopTab() {
-  const [rows, setRows] = useState<any[]>([]);
+  const [rows, setRows] = useState<ShopRow[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [open, setOpen] = useState(false);
+  const [edit, setEdit] = useState<Partial<ShopRow> | null>(null);
+
   const load = async () => {
+    setLoading(true);
     const { data } = await supabase.from("shop_items").select("*").order("sort_order");
-    setRows(data ?? []);
+    setRows(((data as any) ?? []) as ShopRow[]);
+    setLoading(false);
   };
   useEffect(() => { load(); }, []);
 
   const togglePremium = async (id: string, current: boolean) => {
     const { error } = await supabase.from("shop_items").update({ premium: !current }).eq("id", id);
     if (error) return toast.error(error.message);
-    toast.success("Atualizado");
+    toast.success("Atualizado"); load();
+  };
+  const toggleActive = async (it: ShopRow) => {
+    const { error } = await supabase.from("shop_items").update({ active: !it.active } as any).eq("id", it.id);
+    if (error) return toast.error(error.message);
     load();
+  };
+  const startNew = () => { setEdit({ id: "", name: "", type: "hat", price: 0, emoji: "🎁", premium: false, mascot: null, sort_order: 0, period: null, active: true }); setOpen(true); };
+  const startEdit = (it: ShopRow) => { setEdit({ ...it }); setOpen(true); };
+  const remove = async (id: string) => {
+    if (!confirm("Apagar este item?")) return;
+    const { error } = await supabase.from("shop_items").delete().eq("id", id);
+    if (error) return toast.error(error.message);
+    toast.success("Apagado"); load();
   };
 
   return (
     <div className="space-y-3">
-      <h2 className="text-lg font-semibold">Loja ({rows.length} itens)</h2>
-      {rows.map((it) => (
+      <div className="flex items-center justify-between flex-wrap gap-2">
+        <h2 className="text-lg font-semibold">Loja ({rows.length} itens)</h2>
+        <div className="flex gap-2">
+          <Button size="sm" onClick={startNew}><Plus className="h-4 w-4 mr-1" /> Novo item</Button>
+          <Button size="sm" variant="outline" onClick={load}><RefreshCw className="h-4 w-4" /></Button>
+        </div>
+      </div>
+      {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : rows.map((it) => (
         <Card key={it.id} className="p-3 flex items-center justify-between gap-3 flex-wrap">
           <div className="flex items-center gap-3">
             <span className="text-2xl">{it.emoji}</span>
             <div>
-              <div className="font-medium">{it.name}</div>
-              <div className="text-xs text-muted-foreground">{it.type} · {it.price}🪙{it.mascot ? ` · ${it.mascot}` : ""}</div>
+              <div className="font-medium flex items-center gap-2">
+                {it.name} {!it.active && <Badge variant="outline" className="text-xs">inativo</Badge>}
+              </div>
+              <div className="text-xs text-muted-foreground">
+                {it.type} · {it.price}🪙{it.period ? ` / ${it.period}` : ""}{it.mascot ? ` · ${it.mascot}` : ""}
+              </div>
             </div>
           </div>
-          <Button size="sm" variant={it.premium ? "default" : "outline"} onClick={() => togglePremium(it.id, it.premium)}>
-            <Crown className="h-3 w-3 mr-1" /> {it.premium ? "Premium" : "Grátis"}
-          </Button>
+          <div className="flex items-center gap-2 flex-wrap">
+            <Switch checked={it.active} onCheckedChange={() => toggleActive(it)} />
+            <Button size="sm" variant={it.premium ? "default" : "outline"} onClick={() => togglePremium(it.id, it.premium)}>
+              <Crown className="h-3 w-3 mr-1" /> {it.premium ? "Premium" : "Grátis"}
+            </Button>
+            <Button size="sm" variant="outline" onClick={() => startEdit(it)}>Editar</Button>
+            <Button size="sm" variant="ghost" onClick={() => remove(it.id)}><Trash2 className="h-4 w-4" /></Button>
+          </div>
         </Card>
       ))}
+      <ShopDialog open={open} onOpenChange={setOpen} value={edit} onSaved={() => { setOpen(false); load(); }} />
     </div>
+  );
+}
+
+function ShopDialog({ open, onOpenChange, value, onSaved }: {
+  open: boolean; onOpenChange: (b: boolean) => void; value: Partial<ShopRow> | null; onSaved: () => void;
+}) {
+  const [draft, setDraft] = useState<Partial<ShopRow>>({});
+  const [showPreview, setShowPreview] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const isNew = !value?.id;
+
+  useEffect(() => { if (value) { setDraft(value); setShowPreview(false); } }, [value]);
+
+  const errors: string[] = [];
+  if (!draft.id?.trim()) errors.push("ID obrigatório");
+  if (!draft.name?.trim()) errors.push("Nome obrigatório");
+  if (!draft.type) errors.push("Tipo obrigatório");
+  if ((draft.price ?? -1) < 0) errors.push("Preço deve ser ≥ 0");
+  if (!draft.emoji?.trim()) errors.push("Emoji obrigatório");
+
+  const save = async () => {
+    if (errors.length) return toast.error(errors[0]);
+    setBusy(true);
+    const payload: any = {
+      id: draft.id, name: draft.name, type: draft.type, price: draft.price,
+      emoji: draft.emoji, premium: draft.premium ?? false, mascot: draft.mascot || null,
+      sort_order: draft.sort_order ?? 0, period: draft.period || null, active: draft.active ?? true,
+    };
+    const res = isNew
+      ? await supabase.from("shop_items").insert(payload)
+      : await supabase.from("shop_items").update(payload).eq("id", draft.id!);
+    setBusy(false);
+    if (res.error) return toast.error(res.error.message);
+    toast.success(isNew ? "Item criado" : "Item atualizado");
+    onSaved();
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+        <DialogHeader><DialogTitle>{isNew ? "Novo item da loja" : "Editar item"}</DialogTitle></DialogHeader>
+        {showPreview ? (
+          <Card className="p-6 bg-gradient-to-br from-primary/5 to-accent/5">
+            <div className="text-center space-y-2">
+              <div className="text-6xl">{draft.emoji}</div>
+              <div className="font-bold text-lg">{draft.name}</div>
+              <Badge variant="secondary">{draft.type}</Badge>
+              <div className="text-2xl font-bold">{draft.price}🪙{draft.period ? <span className="text-sm font-normal"> / {draft.period}</span> : ""}</div>
+              {draft.premium && <Badge><Crown className="h-3 w-3 mr-1" />Premium</Badge>}
+              {!draft.active && <Badge variant="outline">Inativo</Badge>}
+            </div>
+          </Card>
+        ) : (
+          <div className="space-y-3">
+            <div className="grid grid-cols-2 gap-2">
+              <label className="text-sm">ID
+                <Input value={draft.id ?? ""} disabled={!isNew} onChange={(e) => setDraft({ ...draft, id: e.target.value })} />
+              </label>
+              <label className="text-sm">Tipo
+                <select className="mt-1 w-full h-9 rounded-md border bg-background px-2 text-sm"
+                  value={draft.type ?? "hat"} onChange={(e) => setDraft({ ...draft, type: e.target.value })}>
+                  {["hat", "outfit", "scene", "badge"].map((t) => <option key={t}>{t}</option>)}
+                </select>
+              </label>
+            </div>
+            <label className="text-sm block">Nome
+              <Input value={draft.name ?? ""} onChange={(e) => setDraft({ ...draft, name: e.target.value })} />
+            </label>
+            <div className="grid grid-cols-3 gap-2">
+              <label className="text-sm">Emoji
+                <Input value={draft.emoji ?? ""} onChange={(e) => setDraft({ ...draft, emoji: e.target.value })} />
+              </label>
+              <label className="text-sm">Preço (moedas)
+                <Input type="number" value={draft.price ?? 0} onChange={(e) => setDraft({ ...draft, price: Number(e.target.value) })} />
+              </label>
+              <label className="text-sm">Periodicidade
+                <select className="mt-1 w-full h-9 rounded-md border bg-background px-2 text-sm"
+                  value={draft.period ?? ""} onChange={(e) => setDraft({ ...draft, period: e.target.value || null })}>
+                  <option value="">única</option>
+                  <option value="day">por dia</option>
+                  <option value="week">por semana</option>
+                  <option value="month">por mês</option>
+                </select>
+              </label>
+            </div>
+            <div className="grid grid-cols-3 gap-2 items-center">
+              <label className="text-sm">Ordem
+                <Input type="number" value={draft.sort_order ?? 0} onChange={(e) => setDraft({ ...draft, sort_order: Number(e.target.value) })} />
+              </label>
+              <label className="text-sm flex items-center gap-2 mt-5">
+                <Switch checked={draft.premium ?? false} onCheckedChange={(c) => setDraft({ ...draft, premium: c })} /> Premium
+              </label>
+              <label className="text-sm flex items-center gap-2 mt-5">
+                <Switch checked={draft.active ?? true} onCheckedChange={(c) => setDraft({ ...draft, active: c })} /> Ativo
+              </label>
+            </div>
+            {errors.length > 0 && (
+              <div className="text-xs text-destructive space-y-1">
+                {errors.map((e) => <div key={e}>• {e}</div>)}
+              </div>
+            )}
+          </div>
+        )}
+        <DialogFooter>
+          <Button variant="ghost" onClick={() => onOpenChange(false)}>Cancelar</Button>
+          <Button variant="outline" onClick={() => setShowPreview(!showPreview)}>
+            <Eye className="h-4 w-4 mr-1" /> {showPreview ? "Editar" : "Pré-visualizar"}
+          </Button>
+          <Button onClick={save} disabled={busy || errors.length > 0}>
+            {busy ? <Loader2 className="h-4 w-4 mr-1 animate-spin" /> : <Save className="h-4 w-4 mr-1" />} Publicar
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
 
@@ -529,15 +1129,12 @@ function RolesTab() {
     if (!userId.trim()) return toast.error("Coloca um user_id");
     const { error } = await supabase.from("user_roles").insert({ user_id: userId.trim(), role });
     if (error) return toast.error(error.message);
-    toast.success(`Função ${role} atribuída`);
-    setUserId("");
-    load();
+    toast.success(`Função ${role} atribuída`); setUserId(""); load();
   };
   const revoke = async (id: string) => {
     const { error } = await supabase.from("user_roles").delete().eq("id", id);
     if (error) return toast.error(error.message);
-    toast.success("Função removida");
-    load();
+    toast.success("Função removida"); load();
   };
 
   return (
