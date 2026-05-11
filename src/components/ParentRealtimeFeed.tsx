@@ -81,7 +81,7 @@ export function ParentRealtimeFeed({ childList }: { childList: ChildSummary[] })
     function push(it: FeedItem) {
       setItems((prev) => [it, ...prev].slice(0, 20));
     }
-  }, [children]);
+  }, [childList]);
 
   const requestNotif = async () => {
     if (typeof Notification === "undefined") return;

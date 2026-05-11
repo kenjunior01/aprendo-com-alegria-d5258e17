@@ -243,7 +243,7 @@ function ParentDashboard() {
               />
             )}
             {dashboard && <DashboardView data={dashboard} />}
-            <div className="mt-5"><ParentRealtimeFeed children={children.map((c) => ({ id: c.id, name: c.name }))} /></div>
+            <div className="mt-5"><ParentRealtimeFeed childList={children.map((c) => ({ id: c.id, name: c.name }))} /></div>
             <div className="mt-5"><JuniorParentPanel /></div>
             <PurchaseHistoryPanel />
           </>
