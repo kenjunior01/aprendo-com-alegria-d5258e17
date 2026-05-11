@@ -62,6 +62,7 @@ function JuniorPage() {
   const [stickerBump, setStickerBump] = useState(0);
 
   const [ageFilter, setAgeFilter] = useState<"all" | "2-3" | "3-4" | "4-5">("all");
+  const { isSubjectEnabled, isGameEnabled } = useContentSettings();
 
   const refresh = (childId?: string | null) => {
     const id = childId ?? getActiveJuniorChildId();
