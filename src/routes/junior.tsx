@@ -51,6 +51,8 @@ function JuniorPage() {
   const [celebrating, setCelebrating] = useState<{ sticker: JuniorSticker; isNew: boolean } | null>(null);
   const [stickerBump, setStickerBump] = useState(0);
 
+  const [ageFilter, setAgeFilter] = useState<"all" | "2-3" | "3-4" | "4-5">("all");
+
   const refresh = (childId?: string | null) => {
     const id = childId ?? getActiveJuniorChildId();
     setActiveChildId(id);
@@ -58,8 +60,21 @@ function JuniorPage() {
     setProgress(loadJuniorProgress(id));
   };
 
-  useEffect(() => { refresh(); }, []);
+  useEffect(() => {
+    // Tenta puxar backup da cloud antes de mostrar o estado local
+    let cancelled = false;
+    (async () => {
+      const updated = await pullJuniorCloud();
+      if (cancelled) return;
+      refresh();
+      if (updated) setStickerBump((n) => n + 1);
+    })();
+    return () => { cancelled = true; };
+  }, []);
   useEffect(() => { if (!active) refresh(activeChildId); }, [active, activeChildId]);
+
+  // Quando a criança ativa muda (ou tem-se um perfil), agenda push para garantir backup
+  useEffect(() => { if (activeChildId) scheduleJuniorCloudPush(); }, [activeChildId]);
 
   const greet = activeChild ? `Olá, ${activeChild.name}! 🌟` : "Os meus Jardins Mágicos 🌷";
 
