@@ -48,6 +48,8 @@ function ParentDashboard() {
   const [unlocked, setUnlocked] = useState(false);
   const [showQuickSignup, setShowQuickSignup] = useState(false);
   const [showInviteCode, setShowInviteCode] = useState(false);
+  const [activeTab, setActiveTab] = useState<"resumo" | "controlos" | "desafios" | "junior" | "atividade" | "compras">("resumo");
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const reloadChildren = async () => {
     try {
