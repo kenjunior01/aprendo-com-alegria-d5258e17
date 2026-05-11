@@ -13,7 +13,7 @@ import { toast } from "sonner";
 import {
   Shield, Users, CreditCard, Trophy, ShoppingBag, GraduationCap,
   Swords, BarChart3, Search, Crown, UserCog, Loader2, RefreshCw,
-  Calendar, Sparkles, ArrowLeft, AlertTriangle,
+  Calendar, Sparkles, ArrowLeft,
 } from "lucide-react";
 
 export const Route = createFileRoute("/admin")({
