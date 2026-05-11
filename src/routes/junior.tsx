@@ -118,8 +118,30 @@ function JuniorPage() {
           </div>
         )}
 
-        <section className="mt-8 space-y-8">
-          {gardenProgressFor(progress).map(({ garden: g, played, total, pct, unlocked }) => (
+        <section className="mt-6 flex flex-wrap items-center justify-center gap-2">
+          <span className="text-xs font-display text-muted-foreground">Idade:</span>
+          {([
+            { id: "all" as const, label: "Todas" },
+            { id: "2-3" as const, label: "2-3" },
+            { id: "3-4" as const, label: "3-4" },
+            { id: "4-5" as const, label: "4-5" },
+          ]).map((f) => (
+            <button
+              key={f.id}
+              onClick={() => setAgeFilter(f.id)}
+              className={`rounded-full px-4 py-1.5 font-display text-sm transition-colors ${
+                ageFilter === f.id ? "bg-primary text-primary-foreground" : "bg-card text-foreground hover:bg-muted"
+              }`}
+            >
+              {f.label} {f.id !== "all" && "anos"}
+            </button>
+          ))}
+        </section>
+
+        <section className="mt-6 space-y-8">
+          {gardenProgressFor(progress)
+            .filter(({ garden: g }) => ageFilter === "all" || g.age === ageFilter)
+            .map(({ garden: g, played, total, pct, unlocked }) => (
             <div key={g.id} className={`card-chunky relative rounded-3xl border-2 border-border ${g.color} p-5 sm:p-7 ${!unlocked ? "opacity-70" : ""}`}>
               <div className="flex items-center gap-3">
                 <span className="text-4xl">{g.emoji}</span>
