@@ -68,7 +68,8 @@ function ProfilePage() {
 
   const signOut = async () => {
     await supabase.auth.signOut();
-    navigate({ to: "/" });
+    resetProfile();
+    window.location.href = "/";
   };
 
   return (
