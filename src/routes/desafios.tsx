@@ -113,6 +113,12 @@ function DesafiosPage() {
           </div>
         </motion.div>
 
+        {!myUserId && !loading && (
+          <div className="card-chunky mb-4 rounded-2xl border-2 border-primary bg-primary/10 p-3 text-sm">
+            🔐 Faz <Link to="/login" className="font-display text-primary underline">login</Link> para participares em desafios PvP, IA e ranking semanal.
+          </div>
+        )}
+
         <Tabs defaultValue="ai" className="w-full">
           <TabsList className="mb-4 grid w-full grid-cols-4">
             <TabsTrigger value="ai" className="gap-1 px-1 text-xs sm:text-sm"><Sparkles className="h-4 w-4" />IA</TabsTrigger>
