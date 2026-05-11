@@ -295,3 +295,95 @@ function ResultView({ trackId, level, stars, onNext, onRetry, onBack }: { trackI
     </motion.div>
   );
 }
+
+function RankingPanels({
+  weekly, season, scope, onScope,
+}: {
+  weekly: { ranking: RankingRow[]; mePosition: number | null } | null;
+  season: { season: { name: string; emoji: string; endsAt: string }; ranking: RankingRow[]; mePosition: number | null } | null;
+  scope: "all" | "age" | "region";
+  onScope: (s: "all" | "age" | "region") => void;
+}) {
+  const fmtDate = (iso: string) => new Date(iso).toLocaleDateString("pt-PT", { day: "2-digit", month: "short" });
+  return (
+    <section className="mt-8 space-y-4">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h2 className="font-display text-xl">🏆 Rankings & Torneios</h2>
+        <div className="flex gap-1 rounded-full bg-card p-1">
+          {(["all", "age", "region"] as const).map((s) => (
+            <button
+              key={s}
+              onClick={() => onScope(s)}
+              className={`rounded-full px-3 py-1 font-display text-xs transition ${scope === s ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
+            >
+              {s === "all" ? "Global" : s === "age" ? "Por idade" : "Por região"}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-2">
+        <RankingCard
+          title="Ranking Semanal"
+          icon={<Medal className="h-5 w-5 text-primary" />}
+          subtitle="Reinicia todas as segundas"
+          rows={weekly?.ranking ?? []}
+          mePosition={weekly?.mePosition ?? null}
+        />
+        <RankingCard
+          title={season ? `${season.season.emoji} ${season.season.name}` : "Torneio Sazonal"}
+          icon={<Trophy className="h-5 w-5 text-amber-500" />}
+          subtitle={season ? `Termina ${fmtDate(season.season.endsAt)}` : "Em preparação"}
+          rows={season?.ranking ?? []}
+          mePosition={season?.mePosition ?? null}
+        />
+      </div>
+    </section>
+  );
+}
+
+function RankingCard({
+  title, icon, subtitle, rows, mePosition,
+}: {
+  title: string;
+  icon: React.ReactNode;
+  subtitle: string;
+  rows: RankingRow[];
+  mePosition: number | null;
+}) {
+  return (
+    <div className="card-chunky rounded-3xl border-2 border-border bg-card p-4">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          {icon}
+          <div>
+            <p className="font-display text-base">{title}</p>
+            <p className="text-[11px] text-muted-foreground">{subtitle}</p>
+          </div>
+        </div>
+        {mePosition && (
+          <span className="rounded-full bg-primary/15 px-2 py-0.5 font-display text-xs text-primary">
+            #{mePosition}
+          </span>
+        )}
+      </div>
+      <ol className="mt-3 space-y-1.5">
+        {rows.length === 0 && (
+          <li className="rounded-2xl bg-muted/50 p-3 text-center text-xs text-muted-foreground">
+            Sê o primeiro a marcar pontos!
+          </li>
+        )}
+        {rows.slice(0, 8).map((r, i) => (
+          <li key={r.user_id} className="flex items-center gap-2 rounded-2xl bg-muted/40 px-3 py-2">
+            <span className={`w-6 text-center font-display text-sm ${i === 0 ? "text-amber-500" : i === 1 ? "text-zinc-400" : i === 2 ? "text-orange-500" : "text-muted-foreground"}`}>
+              {i + 1}
+            </span>
+            <span className="flex-1 truncate font-display text-sm">{r.display_name}</span>
+            {r.region && <span className="rounded-full bg-card px-2 py-0.5 text-[10px] text-muted-foreground">{r.region}</span>}
+            <span className="font-display text-sm tabular-nums">{r.total} XP</span>
+          </li>
+        ))}
+      </ol>
+    </div>
+  );
+}
