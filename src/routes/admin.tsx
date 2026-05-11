@@ -1235,67 +1235,97 @@ type AuditRow = {
   created_at: string;
 };
 function AuditTab() {
+  // 1) ALL hooks declared unconditionally and in stable order
   const { isAdmin, loading: roleLoading } = useIsAdmin();
   const [rows, setRows] = useState<AuditRow[]>([]);
   const [actors, setActors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
+  const [totalCount, setTotalCount] = useState(0);
   const [entityFilter, setEntityFilter] = useState<string>("all");
   const [actionFilter, setActionFilter] = useState<string>("all");
   const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [page, setPage] = useState(1);
   const PAGE_SIZE = 25;
 
-  const load = async () => {
-    if (!isAdmin) return;
-    setLoading(true);
-    const { data, error } = await supabase
-      .from("audit_log" as any)
-      .select("*")
-      .order("created_at", { ascending: false })
-      .limit(500);
-    if (error) toast.error(error.message);
-    const list = ((data as any) ?? []) as AuditRow[];
-    setRows(list);
-    const ids = [...new Set(list.map((r) => r.actor_id).filter(Boolean))] as string[];
-    if (ids.length > 0) {
-      const { data: profs } = await supabase.from("profiles").select("id, name").in("id", ids);
-      const map: Record<string, string> = {};
-      (profs ?? []).forEach((p: any) => { map[p.id] = p.name || p.id.slice(0, 8); });
-      setActors(map);
-    }
-    setLoading(false);
-  };
-  useEffect(() => { if (!roleLoading && isAdmin) load(); else if (!roleLoading) setLoading(false); }, [roleLoading, isAdmin]);
+  // Debounce search input (300ms)
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedSearch(search.trim()), 300);
+    return () => clearTimeout(t);
+  }, [search]);
 
-  if (!roleLoading && !isAdmin) {
-    return (
-      <Card className="p-6 text-center text-sm text-muted-foreground">
-        <Shield className="h-6 w-6 mx-auto mb-2 text-muted-foreground" />
-        Acesso restrito: apenas administradores podem ver o registo de auditoria.
-      </Card>
-    );
-  }
+  // Reset to page 1 whenever filters/search change
+  useEffect(() => { setPage(1); }, [entityFilter, actionFilter, debouncedSearch]);
 
-  const filtered = useMemo(() => {
-    const q = search.trim().toLowerCase();
-    return rows.filter((r) => {
-      if (entityFilter !== "all" && r.entity !== entityFilter) return false;
-      if (actionFilter !== "all" && r.action !== actionFilter) return false;
-      if (!q) return true;
-      const actorName = r.actor_id ? (actors[r.actor_id] ?? "") : "";
-      const hay = [
-        r.entity, r.action, r.entity_id ?? "", r.actor_id ?? "", actorName,
-        JSON.stringify(r.before ?? {}), JSON.stringify(r.after ?? {}),
-      ].join(" ").toLowerCase();
-      return hay.includes(q);
-    });
-  }, [rows, entityFilter, actionFilter, search, actors]);
+  // Server-side fetch with limit/offset + filters
+  useEffect(() => {
+    if (roleLoading) return;
+    if (!isAdmin) { setLoading(false); return; }
 
-  useEffect(() => { setPage(1); }, [entityFilter, actionFilter, search]);
+    let cancelled = false;
+    (async () => {
+      setLoading(true);
+      const from = (page - 1) * PAGE_SIZE;
+      const to = from + PAGE_SIZE - 1;
 
-  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+      let q = supabase
+        .from("audit_log" as any)
+        .select("*", { count: "exact" })
+        .order("created_at", { ascending: false })
+        .range(from, to);
+
+      if (entityFilter !== "all") q = q.eq("entity", entityFilter);
+      if (actionFilter !== "all") q = q.eq("action", actionFilter);
+
+      if (debouncedSearch) {
+        const s = debouncedSearch.replace(/[%,()]/g, "");
+        const like = `%${s}%`;
+        // Search across entity, action, entity_id, actor_id, before, after (jsonb cast to text)
+        q = q.or(
+          [
+            `entity.ilike.${like}`,
+            `action.ilike.${like}`,
+            `entity_id.ilike.${like}`,
+            `actor_id::text.ilike.${like}`,
+            `before::text.ilike.${like}`,
+            `after::text.ilike.${like}`,
+          ].join(","),
+        );
+      }
+
+      const { data, error, count } = await q;
+      if (cancelled) return;
+
+      if (error) {
+        toast.error(error.message);
+        setRows([]);
+        setTotalCount(0);
+        setLoading(false);
+        return;
+      }
+      const list = ((data as any) ?? []) as AuditRow[];
+      setRows(list);
+      setTotalCount(count ?? list.length);
+
+      const ids = [...new Set(list.map((r) => r.actor_id).filter(Boolean))] as string[];
+      if (ids.length > 0) {
+        const { data: profs } = await supabase.from("profiles").select("id, name").in("id", ids);
+        if (cancelled) return;
+        const map: Record<string, string> = { ...actors };
+        (profs ?? []).forEach((p: any) => { map[p.id] = p.name || p.id.slice(0, 8); });
+        setActors(map);
+      }
+      setLoading(false);
+    })();
+
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [roleLoading, isAdmin, page, entityFilter, actionFilter, debouncedSearch]);
+
+  const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
   const currentPage = Math.min(page, totalPages);
-  const pageRows = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+
+  const reload = () => setPage((p) => (p === 1 ? 1 : 1));
 
   const summarize = (r: AuditRow): string => {
     if (r.entity === "profile_trial") {
@@ -1328,11 +1358,24 @@ function AuditTab() {
     content_item: "Conteúdo",
   };
 
+  // 2) Early returns AFTER all hooks
+  if (roleLoading) {
+    return <Loader2 className="h-5 w-5 animate-spin" />;
+  }
+  if (!isAdmin) {
+    return (
+      <Card className="p-6 text-center text-sm text-muted-foreground">
+        <Shield className="h-6 w-6 mx-auto mb-2 text-muted-foreground" />
+        Acesso restrito: apenas administradores podem ver o registo de auditoria.
+      </Card>
+    );
+  }
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between flex-wrap gap-2">
-        <h2 className="text-lg font-semibold">Registo de auditoria ({filtered.length})</h2>
-        <Button size="sm" variant="outline" onClick={load}><RefreshCw className="h-4 w-4" /></Button>
+        <h2 className="text-lg font-semibold">Registo de auditoria ({totalCount})</h2>
+        <Button size="sm" variant="outline" onClick={reload}><RefreshCw className="h-4 w-4" /></Button>
       </div>
       <div className="flex flex-wrap gap-2 items-center">
         <span className="text-xs text-muted-foreground">Entidade:</span>
@@ -1349,17 +1392,19 @@ function AuditTab() {
         ))}
       </div>
       <Input
-        placeholder="Procurar por entidade, ID, nome do admin, valor alterado..."
+        placeholder="Procurar por entidade, ID, admin ou valor alterado..."
         value={search}
         onChange={(e) => setSearch(e.target.value)}
         className="max-w-md"
       />
-      {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : filtered.length === 0 ? (
+      {loading ? (
+        <Loader2 className="h-5 w-5 animate-spin" />
+      ) : rows.length === 0 ? (
         <Card className="p-6 text-center text-muted-foreground text-sm">Sem registos.</Card>
       ) : (
         <>
           <div className="space-y-2">
-            {pageRows.map((r) => (
+            {rows.map((r) => (
               <Card key={r.id} className="p-3 text-sm">
                 <div className="flex items-start justify-between gap-2 flex-wrap">
                   <div className="min-w-0 flex-1">
@@ -1382,7 +1427,7 @@ function AuditTab() {
           </div>
           <div className="flex items-center justify-between gap-2 pt-2">
             <span className="text-xs text-muted-foreground">
-              Página {currentPage} de {totalPages} · {filtered.length} resultado{filtered.length === 1 ? "" : "s"}
+              Página {currentPage} de {totalPages} · {totalCount} resultado{totalCount === 1 ? "" : "s"}
             </span>
             <div className="flex gap-2">
               <Button size="sm" variant="outline" disabled={currentPage <= 1} onClick={() => setPage((p) => Math.max(1, p - 1))}>Anterior</Button>
