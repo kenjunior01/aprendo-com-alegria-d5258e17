@@ -40,6 +40,7 @@ import {
   ResponsiveContainer, LineChart, Line, BarChart, Bar, XAxis, YAxis,
   Tooltip as RTooltip, CartesianGrid, Legend,
 } from "recharts";
+import { ContentSettingsTab } from "@/components/admin/ContentSettingsTab";
 
 export const Route = createFileRoute("/admin")({
   head: () => ({
@@ -162,6 +163,7 @@ function AdminDashboard() {
               <TabsTrigger value="achievements"><Trophy className="h-4 w-4 mr-1" />Conquistas</TabsTrigger>
               <TabsTrigger value="roles"><UserCog className="h-4 w-4 mr-1" />Funções</TabsTrigger>
               <TabsTrigger value="audit"><History className="h-4 w-4 mr-1" />Auditoria</TabsTrigger>
+              <TabsTrigger value="content-settings"><Sparkles className="h-4 w-4 mr-1" />Conteúdo & Idades</TabsTrigger>
             </TabsList>
 
             <TabsContent value="overview" className="mt-6"><OverviewTab /></TabsContent>
@@ -175,6 +177,7 @@ function AdminDashboard() {
             <TabsContent value="achievements" className="mt-6"><AchievementsTab /></TabsContent>
             <TabsContent value="roles" className="mt-6"><RolesTab /></TabsContent>
             <TabsContent value="audit" className="mt-6"><AuditTab /></TabsContent>
+            <TabsContent value="content-settings" className="mt-6"><ContentSettingsTab /></TabsContent>
           </Tabs>
         </main>
       </div>
