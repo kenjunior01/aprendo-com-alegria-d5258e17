@@ -8,8 +8,13 @@ import { ArrowLeft, Sparkles } from "lucide-react";
 import {
   GARDENS, GAMES, getGardenGames, gardenProgressFor, currentLevel,
   loadJuniorProgress, getActiveJuniorChildId, listJuniorChildren,
+  recordJuniorPlay,
   type JuniorGame, type JuniorProgress, type JuniorChild,
 } from "@/lib/junior";
+import { grantSticker, type JuniorSticker } from "@/lib/juniorRewards";
+import { JuniorCelebration } from "@/components/junior/JuniorCelebration";
+import { JuniorStickerBook } from "@/components/junior/JuniorStickerBook";
+import { haptic } from "@/lib/haptics";
 import {
   GameJardimCores, GameOrquestraAnimais, GameRotinasKido, GameLivroMagico,
 } from "@/components/junior/JuniorGames";
