@@ -11,6 +11,9 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { ParentLinkPanel } from "@/components/ParentLinkPanel";
 import { PremiumStatusPanel } from "@/components/PremiumStatusPanel";
+import { RegionInterestsPanel } from "@/components/RegionInterestsPanel";
+import { CertificateButton } from "@/components/CertificateButton";
+import { totalMissions as totalMissionsByGrade } from "@/lib/chapters";
 import { Cloud, CloudOff, LogOut } from "lucide-react";
 
 export const Route = createFileRoute("/perfil")({
