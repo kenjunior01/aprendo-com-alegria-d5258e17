@@ -80,11 +80,14 @@ export function setVoice(childId: string, voice: VoiceTone) {
 // === Evolução ===
 
 export function xpFromProgress(p: JuniorProgress): number {
-  // Cada jogo único = 25xp, cada sessão repetida = 5xp, cada highlight = 8xp
-  const unique = (p.playedGames?.length ?? 0) * 25;
-  const repeats = Math.max(0, (p.totalSessions ?? 0) - (p.playedGames?.length ?? 0)) * 5;
-  const hl = (p.highlights?.length ?? 0) * 8;
-  return unique + repeats + hl;
+  // points são a fonte primária; jogos únicos / sessões / highlights / streak somam bónus
+  const base = (p.points ?? 0);
+  const unique = (p.playedGames?.length ?? 0) * 10;
+  const repeats = Math.max(0, (p.totalSessions ?? 0) - (p.playedGames?.length ?? 0)) * 3;
+  const hl = (p.highlights?.length ?? 0) * 5;
+  const streak = (p.streak ?? 0) * 15;
+  const medals = (p.medals?.length ?? 0) * 20;
+  return base + unique + repeats + hl + streak + medals;
 }
 export function levelFromXp(xp: number): { level: number; nextLevelAt: number; xpInLevel: number } {
   // 0→100, 100→250, 250→450, …  delta cresce 50 por nível
