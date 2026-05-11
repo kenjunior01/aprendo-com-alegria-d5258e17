@@ -28,6 +28,7 @@ import {
   GamePinta, GameEco, GameJardimMagico, GamePuzzle, GameCacaTesouro, GameEstacoes, GameEmocoes,
 } from "@/components/junior/JuniorGamesV2";
 import { JuniorChildSwitcher } from "@/components/junior/JuniorChildSwitcher";
+import { JuniorMascotStage } from "@/components/junior/JuniorMascotStage";
 import { Mascot } from "@/components/Mascot";
 import { Lock } from "lucide-react";
 
