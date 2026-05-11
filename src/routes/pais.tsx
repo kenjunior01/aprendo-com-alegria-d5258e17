@@ -18,6 +18,7 @@ import { JuniorParentPanel } from "@/components/JuniorParentPanel";
 import { JuniorParentReport } from "@/components/JuniorParentReport";
 import { ParentRealtimeFeed } from "@/components/ParentRealtimeFeed";
 import { FamilyChallengePanel } from "@/components/FamilyChallengePanel";
+import { ChildChallengesPanel } from "@/components/ChildChallengesPanel";
 
 const GATE_KEY = "kidoz-parent-gate-ts";
 const GATE_TTL_MIN = 30;
@@ -245,6 +246,14 @@ function ParentDashboard() {
               />
             )}
             {dashboard && <DashboardView data={dashboard} />}
+            {selectedChild && (
+              <div className="mt-5">
+                <ChildChallengesPanel
+                  childId={selectedChild}
+                  childName={children.find((c) => c.id === selectedChild)?.name ?? ""}
+                />
+              </div>
+            )}
             <div className="mt-5">
               <FamilyChallengePanel
                 lastSubject={dashboard?.bySubject?.[0]?.subject_id}
