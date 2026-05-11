@@ -207,6 +207,10 @@ function DesafiosPage() {
             )}
           </TabsContent>
 
+          <TabsContent value="historico">
+            <ChallengeHistory challenges={challenges} myUserId={myUserId} />
+          </TabsContent>
+
           <TabsContent value="ranking">
             <div className="card-chunky rounded-3xl border-2 border-border bg-card p-4">
               <div className="mb-3 flex items-center gap-2">
