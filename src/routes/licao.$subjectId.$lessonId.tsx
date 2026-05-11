@@ -18,6 +18,9 @@ import { cn } from "@/lib/utils";
 import { haptic } from "@/lib/haptics";
 
 export const Route = createFileRoute("/licao/$subjectId/$lessonId")({
+  validateSearch: (search: Record<string, unknown>) => ({
+    challenge: typeof search.challenge === "string" ? search.challenge : undefined,
+  }),
   head: () => ({
     meta: [
       { title: "Lição — Kidoz" },
@@ -31,7 +34,8 @@ function LessonPage() {
   const { subjectId, lessonId } = useParams({ from: "/licao/$subjectId/$lessonId" });
   const navigate = useNavigate();
   const fnSubmitChallenge = useServerFn(submitChallengeScore);
-  const challengeId = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("challenge") : null;
+  const search = Route.useSearch();
+  const challengeId = search.challenge ?? null;
 
   const subject = getSubject(subjectId);
   const lesson = getLesson(subjectId, lessonId);

@@ -50,17 +50,17 @@ export const createPvpChallenge = createServerFn({ method: "POST" })
   )
   .handler(async ({ context, data }) => {
     const { supabase, userId } = context;
-    // Verify friendship
+    // Verify friendship (accepted in either direction)
     const { data: f } = await supabase
       .from("friendships" as any)
-      .select("status")
+      .select("id, status")
       .or(
         `and(requester_id.eq.${userId},addressee_id.eq.${data.opponentId}),and(requester_id.eq.${data.opponentId},addressee_id.eq.${userId})`,
       )
       .eq("status", "accepted")
-      .maybeSingle();
-    if (!f) {
-      return { ok: false as const, error: "Precisas ser amigo dessa pessoa." };
+      .limit(1);
+    if (!f || f.length === 0) {
+      return { ok: false as const, error: "Precisas de ser amigo dessa pessoa para a desafiar." };
     }
     const { data: ch, error } = await supabase
       .from("challenges" as any)
@@ -134,7 +134,8 @@ export const submitChallengeScore = createServerFn({ method: "POST" })
     return { ok: true as const, status, winner };
   });
 
-// Suggest a daily AI challenge based on weakest subject, persisting one per day.
+// Suggest a daily AI challenge factoring in age/grade, region (PT/BR/AO/MZ/CV)
+// and weakest subject from recent practice. Persists one per day per user.
 export const getOrCreateDailyAiChallenge = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
@@ -151,26 +152,53 @@ export const getOrCreateDailyAiChallenge = createServerFn({ method: "POST" })
       .maybeSingle();
     if (existing) return { challenge: existing as unknown as ChallengeRow };
 
-    // Weakest subject from last 20 sessions
+    // Profile context: grade, age, region, interests
+    const { data: prof } = await supabase
+      .from("profiles")
+      .select("grade, age, region, interests")
+      .eq("id", userId)
+      .maybeSingle();
+    const grade = (prof?.grade ?? 1) as number;
+    const region = (prof?.region ?? "PT") as string;
+
+    // Weakest subject from last 30 sessions of the same grade
     const { data: sess } = await supabase
       .from("practice_sessions")
-      .select("subject_id, lesson_id, correct, total")
+      .select("subject_id, lesson_id, correct, total, grade")
       .eq("user_id", userId)
       .order("created_at", { ascending: false })
-      .limit(20);
+      .limit(30);
 
-    const stats: Record<string, { c: number; t: number; lesson: string }> = {};
+    const stats: Record<string, { c: number; t: number; lessons: string[] }> = {};
     for (const s of sess ?? []) {
+      if (s.grade && s.grade !== grade) continue;
       const k = s.subject_id;
-      stats[k] = stats[k] ?? { c: 0, t: 0, lesson: s.lesson_id };
+      stats[k] = stats[k] ?? { c: 0, t: 0, lessons: [] };
       stats[k].c += s.correct;
       stats[k].t += s.total;
+      if (!stats[k].lessons.includes(s.lesson_id)) stats[k].lessons.push(s.lesson_id);
     }
+
+    // Default subject rotation by region focus (region-aware default seed)
+    const defaultBySubject: Record<string, { subject: string; lesson: string }> = {
+      PT: { subject: "estudo-do-meio", lesson: "em-portugal" },
+      BR: { subject: "estudo-do-meio", lesson: "em-natureza" },
+      AO: { subject: "portugues", lesson: "pt-vogais" },
+      MZ: { subject: "portugues", lesson: "pt-vogais" },
+      CV: { subject: "portugues", lesson: "pt-vogais" },
+    };
+
     const ranked = Object.entries(stats).sort(
       (a, b) => a[1].c / (a[1].t || 1) - b[1].c / (b[1].t || 1),
     );
-    const subject = ranked[0]?.[0] ?? "portugues";
-    const lesson = ranked[0]?.[1].lesson ?? "letras-vogais";
+    const fallback = defaultBySubject[region] ?? defaultBySubject.PT;
+    const subject = ranked[0]?.[0] ?? fallback.subject;
+    // Pick most-recent unfinished lesson if available, else fallback
+    const lesson = ranked[0]?.[1].lessons[0] ?? fallback.lesson;
+
+    // Reward scales lightly with grade/age
+    const coin_reward = 12 + grade * 3;
+    const xp_reward = 20 + grade * 5;
 
     const { data: ch, error } = await supabase
       .from("challenges" as any)
@@ -179,8 +207,8 @@ export const getOrCreateDailyAiChallenge = createServerFn({ method: "POST" })
         kind: "ai_daily",
         subject_id: subject,
         lesson_id: lesson,
-        coin_reward: 15,
-        xp_reward: 25,
+        coin_reward,
+        xp_reward,
       })
       .select()
       .single();

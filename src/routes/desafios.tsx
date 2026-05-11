@@ -11,7 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger,
 } from "@/components/ui/dialog";
-import { Sparkles, Swords, Trophy, UserPlus, Check, X, Crown, Send } from "lucide-react";
+import { Sparkles, Swords, Trophy, UserPlus, Check, X, Send, History as HistoryIcon } from "lucide-react";
 import { loadProfile, pullProfileFromCloud, type Profile } from "@/lib/storage";
 import { supabase } from "@/integrations/supabase/client";
 import type { MascotId } from "@/lib/mascots";
@@ -103,10 +103,11 @@ function DesafiosPage() {
         </motion.div>
 
         <Tabs defaultValue="ai" className="w-full">
-          <TabsList className="mb-4 grid w-full grid-cols-3">
-            <TabsTrigger value="ai" className="gap-1"><Sparkles className="h-4 w-4" />IA</TabsTrigger>
-            <TabsTrigger value="pvp" className="gap-1"><Swords className="h-4 w-4" />PvP</TabsTrigger>
-            <TabsTrigger value="ranking" className="gap-1"><Trophy className="h-4 w-4" />Ranking</TabsTrigger>
+          <TabsList className="mb-4 grid w-full grid-cols-4">
+            <TabsTrigger value="ai" className="gap-1 px-1 text-xs sm:text-sm"><Sparkles className="h-4 w-4" />IA</TabsTrigger>
+            <TabsTrigger value="pvp" className="gap-1 px-1 text-xs sm:text-sm"><Swords className="h-4 w-4" />PvP</TabsTrigger>
+            <TabsTrigger value="historico" className="gap-1 px-1 text-xs sm:text-sm"><HistoryIcon className="h-4 w-4" />Histórico</TabsTrigger>
+            <TabsTrigger value="ranking" className="gap-1 px-1 text-xs sm:text-sm"><Trophy className="h-4 w-4" />Ranking</TabsTrigger>
           </TabsList>
 
           <TabsContent value="ai">
@@ -204,6 +205,10 @@ function DesafiosPage() {
                 })}
               </ul>
             )}
+          </TabsContent>
+
+          <TabsContent value="historico">
+            <ChallengeHistory challenges={challenges} myUserId={myUserId} />
           </TabsContent>
 
           <TabsContent value="ranking">
@@ -393,5 +398,105 @@ function ChallengeFriendDialog({
         </DialogFooter>
       </DialogContent>
     </Dialog>
+  );
+}
+
+function fmtDate(iso: string): string {
+  const d = new Date(iso);
+  return d.toLocaleDateString("pt-PT", { day: "2-digit", month: "short", year: "numeric" });
+}
+
+function ChallengeHistory({
+  challenges, myUserId,
+}: {
+  challenges: ChallengeRow[];
+  myUserId: string;
+}) {
+  const open = challenges.filter((c) => {
+    const my = c.creator_id === myUserId ? c.creator_score : c.opponent_score;
+    return c.status === "open" && my == null;
+  });
+  const inProgress = challenges.filter((c) => {
+    const my = c.creator_id === myUserId ? c.creator_score : c.opponent_score;
+    return c.status === "open" && my != null;
+  });
+  const completed = challenges.filter((c) => c.status === "completed" || c.status === "expired");
+
+  if (challenges.length === 0) {
+    return (
+      <div className="card-chunky rounded-3xl border-2 border-border bg-card p-6 text-center">
+        <HistoryIcon className="mx-auto mb-2 h-8 w-8 text-muted-foreground" />
+        <p className="text-sm text-muted-foreground">Ainda sem histórico — joga o desafio do dia ou convida um amigo!</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-5">
+      <Section title="🟢 Abertos" subtitle="Aguardam a tua jogada" items={open} myUserId={myUserId} action="play" />
+      <Section title="⏳ Em andamento" subtitle="Adversário ainda joga" items={inProgress} myUserId={myUserId} />
+      <Section title="🏁 Concluídos" subtitle="Resultados finais" items={completed} myUserId={myUserId} />
+    </div>
+  );
+}
+
+function Section({
+  title, subtitle, items, myUserId, action,
+}: {
+  title: string;
+  subtitle: string;
+  items: ChallengeRow[];
+  myUserId: string;
+  action?: "play";
+}) {
+  if (items.length === 0) return null;
+  return (
+    <div>
+      <div className="mb-2 flex items-baseline justify-between">
+        <h4 className="font-display text-base">{title}</h4>
+        <span className="text-[11px] text-muted-foreground">{subtitle}</span>
+      </div>
+      <ul className="grid grid-cols-2 gap-2">
+        {items.map((c) => {
+          const myScore = c.creator_id === myUserId ? c.creator_score : c.opponent_score;
+          const oppScore = c.creator_id === myUserId ? c.opponent_score : c.creator_score;
+          const won = c.winner_id === myUserId;
+          const draw = c.status === "completed" && c.winner_id == null;
+          const badgeClass = won ? "bg-success/15 text-success border-success" :
+            draw ? "bg-muted text-muted-foreground border-border" :
+            c.status === "completed" ? "bg-destructive/10 text-destructive border-destructive" :
+            "bg-primary/10 text-primary border-primary";
+          const result = won ? "🏆 Ganhaste" : draw ? "🤝 Empate" :
+            c.status === "completed" ? "💪 Perdeste" :
+            c.status === "expired" ? "⌛ Expirado" : "⏳ A decorrer";
+          return (
+            <li key={c.id} className="card-chunky flex flex-col gap-1.5 rounded-2xl border-2 border-border bg-card p-3">
+              <div className="flex items-start justify-between gap-2">
+                <p className="font-display text-sm capitalize leading-tight">{c.subject_id.replace("-", " ")}</p>
+                <Badge variant="outline" className="text-[10px]">{c.kind === "ai_daily" ? "IA" : "PvP"}</Badge>
+              </div>
+              <p className="text-[11px] text-muted-foreground">{c.lesson_id}</p>
+              <p className={`rounded-md border px-1.5 py-0.5 text-center text-[11px] font-display ${badgeClass}`}>{result}</p>
+              <p className="text-[11px]">
+                Tu: <strong>{myScore ?? "—"}</strong>
+                {c.kind === "pvp" && <> · Adv: <strong>{oppScore ?? "—"}</strong></>}
+              </p>
+              <p className="text-[10px] text-muted-foreground">{fmtDate(c.created_at)}</p>
+              {action === "play" && (
+                <Button size="sm" asChild className="mt-1 h-8 text-xs">
+                  <Link
+                    to="/licao/$subjectId/$lessonId"
+                    params={{ subjectId: c.subject_id, lessonId: c.lesson_id }}
+                    search={{ challenge: c.id } as never}
+                  >
+                    Jogar
+                  </Link>
+                </Button>
+              )}
+            </li>
+          );
+        })}
+      </ul>
+    </div>
   );
 }
