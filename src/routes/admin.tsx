@@ -13,6 +13,10 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
@@ -20,6 +24,7 @@ import {
   Shield, Users, CreditCard, Trophy, ShoppingBag, GraduationCap,
   Swords, BarChart3, Search, Crown, UserCog, Loader2, RefreshCw,
   Calendar, Sparkles, ArrowLeft, FileText, Plus, Trash2, Save, Eye,
+  History, AlertTriangle, CheckCircle2, XCircle,
 } from "lucide-react";
 import {
   ResponsiveContainer, LineChart, Line, BarChart, Bar, XAxis, YAxis,
