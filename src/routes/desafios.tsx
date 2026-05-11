@@ -115,7 +115,7 @@ function DesafiosPage() {
 
         {!myUserId && !loading && (
           <div className="card-chunky mb-4 rounded-2xl border-2 border-primary bg-primary/10 p-3 text-sm">
-            🔐 Faz <Link to="/login" className="font-display text-primary underline">login</Link> para participares em desafios PvP, IA e ranking semanal.
+            🔐 Faz <Link to="/auth" className="font-display text-primary underline">login</Link> para participares em desafios PvP, IA e ranking semanal.
           </div>
         )}
 
