@@ -18,6 +18,7 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import {
@@ -1253,6 +1254,31 @@ function AuditTab() {
   const [detail, setDetail] = useState<AuditRow | null>(null);
   const PAGE_SIZE = 25;
 
+  // Column visibility (persisted)
+  const COLS: { key: string; label: string }[] = [
+    { key: "entity", label: "Entidade" },
+    { key: "action", label: "Ação" },
+    { key: "actor", label: "Admin" },
+    { key: "summary", label: "Resumo" },
+    { key: "entity_id", label: "Entity ID" },
+    { key: "audit_id", label: "Audit ID" },
+    { key: "created_at", label: "Data" },
+  ];
+  const COLS_KEY = "admin.audit.cols.v1";
+  const [visibleCols, setVisibleCols] = useState<Record<string, boolean>>(() => {
+    if (typeof window === "undefined") return Object.fromEntries(COLS.map((c) => [c.key, c.key !== "audit_id"]));
+    try {
+      const raw = localStorage.getItem(COLS_KEY);
+      if (raw) return JSON.parse(raw);
+    } catch {}
+    return Object.fromEntries(COLS.map((c) => [c.key, c.key !== "audit_id"]));
+  });
+  useEffect(() => {
+    try { localStorage.setItem(COLS_KEY, JSON.stringify(visibleCols)); } catch {}
+  }, [visibleCols]);
+  const toggleCol = (k: string) => setVisibleCols((v) => ({ ...v, [k]: !v[k] }));
+  const showCol = (k: string) => visibleCols[k] !== false;
+
   // Debounce search input (300ms)
   useEffect(() => {
     const t = setTimeout(() => setDebouncedSearch(search.trim()), 300);
@@ -1413,6 +1439,25 @@ function AuditTab() {
           </Button>
         ))}
       </div>
+      <div className="flex items-center justify-between gap-2 flex-wrap">
+        <h2 className="text-lg font-semibold sr-only">Registo de auditoria</h2>
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button size="sm" variant="outline">Colunas ({Object.values(visibleCols).filter(Boolean).length}/{COLS.length})</Button>
+          </PopoverTrigger>
+          <PopoverContent align="end" className="w-56 p-2">
+            <div className="text-xs font-semibold px-2 py-1 text-muted-foreground">Mostrar colunas</div>
+            <div className="space-y-1">
+              {COLS.map((c) => (
+                <label key={c.key} className="flex items-center gap-2 px-2 py-1 rounded hover:bg-muted cursor-pointer text-sm">
+                  <Checkbox checked={showCol(c.key)} onCheckedChange={() => toggleCol(c.key)} />
+                  <span>{c.label}</span>
+                </label>
+              ))}
+            </div>
+          </PopoverContent>
+        </Popover>
+      </div>
       <Input
         placeholder="Procurar por entidade, ID, admin ou valor alterado..."
         value={search}
@@ -1437,19 +1482,36 @@ function AuditTab() {
               >
                 <div className="flex items-start justify-between gap-2 flex-wrap">
                   <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <Badge variant="secondary" className="text-xs">{entityLabel[r.entity] ?? r.entity}</Badge>
-                      <Badge variant="outline" className="text-xs">{r.action}</Badge>
-                      <span className="text-xs text-muted-foreground">
-                        por {r.actor_id ? (actors[r.actor_id] ?? r.actor_id.slice(0, 8)) : "sistema"}
-                      </span>
+                    {(showCol("entity") || showCol("action") || showCol("actor")) && (
+                      <div className="flex items-center gap-2 flex-wrap">
+                        {showCol("entity") && (
+                          <Badge variant="secondary" className="text-xs">{entityLabel[r.entity] ?? r.entity}</Badge>
+                        )}
+                        {showCol("action") && (
+                          <Badge variant="outline" className="text-xs">{r.action}</Badge>
+                        )}
+                        {showCol("actor") && (
+                          <span className="text-xs text-muted-foreground">
+                            por {r.actor_id ? (actors[r.actor_id] ?? r.actor_id.slice(0, 8)) : "sistema"}
+                          </span>
+                        )}
+                      </div>
+                    )}
+                    {showCol("summary") && (
+                      <div className="text-xs mt-1 break-all">{summarize(r)}</div>
+                    )}
+                    {showCol("entity_id") && r.entity_id && (
+                      <div className="text-[10px] text-muted-foreground font-mono mt-1">ent: {r.entity_id}</div>
+                    )}
+                    {showCol("audit_id") && (
+                      <div className="text-[10px] text-muted-foreground font-mono mt-1">id: {r.id}</div>
+                    )}
+                  </div>
+                  {showCol("created_at") && (
+                    <div className="text-xs text-muted-foreground whitespace-nowrap">
+                      {new Date(r.created_at).toLocaleString("pt-PT")}
                     </div>
-                    <div className="text-xs mt-1 break-all">{summarize(r)}</div>
-                    {r.entity_id && <div className="text-[10px] text-muted-foreground font-mono mt-1">{r.entity_id}</div>}
-                  </div>
-                  <div className="text-xs text-muted-foreground whitespace-nowrap">
-                    {new Date(r.created_at).toLocaleString("pt-PT")}
-                  </div>
+                  )}
                 </div>
               </Card>
             ))}
