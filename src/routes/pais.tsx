@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { BottomNav } from "@/components/BottomNav";
 import { Mascot } from "@/components/Mascot";
 import { ChunkyButton } from "@/components/ChunkyButton";
@@ -11,7 +11,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { getMyChildren, createParentInvite, acceptParentInvite, getChildDashboard, getChildControls, setChildControls, type ParentDashboardData } from "@/server/parent.functions";
 import { listChildren as listTutorChildren, type TutorHistory } from "@/lib/tutorHistory";
-import { Copy, LogOut, Plus, BarChart3, Clock, Target, Flame, MessageCircle, ShieldCheck, Moon, Hourglass, UserPlus, Home, Swords, Baby, Activity, ShoppingBag, School, Menu, X } from "lucide-react";
+import { Copy, LogOut, Plus, BarChart3, Clock, Target, Flame, MessageCircle, ShieldCheck, Moon, Hourglass, UserPlus, Home, Swords, Baby, Activity, ShoppingBag, School, Menu, X, Search, ChevronUp, Filter } from "lucide-react";
 import { PurchaseHistoryPanel } from "@/components/PurchaseHistoryPanel";
 import { QuickChildSignup } from "@/components/QuickChildSignup";
 import { JuniorParentPanel } from "@/components/JuniorParentPanel";
@@ -19,9 +19,22 @@ import { JuniorParentReport } from "@/components/JuniorParentReport";
 import { ParentRealtimeFeed } from "@/components/ParentRealtimeFeed";
 import { FamilyChallengePanel } from "@/components/FamilyChallengePanel";
 import { ChildChallengesPanel } from "@/components/ChildChallengesPanel";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 
 const GATE_KEY = "kidoz-parent-gate-ts";
 const GATE_TTL_MIN = 30;
+const SEEN_KEY = "kidoz-parent-tab-seen";
+type TabId = "resumo" | "controlos" | "desafios" | "junior" | "atividade" | "compras";
+type SeenMap = Partial<Record<TabId, number>>;
+
+function loadSeen(): SeenMap {
+  if (typeof window === "undefined") return {};
+  try { return JSON.parse(localStorage.getItem(SEEN_KEY) ?? "{}") as SeenMap; } catch { return {}; }
+}
+function saveSeen(m: SeenMap) {
+  if (typeof window === "undefined") return;
+  localStorage.setItem(SEEN_KEY, JSON.stringify(m));
+}
 
 export const Route = createFileRoute("/pais")({
   head: () => ({
@@ -48,8 +61,14 @@ function ParentDashboard() {
   const [unlocked, setUnlocked] = useState(false);
   const [showQuickSignup, setShowQuickSignup] = useState(false);
   const [showInviteCode, setShowInviteCode] = useState(false);
-  const [activeTab, setActiveTab] = useState<"resumo" | "controlos" | "desafios" | "junior" | "atividade" | "compras">("resumo");
+  const [activeTab, setActiveTab] = useState<TabId>("resumo");
   const [menuOpen, setMenuOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [gradeFilter, setGradeFilter] = useState<number | "all">("all");
+  const [seen, setSeen] = useState<SeenMap>(() => loadSeen());
+  const [badges, setBadges] = useState<Partial<Record<TabId, number>>>({});
+  const [bottomSheetOpen, setBottomSheetOpen] = useState(false);
+  const tabContentRef = useRef<HTMLDivElement | null>(null);
 
   const reloadChildren = async () => {
     try {
@@ -102,6 +121,56 @@ function ParentDashboard() {
     void getChildDashboard({ data: { childId: selectedChild } }).then(setDashboard).catch(() => setDashboard(null));
   }, [selectedChild]);
 
+  // Compute badges (counters/alerts) for tabs based on Supabase data + last-seen timestamps.
+  useEffect(() => {
+    if (children.length === 0) return;
+    const childIds = children.map((c) => c.id);
+    let cancelled = false;
+    void (async () => {
+      const next: Partial<Record<TabId, number>> = {};
+      const sinceResumo = new Date(seen.resumo ?? 0).toISOString();
+      const sinceDesafios = new Date(seen.desafios ?? 0).toISOString();
+      const sinceAtividade = new Date(seen.atividade ?? 0).toISOString();
+      const sinceCompras = new Date(seen.compras ?? 0).toISOString();
+      try {
+        const [practiceNew, infiniteNew, sessionsToday, subsNew, pendingLinks] = await Promise.all([
+          supabase.from("practice_sessions").select("id", { count: "exact", head: true })
+            .in("user_id", childIds).gt("created_at", sinceResumo),
+          supabase.from("infinite_scores").select("id", { count: "exact", head: true })
+            .in("user_id", childIds).gt("created_at", sinceDesafios),
+          supabase.from("practice_sessions").select("id", { count: "exact", head: true })
+            .in("user_id", childIds).gt("created_at", sinceAtividade),
+          supabase.from("subscriptions").select("id", { count: "exact", head: true })
+            .gt("updated_at", sinceCompras),
+          supabase.from("parent_links").select("id", { count: "exact", head: true })
+            .eq("parent_id", user!.id).eq("status", "pending"),
+        ]);
+        if (cancelled) return;
+        next.resumo = practiceNew.count ?? 0;
+        next.desafios = infiniteNew.count ?? 0;
+        next.atividade = sessionsToday.count ?? 0;
+        next.compras = subsNew.count ?? 0;
+        next.controlos = pendingLinks.count ?? 0;
+        setBadges(next);
+      } catch { /* noop */ }
+    })();
+    return () => { cancelled = true; };
+  }, [children, seen, user]);
+
+  // Mark current tab as seen + smooth scroll to content.
+  useEffect(() => {
+    setSeen((prev) => {
+      const updated = { ...prev, [activeTab]: Date.now() };
+      saveSeen(updated);
+      return updated;
+    });
+    setBadges((prev) => ({ ...prev, [activeTab]: 0 }));
+    if (typeof window !== "undefined" && tabContentRef.current) {
+      const top = tabContentRef.current.getBoundingClientRect().top + window.scrollY - 130;
+      window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
+    }
+  }, [activeTab]);
+
   if (!user || !profile) return null;
 
   const generateInvite = async () => {
@@ -139,14 +208,27 @@ function ParentDashboard() {
   }
 
   const selectedChildName = children.find((c) => c.id === selectedChild)?.name ?? "";
-  const tabs: { id: typeof activeTab; label: string; icon: typeof Home }[] = [
+  const tabs: { id: TabId; label: string; icon: typeof Home; tone?: string }[] = [
     { id: "resumo", label: "Resumo", icon: Home },
-    { id: "controlos", label: "Controlos", icon: ShieldCheck },
+    { id: "controlos", label: "Controlos", icon: ShieldCheck, tone: "warn" },
     { id: "desafios", label: "Desafios", icon: Swords },
     { id: "junior", label: "Júnior", icon: Baby },
     { id: "atividade", label: "Atividade", icon: Activity },
     { id: "compras", label: "Compras", icon: ShoppingBag },
   ];
+  const activeTabMeta = tabs.find((t) => t.id === activeTab)!;
+  const totalAlerts = Object.values(badges).reduce<number>((s, n) => s + (n ?? 0), 0);
+
+  // Filter + search children
+  const availableGrades = Array.from(new Set(children.map((c) => c.grade))).sort((a, b) => a - b);
+  const filteredChildren = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    return children.filter((c) => {
+      if (gradeFilter !== "all" && c.grade !== gradeFilter) return false;
+      if (q && !c.name.toLowerCase().includes(q)) return false;
+      return true;
+    });
+  }, [children, searchQuery, gradeFilter]);
 
   return (
     <div className="min-h-[100dvh] bg-gradient-to-b from-background via-background to-muted/30 pb-28 md:pb-12">
@@ -226,10 +308,35 @@ function ParentDashboard() {
           </motion.section>
         ) : (
           <>
-            {/* Children chips - scrollable */}
+            {/* Search + grade filter */}
+            <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center">
+              <div className="relative flex-1">
+                <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <input
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Procurar criança…"
+                  className="w-full rounded-2xl border border-border bg-card pl-9 pr-3 py-2 text-sm outline-none focus:border-primary"
+                />
+              </div>
+              {availableGrades.length > 1 && (
+                <div className="flex items-center gap-1.5 overflow-x-auto">
+                  <Filter className="h-4 w-4 shrink-0 text-muted-foreground" />
+                  <button onClick={() => setGradeFilter("all")} className={`shrink-0 rounded-full px-3 py-1.5 text-xs font-display ${gradeFilter === "all" ? "bg-primary text-primary-foreground" : "border border-border bg-card text-muted-foreground"}`}>Todos</button>
+                  {availableGrades.map((g) => (
+                    <button key={g} onClick={() => setGradeFilter(g)} className={`shrink-0 rounded-full px-3 py-1.5 text-xs font-display ${gradeFilter === g ? "bg-primary text-primary-foreground" : "border border-border bg-card text-muted-foreground"}`}>{g}.º</button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Children chips (filtered) */}
             <div className="-mx-3 mb-3 overflow-x-auto px-3 sm:mx-0 sm:px-0">
               <div className="flex w-max min-w-full items-center gap-2 pb-1 sm:flex-wrap">
-                {children.map((c) => {
+                {filteredChildren.length === 0 && (
+                  <p className="px-2 py-3 text-sm text-muted-foreground">Nenhuma criança corresponde aos filtros.</p>
+                )}
+                {filteredChildren.map((c) => {
                   const active = selectedChild === c.id;
                   return (
                     <button
@@ -275,66 +382,92 @@ function ParentDashboard() {
               </div>
             )}
 
-            {/* SECTION TABS */}
-            <nav className="mb-5 -mx-3 sticky top-[60px] z-20 border-b border-border/60 bg-background/85 px-3 py-2 backdrop-blur-xl sm:top-[68px] sm:mx-0 sm:rounded-2xl sm:border sm:border-border sm:bg-card sm:px-2 sm:shadow-sm">
+            {/* SECTION TABS — desktop only with badges + animated indicator */}
+            <nav className="mb-5 sticky top-[68px] z-20 hidden rounded-2xl border border-border bg-card p-1.5 shadow-sm md:block">
               <div className="flex gap-1 overflow-x-auto">
                 {tabs.map((t) => {
                   const Icon = t.icon;
                   const active = activeTab === t.id;
+                  const count = badges[t.id] ?? 0;
                   return (
                     <button
                       key={t.id}
                       onClick={() => setActiveTab(t.id)}
-                      className={`flex shrink-0 items-center gap-1.5 rounded-xl px-3 py-2 font-display text-sm transition-colors ${
-                        active ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:bg-muted"
+                      className={`relative flex shrink-0 items-center gap-1.5 rounded-xl px-3.5 py-2 font-display text-sm transition-all ${
+                        active ? "bg-primary text-primary-foreground shadow-md" : "text-muted-foreground hover:bg-muted hover:text-foreground"
                       }`}
                     >
                       <Icon className="h-4 w-4" />
                       {t.label}
+                      {count > 0 && (
+                        <span className={`ml-0.5 inline-flex h-5 min-w-[20px] items-center justify-center rounded-full px-1.5 text-[10px] font-bold ${active ? "bg-primary-foreground text-primary" : "animate-pulse bg-destructive text-destructive-foreground"}`}>
+                          {count > 99 ? "99+" : count}
+                        </span>
+                      )}
                     </button>
                   );
                 })}
               </div>
             </nav>
 
-            {activeTab === "resumo" && (
-              <div className="grid gap-5 lg:grid-cols-3">
-                <div className="space-y-5 lg:col-span-2">
-                  {dashboard ? <DashboardView data={dashboard} /> : <SkeletonCard />}
-                </div>
-                <aside className="space-y-5">
-                  {selectedChild && <ChildChallengesPanel childId={selectedChild} childName={selectedChildName} />}
-                  <FamilyChallengePanel lastSubject={dashboard?.bySubject?.[0]?.subject_id} childName={selectedChildName} />
-                </aside>
+            {/* Mobile active-tab indicator pill */}
+            <div className="mb-3 flex items-center justify-between md:hidden">
+              <div className="flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1.5 font-display text-sm text-primary">
+                <activeTabMeta.icon className="h-4 w-4" />
+                {activeTabMeta.label}
+                {(badges[activeTab] ?? 0) > 0 && (
+                  <span className="rounded-full bg-destructive px-1.5 text-[10px] text-destructive-foreground">{badges[activeTab]}</span>
+                )}
               </div>
-            )}
+              <button onClick={() => setBottomSheetOpen(true)} className="rounded-full border border-border bg-card px-3 py-1.5 text-xs font-display text-muted-foreground">Trocar secção</button>
+            </div>
 
-            {activeTab === "controlos" && selectedChild && (
-              <ChildControlsCard childId={selectedChild} childName={selectedChildName} />
-            )}
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={activeTab}
+                ref={tabContentRef}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -4 }}
+                transition={{ duration: 0.18 }}
+                className="scroll-mt-32"
+              >
+                {activeTab === "resumo" && (
+                  <div className="grid gap-5 lg:grid-cols-3">
+                    <div className="space-y-5 lg:col-span-2">
+                      {dashboard ? <DashboardView data={dashboard} /> : <SkeletonCard />}
+                    </div>
+                    <aside className="space-y-5">
+                      {selectedChild && <ChildChallengesPanel childId={selectedChild} childName={selectedChildName} />}
+                      <FamilyChallengePanel lastSubject={dashboard?.bySubject?.[0]?.subject_id} childName={selectedChildName} />
+                    </aside>
+                  </div>
+                )}
+                {activeTab === "controlos" && selectedChild && (
+                  <ChildControlsCard childId={selectedChild} childName={selectedChildName} />
+                )}
+                {activeTab === "desafios" && selectedChild && (
+                  <div className="grid gap-5 md:grid-cols-2">
+                    <ChildChallengesPanel childId={selectedChild} childName={selectedChildName} />
+                    <FamilyChallengePanel lastSubject={dashboard?.bySubject?.[0]?.subject_id} childName={selectedChildName} />
+                  </div>
+                )}
+                {activeTab === "junior" && (
+                  <div className="space-y-5">
+                    <JuniorParentPanel />
+                    <section>
+                      <h3 className="mb-3 font-display text-xl">🧸 Atividade Kidoz Júnior (2-5 anos)</h3>
+                      <JuniorParentReport />
+                    </section>
+                  </div>
+                )}
+                {activeTab === "atividade" && (
+                  <ParentRealtimeFeed childList={children.map((c) => ({ id: c.id, name: c.name }))} />
+                )}
+                {activeTab === "compras" && <PurchaseHistoryPanel />}
+              </motion.div>
+            </AnimatePresence>
 
-            {activeTab === "desafios" && selectedChild && (
-              <div className="grid gap-5 md:grid-cols-2">
-                <ChildChallengesPanel childId={selectedChild} childName={selectedChildName} />
-                <FamilyChallengePanel lastSubject={dashboard?.bySubject?.[0]?.subject_id} childName={selectedChildName} />
-              </div>
-            )}
-
-            {activeTab === "junior" && (
-              <div className="space-y-5">
-                <JuniorParentPanel />
-                <section>
-                  <h3 className="mb-3 font-display text-xl">🧸 Atividade Kidoz Júnior (2-5 anos)</h3>
-                  <JuniorParentReport />
-                </section>
-              </div>
-            )}
-
-            {activeTab === "atividade" && (
-              <ParentRealtimeFeed childList={children.map((c) => ({ id: c.id, name: c.name }))} />
-            )}
-
-            {activeTab === "compras" && <PurchaseHistoryPanel />}
 
             <p className="mt-6 text-center text-[11px] text-muted-foreground">
               ✨ A personalização (país e interesses) é definida pela criança em <strong>/perfil</strong>.
@@ -342,6 +475,58 @@ function ParentDashboard() {
           </>
         )}
       </main>
+
+      {children.length > 0 && (
+        <Sheet open={bottomSheetOpen} onOpenChange={setBottomSheetOpen}>
+          <SheetTrigger asChild>
+            <button
+              className="fixed bottom-20 right-4 z-40 flex items-center gap-2 rounded-full bg-primary px-4 py-3 font-display text-sm text-primary-foreground shadow-2xl ring-4 ring-primary/20 md:hidden"
+              aria-label="Trocar secção"
+            >
+              <activeTabMeta.icon className="h-5 w-5" />
+              <span>{activeTabMeta.label}</span>
+              {totalAlerts > 0 && (
+                <span className="ml-1 inline-flex h-5 min-w-[20px] items-center justify-center rounded-full bg-destructive px-1.5 text-[10px] font-bold text-destructive-foreground">
+                  {totalAlerts > 99 ? "99+" : totalAlerts}
+                </span>
+              )}
+              <ChevronUp className="h-4 w-4" />
+            </button>
+          </SheetTrigger>
+          <SheetContent side="bottom" className="rounded-t-3xl border-t-2 px-4 pb-8 pt-5">
+            <SheetHeader className="mb-3">
+              <SheetTitle className="font-display">Secções do painel</SheetTitle>
+            </SheetHeader>
+            <div className="grid grid-cols-2 gap-2">
+              {tabs.map((t) => {
+                const Icon = t.icon;
+                const active = activeTab === t.id;
+                const count = badges[t.id] ?? 0;
+                return (
+                  <button
+                    key={t.id}
+                    onClick={() => { setActiveTab(t.id); setBottomSheetOpen(false); }}
+                    className={`relative flex items-center gap-3 rounded-2xl border-2 px-3 py-3 text-left font-display transition-all ${
+                      active ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card"
+                    }`}
+                  >
+                    <div className={`grid h-9 w-9 shrink-0 place-items-center rounded-xl ${active ? "bg-primary-foreground/20" : "bg-muted"}`}>
+                      <Icon className="h-5 w-5" />
+                    </div>
+                    <span className="text-sm leading-tight">{t.label}</span>
+                    {count > 0 && (
+                      <span className={`absolute right-2 top-2 inline-flex h-5 min-w-[20px] items-center justify-center rounded-full px-1.5 text-[10px] font-bold ${active ? "bg-primary-foreground text-primary" : "animate-pulse bg-destructive text-destructive-foreground"}`}>
+                        {count > 99 ? "99+" : count}
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </SheetContent>
+        </Sheet>
+      )}
+
       <BottomNav />
     </div>
   );
