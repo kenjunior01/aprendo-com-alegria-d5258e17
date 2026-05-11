@@ -28,6 +28,7 @@ import {
   GamePinta, GameEco, GameJardimMagico, GamePuzzle, GameCacaTesouro, GameEstacoes, GameEmocoes,
 } from "@/components/junior/JuniorGamesV2";
 import { JuniorChildSwitcher } from "@/components/junior/JuniorChildSwitcher";
+import { JuniorMascotStage } from "@/components/junior/JuniorMascotStage";
 import { Mascot } from "@/components/Mascot";
 import { Lock } from "lucide-react";
 
@@ -116,6 +117,12 @@ function JuniorPage() {
             <p className="font-display text-3xl">⭐ Nível {currentLevel(progress)} / {GARDENS.length}</p>
             <p className="mt-1 text-xs text-muted-foreground">Completa cada jardim para desbloquear o próximo!</p>
           </div>
+        )}
+
+        {activeChild && (
+          <section className="mt-6">
+            <JuniorMascotStage child={activeChild} progress={progress} />
+          </section>
         )}
 
         <section className="mt-6 flex flex-wrap items-center justify-center gap-2">
