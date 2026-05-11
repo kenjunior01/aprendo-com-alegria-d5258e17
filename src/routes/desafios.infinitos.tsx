@@ -151,7 +151,7 @@ function InfinitePage() {
   );
 }
 
-function LevelGrid({ trackId, unlocked, bestStars, onPick, onBack }: { trackId: TrackId; unlocked: number; bestStars: Record<string, number>; onPick: (lv: number) => void; onBack: () => void; }) {
+function LevelGrid({ trackId, unlocked, bestStars, onPick, onBack }: { trackId: TrackId; unlocked: number; bestStars: Partial<Record<string, number>>; onPick: (lv: number) => void; onBack: () => void; }) {
   const track = TRACKS.find((t) => t.id === trackId)!;
   const total = Math.max(unlocked + 12, 30);
   return (
