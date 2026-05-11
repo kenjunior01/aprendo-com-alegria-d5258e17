@@ -6,7 +6,7 @@ import { ChunkyButton } from "@/components/ChunkyButton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ArrowLeft, Sparkles } from "lucide-react";
 import {
-  GARDENS, GAMES, getGardenGames,
+  GARDENS, GAMES, getGardenGames, gardenProgressFor, currentLevel,
   loadJuniorProgress, getActiveJuniorChildId, listJuniorChildren,
   type JuniorGame, type JuniorProgress, type JuniorChild,
 } from "@/lib/junior";
@@ -18,8 +18,12 @@ import {
   GameFormas, GameMercado, GameSoletrar, GameMatematica, GameCientista,
   GameRelogio, GamePalop,
 } from "@/components/junior/JuniorGamesExtra";
+import {
+  GamePinta, GameEco, GameJardimMagico, GamePuzzle, GameCacaTesouro, GameEstacoes, GameEmocoes,
+} from "@/components/junior/JuniorGamesV2";
 import { JuniorChildSwitcher } from "@/components/junior/JuniorChildSwitcher";
 import { Mascot } from "@/components/Mascot";
+import { Lock } from "lucide-react";
 
 export const Route = createFileRoute("/junior")({
   head: () => ({
