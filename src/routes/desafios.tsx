@@ -11,7 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger,
 } from "@/components/ui/dialog";
-import { Sparkles, Swords, Trophy, UserPlus, Check, X, Crown, Send } from "lucide-react";
+import { Sparkles, Swords, Trophy, UserPlus, Check, X, Send, History as HistoryIcon } from "lucide-react";
 import { loadProfile, pullProfileFromCloud, type Profile } from "@/lib/storage";
 import { supabase } from "@/integrations/supabase/client";
 import type { MascotId } from "@/lib/mascots";
