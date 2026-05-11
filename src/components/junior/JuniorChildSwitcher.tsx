@@ -9,6 +9,7 @@ import {
   getActiveJuniorChildId, setActiveJuniorChild,
   type JuniorChild,
 } from "@/lib/junior";
+import { scheduleJuniorCloudPush } from "@/lib/juniorCloud";
 
 interface Props {
   onChange?: (childId: string | null) => void;
@@ -42,6 +43,7 @@ export function JuniorChildSwitcher({ onChange }: Props) {
     setActiveJuniorChild(id);
     setActiveId(id);
     onChange?.(id);
+    scheduleJuniorCloudPush();
   };
 
   const create = () => {
@@ -51,12 +53,14 @@ export function JuniorChildSwitcher({ onChange }: Props) {
     setCreating(false);
     setActiveId(c.id);
     refresh();
+    scheduleJuniorCloudPush();
   };
 
   const remove = (id: string) => {
     if (!confirm("Remover este perfil e o seu progresso?")) return;
     removeJuniorChild(id);
     refresh();
+    scheduleJuniorCloudPush();
   };
 
   return (

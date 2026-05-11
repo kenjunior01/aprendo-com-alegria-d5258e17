@@ -15,6 +15,7 @@ import { Copy, LogOut, Plus, BarChart3, Clock, Target, Flame, MessageCircle, Shi
 import { PurchaseHistoryPanel } from "@/components/PurchaseHistoryPanel";
 import { QuickChildSignup } from "@/components/QuickChildSignup";
 import { JuniorParentPanel } from "@/components/JuniorParentPanel";
+import { JuniorParentReport } from "@/components/JuniorParentReport";
 import { ParentRealtimeFeed } from "@/components/ParentRealtimeFeed";
 import { FamilyChallengePanel } from "@/components/FamilyChallengePanel";
 
@@ -257,6 +258,10 @@ function ParentDashboard() {
             )}
             <div className="mt-5"><ParentRealtimeFeed childList={children.map((c) => ({ id: c.id, name: c.name }))} /></div>
             <div className="mt-5"><JuniorParentPanel /></div>
+            <section className="mt-6">
+              <h3 className="mb-3 font-display text-xl">🧸 Atividade Kidoz Júnior (2-5 anos)</h3>
+              <JuniorParentReport />
+            </section>
             <PurchaseHistoryPanel />
           </>
         )}
