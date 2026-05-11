@@ -1634,3 +1634,29 @@ function AuditTab() {
     </div>
   );
 }
+
+function SortableColumnRow({ id, label, checked, onToggle }: { id: string; label: string; checked: boolean; onToggle: () => void }) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
+  const style: React.CSSProperties = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.6 : 1,
+  };
+  return (
+    <div ref={setNodeRef} style={style} className="flex items-center gap-2 px-1 py-1 rounded hover:bg-muted text-sm">
+      <button
+        type="button"
+        className="cursor-grab active:cursor-grabbing touch-none p-1 text-muted-foreground hover:text-foreground"
+        aria-label={`Arrastar ${label}`}
+        {...attributes}
+        {...listeners}
+      >
+        <GripVertical className="h-4 w-4" />
+      </button>
+      <label className="flex items-center gap-2 flex-1 cursor-pointer">
+        <Checkbox checked={checked} onCheckedChange={onToggle} />
+        <span>{label}</span>
+      </label>
+    </div>
+  );
+}
