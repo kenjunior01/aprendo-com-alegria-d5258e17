@@ -176,6 +176,13 @@ function JuniorPage() {
             {active?.id === "pequeno-cientista" && <GameCientista />}
             {active?.id === "relogio-kido" && <GameRelogio />}
             {active?.id === "mapa-palop" && <GamePalop />}
+            {active?.id === "pinta-desenho" && <GamePinta />}
+            {active?.id === "eco-som" && <GameEco />}
+            {active?.id === "jardim-magico" && <GameJardimMagico />}
+            {active?.id === "puzzle-kido" && <GamePuzzle />}
+            {active?.id === "caca-tesouro" && <GameCacaTesouro />}
+            {active?.id === "estacoes-ano" && <GameEstacoes />}
+            {active?.id === "emocoes-kido" && <GameEmocoes />}
           </div>
           <div className="mt-2 flex justify-end">
             <ChunkyButton tone="ghost" onClick={() => setActive(null)}>Fechar</ChunkyButton>
