@@ -50,17 +50,17 @@ export const createPvpChallenge = createServerFn({ method: "POST" })
   )
   .handler(async ({ context, data }) => {
     const { supabase, userId } = context;
-    // Verify friendship
+    // Verify friendship (accepted in either direction)
     const { data: f } = await supabase
       .from("friendships" as any)
-      .select("status")
+      .select("id, status")
       .or(
         `and(requester_id.eq.${userId},addressee_id.eq.${data.opponentId}),and(requester_id.eq.${data.opponentId},addressee_id.eq.${userId})`,
       )
       .eq("status", "accepted")
-      .maybeSingle();
-    if (!f) {
-      return { ok: false as const, error: "Precisas ser amigo dessa pessoa." };
+      .limit(1);
+    if (!f || f.length === 0) {
+      return { ok: false as const, error: "Precisas de ser amigo dessa pessoa para a desafiar." };
     }
     const { data: ch, error } = await supabase
       .from("challenges" as any)
