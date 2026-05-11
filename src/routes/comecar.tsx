@@ -20,26 +20,45 @@ export const Route = createFileRoute("/comecar")({
 
 const STEPS_TOTAL = 5;
 
+type Track = "junior" | "child" | "parent";
+
 function Onboarding() {
   const navigate = useNavigate();
   const [step, setStep] = useState(0);
-  const [role, setRole] = useState<"child" | "parent">("child");
+  const [track, setTrack] = useState<Track>("child");
   const [name, setName] = useState("");
   const [age, setAge] = useState(7);
   const [grade, setGrade] = useState(1);
   const [mascot, setMascot] = useState<MascotId>("fox");
 
+  const role: "child" | "parent" = track === "parent" ? "parent" : "child";
+
   const finish = () => {
-    const p = { ...defaultProfile(), role, name: name.trim() || (role === "parent" ? "Adulto" : "Amigo"), age, grade, mascot };
+    const finalAge = track === "junior" ? 4 : age;
+    const finalGrade = track === "junior" ? 0 : grade;
+    const p = {
+      ...defaultProfile(),
+      role,
+      name: name.trim() || (track === "parent" ? "Adulto" : "Amigo"),
+      age: finalAge,
+      grade: finalGrade,
+      mascot,
+    };
     saveProfile(p);
-    navigate({ to: role === "parent" ? "/pais" : "/app" });
+    if (track === "parent") navigate({ to: "/pais" });
+    else if (track === "junior") navigate({ to: "/junior" });
+    else navigate({ to: "/app" });
   };
 
-  // Skip steps not relevant to parents
+  // Skip steps not relevant to parents/junior
   const goNext = () => {
-    if (role === "parent" && step === 1) {
-      // Adultos saltam idade/ano/mascote — vão direto ao fim
+    if (track === "parent" && step === 1) {
       finish();
+      return;
+    }
+    if (track === "junior" && step === 1) {
+      // Junior: pula idade/ano, vai direto para escolher mascote
+      setStep(4);
       return;
     }
     setStep((s) => s + 1);
