@@ -1489,16 +1489,28 @@ function AuditTab() {
           <PopoverTrigger asChild>
             <Button size="sm" variant="outline">Colunas ({Object.values(visibleCols).filter(Boolean).length}/{COLS.length})</Button>
           </PopoverTrigger>
-          <PopoverContent align="end" className="w-56 p-2">
-            <div className="text-xs font-semibold px-2 py-1 text-muted-foreground">Mostrar colunas</div>
-            <div className="space-y-1">
-              {COLS.map((c) => (
-                <label key={c.key} className="flex items-center gap-2 px-2 py-1 rounded hover:bg-muted cursor-pointer text-sm">
-                  <Checkbox checked={showCol(c.key)} onCheckedChange={() => toggleCol(c.key)} />
-                  <span>{c.label}</span>
-                </label>
-              ))}
+          <PopoverContent align="end" className="w-64 p-2">
+            <div className="flex items-center justify-between px-2 py-1">
+              <span className="text-xs font-semibold text-muted-foreground">Colunas (arrasta p/ reordenar)</span>
+              <Button size="sm" variant="ghost" className="h-6 px-2" onClick={resetCols} title="Repor">
+                <RotateCcw className="h-3 w-3" />
+              </Button>
             </div>
+            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+              <SortableContext items={colOrder} strategy={verticalListSortingStrategy}>
+                <div className="space-y-1">
+                  {colOrder.map((key) => (
+                    <SortableColumnRow
+                      key={key}
+                      id={key}
+                      label={colByKey[key]?.label ?? key}
+                      checked={showCol(key)}
+                      onToggle={() => toggleCol(key)}
+                    />
+                  ))}
+                </div>
+              </SortableContext>
+            </DndContext>
           </PopoverContent>
         </Popover>
       </div>
@@ -1515,50 +1527,47 @@ function AuditTab() {
       ) : (
         <>
           <div className="space-y-2">
-            {rows.map((r) => (
-              <Card
-                key={r.id}
-                className="p-3 text-sm cursor-pointer hover:bg-muted/40 transition-colors"
-                onClick={() => setDetail(r)}
-                role="button"
-                tabIndex={0}
-                onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setDetail(r); } }}
-              >
-                <div className="flex items-start justify-between gap-2 flex-wrap">
-                  <div className="min-w-0 flex-1">
-                    {(showCol("entity") || showCol("action") || showCol("actor")) && (
-                      <div className="flex items-center gap-2 flex-wrap">
-                        {showCol("entity") && (
-                          <Badge variant="secondary" className="text-xs">{entityLabel[r.entity] ?? r.entity}</Badge>
-                        )}
-                        {showCol("action") && (
-                          <Badge variant="outline" className="text-xs">{r.action}</Badge>
-                        )}
-                        {showCol("actor") && (
-                          <span className="text-xs text-muted-foreground">
-                            por {r.actor_id ? (actors[r.actor_id] ?? r.actor_id.slice(0, 8)) : "sistema"}
-                          </span>
-                        )}
-                      </div>
-                    )}
-                    {showCol("summary") && (
-                      <div className="text-xs mt-1 break-all">{summarize(r)}</div>
-                    )}
-                    {showCol("entity_id") && r.entity_id && (
-                      <div className="text-[10px] text-muted-foreground font-mono mt-1">ent: {r.entity_id}</div>
-                    )}
-                    {showCol("audit_id") && (
-                      <div className="text-[10px] text-muted-foreground font-mono mt-1">id: {r.id}</div>
-                    )}
+            {rows.map((r) => {
+              const renderCell = (key: string) => {
+                if (!showCol(key)) return null;
+                switch (key) {
+                  case "entity":
+                    return <Badge key={key} variant="secondary" className="text-xs">{entityLabel[r.entity] ?? r.entity}</Badge>;
+                  case "action":
+                    return <Badge key={key} variant="outline" className="text-xs">{r.action}</Badge>;
+                  case "actor":
+                    return (
+                      <span key={key} className="text-xs text-muted-foreground">
+                        por {r.actor_id ? (actors[r.actor_id] ?? r.actor_id.slice(0, 8)) : "sistema"}
+                      </span>
+                    );
+                  case "summary":
+                    return <span key={key} className="text-xs break-all basis-full">{summarize(r)}</span>;
+                  case "entity_id":
+                    return r.entity_id ? <span key={key} className="text-[10px] text-muted-foreground font-mono">ent: {r.entity_id}</span> : null;
+                  case "audit_id":
+                    return <span key={key} className="text-[10px] text-muted-foreground font-mono">id: {r.id}</span>;
+                  case "created_at":
+                    return <span key={key} className="text-xs text-muted-foreground whitespace-nowrap ml-auto">{new Date(r.created_at).toLocaleString("pt-PT")}</span>;
+                  default:
+                    return null;
+                }
+              };
+              return (
+                <Card
+                  key={r.id}
+                  className="p-3 text-sm cursor-pointer hover:bg-muted/40 transition-colors"
+                  onClick={() => setDetail(r)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setDetail(r); } }}
+                >
+                  <div className="flex items-center gap-2 flex-wrap">
+                    {colOrder.map((k) => renderCell(k))}
                   </div>
-                  {showCol("created_at") && (
-                    <div className="text-xs text-muted-foreground whitespace-nowrap">
-                      {new Date(r.created_at).toLocaleString("pt-PT")}
-                    </div>
-                  )}
-                </div>
-              </Card>
-            ))}
+                </Card>
+              );
+            })}
           </div>
           <div className="flex items-center justify-between gap-2 pt-2">
             <span className="text-xs text-muted-foreground">
