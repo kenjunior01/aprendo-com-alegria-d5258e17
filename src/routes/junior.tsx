@@ -169,7 +169,15 @@ function JuniorPage() {
         <section className="mt-6 space-y-8">
           {gardenProgressFor(progress)
             .filter(({ garden: g }) => ageFilter === "all" || g.age === ageFilter)
-            .map(({ garden: g, played, total, pct, unlocked }) => (
+            .filter(({ garden: g }) => isSubjectEnabled(g.id, activeChild?.age))
+            .map(({ garden: g, pct, unlocked }) => {
+              // jogos disponíveis (filtrados por settings + idade da criança)
+              const visibleGames = getGardenGames(g.id).filter((gm) => isGameEnabled(gm.id, activeChild?.age));
+              const visibleTotal = visibleGames.length;
+              const visiblePlayed = visibleGames.filter((gm) => progress.playedGames.includes(gm.id)).length;
+              const visiblePct = visibleTotal ? Math.round((visiblePlayed / visibleTotal) * 100) : pct;
+              if (visibleTotal === 0) return null;
+              return (
             <div key={g.id} className={`card-chunky relative rounded-3xl border-2 border-border ${g.color} p-5 sm:p-7 ${!unlocked ? "opacity-70" : ""}`}>
               <div className="flex items-center gap-3">
                 <span className="text-4xl">{g.emoji}</span>
@@ -182,13 +190,13 @@ function JuniorPage() {
                   <p className="text-xs text-muted-foreground">{g.age} anos · {g.tagline}</p>
                 </div>
                 <div className="text-right">
-                  <p className="font-display text-lg">{played}/{total}</p>
-                  <p className="text-[10px] text-muted-foreground">{pct}%</p>
+                  <p className="font-display text-lg">{visiblePlayed}/{visibleTotal}</p>
+                  <p className="text-[10px] text-muted-foreground">{visiblePct}%</p>
                 </div>
               </div>
 
               <div className="mt-2 h-2 overflow-hidden rounded-full bg-muted">
-                <motion.div initial={{ width: 0 }} animate={{ width: `${pct}%` }}
+                <motion.div initial={{ width: 0 }} animate={{ width: `${visiblePct}%` }}
                   className="h-full bg-gradient-to-r from-primary via-xp to-success" />
               </div>
 
@@ -198,7 +206,7 @@ function JuniorPage() {
                 </p>
               ) : (
                 <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                  {getGardenGames(g.id).map((game) => {
+                  {visibleGames.map((game) => {
                     const done = progress.playedGames.includes(game.id);
                     return (
                       <button
@@ -218,7 +226,8 @@ function JuniorPage() {
                 </div>
               )}
             </div>
-          ))}
+              );
+            })}
         </section>
 
         {activeChild && (
