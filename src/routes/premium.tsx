@@ -41,45 +41,77 @@ const PLANS: Plan[] = [
     price: "4,99€",
     priceLabel: "/mês",
     perks: [
-      "Acesso ilimitado a todas as disciplinas",
-      "Tutor Mocha IA com explicações detalhadas",
-      "Modo família — até 4 crianças",
-      "Relatórios semanais para pais",
-      "Sem anúncios",
+      "Tudo grátis incluído",
+      "♾️ Desafios Infinitos (todos os níveis)",
+      "🤖 Tutor Mocha IA com explicações detalhadas",
+      "🥽 Realidade Aumentada com mascotes",
+      "👨‍👩‍👧 Modo família — até 4 crianças",
+      "📊 Relatórios semanais aos pais",
+      "Sem anúncios, sem limites de leitura por voz",
     ],
     cta: "Começar mensal",
   },
   {
     priceId: "familia_anual",
-    badge: "Poupa 33%",
+    badge: "Mais popular · Poupa 33%",
     name: "Família Anual",
     price: "39,99€",
     priceLabel: "/ano (≈3,33€/mês)",
     highlight: true,
     perks: [
       "Tudo do plano mensal",
-      "Poupança equivalente a 4 meses grátis",
-      "Acesso prioritário a novos conteúdos",
+      "💰 Equivalente a 4 meses grátis",
+      "🎁 Itens exclusivos de loja todos os meses",
+      "🚀 Acesso prioritário a novos conteúdos",
+      "📜 Certificados imprimíveis das conquistas",
       "Faturação anual única",
     ],
     cta: "Escolher anual",
   },
   {
     priceId: "vitalicio_lifetime",
-    badge: "Lançamento",
+    badge: "Lançamento · Edição limitada",
     name: "Vitalício",
     price: "79,99€",
     priceLabel: "uma vez · oferta limitada",
     perks: [
-      "Acesso vitalício a tudo no Kidoz",
+      "👑 Acesso vitalício a tudo no Kidoz",
       "Para os primeiros early-adopters",
       "Sem renovações nem cobranças futuras",
-      "Inclui atualizações futuras",
+      "Inclui todas as atualizações futuras",
+      "🏷️ Mascote dourada exclusiva 'Founder'",
+      "Suporte prioritário",
     ],
     cta: "Ser vitalício",
     oneTime: true,
   },
 ];
+
+interface Feature {
+  icon: typeof Crown;
+  title: string;
+  desc: string;
+}
+
+const FEATURES: Feature[] = [
+  { icon: InfinityIcon, title: "Desafios Infinitos", desc: "Milhares de níveis procedurais em 12 disciplinas. Aritmética, álgebra, geometria, gramática, vocabulário, geografia, história, lógica e mais — sem fim." },
+  { icon: GraduationCap, title: "Para todas as idades", desc: "Do Kidoz Júnior (2–5) ao avançado (10+). Conteúdo ajustado à idade, ano escolar e região (PT, BR, AO, MZ, CV)." },
+  { icon: Brain, title: "Tutor Mocha IA", desc: "Explicações passo-a-passo, exemplos personalizados e respostas adaptadas ao nível da criança." },
+  { icon: Gamepad2, title: "Jogos exclusivos", desc: "Mini-jogos premium, modo família 1v1, desafios PvP com amigos e ranking semanal." },
+  { icon: Palette, title: "Personalização total", desc: "Mascotes dourados, fatos exclusivos, cenários animados, jardim e mundo personalizáveis." },
+  { icon: Globe2, title: "Realidade Aumentada", desc: "Vê os mascotes em 3D no teu quarto. Aprende explorando objetos reais à tua volta." },
+  { icon: Trophy, title: "Conquistas premium", desc: "Centenas de medalhas, certificados imprimíveis e desafios sazonais únicos." },
+  { icon: Users, title: "Modo família", desc: "Até 4 perfis de criança, painel de pais avançado, controlos de tempo de ecrã e relatórios detalhados." },
+  { icon: Zap, title: "Sem limites", desc: "Vidas infinitas, leitura por voz ilimitada, modo offline e zero anúncios." },
+];
+
+const FAQS: Array<{ q: string; a: string }> = [
+  { q: "Posso cancelar quando quiser?", a: "Sim. O cancelamento é instantâneo no painel de perfil e mantém o acesso até ao fim do período pago." },
+  { q: "Quantas crianças posso registar?", a: "Até 4 perfis distintos por conta família, cada um com mascote e progresso próprios." },
+  { q: "Funciona offline?", a: "Sim. As lições e desafios infinitos funcionam offline depois da primeira sincronização." },
+  { q: "É seguro para crianças?", a: "Sem anúncios, sem dados partilhados com terceiros e modo pais com PIN para gerir tudo." },
+];
+
 
 function PremiumPage() {
   const navigate = useNavigate();
