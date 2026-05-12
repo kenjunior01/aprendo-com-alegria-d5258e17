@@ -35,6 +35,10 @@ import {
   GameMapaPT, GameCicloAgua, GameHabitats, GameBandeiras, GameSpellingEN, GameColorsEN,
   GameSimon, GameLogica, GameTriviaOnline,
 } from "@/components/junior/JuniorGamesV4";
+import {
+  GameBaloes, GamePares, GameTransportes, GameTamanho, GameContaDedos,
+  GameAlimentaBebe, GameOndeEsta, GameNumeros, GameFormasCor, GameImitaSom,
+} from "@/components/junior/JuniorGamesV5";
 import { JuniorChildSwitcher } from "@/components/junior/JuniorChildSwitcher";
 import { JuniorMascotStage } from "@/components/junior/JuniorMascotStage";
 import { Mascot } from "@/components/Mascot";
@@ -290,6 +294,16 @@ function JuniorPage() {
             {active?.id === "simon" && <GameSimon />}
             {active?.id === "logica" && <GameLogica />}
             {active?.id === "trivia-online" && <GameTriviaOnline category="general" count={8} />}
+            {active?.id === "baloes" && <GameBaloes />}
+            {active?.id === "pares-jr" && <GamePares />}
+            {active?.id === "transportes" && <GameTransportes />}
+            {active?.id === "tamanho" && <GameTamanho />}
+            {active?.id === "conta-dedos" && <GameContaDedos />}
+            {active?.id === "alimenta-bebe" && <GameAlimentaBebe />}
+            {active?.id === "onde-esta" && <GameOndeEsta />}
+            {active?.id === "numeros-tap" && <GameNumeros />}
+            {active?.id === "formas-cor" && <GameFormasCor />}
+            {active?.id === "imita-som" && <GameImitaSom />}
           </div>
           <div className="mt-2 flex flex-col-reverse gap-2 sm:flex-row sm:justify-between">
             <ChunkyButton tone="ghost" onClick={() => setActive(null)}>Sair</ChunkyButton>

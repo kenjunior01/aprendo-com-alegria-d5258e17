@@ -89,6 +89,18 @@ export const GAMES: JuniorGame[] = [
   { id: "simon",             title: "Memória Musical",           emoji: "🎹", description: "Repete a sequência (Simon Says).",                          benefits: ["Memória", "Música"],              age: "4-5", garden: "floresta-sonhos" },
   { id: "logica",            title: "Quebra-Cabeças Lógico",     emoji: "🧠", description: "Pequenos puzzles de lógica e padrões.",                     benefits: ["Lógica"],                         age: "4-5", garden: "preparacao" },
   { id: "trivia-online",     title: "Mega Trivia",               emoji: "🌐", description: "Perguntas dinâmicas (cache + offline).",                    benefits: ["Conhecimento geral"],             age: "4-5", garden: "estrela-imaginacao" },
+
+  // ---- 🍼 Bebés/Toddlers (2-3) — toques grandes, narração e tutoriais
+  { id: "baloes",         title: "Balões da Cor",      emoji: "🎈", description: "Rebenta os balões da cor pedida.",          benefits: ["Cores", "Reflexos"],     age: "2-3", garden: "primeiros-passos" },
+  { id: "pares-jr",       title: "Encontra o Par",     emoji: "👀", description: "Toca no animal igual ao do topo.",          benefits: ["Atenção visual"],        age: "2-3", garden: "primeiros-passos" },
+  { id: "transportes",    title: "Sons dos Transportes", emoji: "🚗", description: "Que veículo faz este som?",                benefits: ["Audição", "Vocabulário"], age: "2-3", garden: "primeiros-passos" },
+  { id: "tamanho",        title: "Grande ou Pequeno",  emoji: "🐘", description: "Aprende grande e pequeno.",                  benefits: ["Conceitos básicos"],     age: "2-3", garden: "primeiros-passos" },
+  { id: "conta-dedos",    title: "Conta as Estrelas",  emoji: "⭐", description: "Conta de 1 a 5.",                            benefits: ["Contagem"],              age: "2-3", garden: "primeiros-passos" },
+  { id: "alimenta-bebe",  title: "Alimenta o Bebé",    emoji: "👶", description: "Dá ao bebé a fruta certa.",                  benefits: ["Vocabulário", "Empatia"],age: "2-3", garden: "primeiros-passos" },
+  { id: "onde-esta",      title: "Onde está a bola?",  emoji: "🥤", description: "Encontra a bola escondida no copo.",         benefits: ["Memória", "Atenção"],    age: "2-3", garden: "primeiros-passos" },
+  { id: "numeros-tap",    title: "Toca no Número",     emoji: "🔢", description: "Aprende a reconhecer números.",              benefits: ["Números"],               age: "2-3", garden: "primeiros-passos" },
+  { id: "formas-cor",     title: "Forma e Cor",        emoji: "🔴", description: "Identifica formas pela cor.",                benefits: ["Cores", "Formas"],       age: "2-3", garden: "primeiros-passos" },
+  { id: "imita-som",      title: "Imita o Som",        emoji: "🥁", description: "Adivinha de que é cada som.",                benefits: ["Audição"],               age: "2-3", garden: "primeiros-passos" },
 ];
 
 export const getGardenGames = (gardenId: GardenId) =>
