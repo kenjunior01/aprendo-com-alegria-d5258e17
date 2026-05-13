@@ -39,6 +39,12 @@ import {
   GameBaloes, GamePares, GameTransportes, GameTamanho, GameContaDedos,
   GameAlimentaBebe, GameOndeEsta, GameNumeros, GameFormasCor, GameImitaSom,
 } from "@/components/junior/JuniorGamesV5";
+import {
+  GameTapCor, GameAnimaTap, GameNumTap13, GameGrandePequeno, GameFrutaTap,
+  GameSomAnima, GameCorRoupa, GameAnimaGrande, GameTapPatPat, GameEstrelasTap,
+  GameCarroCor, GameAnimaCasa, GameComidaTap, GameFormaRedonda, GameLuzTap,
+} from "@/components/junior/JuniorGamesV6";
+import { ParentModePanel } from "@/components/junior/ParentModePanel";
 import { JuniorChildSwitcher } from "@/components/junior/JuniorChildSwitcher";
 import { JuniorMascotStage } from "@/components/junior/JuniorMascotStage";
 import { Mascot } from "@/components/Mascot";
@@ -249,7 +255,10 @@ function JuniorPage() {
       <Dialog open={!!active} onOpenChange={(o) => !o && setActive(null)}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle className="font-display text-2xl">{active?.emoji} {active?.title}</DialogTitle>
+            <DialogTitle className="font-display text-2xl flex items-center justify-between gap-3 flex-wrap">
+              <span>{active?.emoji} {active?.title}</span>
+              {active && <ParentModePanel gameId={active.id} title={active.title} />}
+            </DialogTitle>
           </DialogHeader>
           <div className="py-2">
             {active?.id === "jardim-cores" && <GameJardimCores />}
@@ -304,6 +313,21 @@ function JuniorPage() {
             {active?.id === "numeros-tap" && <GameNumeros />}
             {active?.id === "formas-cor" && <GameFormasCor />}
             {active?.id === "imita-som" && <GameImitaSom />}
+            {active?.id === "tap-cor" && <GameTapCor />}
+            {active?.id === "anima-tap" && <GameAnimaTap />}
+            {active?.id === "num-tap-1-3" && <GameNumTap13 />}
+            {active?.id === "grande-pequeno-tap" && <GameGrandePequeno />}
+            {active?.id === "fruta-tap" && <GameFrutaTap />}
+            {active?.id === "som-anima" && <GameSomAnima />}
+            {active?.id === "cor-roupa" && <GameCorRoupa />}
+            {active?.id === "anima-grande" && <GameAnimaGrande />}
+            {active?.id === "tap-pat-pat" && <GameTapPatPat />}
+            {active?.id === "estrelas-tap" && <GameEstrelasTap />}
+            {active?.id === "carro-cor" && <GameCarroCor />}
+            {active?.id === "anima-casa" && <GameAnimaCasa />}
+            {active?.id === "comida-tap" && <GameComidaTap />}
+            {active?.id === "forma-redonda" && <GameFormaRedonda />}
+            {active?.id === "luz-tap" && <GameLuzTap />}
           </div>
           <div className="mt-2 flex flex-col-reverse gap-2 sm:flex-row sm:justify-between">
             <ChunkyButton tone="ghost" onClick={() => setActive(null)}>Sair</ChunkyButton>

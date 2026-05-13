@@ -480,6 +480,71 @@ export type Database = {
         }
         Relationships: []
       }
+      league_members: {
+        Row: {
+          bot_mascot: string | null
+          bot_name: string | null
+          created_at: string
+          id: string
+          league_id: string
+          score: number
+          user_id: string | null
+        }
+        Insert: {
+          bot_mascot?: string | null
+          bot_name?: string | null
+          created_at?: string
+          id?: string
+          league_id: string
+          score?: number
+          user_id?: string | null
+        }
+        Update: {
+          bot_mascot?: string | null
+          bot_name?: string | null
+          created_at?: string
+          id?: string
+          league_id?: string
+          score?: number
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "league_members_league_id_fkey"
+            columns: ["league_id"]
+            isOneToOne: false
+            referencedRelation: "leagues"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      leagues: {
+        Row: {
+          age_group: string
+          created_at: string
+          ends_on: string
+          id: string
+          name: string
+          starts_on: string
+        }
+        Insert: {
+          age_group?: string
+          created_at?: string
+          ends_on?: string
+          id?: string
+          name: string
+          starts_on?: string
+        }
+        Update: {
+          age_group?: string
+          created_at?: string
+          ends_on?: string
+          id?: string
+          name?: string
+          starts_on?: string
+        }
+        Relationships: []
+      }
       parent_links: {
         Row: {
           accepted_at: string | null

@@ -27,6 +27,7 @@ import {
   type ChallengeRow,
 } from "@/server/challenges.functions";
 import { toast } from "sonner";
+import { LigasPanel } from "@/components/LigasPanel";
 
 export const Route = createFileRoute("/desafios")({
   head: () => ({
@@ -129,12 +130,17 @@ function DesafiosPage() {
         )}
 
         <Tabs defaultValue="ai" className="w-full">
-          <TabsList className="mb-4 grid w-full grid-cols-4">
+          <TabsList className="mb-4 grid w-full grid-cols-5">
             <TabsTrigger value="ai" className="gap-1 px-1 text-xs sm:text-sm"><Sparkles className="h-4 w-4" />IA</TabsTrigger>
             <TabsTrigger value="pvp" className="gap-1 px-1 text-xs sm:text-sm"><Swords className="h-4 w-4" />PvP</TabsTrigger>
-            <TabsTrigger value="historico" className="gap-1 px-1 text-xs sm:text-sm"><HistoryIcon className="h-4 w-4" />Histórico</TabsTrigger>
-            <TabsTrigger value="ranking" className="gap-1 px-1 text-xs sm:text-sm"><Trophy className="h-4 w-4" />Ranking</TabsTrigger>
+            <TabsTrigger value="ligas" className="gap-1 px-1 text-xs sm:text-sm"><Trophy className="h-4 w-4" />Ligas</TabsTrigger>
+            <TabsTrigger value="historico" className="gap-1 px-1 text-xs sm:text-sm"><HistoryIcon className="h-4 w-4" />Hist.</TabsTrigger>
+            <TabsTrigger value="ranking" className="gap-1 px-1 text-xs sm:text-sm"><Trophy className="h-4 w-4" />Rank</TabsTrigger>
           </TabsList>
+
+          <TabsContent value="ligas">
+            <LigasPanel ageGroup={profile.grade ? `grade-${profile.grade}` : "mixed"} />
+          </TabsContent>
 
           <TabsContent value="ai">
             {loading ? (
