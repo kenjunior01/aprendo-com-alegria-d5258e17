@@ -111,7 +111,7 @@ export const addLeagueScore = createServerFn({ method: "POST" })
       .eq("user_id", userId)
       .maybeSingle();
     if (!row) return { ok: false as const, error: "Não estás nesta liga." };
-    const r = row as { id: string; score: number };
+    const r = row as unknown as { id: string; score: number };
     await supabase.from("league_members" as any)
       .update({ score: (r.score ?? 0) + data.points })
       .eq("id", r.id);
@@ -122,7 +122,7 @@ export const addLeagueScore = createServerFn({ method: "POST" })
       .select("id, score")
       .eq("league_id", data.leagueId)
       .is("user_id", null);
-    for (const b of (bots ?? []) as Array<{ id: string; score: number }>) {
+    for (const b of ((bots ?? []) as unknown as Array<{ id: string; score: number }>)) {
       const bump = Math.floor(Math.random() * Math.max(1, Math.floor(data.points * 0.6)));
       if (bump > 0) {
         await supabase.from("league_members" as any)
