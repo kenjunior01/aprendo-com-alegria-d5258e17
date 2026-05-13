@@ -101,6 +101,23 @@ export const GAMES: JuniorGame[] = [
   { id: "numeros-tap",    title: "Toca no Número",     emoji: "🔢", description: "Aprende a reconhecer números.",              benefits: ["Números"],               age: "2-3", garden: "primeiros-passos" },
   { id: "formas-cor",     title: "Forma e Cor",        emoji: "🔴", description: "Identifica formas pela cor.",                benefits: ["Cores", "Formas"],       age: "2-3", garden: "primeiros-passos" },
   { id: "imita-som",      title: "Imita o Som",        emoji: "🥁", description: "Adivinha de que é cada som.",                benefits: ["Audição"],               age: "2-3", garden: "primeiros-passos" },
+
+  // ---- 👶 2 anos (V6) — toques únicos, regras de 1 passo
+  { id: "tap-cor",            title: "Toca na Cor",          emoji: "🎨", description: "Toca só na cor que eu disser.",         benefits: ["Cores"],                  age: "2-3", garden: "primeiros-passos" },
+  { id: "anima-tap",          title: "Toca no Animal",       emoji: "🐶", description: "Encontra o animal pedido.",             benefits: ["Vocabulário"],            age: "2-3", garden: "primeiros-passos" },
+  { id: "num-tap-1-3",        title: "Números 1·2·3",        emoji: "🔢", description: "Aprende 1, 2 e 3.",                     benefits: ["Números"],                age: "2-3", garden: "primeiros-passos" },
+  { id: "grande-pequeno-tap", title: "Grande ou Pequeno",    emoji: "🐘", description: "Toca no grande ou no pequeno.",         benefits: ["Conceitos básicos"],      age: "2-3", garden: "primeiros-passos" },
+  { id: "fruta-tap",          title: "Toca na Fruta",        emoji: "🍎", description: "Encontra a fruta pedida.",              benefits: ["Vocabulário"],            age: "2-3", garden: "primeiros-passos" },
+  { id: "som-anima",          title: "Que Animal É?",        emoji: "🔊", description: "Que animal faz este som?",              benefits: ["Audição"],                age: "2-3", garden: "primeiros-passos" },
+  { id: "cor-roupa",          title: "Cor da Roupa",         emoji: "🧥", description: "Toca no casaco da cor pedida.",         benefits: ["Cores", "Rotinas"],       age: "2-3", garden: "primeiros-passos" },
+  { id: "anima-grande",       title: "Animal Grande/Pequeno",emoji: "🦁", description: "Toca no animal grande ou pequeno.",     benefits: ["Conceitos"],              age: "2-3", garden: "primeiros-passos" },
+  { id: "tap-pat-pat",        title: "Bate Palmas",          emoji: "👏", description: "Bate o ritmo no botão.",                benefits: ["Coordenação", "Ritmo"],   age: "2-3", garden: "primeiros-passos" },
+  { id: "estrelas-tap",       title: "Conta Estrelas",       emoji: "⭐", description: "Toca quantas estrelas eu disser.",      benefits: ["Contagem"],               age: "2-3", garden: "primeiros-passos" },
+  { id: "carro-cor",          title: "Carro da Cor",         emoji: "🚗", description: "Toca no carro da cor pedida.",          benefits: ["Cores"],                  age: "2-3", garden: "primeiros-passos" },
+  { id: "anima-casa",         title: "Onde Vive?",           emoji: "🏠", description: "Cada animal tem a sua casa.",           benefits: ["Natureza"],               age: "2-3", garden: "primeiros-passos" },
+  { id: "comida-tap",         title: "Toca na Comida",       emoji: "🍞", description: "Encontra a comida pedida.",             benefits: ["Vocabulário"],            age: "2-3", garden: "primeiros-passos" },
+  { id: "forma-redonda",      title: "Toca na Forma",        emoji: "⚪", description: "Reconhece círculo, quadrado, triângulo.",benefits: ["Formas"],                 age: "2-3", garden: "primeiros-passos" },
+  { id: "luz-tap",            title: "Acende as Luzes",      emoji: "💡", description: "Toca para acender. Causa e efeito.",    benefits: ["Causa-efeito"],           age: "2-3", garden: "primeiros-passos" },
 ];
 
 export const getGardenGames = (gardenId: GardenId) =>

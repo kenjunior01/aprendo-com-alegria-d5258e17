@@ -83,17 +83,44 @@ export function playLevelUp() {
 let voicesLoaded = false;
 let cachedVoice: SpeechSynthesisVoice | null = null;
 
+// Vozes preferidas por nome (mais naturais/humanas em cada SO/navegador).
+const PREFERRED_NAMES = [
+  // macOS / iOS
+  "Joana", "Inês", "Catarina", "Luciana", "Joaquim",
+  // Google (Android/Chrome)
+  "Google português de Portugal", "Google português do Brasil", "Google português",
+  // Microsoft (Windows/Edge)
+  "Microsoft Duarte", "Microsoft Raquel", "Microsoft Helia", "Microsoft Fernanda", "Microsoft Maria",
+];
+
+function scoreVoice(v: SpeechSynthesisVoice): number {
+  const name = (v.name || "").toLowerCase();
+  const lang = (v.lang || "").toLowerCase();
+  let score = 0;
+  if (lang.startsWith("pt-pt")) score += 100;
+  else if (lang.startsWith("pt-br")) score += 50;
+  else if (lang.startsWith("pt")) score += 30;
+  else return -1;
+  // Preferred natural voices
+  PREFERRED_NAMES.forEach((n, i) => {
+    if (name.includes(n.toLowerCase())) score += 50 - i;
+  });
+  // Hint at "natural"/"neural"/"online"
+  if (/(natural|neural|online|wavenet|premium|enhanced)/.test(name)) score += 20;
+  // Penalise robotic eSpeak voices
+  if (/espeak|compact/.test(name)) score -= 30;
+  return score;
+}
+
 function pickPortugueseVoice(): SpeechSynthesisVoice | null {
   if (typeof window === "undefined" || !window.speechSynthesis) return null;
   const voices = window.speechSynthesis.getVoices();
   if (!voices.length) return null;
-  // Preferir pt-PT, depois pt-BR, depois qualquer pt
-  const ptPT = voices.find((v) => v.lang?.toLowerCase().startsWith("pt-pt"));
-  if (ptPT) return ptPT;
-  const ptBR = voices.find((v) => v.lang?.toLowerCase().startsWith("pt-br"));
-  if (ptBR) return ptBR;
-  const pt = voices.find((v) => v.lang?.toLowerCase().startsWith("pt"));
-  return pt ?? null;
+  const ranked = voices
+    .map((v) => ({ v, s: scoreVoice(v) }))
+    .filter((x) => x.s >= 0)
+    .sort((a, b) => b.s - a.s);
+  return ranked[0]?.v ?? null;
 }
 
 function ensureVoices(): Promise<void> {
@@ -122,9 +149,11 @@ export async function speak(text: string, opts?: { rate?: number; pitch?: number
   try {
     window.speechSynthesis.cancel();
     const u = new SpeechSynthesisUtterance(text);
-    u.lang = "pt-PT";
+    // Match the chosen voice's lang when possible — improves naturalness.
+    u.lang = cachedVoice?.lang || "pt-PT";
     u.rate = opts?.rate ?? 0.95;
-    u.pitch = opts?.pitch ?? 1.05;
+    u.pitch = opts?.pitch ?? 1.0;
+    u.volume = 1;
     if (cachedVoice) u.voice = cachedVoice;
     window.speechSynthesis.speak(u);
   } catch {
