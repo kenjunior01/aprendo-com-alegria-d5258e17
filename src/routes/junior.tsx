@@ -313,6 +313,21 @@ function JuniorPage() {
             {active?.id === "numeros-tap" && <GameNumeros />}
             {active?.id === "formas-cor" && <GameFormasCor />}
             {active?.id === "imita-som" && <GameImitaSom />}
+            {active?.id === "tap-cor" && <GameTapCor />}
+            {active?.id === "anima-tap" && <GameAnimaTap />}
+            {active?.id === "num-tap-1-3" && <GameNumTap13 />}
+            {active?.id === "grande-pequeno-tap" && <GameGrandePequeno />}
+            {active?.id === "fruta-tap" && <GameFrutaTap />}
+            {active?.id === "som-anima" && <GameSomAnima />}
+            {active?.id === "cor-roupa" && <GameCorRoupa />}
+            {active?.id === "anima-grande" && <GameAnimaGrande />}
+            {active?.id === "tap-pat-pat" && <GameTapPatPat />}
+            {active?.id === "estrelas-tap" && <GameEstrelasTap />}
+            {active?.id === "carro-cor" && <GameCarroCor />}
+            {active?.id === "anima-casa" && <GameAnimaCasa />}
+            {active?.id === "comida-tap" && <GameComidaTap />}
+            {active?.id === "forma-redonda" && <GameFormaRedonda />}
+            {active?.id === "luz-tap" && <GameLuzTap />}
           </div>
           <div className="mt-2 flex flex-col-reverse gap-2 sm:flex-row sm:justify-between">
             <ChunkyButton tone="ghost" onClick={() => setActive(null)}>Sair</ChunkyButton>
