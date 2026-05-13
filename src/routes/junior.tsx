@@ -39,6 +39,12 @@ import {
   GameBaloes, GamePares, GameTransportes, GameTamanho, GameContaDedos,
   GameAlimentaBebe, GameOndeEsta, GameNumeros, GameFormasCor, GameImitaSom,
 } from "@/components/junior/JuniorGamesV5";
+import {
+  GameTapCor, GameAnimaTap, GameNumTap13, GameGrandePequeno, GameFrutaTap,
+  GameSomAnima, GameCorRoupa, GameAnimaGrande, GameTapPatPat, GameEstrelasTap,
+  GameCarroCor, GameAnimaCasa, GameComidaTap, GameFormaRedonda, GameLuzTap,
+} from "@/components/junior/JuniorGamesV6";
+import { ParentModePanel } from "@/components/junior/ParentModePanel";
 import { JuniorChildSwitcher } from "@/components/junior/JuniorChildSwitcher";
 import { JuniorMascotStage } from "@/components/junior/JuniorMascotStage";
 import { Mascot } from "@/components/Mascot";
@@ -249,7 +255,10 @@ function JuniorPage() {
       <Dialog open={!!active} onOpenChange={(o) => !o && setActive(null)}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle className="font-display text-2xl">{active?.emoji} {active?.title}</DialogTitle>
+            <DialogTitle className="font-display text-2xl flex items-center justify-between gap-3 flex-wrap">
+              <span>{active?.emoji} {active?.title}</span>
+              {active && <ParentModePanel gameId={active.id} title={active.title} />}
+            </DialogTitle>
           </DialogHeader>
           <div className="py-2">
             {active?.id === "jardim-cores" && <GameJardimCores />}
