@@ -482,28 +482,46 @@ export type Database = {
       }
       league_members: {
         Row: {
+          bot_difficulty: string
           bot_mascot: string | null
           bot_name: string | null
+          child_age: number | null
+          child_id: string | null
+          child_name: string | null
           created_at: string
+          games_played: number
           id: string
+          last_played_at: string | null
           league_id: string
           score: number
           user_id: string | null
         }
         Insert: {
+          bot_difficulty?: string
           bot_mascot?: string | null
           bot_name?: string | null
+          child_age?: number | null
+          child_id?: string | null
+          child_name?: string | null
           created_at?: string
+          games_played?: number
           id?: string
+          last_played_at?: string | null
           league_id: string
           score?: number
           user_id?: string | null
         }
         Update: {
+          bot_difficulty?: string
           bot_mascot?: string | null
           bot_name?: string | null
+          child_age?: number | null
+          child_id?: string | null
+          child_name?: string | null
           created_at?: string
+          games_played?: number
           id?: string
+          last_played_at?: string | null
           league_id?: string
           score?: number
           user_id?: string | null
@@ -524,6 +542,7 @@ export type Database = {
           created_at: string
           ends_on: string
           id: string
+          invite_code: string
           name: string
           starts_on: string
         }
@@ -532,6 +551,7 @@ export type Database = {
           created_at?: string
           ends_on?: string
           id?: string
+          invite_code?: string
           name: string
           starts_on?: string
         }
@@ -540,6 +560,7 @@ export type Database = {
           created_at?: string
           ends_on?: string
           id?: string
+          invite_code?: string
           name?: string
           starts_on?: string
         }
