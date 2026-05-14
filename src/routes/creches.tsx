@@ -147,7 +147,7 @@ function CrechesPage() {
                 <div className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-primary/15 text-primary">
                   <Icon className="h-6 w-6" />
                 </div>
-                <h3 className="mt-3 font-display text-2xl">{t.name}</h3>
+                <h2 className="mt-3 font-display text-2xl">{t.name}</h2>
                 <p className="text-xs text-muted-foreground">{t.audience}</p>
                 <p className="mt-3 font-display text-3xl text-primary">{t.price}</p>
 

@@ -135,7 +135,11 @@ function Onboarding() {
               <p className="text-muted-foreground">
                 {role === "parent" ? "Para personalizar o teu painel." : "Vamos criar a tua aventura."}
               </p>
+              <label htmlFor="comecar-name" className="sr-only">O teu nome</label>
               <input
+                id="comecar-name"
+                name="name"
+                aria-label="O teu nome"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 maxLength={20}
