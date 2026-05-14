@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TutorRouteImport } from './routes/tutor'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as RaRouteImport } from './routes/ra'
 import { Route as PremiumRouteImport } from './routes/premium'
 import { Route as PerfilRouteImport } from './routes/perfil'
@@ -42,6 +43,11 @@ import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/publi
 const TutorRoute = TutorRouteImport.update({
   id: '/tutor',
   path: '/tutor',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RaRoute = RaRouteImport.update({
@@ -207,6 +213,7 @@ export interface FileRoutesByFullPath {
   '/perfil': typeof PerfilRoute
   '/premium': typeof PremiumRoute
   '/ra': typeof RaRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/tutor': typeof TutorRoute
   '/capitulo/$chapterId': typeof CapituloChapterIdRoute
   '/checkout/return': typeof CheckoutReturnRoute
@@ -238,6 +245,7 @@ export interface FileRoutesByTo {
   '/perfil': typeof PerfilRoute
   '/premium': typeof PremiumRoute
   '/ra': typeof RaRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/tutor': typeof TutorRoute
   '/capitulo/$chapterId': typeof CapituloChapterIdRoute
   '/checkout/return': typeof CheckoutReturnRoute
@@ -270,6 +278,7 @@ export interface FileRoutesById {
   '/perfil': typeof PerfilRoute
   '/premium': typeof PremiumRoute
   '/ra': typeof RaRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/tutor': typeof TutorRoute
   '/capitulo/$chapterId': typeof CapituloChapterIdRoute
   '/checkout/return': typeof CheckoutReturnRoute
@@ -303,6 +312,7 @@ export interface FileRouteTypes {
     | '/perfil'
     | '/premium'
     | '/ra'
+    | '/sitemap.xml'
     | '/tutor'
     | '/capitulo/$chapterId'
     | '/checkout/return'
@@ -334,6 +344,7 @@ export interface FileRouteTypes {
     | '/perfil'
     | '/premium'
     | '/ra'
+    | '/sitemap.xml'
     | '/tutor'
     | '/capitulo/$chapterId'
     | '/checkout/return'
@@ -365,6 +376,7 @@ export interface FileRouteTypes {
     | '/perfil'
     | '/premium'
     | '/ra'
+    | '/sitemap.xml'
     | '/tutor'
     | '/capitulo/$chapterId'
     | '/checkout/return'
@@ -397,6 +409,7 @@ export interface RootRouteChildren {
   PerfilRoute: typeof PerfilRoute
   PremiumRoute: typeof PremiumRoute
   RaRoute: typeof RaRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TutorRoute: typeof TutorRoute
   CapituloChapterIdRoute: typeof CapituloChapterIdRoute
   CheckoutReturnRoute: typeof CheckoutReturnRoute
@@ -415,6 +428,13 @@ declare module '@tanstack/react-router' {
       path: '/tutor'
       fullPath: '/tutor'
       preLoaderRoute: typeof TutorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/ra': {
@@ -648,6 +668,7 @@ const rootRouteChildren: RootRouteChildren = {
   PerfilRoute: PerfilRoute,
   PremiumRoute: PremiumRoute,
   RaRoute: RaRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
   TutorRoute: TutorRoute,
   CapituloChapterIdRoute: CapituloChapterIdRoute,
   CheckoutReturnRoute: CheckoutReturnRoute,

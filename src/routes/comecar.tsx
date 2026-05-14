@@ -13,6 +13,12 @@ export const Route = createFileRoute("/comecar")({
     meta: [
       { title: "Começar — Kidoz" },
       { name: "description", content: "Cria o teu perfil e escolhe a tua mascote para começar a aventura." },
+      { property: "og:title", content: 'Começar no Kidoz' },
+      { property: "og:description", content: 'Cria o teu perfil e escolhe a tua mascote para começar a aventura.' },
+      { property: "og:url", content: "https://kidoz.online/comecar" },
+    ],
+    links: [
+      { rel: "canonical", href: "https://kidoz.online/comecar" },
     ],
   }),
   component: Onboarding,
@@ -135,7 +141,11 @@ function Onboarding() {
               <p className="text-muted-foreground">
                 {role === "parent" ? "Para personalizar o teu painel." : "Vamos criar a tua aventura."}
               </p>
+              <label htmlFor="comecar-name" className="sr-only">O teu nome</label>
               <input
+                id="comecar-name"
+                name="name"
+                aria-label="O teu nome"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 maxLength={20}

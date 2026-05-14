@@ -20,8 +20,12 @@ export const Route = createFileRoute("/creches")({
         content:
           "Kidoz Júnior para creches e jardins de infância. Planos Básico, Premium e Institucional com gestão de turmas, portefólios digitais e Kidoz Pro.",
       },
-      { property: "og:title", content: "Kidoz Creches — Kidoz Júnior + Kidoz Pro" },
-      { property: "og:description", content: "Solução B2B para creches e jardins de infância. Planos a partir de 29€/mês." },
+      { property: "og:title", content: 'Kidoz para Creches e Jardins de Infância (2-5 anos)' },
+      { property: "og:description", content: 'Kidoz Júnior para creches e jardins de infância. Planos Básico, Premium e Institucional com gestão de turmas, portefólios digitais e Kidoz Pro.' },
+      { property: "og:url", content: "https://kidoz.online/creches" },
+    ],
+    links: [
+      { rel: "canonical", href: "https://kidoz.online/creches" },
     ],
   }),
   component: CrechesPage,
@@ -147,7 +151,7 @@ function CrechesPage() {
                 <div className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-primary/15 text-primary">
                   <Icon className="h-6 w-6" />
                 </div>
-                <h3 className="mt-3 font-display text-2xl">{t.name}</h3>
+                <h2 className="mt-3 font-display text-2xl">{t.name}</h2>
                 <p className="text-xs text-muted-foreground">{t.audience}</p>
                 <p className="mt-3 font-display text-3xl text-primary">{t.price}</p>
 

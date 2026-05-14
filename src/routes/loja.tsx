@@ -16,6 +16,12 @@ export const Route = createFileRoute("/loja")({
     meta: [
       { title: "Loja — Kidoz" },
       { name: "description", content: "Personaliza a tua mascote com chapéus, fatos e cenários ganhos com Abracadinhos." },
+      { property: "og:title", content: 'Loja Kidoz — personaliza a tua mascote' },
+      { property: "og:description", content: 'Chapéus, fatos e cenários para a tua mascote, ganhos com Abracadinhos.' },
+      { property: "og:url", content: "https://kidoz.online/loja" },
+    ],
+    links: [
+      { rel: "canonical", href: "https://kidoz.online/loja" },
     ],
   }),
   component: ShopPage,

@@ -1,0 +1,31 @@
+# Kidoz
+
+> Aplicação educativa portuguesa estilo Duolingo para crianças dos 2 aos 10 anos. Português, Matemática e Estudo do Meio com mascotes, jogos, tutor IA e modo família.
+
+Kidoz combina um caminho de aprendizagem do 1.º ao 4.º ano (Português, Matemática, Estudo do Meio), o universo Kidoz Júnior para os 2-5 anos (cores, sons, formas, pré-leitura), Desafios Infinitos procedurais, leitura em voz alta, painel para pais, planos para escolas e creches, e um tutor IA chamado Mocha.
+
+## Pages
+
+- [Início](/): Página principal com apresentação do Kidoz.
+- [Começar](/comecar): Criar o perfil da criança ou do encarregado.
+- [Aventura](/app): Caminho de lições para crianças do 1.º ciclo.
+- [Júnior](/junior): Jogos para crianças dos 2 aos 5 anos.
+- [Desafios](/desafios): Desafios diários, PvP e ligas semanais.
+- [Desafios Infinitos](/desafios/infinitos): Milhares de níveis em 12 disciplinas.
+- [Leitura](/leitura): Prática de leitura em voz alta com reconhecimento de voz.
+- [Tutor Mocha](/tutor): Tutor IA conversacional em PT-PT.
+- [Realidade Aumentada](/ra): Mascotes 3D em RA.
+- [Loja](/loja): Personalização da mascote com Abracadinhos.
+- [Mundo](/mundo): Quarto virtual decorável.
+- [Jardim](/jardim): Jardim mágico que cresce com o progresso.
+- [Conquistas](/conquistas): Medalhas e badges desbloqueados.
+- [Perfil](/perfil): Perfil e definições da criança.
+- [Painel de Pais](/pais): Acompanhamento do progresso dos filhos.
+- [Premium](/premium): Subscrições Família e Vitalício, desde 3,33€/mês.
+- [Escolas](/escolas): Plano para escolas, 0,99€ por aluno/mês.
+- [Creches](/creches): Plano para creches e jardins de infância (2-5 anos).
+- [Autenticação](/auth): Iniciar sessão ou criar conta.
+
+## Optional
+
+- [Painel da Escola](/escola): Painel privado para professores.

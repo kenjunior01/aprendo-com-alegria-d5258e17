@@ -31,6 +31,12 @@ export const Route = createFileRoute("/mundo")({
     meta: [
       { title: "O Meu Mundo — Kidoz" },
       { name: "description", content: "Decora o teu quarto virtual com Abracadinhos. Adiciona móveis, plantas e fundos divertidos." },
+      { property: "og:title", content: 'O Meu Mundo — Kidoz' },
+      { property: "og:description", content: 'Decora o teu quarto virtual com Abracadinhos.' },
+      { property: "og:url", content: "https://kidoz.online/mundo" },
+    ],
+    links: [
+      { rel: "canonical", href: "https://kidoz.online/mundo" },
     ],
   }),
   component: MundoPage,

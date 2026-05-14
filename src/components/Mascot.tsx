@@ -40,7 +40,7 @@ export function Mascot({ id, size = "md", bouncing = false, className, equippedI
     >
       <img
         src={m.image}
-        alt={m.name}
+        alt={`Mascote ${m.name} do Kidoz`}
         width={300}
         height={300}
         loading="lazy"

@@ -17,6 +17,26 @@ export const Route = createFileRoute("/premium")({
     meta: [
       { title: "Subscrição Kidoz Premium — desde 3,33€/mês" },
       { name: "description", content: "Acesso ilimitado a todas as disciplinas, Mocha IA, modo família e relatórios. Planos a partir de 3,33€/mês." },
+      { property: "og:title", content: 'Kidoz Premium — desde 3,33€/mês' },
+      { property: "og:description", content: 'Acesso ilimitado a todas as disciplinas, Mocha IA, modo família e relatórios.' },
+      { property: "og:url", content: "https://kidoz.online/premium" },
+    ],
+    links: [
+      { rel: "canonical", href: "https://kidoz.online/premium" },
+    ],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          mainEntity: FAQS.map((f) => ({
+            "@type": "Question",
+            name: f.q,
+            acceptedAnswer: { "@type": "Answer", text: f.a },
+          })),
+        }),
+      },
     ],
   }),
   component: PremiumPage,

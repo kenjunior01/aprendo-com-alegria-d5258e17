@@ -41,6 +41,12 @@ export const Route = createFileRoute("/escola")({
     meta: [
       { title: "Painel da Escola — Kidoz" },
       { name: "description", content: "Painel para professores: turmas, métricas dos alunos e exportação CSV." },
+      { property: "og:title", content: 'Painel da Escola — Kidoz' },
+      { property: "og:description", content: 'Painel para professores: turmas, métricas dos alunos e exportação CSV.' },
+      { property: "og:url", content: "https://kidoz.online/escola" },
+    ],
+    links: [
+      { rel: "canonical", href: "https://kidoz.online/escola" },
     ],
   }),
   component: EscolaPage,

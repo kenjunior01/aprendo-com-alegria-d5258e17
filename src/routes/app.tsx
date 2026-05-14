@@ -19,6 +19,12 @@ export const Route = createFileRoute("/app")({
     meta: [
       { title: "A minha aventura — Kidoz" },
       { name: "description", content: "Caminho de aprendizagem visual: Português, Matemática e Estudo do Meio." },
+      { property: "og:title", content: 'A minha aventura — Kidoz' },
+      { property: "og:description", content: 'Caminho de aprendizagem visual para Português, Matemática e Estudo do Meio do 1.º ciclo.' },
+      { property: "og:url", content: "https://kidoz.online/app" },
+    ],
+    links: [
+      { rel: "canonical", href: "https://kidoz.online/app" },
     ],
   }),
   component: AppHome,
@@ -58,6 +64,7 @@ function AppHome() {
       <TopBar profile={profile} />
 
       <main className="mx-auto max-w-2xl px-4 py-4 sm:py-6">
+        <h1 className="sr-only">A minha aventura no Kidoz — caminho de aprendizagem de {profile.name}</h1>
         {/* Hero greeting */}
         <motion.section
           initial={{ opacity: 0, y: 10 }}
@@ -67,7 +74,7 @@ function AppHome() {
           <div className="flex items-center gap-3 sm:gap-4">
             <Mascot id={profile.mascot} size="md" bouncing equippedItemId={profile.equippedItem} />
             <div className="min-w-0 flex-1">
-              <p className="truncate font-display text-xl sm:text-2xl">Olá, {profile.name}! ☀️</p>
+              <h2 className="truncate font-display text-xl sm:text-2xl">Olá, {profile.name}! ☀️</h2>
               <p className="text-sm text-muted-foreground">
                 {profile.streak > 0
                   ? `🔥 ${profile.streak} ${profile.streak === 1 ? "dia seguido" : "dias seguidos"}!`

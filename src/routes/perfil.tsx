@@ -20,6 +20,12 @@ export const Route = createFileRoute("/perfil")({
     meta: [
       { title: "Perfil — Kidoz" },
       { name: "description", content: "Vê o teu progresso e troca de mascote." },
+      { property: "og:title", content: 'Perfil — Kidoz' },
+      { property: "og:description", content: 'Vê o teu progresso e troca de mascote.' },
+      { property: "og:url", content: "https://kidoz.online/perfil" },
+    ],
+    links: [
+      { rel: "canonical", href: "https://kidoz.online/perfil" },
     ],
   }),
   component: ProfilePage,

@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /api/
+Disallow: /lovable/
+Disallow: /checkout.return
+
+Sitemap: https://kidoz.online/sitemap.xml

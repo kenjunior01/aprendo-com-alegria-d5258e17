@@ -41,6 +41,12 @@ export const Route = createFileRoute("/pais")({
     meta: [
       { title: "Painel de Pais — Kidoz" },
       { name: "description", content: "Acompanha o progresso dos teus filhos: tempo de estudo, áreas fortes e fracas, recomendações." },
+      { property: "og:title", content: 'Painel de Pais — Kidoz' },
+      { property: "og:description", content: 'Acompanha o progresso dos teus filhos: tempo de estudo, áreas fortes e fracas.' },
+      { property: "og:url", content: "https://kidoz.online/pais" },
+    ],
+    links: [
+      { rel: "canonical", href: "https://kidoz.online/pais" },
     ],
   }),
   component: ParentDashboard,
@@ -302,7 +308,8 @@ function ParentDashboard() {
               <summary className="cursor-pointer font-display text-sm">Tenho um código de convite</summary>
               <div className="mt-3">
                 <p className="text-xs text-muted-foreground">Introduz aqui o código que te foi dado (na conta da criança).</p>
-                <input value={acceptCode} onChange={(e) => setAcceptCode(e.target.value.toUpperCase())} placeholder="ABC123" maxLength={8} className="mt-2 w-full rounded-xl border-2 border-border bg-card px-3 py-2 text-center font-mono text-lg tracking-widest outline-none focus:border-primary" />
+                <label htmlFor="pais-invite-code" className="sr-only">Código de convite</label>
+                <input id="pais-invite-code" name="inviteCode" aria-label="Código de convite" value={acceptCode} onChange={(e) => setAcceptCode(e.target.value.toUpperCase())} placeholder="ABC123" maxLength={8} className="mt-2 w-full rounded-xl border-2 border-border bg-card px-3 py-2 text-center font-mono text-lg tracking-widest outline-none focus:border-primary" />
                 <ChunkyButton tone="secondary" onClick={acceptInvite} className="mt-2 w-full">Ligar conta</ChunkyButton>
                 {acceptMsg && <p className="mt-2 text-center text-xs">{acceptMsg}</p>}
               </div>
