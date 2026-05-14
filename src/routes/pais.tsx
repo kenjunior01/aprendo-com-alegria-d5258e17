@@ -41,6 +41,12 @@ export const Route = createFileRoute("/pais")({
     meta: [
       { title: "Painel de Pais — Kidoz" },
       { name: "description", content: "Acompanha o progresso dos teus filhos: tempo de estudo, áreas fortes e fracas, recomendações." },
+      { property: "og:title", content: 'Painel de Pais — Kidoz' },
+      { property: "og:description", content: 'Acompanha o progresso dos teus filhos: tempo de estudo, áreas fortes e fracas.' },
+      { property: "og:url", content: "https://kidoz.online/pais" },
+    ],
+    links: [
+      { rel: "canonical", href: "https://kidoz.online/pais" },
     ],
   }),
   component: ParentDashboard,

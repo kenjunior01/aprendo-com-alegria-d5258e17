@@ -41,6 +41,12 @@ export const Route = createFileRoute("/ra")({
     meta: [
       { title: "Realidade Aumentada — Kidoz" },
       { name: "description", content: "Vê os mascotes do Kidoz no teu mundo real, em 3D!" },
+      { property: "og:title", content: 'Realidade Aumentada — Kidoz' },
+      { property: "og:description", content: 'Vê os mascotes do Kidoz no teu mundo real, em 3D.' },
+      { property: "og:url", content: "https://kidoz.online/ra" },
+    ],
+    links: [
+      { rel: "canonical", href: "https://kidoz.online/ra" },
     ],
   }),
   component: ARPage,

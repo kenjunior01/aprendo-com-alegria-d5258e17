@@ -14,6 +14,12 @@ export const Route = createFileRoute("/auth")({
     meta: [
       { title: "Entrar — Kidoz" },
       { name: "description", content: "Entra na tua conta para guardar o teu progresso em todos os dispositivos." },
+      { property: "og:title", content: 'Entrar — Kidoz' },
+      { property: "og:description", content: 'Entra na tua conta para guardar o teu progresso em todos os dispositivos.' },
+      { property: "og:url", content: "https://kidoz.online/auth" },
+    ],
+    links: [
+      { rel: "canonical", href: "https://kidoz.online/auth" },
     ],
   }),
   component: AuthPage,

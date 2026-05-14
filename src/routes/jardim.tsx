@@ -16,6 +16,12 @@ export const Route = createFileRoute("/jardim")({
     meta: [
       { title: "O meu Jardim Mágico — Kidoz" },
       { name: "description", content: "O teu jardim cresce a cada missão completada. Vê o que conseguiste desbloquear!" },
+      { property: "og:title", content: 'O meu Jardim Mágico — Kidoz' },
+      { property: "og:description", content: 'O teu jardim cresce a cada missão completada.' },
+      { property: "og:url", content: "https://kidoz.online/jardim" },
+    ],
+    links: [
+      { rel: "canonical", href: "https://kidoz.online/jardim" },
     ],
   }),
   component: GardenPage,

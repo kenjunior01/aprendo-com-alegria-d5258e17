@@ -20,8 +20,12 @@ export const Route = createFileRoute("/creches")({
         content:
           "Kidoz Júnior para creches e jardins de infância. Planos Básico, Premium e Institucional com gestão de turmas, portefólios digitais e Kidoz Pro.",
       },
-      { property: "og:title", content: "Kidoz Creches — Kidoz Júnior + Kidoz Pro" },
-      { property: "og:description", content: "Solução B2B para creches e jardins de infância. Planos a partir de 29€/mês." },
+      { property: "og:title", content: 'Kidoz para Creches e Jardins de Infância (2-5 anos)' },
+      { property: "og:description", content: 'Kidoz Júnior para creches e jardins de infância. Planos Básico, Premium e Institucional com gestão de turmas, portefólios digitais e Kidoz Pro.' },
+      { property: "og:url", content: "https://kidoz.online/creches" },
+    ],
+    links: [
+      { rel: "canonical", href: "https://kidoz.online/creches" },
     ],
   }),
   component: CrechesPage,

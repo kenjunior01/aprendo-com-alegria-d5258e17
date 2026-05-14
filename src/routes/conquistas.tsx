@@ -20,6 +20,12 @@ export const Route = createFileRoute("/conquistas")({
     meta: [
       { title: "Conquistas — Kidoz" },
       { name: "description", content: "Vê as tuas medalhas desbloqueadas e as próximas a conquistar." },
+      { property: "og:title", content: 'As minhas conquistas — Kidoz' },
+      { property: "og:description", content: 'Vê as tuas medalhas desbloqueadas e as próximas a conquistar.' },
+      { property: "og:url", content: "https://kidoz.online/conquistas" },
+    ],
+    links: [
+      { rel: "canonical", href: "https://kidoz.online/conquistas" },
     ],
   }),
   component: AchievementsPage,

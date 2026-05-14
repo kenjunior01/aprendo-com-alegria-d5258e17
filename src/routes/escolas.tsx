@@ -30,6 +30,12 @@ export const Route = createFileRoute("/escolas")({
         content:
           "Plano dedicado para escolas e instituições: 0,99€ por aluno/mês, mínimo 20 alunos. Painel de turmas, relatórios de progresso e suporte dedicado.",
       },
+      { property: "og:title", content: 'Plano Escolas Kidoz — 0,99€/aluno/mês' },
+      { property: "og:description", content: 'Plano dedicado para escolas e instituições, painel de turmas e relatórios de progresso.' },
+      { property: "og:url", content: "https://kidoz.online/escolas" },
+    ],
+    links: [
+      { rel: "canonical", href: "https://kidoz.online/escolas" },
     ],
   }),
   component: EscolasPage,

@@ -19,6 +19,12 @@ export const Route = createFileRoute("/app")({
     meta: [
       { title: "A minha aventura — Kidoz" },
       { name: "description", content: "Caminho de aprendizagem visual: Português, Matemática e Estudo do Meio." },
+      { property: "og:title", content: 'A minha aventura — Kidoz' },
+      { property: "og:description", content: 'Caminho de aprendizagem visual para Português, Matemática e Estudo do Meio do 1.º ciclo.' },
+      { property: "og:url", content: "https://kidoz.online/app" },
+    ],
+    links: [
+      { rel: "canonical", href: "https://kidoz.online/app" },
     ],
   }),
   component: AppHome,

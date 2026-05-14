@@ -23,6 +23,12 @@ export const Route = createFileRoute("/desafios/infinitos")({
     meta: [
       { title: "Desafios Infinitos — níveis para todas as idades | Kidoz" },
       { name: "description", content: "Centenas de níveis procedurais de matemática, língua, ciências e lógica. Aprende sem fim, do pré-escolar ao avançado." },
+      { property: "og:title", content: 'Desafios Infinitos — Kidoz' },
+      { property: "og:description", content: 'Centenas de níveis procedurais de matemática, língua, ciências e lógica.' },
+      { property: "og:url", content: "https://kidoz.online/desafios/infinitos" },
+    ],
+    links: [
+      { rel: "canonical", href: "https://kidoz.online/desafios/infinitos" },
     ],
   }),
   component: InfinitePage,

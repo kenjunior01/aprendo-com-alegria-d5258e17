@@ -13,6 +13,12 @@ export const Route = createFileRoute("/comecar")({
     meta: [
       { title: "Começar — Kidoz" },
       { name: "description", content: "Cria o teu perfil e escolhe a tua mascote para começar a aventura." },
+      { property: "og:title", content: 'Começar no Kidoz' },
+      { property: "og:description", content: 'Cria o teu perfil e escolhe a tua mascote para começar a aventura.' },
+      { property: "og:url", content: "https://kidoz.online/comecar" },
+    ],
+    links: [
+      { rel: "canonical", href: "https://kidoz.online/comecar" },
     ],
   }),
   component: Onboarding,

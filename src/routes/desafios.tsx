@@ -34,6 +34,12 @@ export const Route = createFileRoute("/desafios")({
     meta: [
       { title: "Desafios e Ranking — Kidoz" },
       { name: "description", content: "Desafios diários da IA, batalhas com amigos e ranking semanal." },
+      { property: "og:title", content: 'Desafios e Ranking — Kidoz' },
+      { property: "og:description", content: 'Desafios diários da IA, batalhas com amigos e ligas semanais.' },
+      { property: "og:url", content: "https://kidoz.online/desafios" },
+    ],
+    links: [
+      { rel: "canonical", href: "https://kidoz.online/desafios" },
     ],
   }),
   component: DesafiosPage,
