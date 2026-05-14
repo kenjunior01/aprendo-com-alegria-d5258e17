@@ -247,7 +247,7 @@ export function LigasPanel({ ageGroup: defaultAgeGroup = "mixed" }: Props) {
                   <span className="text-2xl">{m.isBot ? "🤖" : "🧒"}</span>
                   <span className="truncate font-display">{m.name}</span>
                   {m.isBot
-                    ? <Bot className="h-3 w-3 shrink-0 text-muted-foreground" title={`Bot ${m.difficulty ?? "medium"}`} />
+                    ? <Bot className="h-3 w-3 shrink-0 text-muted-foreground" aria-label={`Bot ${m.difficulty ?? "medium"}`} />
                     : <UserCheck className="h-3 w-3 shrink-0 text-success" />}
                   {m.isBot && m.difficulty && (
                     <span className="rounded-full bg-card px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-muted-foreground">
