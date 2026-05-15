@@ -28,6 +28,7 @@ const entries: SitemapEntry[] = [
   { path: "/premium",             changefreq: "weekly",  priority: "0.9" },
   { path: "/escolas",             changefreq: "monthly", priority: "0.8" },
   { path: "/creches",             changefreq: "monthly", priority: "0.8" },
+  { path: "/escola",              changefreq: "monthly", priority: "0.6" },
   { path: "/auth",                changefreq: "yearly",  priority: "0.3" },
 ];
 

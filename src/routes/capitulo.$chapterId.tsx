@@ -11,12 +11,25 @@ import { ArrowLeft, Check, Lock, Play } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/capitulo/$chapterId")({
-  head: () => ({
-    meta: [
-      { title: "Capítulo — Kidoz" },
-      { name: "description", content: "Aventura por capítulos: missões interativas para crianças do 1.º ciclo." },
-    ],
-  }),
+  head: ({ params }) => {
+    const chapter = getChapter(params.chapterId);
+    const chapterTitle = chapter?.title ?? "Capítulo";
+    const subtitle = chapter?.subtitle ?? "Missões interativas para crianças do 1.º ciclo";
+    const title = `Capítulo: ${chapterTitle} — Aventura | Kidoz`;
+    const description = `Capítulo "${chapterTitle}" no Kidoz: ${subtitle}. Missões curtas, voz e recompensas para aprender a brincar.`;
+    const url = `https://kidoz.online/capitulo/${params.chapterId}`;
+    return {
+      meta: [
+        { title },
+        { name: "description", content: description },
+        { property: "og:title", content: title },
+        { property: "og:description", content: description },
+        { property: "og:url", content: url },
+        { property: "og:type", content: "article" },
+      ],
+      links: [{ rel: "canonical", href: url }],
+    };
+  },
   component: ChapterPage,
 });
 
