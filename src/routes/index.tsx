@@ -19,6 +19,7 @@ export const Route = createFileRoute("/")({
     ],
     links: [
       { rel: "canonical", href: "https://kidoz.online/" },
+      { rel: "preload", as: "image", href: "/src/assets/kidoz-logo.png", fetchpriority: "high" },
     ],
   }),
   component: Landing,
@@ -82,7 +83,7 @@ function Landing() {
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.2 }}
-          className="mt-3 max-w-xl text-base text-muted-foreground sm:mt-4 sm:text-lg md:text-xl"
+          className="mt-3 max-w-xl text-base text-foreground/80 sm:mt-4 sm:text-lg md:text-xl"
         >
           Português, Matemática e Estudo do Meio com mascotes divertidas, lições curtas e muitas estrelinhas. ✨
         </motion.p>
