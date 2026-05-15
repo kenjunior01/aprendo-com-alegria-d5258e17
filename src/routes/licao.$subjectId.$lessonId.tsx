@@ -21,12 +21,27 @@ export const Route = createFileRoute("/licao/$subjectId/$lessonId")({
   validateSearch: (search: Record<string, unknown>) => ({
     challenge: typeof search.challenge === "string" ? search.challenge : undefined,
   }),
-  head: () => ({
-    meta: [
-      { title: "Lição — Kidoz" },
-      { name: "description", content: "Lição interativa com perguntas divertidas." },
-    ],
-  }),
+  head: ({ params }) => {
+    const subject = getSubject(params.subjectId);
+    const lesson = getLesson(params.subjectId, params.lessonId);
+    const subjectName = subject?.name ?? "Matérias";
+    const lessonTitle = lesson?.title ?? "Lição";
+    const title = `${lessonTitle} (${subjectName}) — Lição interativa | Kidoz`;
+    const description = `Lição interativa de ${subjectName} para o 1.º ciclo: ${lessonTitle}. Perguntas adaptativas, voz e mascotes para aprender a brincar no Kidoz.`;
+    const url = `https://kidoz.online/licao/${params.subjectId}/${params.lessonId}`;
+    return {
+      meta: [
+        { title },
+        { name: "description", content: description },
+        { property: "og:title", content: title },
+        { property: "og:description", content: description },
+        { property: "og:url", content: url },
+        { property: "og:type", content: "article" },
+        { name: "robots", content: "noindex" },
+      ],
+      links: [{ rel: "canonical", href: url }],
+    };
+  },
   component: LessonPage,
 });
 

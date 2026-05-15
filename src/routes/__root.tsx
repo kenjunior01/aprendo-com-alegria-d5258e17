@@ -52,6 +52,7 @@ export const Route = createRootRoute({
       { name: "twitter:description", content: "App educativa estilo Duolingo para crianças do 1.º ciclo em Portugal." },
       { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/acc7c5c1-6f57-466a-a906-520c14783216" },
       { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/acc7c5c1-6f57-466a-a906-520c14783216" },
+      { name: "google-site-verification", content: "KkNwae9G6TBDD8H-jnriAzFdEQWqDN-6nTTedsgCSYk" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },

@@ -14,6 +14,7 @@ export function KidozLogo({ className, alt = "Kidoz", priority = false }: Props)
       width={1536}
       height={1024}
       loading={priority ? "eager" : "lazy"}
+      fetchPriority={priority ? "high" : "auto"}
       decoding="async"
       className={className}
     />
