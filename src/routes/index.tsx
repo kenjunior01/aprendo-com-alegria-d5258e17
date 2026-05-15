@@ -19,7 +19,6 @@ export const Route = createFileRoute("/")({
     ],
     links: [
       { rel: "canonical", href: "https://kidoz.online/" },
-      { rel: "preload", as: "image", href: "/src/assets/kidoz-logo.png", fetchpriority: "high" },
     ],
   }),
   component: Landing,
