@@ -336,6 +336,16 @@ function JuniorPage() {
             {active?.id === "comida-tap" && <GameComidaTap />}
             {active?.id === "forma-redonda" && <GameFormaRedonda />}
             {active?.id === "luz-tap" && <GameLuzTap />}
+            {active?.id === "instrumentos" && <GameInstrumentos />}
+            {active?.id === "tempo-meteo" && <GameTempo />}
+            {active?.id === "profissoes" && <GameProfissoes />}
+            {active?.id === "parte-dia" && <GameParteDia />}
+            {active?.id === "contrarios" && <GameContrarios />}
+            {active?.id === "num-tap-4-6" && <GameNum46 />}
+            {active?.id === "forma-simples" && <GameFormaSimples />}
+            {active?.id === "familia" && <GameFamilia />}
+            {active?.id === "veiculos-tap" && <GameVeiculos />}
+            {active?.id === "sons-natu" && <GameSonsNatu />}
           </div>
           <div className="mt-2 flex flex-col-reverse gap-2 sm:flex-row sm:justify-between">
             <ChunkyButton tone="ghost" onClick={() => setActive(null)}>Sair</ChunkyButton>
