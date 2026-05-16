@@ -44,6 +44,10 @@ import {
   GameSomAnima, GameCorRoupa, GameAnimaGrande, GameTapPatPat, GameEstrelasTap,
   GameCarroCor, GameAnimaCasa, GameComidaTap, GameFormaRedonda, GameLuzTap,
 } from "@/components/junior/JuniorGamesV6";
+import {
+  GameInstrumentos, GameTempo, GameProfissoes, GameParteDia, GameContrarios,
+  GameNum46, GameFormaSimples, GameFamilia, GameVeiculos, GameSonsNatu,
+} from "@/components/junior/JuniorGamesV7";
 import { ParentModePanel } from "@/components/junior/ParentModePanel";
 import { JuniorChildSwitcher } from "@/components/junior/JuniorChildSwitcher";
 import { JuniorMascotStage } from "@/components/junior/JuniorMascotStage";
