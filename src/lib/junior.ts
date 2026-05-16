@@ -118,6 +118,18 @@ export const GAMES: JuniorGame[] = [
   { id: "comida-tap",         title: "Toca na Comida",       emoji: "🍞", description: "Encontra a comida pedida.",             benefits: ["Vocabulário"],            age: "2-3", garden: "primeiros-passos" },
   { id: "forma-redonda",      title: "Toca na Forma",        emoji: "⚪", description: "Reconhece círculo, quadrado, triângulo.",benefits: ["Formas"],                 age: "2-3", garden: "primeiros-passos" },
   { id: "luz-tap",            title: "Acende as Luzes",      emoji: "💡", description: "Toca para acender. Causa e efeito.",    benefits: ["Causa-efeito"],           age: "2-3", garden: "primeiros-passos" },
+
+  // ---- 🎪 V7 — extra tap games (variedade para arcade)
+  { id: "instrumentos",   title: "Toca no Instrumento", emoji: "🎶", description: "Encontra o instrumento pedido.",         benefits: ["Música", "Vocabulário"], age: "2-3", garden: "primeiros-passos" },
+  { id: "tempo-meteo",    title: "Que tempo faz?",      emoji: "🌦️", description: "Sol, chuva, neve ou nuvem?",             benefits: ["Natureza"],              age: "2-3", garden: "primeiros-passos" },
+  { id: "profissoes",     title: "Profissões",          emoji: "🧑‍⚕️", description: "Quem é cada profissão?",                benefits: ["Vocabulário", "Sociedade"], age: "3-4", garden: "descobertas" },
+  { id: "parte-dia",      title: "Parte do Dia",        emoji: "🌅", description: "Manhã, meio-dia ou noite.",              benefits: ["Tempo", "Rotinas"],      age: "2-3", garden: "primeiros-passos" },
+  { id: "contrarios",     title: "Quente ou Frio",      emoji: "🔥", description: "Toca no quente ou no frio.",             benefits: ["Conceitos"],             age: "2-3", garden: "primeiros-passos" },
+  { id: "num-tap-4-6",    title: "Números 4·5·6",       emoji: "🔢", description: "Aprende 4, 5 e 6.",                       benefits: ["Números"],               age: "3-4", garden: "descobertas" },
+  { id: "forma-simples",  title: "Toca na Forma+",      emoji: "⭐", description: "Círculo, quadrado, triângulo, estrela.", benefits: ["Formas"],                age: "2-3", garden: "primeiros-passos" },
+  { id: "familia",        title: "A Minha Família",     emoji: "👪", description: "Mãe, pai, bebé, avô.",                    benefits: ["Vocabulário"],           age: "2-3", garden: "primeiros-passos" },
+  { id: "veiculos-tap",   title: "Veículos",            emoji: "🚗", description: "Carro, bicicleta, barco, avião.",        benefits: ["Vocabulário"],           age: "2-3", garden: "primeiros-passos" },
+  { id: "sons-natu",      title: "Sons da Natureza",    emoji: "🌳", description: "Trovão, vento ou onda.",                  benefits: ["Audição"],               age: "3-4", garden: "descobertas" },
 ];
 
 export const getGardenGames = (gardenId: GardenId) =>
