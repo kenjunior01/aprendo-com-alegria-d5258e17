@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import * as React from "react";
 import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { ArrowLeft, Trophy, Sparkles } from "lucide-react";
@@ -29,7 +30,7 @@ export const Route = createFileRoute("/arcade")({
   component: ArcadePage,
 });
 
-type ArcadeEntry = { id: string; title: string; emoji: string; el: () => JSX.Element };
+type ArcadeEntry = { id: string; title: string; emoji: string; el: React.ComponentType };
 
 const POOL: ArcadeEntry[] = [
   { id: "tap-cor", title: "Toca na Cor", emoji: "🎨", el: GameTapCor },
@@ -117,7 +118,7 @@ function ArcadePage() {
             <div className="mt-6 grid gap-3 sm:grid-cols-3">
               <ChunkyButton tone="primary" onClick={() => start(3)}>⚡ Curto · 3 jogos</ChunkyButton>
               <ChunkyButton tone="success" onClick={() => start(5)}>🌟 Normal · 5 jogos</ChunkyButton>
-              <ChunkyButton tone="warning" onClick={() => start(8)}>🔥 Maratona · 8 jogos</ChunkyButton>
+              <ChunkyButton tone="danger" onClick={() => start(8)}>🔥 Maratona · 8 jogos</ChunkyButton>
             </div>
             <p className="mt-6 text-xs text-muted-foreground">
               Para todas as idades. Quando terminares cada jogo, toca em <strong>Próximo</strong> para somar 20 pts.
