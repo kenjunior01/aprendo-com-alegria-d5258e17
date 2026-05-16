@@ -125,6 +125,11 @@ function JuniorPage() {
           )}
           <h1 className="font-display text-4xl sm:text-5xl">{greet}</h1>
           <p className="mt-2 text-base text-muted-foreground">Escolhe um jardim e vamos brincar!</p>
+          <div className="mt-3 flex justify-center">
+            <Link to="/arcade" className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-primary to-success px-5 py-2 font-display text-sm text-primary-foreground shadow-lg hover:scale-105 transition">
+              🕹️ Modo Arcade — joga vários jogos seguidos!
+            </Link>
+          </div>
         </motion.section>
 
         <div className="mt-6">
