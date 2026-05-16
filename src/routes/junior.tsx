@@ -44,6 +44,10 @@ import {
   GameSomAnima, GameCorRoupa, GameAnimaGrande, GameTapPatPat, GameEstrelasTap,
   GameCarroCor, GameAnimaCasa, GameComidaTap, GameFormaRedonda, GameLuzTap,
 } from "@/components/junior/JuniorGamesV6";
+import {
+  GameInstrumentos, GameTempo, GameProfissoes, GameParteDia, GameContrarios,
+  GameNum46, GameFormaSimples, GameFamilia, GameVeiculos, GameSonsNatu,
+} from "@/components/junior/JuniorGamesV7";
 import { ParentModePanel } from "@/components/junior/ParentModePanel";
 import { JuniorChildSwitcher } from "@/components/junior/JuniorChildSwitcher";
 import { JuniorMascotStage } from "@/components/junior/JuniorMascotStage";
@@ -121,6 +125,11 @@ function JuniorPage() {
           )}
           <h1 className="font-display text-4xl sm:text-5xl">{greet}</h1>
           <p className="mt-2 text-base text-muted-foreground">Escolhe um jardim e vamos brincar!</p>
+          <div className="mt-3 flex justify-center">
+            <Link to="/arcade" className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-primary to-success px-5 py-2 font-display text-sm text-primary-foreground shadow-lg hover:scale-105 transition">
+              🕹️ Modo Arcade — joga vários jogos seguidos!
+            </Link>
+          </div>
         </motion.section>
 
         <div className="mt-6">
@@ -332,6 +341,16 @@ function JuniorPage() {
             {active?.id === "comida-tap" && <GameComidaTap />}
             {active?.id === "forma-redonda" && <GameFormaRedonda />}
             {active?.id === "luz-tap" && <GameLuzTap />}
+            {active?.id === "instrumentos" && <GameInstrumentos />}
+            {active?.id === "tempo-meteo" && <GameTempo />}
+            {active?.id === "profissoes" && <GameProfissoes />}
+            {active?.id === "parte-dia" && <GameParteDia />}
+            {active?.id === "contrarios" && <GameContrarios />}
+            {active?.id === "num-tap-4-6" && <GameNum46 />}
+            {active?.id === "forma-simples" && <GameFormaSimples />}
+            {active?.id === "familia" && <GameFamilia />}
+            {active?.id === "veiculos-tap" && <GameVeiculos />}
+            {active?.id === "sons-natu" && <GameSonsNatu />}
           </div>
           <div className="mt-2 flex flex-col-reverse gap-2 sm:flex-row sm:justify-between">
             <ChunkyButton tone="ghost" onClick={() => setActive(null)}>Sair</ChunkyButton>

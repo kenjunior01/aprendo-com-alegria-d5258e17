@@ -27,6 +27,7 @@ import { Route as CrechesRouteImport } from './routes/creches'
 import { Route as ConquistasRouteImport } from './routes/conquistas'
 import { Route as ComecarRouteImport } from './routes/comecar'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as ArcadeRouteImport } from './routes/arcade'
 import { Route as AppRouteImport } from './routes/app'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
@@ -130,6 +131,11 @@ const AuthRoute = AuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ArcadeRoute = ArcadeRouteImport.update({
+  id: '/arcade',
+  path: '/arcade',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AppRoute = AppRouteImport.update({
   id: '/app',
   path: '/app',
@@ -197,6 +203,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/app': typeof AppRoute
+  '/arcade': typeof ArcadeRoute
   '/auth': typeof AuthRoute
   '/comecar': typeof ComecarRoute
   '/conquistas': typeof ConquistasRoute
@@ -229,6 +236,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/app': typeof AppRoute
+  '/arcade': typeof ArcadeRoute
   '/auth': typeof AuthRoute
   '/comecar': typeof ComecarRoute
   '/conquistas': typeof ConquistasRoute
@@ -262,6 +270,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/app': typeof AppRoute
+  '/arcade': typeof ArcadeRoute
   '/auth': typeof AuthRoute
   '/comecar': typeof ComecarRoute
   '/conquistas': typeof ConquistasRoute
@@ -296,6 +305,7 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/app'
+    | '/arcade'
     | '/auth'
     | '/comecar'
     | '/conquistas'
@@ -328,6 +338,7 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/app'
+    | '/arcade'
     | '/auth'
     | '/comecar'
     | '/conquistas'
@@ -360,6 +371,7 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/app'
+    | '/arcade'
     | '/auth'
     | '/comecar'
     | '/conquistas'
@@ -393,6 +405,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRoute
   AppRoute: typeof AppRoute
+  ArcadeRoute: typeof ArcadeRoute
   AuthRoute: typeof AuthRoute
   ComecarRoute: typeof ComecarRoute
   ConquistasRoute: typeof ConquistasRoute
@@ -549,6 +562,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/arcade': {
+      id: '/arcade'
+      path: '/arcade'
+      fullPath: '/arcade'
+      preLoaderRoute: typeof ArcadeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/app': {
       id: '/app'
       path: '/app'
@@ -652,6 +672,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRoute,
   AppRoute: AppRoute,
+  ArcadeRoute: ArcadeRoute,
   AuthRoute: AuthRoute,
   ComecarRoute: ComecarRoute,
   ConquistasRoute: ConquistasRoute,
