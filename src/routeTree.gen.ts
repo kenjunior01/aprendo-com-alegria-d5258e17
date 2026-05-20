@@ -34,6 +34,9 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as DesafiosInfinitosRouteImport } from './routes/desafios.infinitos'
 import { Route as CheckoutReturnRouteImport } from './routes/checkout.return'
 import { Route as CapituloChapterIdRouteImport } from './routes/capitulo.$chapterId'
+import { Route as AprenderPortuguesRouteImport } from './routes/aprender.portugues'
+import { Route as AprenderMatematicaRouteImport } from './routes/aprender.matematica'
+import { Route as AprenderEstudoDoMeioRouteImport } from './routes/aprender.estudo-do-meio'
 import { Route as LicaoSubjectIdLessonIdRouteImport } from './routes/licao.$subjectId.$lessonId'
 import { Route as ApiPublicTutorStreamRouteImport } from './routes/api/public/tutor-stream'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
@@ -166,6 +169,21 @@ const CapituloChapterIdRoute = CapituloChapterIdRouteImport.update({
   path: '/capitulo/$chapterId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AprenderPortuguesRoute = AprenderPortuguesRouteImport.update({
+  id: '/aprender/portugues',
+  path: '/aprender/portugues',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AprenderMatematicaRoute = AprenderMatematicaRouteImport.update({
+  id: '/aprender/matematica',
+  path: '/aprender/matematica',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AprenderEstudoDoMeioRoute = AprenderEstudoDoMeioRouteImport.update({
+  id: '/aprender/estudo-do-meio',
+  path: '/aprender/estudo-do-meio',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LicaoSubjectIdLessonIdRoute = LicaoSubjectIdLessonIdRouteImport.update({
   id: '/licao/$subjectId/$lessonId',
   path: '/licao/$subjectId/$lessonId',
@@ -222,6 +240,9 @@ export interface FileRoutesByFullPath {
   '/ra': typeof RaRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/tutor': typeof TutorRoute
+  '/aprender/estudo-do-meio': typeof AprenderEstudoDoMeioRoute
+  '/aprender/matematica': typeof AprenderMatematicaRoute
+  '/aprender/portugues': typeof AprenderPortuguesRoute
   '/capitulo/$chapterId': typeof CapituloChapterIdRoute
   '/checkout/return': typeof CheckoutReturnRoute
   '/desafios/infinitos': typeof DesafiosInfinitosRoute
@@ -255,6 +276,9 @@ export interface FileRoutesByTo {
   '/ra': typeof RaRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/tutor': typeof TutorRoute
+  '/aprender/estudo-do-meio': typeof AprenderEstudoDoMeioRoute
+  '/aprender/matematica': typeof AprenderMatematicaRoute
+  '/aprender/portugues': typeof AprenderPortuguesRoute
   '/capitulo/$chapterId': typeof CapituloChapterIdRoute
   '/checkout/return': typeof CheckoutReturnRoute
   '/desafios/infinitos': typeof DesafiosInfinitosRoute
@@ -289,6 +313,9 @@ export interface FileRoutesById {
   '/ra': typeof RaRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/tutor': typeof TutorRoute
+  '/aprender/estudo-do-meio': typeof AprenderEstudoDoMeioRoute
+  '/aprender/matematica': typeof AprenderMatematicaRoute
+  '/aprender/portugues': typeof AprenderPortuguesRoute
   '/capitulo/$chapterId': typeof CapituloChapterIdRoute
   '/checkout/return': typeof CheckoutReturnRoute
   '/desafios/infinitos': typeof DesafiosInfinitosRoute
@@ -324,6 +351,9 @@ export interface FileRouteTypes {
     | '/ra'
     | '/sitemap.xml'
     | '/tutor'
+    | '/aprender/estudo-do-meio'
+    | '/aprender/matematica'
+    | '/aprender/portugues'
     | '/capitulo/$chapterId'
     | '/checkout/return'
     | '/desafios/infinitos'
@@ -357,6 +387,9 @@ export interface FileRouteTypes {
     | '/ra'
     | '/sitemap.xml'
     | '/tutor'
+    | '/aprender/estudo-do-meio'
+    | '/aprender/matematica'
+    | '/aprender/portugues'
     | '/capitulo/$chapterId'
     | '/checkout/return'
     | '/desafios/infinitos'
@@ -390,6 +423,9 @@ export interface FileRouteTypes {
     | '/ra'
     | '/sitemap.xml'
     | '/tutor'
+    | '/aprender/estudo-do-meio'
+    | '/aprender/matematica'
+    | '/aprender/portugues'
     | '/capitulo/$chapterId'
     | '/checkout/return'
     | '/desafios/infinitos'
@@ -424,6 +460,9 @@ export interface RootRouteChildren {
   RaRoute: typeof RaRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TutorRoute: typeof TutorRoute
+  AprenderEstudoDoMeioRoute: typeof AprenderEstudoDoMeioRoute
+  AprenderMatematicaRoute: typeof AprenderMatematicaRoute
+  AprenderPortuguesRoute: typeof AprenderPortuguesRoute
   CapituloChapterIdRoute: typeof CapituloChapterIdRoute
   CheckoutReturnRoute: typeof CheckoutReturnRoute
   ApiPublicTutorStreamRoute: typeof ApiPublicTutorStreamRoute
@@ -611,6 +650,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CapituloChapterIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/aprender/portugues': {
+      id: '/aprender/portugues'
+      path: '/aprender/portugues'
+      fullPath: '/aprender/portugues'
+      preLoaderRoute: typeof AprenderPortuguesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/aprender/matematica': {
+      id: '/aprender/matematica'
+      path: '/aprender/matematica'
+      fullPath: '/aprender/matematica'
+      preLoaderRoute: typeof AprenderMatematicaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/aprender/estudo-do-meio': {
+      id: '/aprender/estudo-do-meio'
+      path: '/aprender/estudo-do-meio'
+      fullPath: '/aprender/estudo-do-meio'
+      preLoaderRoute: typeof AprenderEstudoDoMeioRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/licao/$subjectId/$lessonId': {
       id: '/licao/$subjectId/$lessonId'
       path: '/licao/$subjectId/$lessonId'
@@ -691,6 +751,9 @@ const rootRouteChildren: RootRouteChildren = {
   RaRoute: RaRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   TutorRoute: TutorRoute,
+  AprenderEstudoDoMeioRoute: AprenderEstudoDoMeioRoute,
+  AprenderMatematicaRoute: AprenderMatematicaRoute,
+  AprenderPortuguesRoute: AprenderPortuguesRoute,
   CapituloChapterIdRoute: CapituloChapterIdRoute,
   CheckoutReturnRoute: CheckoutReturnRoute,
   ApiPublicTutorStreamRoute: ApiPublicTutorStreamRoute,
@@ -703,12 +766,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-  }
-}

@@ -238,6 +238,16 @@
       0 0 0 4px oklch(1 0 0 / 0.7),
       0 18px 30px -12px oklch(0.4 0.05 260 / 0.25);
   }
+
+  /* Consistent elevation tokens for cards / overlays */
+  .shadow-elegant { box-shadow: 0 14px 40px -18px color-mix(in oklab, var(--color-primary) 35%, transparent); }
+  .shadow-soft    { box-shadow: 0 6px 20px -10px color-mix(in oklab, var(--color-foreground) 25%, transparent); }
+
+  /* Unified focus ring for keyboard a11y */
+  .focus-ring:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px var(--color-background), 0 0 0 6px var(--color-ring);
+  }
 }
 
 @keyframes float-slow {
