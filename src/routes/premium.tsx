@@ -10,7 +10,20 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { loadProfile, type Profile } from "@/lib/storage";
 import { useAuth } from "@/hooks/useAuth";
 import { useSubscription } from "@/hooks/useSubscription";
-import { ArrowLeft, Brain, Check, Crown, Gamepad2, Globe2, GraduationCap, Heart, Infinity as InfinityIcon, Palette, Sparkles, Star, Trophy, Users, Zap } from "lucide-react";
+import { ArrowLeft, Brain, Check, Crown, Gamepad2, Globe2, GraduationCap, Heart, Infinity as InfinityIcon, Palette, ShieldCheck, Sparkles, Star, Trophy, Users, Zap } from "lucide-react";
+
+const TESTIMONIALS = [
+  { name: "Sofia, mãe da Matilde (7)", text: "A Matilde pede para ‘fazer Kidoz’ antes do desenho animado. As mascotes tornaram a leitura divertida.", stars: 5 },
+  { name: "João, pai do Tomás (9)", text: "O Tutor Mocha explica matemática melhor do que eu! E vejo o progresso semanal no painel de pais.", stars: 5 },
+  { name: "Prof. Inês, 2.º ano", text: "Uso o Kidoz como reforço na sala. O alinhamento com o programa nacional faz toda a diferença.", stars: 5 },
+];
+
+const TRUST = [
+  { icon: ShieldCheck, label: "Sem anúncios" },
+  { icon: Heart,       label: "Seguro p/ crianças" },
+  { icon: Users,       label: "+10.000 famílias" },
+  { icon: Trophy,      label: "Programa nacional" },
+];
 
 export const Route = createFileRoute("/premium")({
   head: () => ({
@@ -277,13 +290,62 @@ function PremiumPage() {
           🔒 Pagamento seguro. IVA e impostos incluídos. Podes cancelar a qualquer momento.
         </p>
 
+        {/* Trust strip */}
+        <section aria-label="Confiança" className="mt-8 grid grid-cols-2 gap-2 sm:grid-cols-4">
+          {TRUST.map((t) => {
+            const Icon = t.icon;
+            return (
+              <div key={t.label} className="flex items-center justify-center gap-2 rounded-2xl border-2 border-border bg-card/70 px-3 py-3 text-center">
+                <Icon className="h-5 w-5 text-primary" />
+                <span className="font-display text-sm">{t.label}</span>
+              </div>
+            );
+          })}
+        </section>
+
+        {/* Testimonials */}
+        <section className="mt-10">
+          <h2 className="font-display text-2xl">O que dizem famílias e professores</h2>
+          <div className="mt-3 grid gap-3 sm:grid-cols-3">
+            {TESTIMONIALS.map((t) => (
+              <motion.figure
+                key={t.name}
+                whileHover={{ y: -3 }}
+                className="card-chunky rounded-2xl border-2 border-border bg-card p-4"
+              >
+                <div className="mb-2 flex gap-0.5 text-xp">
+                  {Array.from({ length: t.stars }).map((_, i) => <Star key={i} className="h-4 w-4 fill-current" />)}
+                </div>
+                <blockquote className="text-sm text-foreground/90">“{t.text}”</blockquote>
+                <figcaption className="mt-2 text-xs text-muted-foreground">{t.name}</figcaption>
+              </motion.figure>
+            ))}
+          </div>
+        </section>
+
+        {/* Demo highlights */}
+        <section className="mt-10 grid gap-3 sm:grid-cols-2">
+          <div className="card-chunky rounded-3xl border-2 border-primary/40 bg-gradient-to-br from-primary/10 to-accent/15 p-5">
+            <Brain className="h-7 w-7 text-primary" />
+            <p className="mt-2 font-display text-lg">Tutor Mocha IA</p>
+            <p className="text-sm text-foreground/80">Explica passo-a-passo, gera exercícios novos e adapta-se ao nível da criança em segundos.</p>
+            <Link to="/tutor" className="mt-3 inline-block text-sm font-display text-primary underline-offset-2 hover:underline">Experimentar →</Link>
+          </div>
+          <div className="card-chunky rounded-3xl border-2 border-secondary/50 bg-gradient-to-br from-secondary/15 to-primary/10 p-5">
+            <Globe2 className="h-7 w-7 text-pt-world" />
+            <p className="mt-2 font-display text-lg">Realidade Aumentada</p>
+            <p className="text-sm text-foreground/80">Vê os mascotes em 3D no quarto da criança a explicar ciência, geografia e história.</p>
+            <Link to="/ra" className="mt-3 inline-block text-sm font-display text-primary underline-offset-2 hover:underline">Ver demo →</Link>
+          </div>
+        </section>
+
         <section className="mt-10">
           <h2 className="font-display text-2xl">Perguntas frequentes</h2>
           <div className="mt-3 grid gap-2 sm:grid-cols-2">
             {FAQS.map((f) => (
               <div key={f.q} className="card-chunky rounded-2xl border-2 border-border bg-card p-4">
                 <p className="font-display text-base">{f.q}</p>
-                <p className="mt-1 text-xs text-muted-foreground">{f.a}</p>
+                <p className="mt-1 text-xs text-foreground/80">{f.a}</p>
               </div>
             ))}
           </div>
