@@ -99,7 +99,7 @@ function AppHome() {
             </p>
             <h3 className="font-display text-lg leading-tight">Fala com o {mascot.name} 🎤</h3>
           </div>
-          <MascotVoiceTutor mascotId={profile.mascot} equippedItemId={profile.equippedItem} />
+          <MascotVoiceTutor mascotId={profile.mascot} equippedItemId={profile.equippedItem} profile={profile} />
         </motion.section>
 
         <SeasonalBanner region={profile.region ?? null} />
