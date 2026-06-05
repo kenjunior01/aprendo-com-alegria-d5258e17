@@ -4,7 +4,7 @@ import { Sparkles, X } from "lucide-react";
 import { ChunkyButton } from "@/components/ChunkyButton";
 import { MASCOTS, type MascotId } from "@/lib/mascots";
 import { Mascot } from "@/components/Mascot";
-import { createChildProfile } from "@/server/parent.functions";
+import { createChildProfile } from "@/lib/parent.functions";
 
 interface Props {
   onCreated: (info: { childId: string; name: string }) => void;

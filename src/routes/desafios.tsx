@@ -25,7 +25,7 @@ import {
   requestFriendship,
   createPvpChallenge,
   type ChallengeRow,
-} from "@/server/challenges.functions";
+} from "@/lib/challenges.functions";
 import { toast } from "sonner";
 import { LigasPanel } from "@/components/LigasPanel";
 

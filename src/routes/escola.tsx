@@ -32,7 +32,7 @@ import {
   type WeeklyPoint,
   type StudentDetails,
   type TeacherAlert,
-} from "@/server/school.functions";
+} from "@/lib/school.functions";
 import type { MascotId } from "@/lib/mascots";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend } from "recharts";
 

@@ -7,7 +7,7 @@ import { Trophy, Bot, UserCheck, Plus, Copy, Check, Share2, Users, BarChart3, Ti
 import {
   listActiveLeagues, joinWeeklyLeague, getLeagueLeaderboard, addLeagueScore,
   ageToGroup, type LeagueRow,
-} from "@/server/leagues.functions";
+} from "@/lib/leagues.functions";
 import { ChunkyButton } from "@/components/ChunkyButton";
 import { toast } from "sonner";
 import { listJuniorChildren, getActiveJuniorChildId, type JuniorChild } from "@/lib/junior";

@@ -1,17 +1,21 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Mic, Square, Sparkles } from "lucide-react";
+import { Mic, Square, Sparkles, Zap } from "lucide-react";
 import { Mascot } from "@/components/Mascot";
 import type { MascotId } from "@/lib/mascots";
 import { getMascot } from "@/lib/mascots";
 import { haptic } from "@/lib/haptics";
 import { isMuted } from "@/lib/audio";
 import { cn } from "@/lib/utils";
+import { computeMascotEnergy } from "@/lib/mascotEnergy";
+import type { Profile } from "@/lib/storage";
 
 interface Props {
   mascotId: MascotId;
   equippedItemId?: string | null;
   className?: string;
+  /** Quando passado, mostra a Energia da Mascote (derivada do progresso). */
+  profile?: Pick<Profile, "xp" | "streak" | "lastPlayed" | "completedLessons">;
 }
 
 const TAP_PHRASES = [
@@ -24,7 +28,7 @@ const TAP_PHRASES = [
 ];
 
 // Pitch shift via playbackRate on a recorded blob (leve, sem libs externas)
-export function MascotVoiceTutor({ mascotId, equippedItemId, className }: Props) {
+export function MascotVoiceTutor({ mascotId, equippedItemId, className, profile }: Props) {
   const m = getMascot(mascotId);
   const [recording, setRecording] = useState(false);
   const [playing, setPlaying] = useState(false);
@@ -148,8 +152,22 @@ export function MascotVoiceTutor({ mascotId, equippedItemId, className }: Props)
   };
 
   const toggle = () => (recording ? stopRecording() : startRecording());
+  const energy = useMemo(() => (profile ? computeMascotEnergy(profile) : null), [profile]);
 
-  const scale = playing ? 1.08 + Math.sin(Date.now() / 90) * 0.04 : 1 + level * 0.18;
+  // Idle motion driven by mood (when not recording/playing)
+  const idleScale = energy
+    ? energy.mood === "super" || energy.mood === "bouncing" ? 1.05
+    : energy.mood === "happy" ? 1.02
+    : energy.mood === "calm" ? 1.0
+    : 0.97 // sleepy/exhausted: encolhe um bocado
+    : 1;
+  const idleAnim = energy && (energy.mood === "super" || energy.mood === "bouncing")
+    ? { y: [0, -6, 0] }
+    : energy && (energy.mood === "sleepy" || energy.mood === "exhausted")
+    ? { rotate: [0, -2, 0, 2, 0] }
+    : { y: [0, -2, 0] };
+
+  const scale = playing ? 1.08 + Math.sin(Date.now() / 90) * 0.04 : (recording ? 1 + level * 0.18 : idleScale);
 
   return (
     <div className={cn("relative flex flex-col items-center gap-3", className)}>
@@ -157,8 +175,10 @@ export function MascotVoiceTutor({ mascotId, equippedItemId, className }: Props)
         <motion.button
           type="button"
           onClick={onMascotTap}
-          animate={{ scale }}
-          transition={{ type: "spring", stiffness: 220, damping: 12 }}
+          animate={recording || playing ? { scale } : { scale, ...idleAnim }}
+          transition={recording || playing
+            ? { type: "spring", stiffness: 220, damping: 12 }
+            : { duration: energy?.mood === "sleepy" || energy?.mood === "exhausted" ? 3.2 : 2.4, repeat: Infinity, ease: "easeInOut" }}
           whileTap={{ scale: 0.92 }}
           className="rounded-full focus:outline-none focus-visible:ring-4 focus-visible:ring-primary/40"
           aria-label={`Tocar na mascote ${m.name}`}
@@ -191,6 +211,33 @@ export function MascotVoiceTutor({ mascotId, equippedItemId, className }: Props)
           )}
         </AnimatePresence>
       </div>
+
+      {energy && (
+        <div className="w-full max-w-xs">
+          <div className="mb-1 flex items-center justify-between text-xs">
+            <span className="inline-flex items-center gap-1 font-medium">
+              <Zap className="h-3.5 w-3.5 text-xp" />
+              Energia da Mascote
+            </span>
+            <span aria-label={energy.label}>{energy.emoji} {energy.value}%</span>
+          </div>
+          <div className="h-2.5 overflow-hidden rounded-full bg-muted">
+            <motion.div
+              initial={false}
+              animate={{ width: `${energy.value}%` }}
+              transition={{ type: "spring", stiffness: 120, damping: 18 }}
+              className={cn(
+                "h-full rounded-full",
+                energy.value >= 70 ? "bg-success"
+                : energy.value >= 40 ? "bg-primary"
+                : energy.value >= 20 ? "bg-amber-400"
+                : "bg-destructive",
+              )}
+            />
+          </div>
+          <p className="mt-1 text-center text-[11px] text-muted-foreground">{energy.hint}</p>
+        </div>
+      )}
 
       <div className="flex items-center gap-2">
         <button
