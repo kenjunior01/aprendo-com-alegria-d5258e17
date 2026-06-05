@@ -152,8 +152,22 @@ export function MascotVoiceTutor({ mascotId, equippedItemId, className, profile 
   };
 
   const toggle = () => (recording ? stopRecording() : startRecording());
+  const energy = useMemo(() => (profile ? computeMascotEnergy(profile) : null), [profile]);
 
-  const scale = playing ? 1.08 + Math.sin(Date.now() / 90) * 0.04 : 1 + level * 0.18;
+  // Idle motion driven by mood (when not recording/playing)
+  const idleScale = energy
+    ? energy.mood === "super" || energy.mood === "bouncing" ? 1.05
+    : energy.mood === "happy" ? 1.02
+    : energy.mood === "calm" ? 1.0
+    : 0.97 // sleepy/exhausted: encolhe um bocado
+    : 1;
+  const idleAnim = energy && (energy.mood === "super" || energy.mood === "bouncing")
+    ? { y: [0, -6, 0] }
+    : energy && (energy.mood === "sleepy" || energy.mood === "exhausted")
+    ? { rotate: [0, -2, 0, 2, 0] }
+    : { y: [0, -2, 0] };
+
+  const scale = playing ? 1.08 + Math.sin(Date.now() / 90) * 0.04 : (recording ? 1 + level * 0.18 : idleScale);
 
   return (
     <div className={cn("relative flex flex-col items-center gap-3", className)}>
