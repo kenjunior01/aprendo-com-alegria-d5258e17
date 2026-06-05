@@ -1,17 +1,21 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Mic, Square, Sparkles } from "lucide-react";
+import { Mic, Square, Sparkles, Zap } from "lucide-react";
 import { Mascot } from "@/components/Mascot";
 import type { MascotId } from "@/lib/mascots";
 import { getMascot } from "@/lib/mascots";
 import { haptic } from "@/lib/haptics";
 import { isMuted } from "@/lib/audio";
 import { cn } from "@/lib/utils";
+import { computeMascotEnergy } from "@/lib/mascotEnergy";
+import type { Profile } from "@/lib/storage";
 
 interface Props {
   mascotId: MascotId;
   equippedItemId?: string | null;
   className?: string;
+  /** Quando passado, mostra a Energia da Mascote (derivada do progresso). */
+  profile?: Pick<Profile, "xp" | "streak" | "lastPlayed" | "completedLessons">;
 }
 
 const TAP_PHRASES = [
