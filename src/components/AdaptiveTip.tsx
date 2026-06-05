@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Sparkles, Loader2 } from "lucide-react";
-import { getAdaptiveRecommendation } from "@/server/ai.functions";
+import { getAdaptiveRecommendation } from "@/lib/ai.functions";
 import { useAuth } from "@/hooks/useAuth";
 
 interface Reco {

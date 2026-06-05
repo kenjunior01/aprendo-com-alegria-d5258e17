@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { acceptParentInvite, createParentInvite } from "@/server/parent.functions";
+import { acceptParentInvite, createParentInvite } from "@/lib/parent.functions";
 import { ChunkyButton } from "./ChunkyButton";
 import { Copy, Check, UserPlus } from "lucide-react";
 import type { Profile } from "@/lib/storage";
