@@ -212,6 +212,33 @@ export function MascotVoiceTutor({ mascotId, equippedItemId, className, profile 
         </AnimatePresence>
       </div>
 
+      {energy && (
+        <div className="w-full max-w-xs">
+          <div className="mb-1 flex items-center justify-between text-xs">
+            <span className="inline-flex items-center gap-1 font-medium">
+              <Zap className="h-3.5 w-3.5 text-xp" />
+              Energia da Mascote
+            </span>
+            <span aria-label={energy.label}>{energy.emoji} {energy.value}%</span>
+          </div>
+          <div className="h-2.5 overflow-hidden rounded-full bg-muted">
+            <motion.div
+              initial={false}
+              animate={{ width: `${energy.value}%` }}
+              transition={{ type: "spring", stiffness: 120, damping: 18 }}
+              className={cn(
+                "h-full rounded-full",
+                energy.value >= 70 ? "bg-success"
+                : energy.value >= 40 ? "bg-primary"
+                : energy.value >= 20 ? "bg-amber-400"
+                : "bg-destructive",
+              )}
+            />
+          </div>
+          <p className="mt-1 text-center text-[11px] text-muted-foreground">{energy.hint}</p>
+        </div>
+      )}
+
       <div className="flex items-center gap-2">
         <button
           type="button"
