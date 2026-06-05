@@ -28,7 +28,7 @@ const TAP_PHRASES = [
 ];
 
 // Pitch shift via playbackRate on a recorded blob (leve, sem libs externas)
-export function MascotVoiceTutor({ mascotId, equippedItemId, className }: Props) {
+export function MascotVoiceTutor({ mascotId, equippedItemId, className, profile }: Props) {
   const m = getMascot(mascotId);
   const [recording, setRecording] = useState(false);
   const [playing, setPlaying] = useState(false);
