@@ -85,6 +85,23 @@ function AppHome() {
           </div>
         </motion.section>
 
+        {/* Talking Tutor — interactive mascot */}
+        <motion.section
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="card-chunky mb-5 rounded-3xl border-2 border-border bg-gradient-to-br from-primary/10 via-card to-accent/20 p-4 sm:p-5"
+          aria-label="Área de interação com a mascote"
+        >
+          <div className="mb-3 text-center">
+            <p className="font-display text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+              Área de interação
+            </p>
+            <h3 className="font-display text-lg leading-tight">Fala com o {mascot.name} 🎤</h3>
+          </div>
+          <MascotVoiceTutor mascotId={profile.mascot} equippedItemId={profile.equippedItem} />
+        </motion.section>
+
         <SeasonalBanner region={profile.region ?? null} />
 
         <MissionOfTheDay completedLessons={profile.completedLessons} grade={profile.grade} />
