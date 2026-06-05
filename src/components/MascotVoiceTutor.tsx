@@ -175,8 +175,10 @@ export function MascotVoiceTutor({ mascotId, equippedItemId, className, profile 
         <motion.button
           type="button"
           onClick={onMascotTap}
-          animate={{ scale }}
-          transition={{ type: "spring", stiffness: 220, damping: 12 }}
+          animate={recording || playing ? { scale } : { scale, ...idleAnim }}
+          transition={recording || playing
+            ? { type: "spring", stiffness: 220, damping: 12 }
+            : { duration: energy?.mood === "sleepy" || energy?.mood === "exhausted" ? 3.2 : 2.4, repeat: Infinity, ease: "easeInOut" }}
           whileTap={{ scale: 0.92 }}
           className="rounded-full focus:outline-none focus-visible:ring-4 focus-visible:ring-primary/40"
           aria-label={`Tocar na mascote ${m.name}`}
