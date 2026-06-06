@@ -311,9 +311,10 @@ function LessonPage() {
   }
 
   return (
-    <main className="min-h-[100dvh] bg-background pb-32" style={{ paddingBottom: "calc(8rem + env(safe-area-inset-bottom))" }}>
+    <LessonScene subject={subject.id}>
+    <main className="min-h-[100dvh] pb-32" style={{ paddingBottom: "calc(8rem + env(safe-area-inset-bottom))" }}>
       <header
-        className="sticky top-0 z-20 bg-background/95 backdrop-blur"
+        className="sticky top-0 z-20 bg-background/80 backdrop-blur"
         style={{ paddingTop: "env(safe-area-inset-top)" }}
       >
         <div className="mx-auto flex max-w-2xl items-center gap-3 px-4 py-3">
@@ -327,6 +328,11 @@ function LessonPage() {
               transition={{ type: "spring", stiffness: 120, damping: 18 }}
             />
           </div>
+          {combo >= 2 && (
+            <span className="inline-flex items-center gap-1 rounded-full bg-xp/20 px-2 py-0.5 text-xs font-display font-bold text-xp">
+              <Zap className="h-3.5 w-3.5" /> Combo x{combo}
+            </span>
+          )}
           <div className="flex items-center gap-1 font-display text-destructive">
             <Heart className="h-5 w-5 fill-current" />
             <span className="font-semibold">{hearts}</span>
@@ -343,7 +349,12 @@ function LessonPage() {
           transition={{ duration: 0.3 }}
         >
           <div className="mb-5 flex items-end gap-3">
-            <Mascot id={profile.mascot} size="md" equippedItemId={profile.equippedItem} />
+            <MascotExpression
+              mascotId={profile.mascot}
+              size="md"
+              mood={reaction.mood}
+              equippedItemId={profile.equippedItem}
+            />
             <div className="card-chunky relative flex-1 rounded-3xl rounded-bl-none border border-border bg-card px-4 py-3 sm:px-5 sm:py-4">
               <p className="pr-8 font-display text-base leading-snug sm:text-lg">{q.prompt}</p>
               {ttsAvailable() && (
@@ -358,6 +369,21 @@ function LessonPage() {
               )}
             </div>
           </div>
+
+          {(aiLoading || aiHint) && (
+            <motion.div
+              initial={{ opacity: 0, y: -6 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-4 flex items-start gap-2 rounded-2xl border-2 border-primary/40 bg-primary/10 px-3 py-2 text-sm"
+            >
+              <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+              <p className="leading-snug">
+                {aiLoading ? "A pensar numa explicação fácil…" : aiHint}
+              </p>
+            </motion.div>
+          )}
+
+
 
           <div className="grid gap-2.5 sm:grid-cols-2 sm:gap-3">
             {q.options.map((opt, i) => {
