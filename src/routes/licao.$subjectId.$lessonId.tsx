@@ -490,7 +490,9 @@ function LessonPage() {
         </div>
       )}
     </main>
+    </LessonScene>
   );
+
 }
 
 function Stat({ label, value, icon }: { label: string; value: string; icon?: React.ReactNode }) {
