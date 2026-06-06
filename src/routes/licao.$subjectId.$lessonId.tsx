@@ -143,22 +143,51 @@ function LessonPage() {
   const onCheck = () => {
     if (selected === null) return;
     setRevealed(true);
+    const elapsed = (Date.now() - questionStartRef.current) / 1000;
     if (selected === q.answerIndex) {
       setCorrect((c) => c + 1);
       playCorrect();
-      haptic("success");
+      const wasFirstTry = wrongAttempts === 0;
+      if (wasFirstTry) setFirstTryRight((n) => n + 1);
+      const nextCombo = combo + 1;
+      setCombo(nextCombo);
+      // Bónus: combo (x5 XP por nível ≥3) + velocidade (≤8s = +5)
+      let extra = 0;
+      if (nextCombo >= 3) extra += (nextCombo - 2) * 5;
+      if (wasFirstTry && elapsed <= 8) extra += 5;
+      if (extra > 0) setBonusXp((b) => b + extra);
+      reaction.react(nextCombo >= 3 ? "comboUp" : "correct");
       speak("Boa! Resposta certa!");
       confetti({
-        particleCount: 60,
+        particleCount: 60 + Math.min(60, nextCombo * 10),
         spread: 70,
         origin: { y: 0.7 },
         colors: ["#ff8c42", "#5db1ff", "#7cd16e", "#ffd166"],
       });
     } else {
       setHearts((h) => Math.max(0, h - 1));
+      setCombo(0);
+      const attempts = wrongAttempts + 1;
+      setWrongAttempts(attempts);
       playWrong();
-      haptic("error");
+      reaction.react("wrong");
       speak(`Quase! A resposta certa é ${q.options[q.answerIndex]}.`);
+      // Após 2 tentativas erradas, busca explicação personalizada da IA.
+      if (attempts >= 2 && !aiHint && !aiLoading) {
+        setAiLoading(true);
+        fnExplainMistake({
+          data: {
+            question: q.prompt,
+            childAnswer: q.options[selected],
+            correctAnswer: q.options[q.answerIndex],
+            subject: subject.id,
+            grade: lesson.grade,
+          },
+        })
+          .then((res) => setAiHint(`${res.explanation} ${res.hint}`.trim()))
+          .catch(() => setAiHint(`A resposta certa é "${q.options[q.answerIndex]}". Tu consegues à próxima!`))
+          .finally(() => setAiLoading(false));
+      }
     }
   };
 
@@ -174,21 +203,21 @@ function LessonPage() {
         total,
         durationSeconds,
       });
-      const xpDelta = updated.xp - profile.xp;
-      const coinsDelta = updated.coins - profile.coins;
+      // Aplica bónus de combos/velocidade por cima do XP base.
+      const withBonus = bonusXp > 0 ? updateProfile({ xp: updated.xp + bonusXp }) : updated;
+      const xpDelta = withBonus.xp - profile.xp;
+      const coinsDelta = withBonus.coins - profile.coins;
       setXpEarned(xpDelta);
       setCoinsEarned(coinsDelta);
-      setProfile(updated);
+      setProfile(withBonus);
       setDone(true);
       playLevelUp();
-      haptic("celebrate");
+      reaction.react("outro");
       confetti({ particleCount: 200, spread: 110, origin: { y: 0.6 } });
-      // Submete pontuação ao desafio (PvP ou IA) se aplicável
       if (challengeId) {
         const score = total > 0 ? Math.round((finalCorrect / total) * 100) : 0;
         void fnSubmitChallenge({ data: { challengeId, score } }).catch((e) => console.error("submitChallengeScore", e));
       }
-      // Verifica conquistas em background
       void checkAndUnlockAchievements({ wasPerfect: finalCorrect === total }).then((unlocked) => {
         if (unlocked.length > 0) {
           setNewAchievements(unlocked);
@@ -200,8 +229,13 @@ function LessonPage() {
       setQIndex((i) => i + 1);
       setSelected(null);
       setRevealed(false);
+      setWrongAttempts(0);
+      setAiHint(null);
+      questionStartRef.current = Date.now();
     }
   };
+
+
 
   if (done) {
     const finalCorrect = correct;
