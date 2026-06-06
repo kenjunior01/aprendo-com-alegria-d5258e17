@@ -1,97 +1,59 @@
-# Plano
+# Kidoz Interactive 2.0 — Plano de Entrega
 
-## 1. Importação Open Trivia DB (PT-PT) com cache + fallback
+Excluídos a pedido: AR, Multiplayer tempo real, Wearables/Análise emocional por câmara, NFTs/Marketplace.
 
-**Edge function** `supabase/functions/trivia-import/index.ts`:
-- Chama `https://opentdb.com/api.php?amount=50&category=...&type=multiple` (sem chave, free).
-- Tradução para PT-PT via Lovable AI (`google/gemini-2.5-flash`) em batch (1 prompt por lote de 50).
-- Devolve `{ questions: [...] }` normalizado para o formato do `triviaBank`.
+Muito do plano estratégico **já existe** na app (XP, streaks, missões diárias, ligas, IA Tutor em `/tutor`, painel de pais com realtime, certificados, voz com `MascotVoiceTutor`, energia da mascote). Foco em fechar as lacunas com maior impacto visual e pedagógico.
 
-**Tabela nova** `trivia_cache` (RLS: leitura autenticada, escrita só admin):
-- `category text`, `difficulty text`, `lang text default 'pt-PT'`, `questions jsonb`, `fetched_at timestamptz`.
-- TTL: 7 dias. Se `fetched_at` < 7d → devolve cache; senão → re-fetch.
+## Blocos a entregar
 
-**Cliente** `src/lib/triviaSource.ts`:
-```ts
-export async function getTrivia(category, count): Promise<TriviaQ[]> {
-  try {
-    const cached = await supabase.from('trivia_cache').select(...)...
-    if (cached fresh) return pick(cached, count);
-    const { data } = await supabase.functions.invoke('trivia-import', { body: { category, count } });
-    return data.questions;
-  } catch {
-    return triviaBank.filter(q => q.category === category).slice(0, count); // fallback offline
-  }
-}
-```
+### 1. Mascote Talking Tom 2.0 — humores e expressões reativas
+- Novo componente `MascotExpression` que sobrepõe expressão (`happy`, `thinking`, `sad`, `celebrate`, `tired`) por cima do `Mascot` existente, com SVGs simples (olhos/boca).
+- Hook `useMascotReaction(eventType)` que dispara expressão + frase + haptic + opcional speech synthesis em PT-PT em resposta a: `correct`, `wrong`, `levelUp`, `streakSave`, `idleLong`.
+- Liga ao fluxo existente em `licao.$subjectId.$lessonId.tsx` (acertos/erros) e `CelebrationBurst`.
+- "Mascote chama pelo nome" — usa `profile.name` nas frases.
 
-`GameTriviaJr` e usos do `triviaBank` passam por `getTrivia()`.
+### 2. Cenários imersivos por disciplina
+- Novo `LessonScene` que aplica background temático full-bleed à lição:
+  - Português → Biblioteca Encantada (gradiente quente + partículas livro)
+  - Matemática → Planeta dos Números (gradiente cósmico + dígitos a flutuar)
+  - Estudo do Meio → Museu Vivo (gradiente verde + folhas)
+- Implementado só com CSS tokens + `framer-motion` (sem WebGL) para manter performance.
+- Toggle automático claro/escuro pela hora do dia.
 
-## 2. Mais 10+ mini-jogos Junior (com `subject` + `ageRange`)
+### 3. Feedback inteligente com IA quando a criança erra
+- Nova server function `explainMistake` em `src/lib/ai.functions.ts` (ou estender a existente) que recebe `{ question, childAnswer, correctAnswer, subject, grade }` e devolve uma explicação curta, encorajadora, em PT-PT, com analogia.
+- Usa Lovable AI Gateway (`google/gemini-3-flash-preview`).
+- Mostrada como balão da mascote dentro da lição apenas após 2 tentativas erradas (evita custo desnecessário).
 
-Estendo `JuniorGame` em `src/lib/junior.ts` com `subject: SubjectId | 'logica' | 'musica'` e `ageRange: [min, max]` (anos: 6–10 → 1.º–4.º ano).
+### 4. Narrativa por capítulo
+- Nova lib `chapterStories.ts` com intro/outro escritos por capítulo ("Faísca foi raptada pelo Dragão Matemático…").
+- `capitulo.$chapterId.tsx` ganha cartão de intro animado quando entra; outro de vitória quando todas as missões ficam concluídas.
 
-Novos jogos (`src/components/junior/JuniorGamesV4.tsx`, `V5.tsx`):
+### 5. Combos & multiplicadores de XP
+- Em `licao.$subjectId.$lessonId.tsx`: tracker local de respostas consecutivas certas → banner "Combo x3!" que multiplica XP da próxima resposta.
+- Bónus de primeira tentativa (+50%) e velocidade (+20%) visíveis no resumo final da lição.
 
-| # | Nome | Disciplina | Anos |
-|---|------|-----------|------|
-| 1 | Soma Rápida (flashes) | matematica | 1–2 |
-| 2 | Tabuada Express | matematica | 3–4 |
-| 3 | Frações Visuais (pizza) | matematica | 3–4 |
-| 4 | Caça-Sílabas | portugues | 1–2 |
-| 5 | Forma Frase (drag palavras) | portugues | 2–4 |
-| 6 | Antónimos Pares | portugues | 2–4 |
-| 7 | Mapa de Portugal (regiões) | estudo-meio | 3–4 |
-| 8 | Ciclo da Água (ordenar) | ciencias | 2–4 |
-| 9 | Animais & Habitats | ciencias | 1–3 |
-| 10 | Bandeiras do Mundo | cidadania | 3–4 |
-| 11 | Spelling EN (ouve & escreve) | ingles | 2–4 |
-| 12 | Cores & Números EN | ingles | 1–2 |
-| 13 | Memória Musical (Simon) | musica | 1–4 |
-| 14 | Quebra-Cabeças Lógico | logica | 2–4 |
+### 6. Partilha social das conquistas
+- Novo `AchievementShareCard` que gera cartão visual (badge + nome + nível) e usa Web Share API quando disponível, fallback para copy-to-clipboard.
+- Botão "Partilhar" em `conquistas.tsx` e no fim de cada capítulo concluído.
 
-Cada jogo: componente React puro, sem deps novas, integra com `awardCoins`/`awardXp` existentes.
+### 7. Painel de pais — análise preditiva leve
+- Em `pais.tsx`: nova secção "Sinais de alerta" derivada de dados já existentes (`completedLessons`, erros por disciplina) — destaca conceito mais errado e recomenda lição de reforço. Sem novas tabelas; cálculo no cliente sobre o que já vem do Supabase.
 
-## 3. Admin: matérias/jogos on/off por idade + quantidade de perguntas
+## Detalhes técnicos
 
-**Tabela** `content_settings` (singleton ou key/value, RLS: admin only):
-- `key text primary key`, `value jsonb`.
-- Chaves: `subjects.enabled` → `{ matematica: { enabled: true, ages: [6,10] }, ... }`, `games.enabled` → idem, `trivia.counts` → `{ animals: 20, space: 15, ... }`.
+- Toda a UI usa tokens semânticos em `src/styles.css` (sem cores cruas).
+- Server functions ficam em `src/lib/*.functions.ts` (regra import-protection já aprendida em iterações anteriores).
+- AI usa `createLovableAiGatewayProvider` + `LOVABLE_API_KEY` (já existe nos secrets).
+- Sem novas tabelas Supabase — todos os dados de combos/streaks ficam derivados ou no `profiles` existente.
+- Realtime da energia da mascote (entregue na iteração anterior) é reaproveitado.
 
-**Hook** `useContentSettings()` lê com cache TanStack Query e expõe helpers `isSubjectEnabled(id, age)`, `isGameEnabled(id, age)`, `triviaCount(cat)`.
+## Fora deste sprint (entregar depois se pedires)
 
-**Aba nova** no Admin: `ContentSettingsTab` em `src/routes/admin.tsx`:
-- Lista matérias com Switch + slider de idades (6–10).
-- Lista jogos idem.
-- Lista categorias trivia com input numérico (5–100) por categoria.
-- Botão Guardar → upsert em `content_settings`.
+- Modo offline reforçado (PWA já existe — sw.js)
+- Podcast / audiobooks (requer biblioteca de áudio + storage bucket)
+- Criador de conteúdo drag-and-drop para professores (UI grande dedicada)
+- Comunidade global cross-país (requer moderação + i18n)
+- Certificações reconhecidas por escolas (parcerias offline)
 
-`junior.tsx` e `curriculum.ts` filtram via `useContentSettings`.
-
-## 4. Conta admin
-
-Migration:
-- INSERT em `auth.users` não é possível via SQL direto fiável → uso edge function `bootstrap-admin`:
-  - Recebe `email`, `password`, `setupKey` (secret guardado).
-  - Usa service role para `auth.admin.createUser({ email, password, email_confirm: true })`.
-  - Insere `user_roles` com `role='admin'`.
-
-Em alternativa **mais simples** (recomendado): a função `claim_first_admin()` já existe. Crio um **botão "Tornar-me admin"** na página `/admin` visível quando ainda não há admin, que chama `claim_first_admin()`. O utilizador só precisa de:
-1. Registar-se normalmente em `/auth` (ou como já está autenticado).
-2. Clicar no botão → vira admin.
-
-**Credenciais sugeridas** (se quiser que crie já uma conta dedicada via edge function): peço-lhe email + password e crio na hora. Caso contrário usa a sua conta atual + claim.
-
-## Arquivos
-
-**Novos**: `supabase/functions/trivia-import/index.ts`, `src/lib/triviaSource.ts`, `src/components/junior/JuniorGamesV4.tsx`, `src/components/junior/JuniorGamesV5.tsx`, `src/hooks/useContentSettings.ts`, `src/components/admin/ContentSettingsTab.tsx`.
-
-**Migrations**: tabela `trivia_cache`, tabela `content_settings`, política RLS.
-
-**Editados**: `src/lib/junior.ts` (subject+ageRange + registo dos novos jogos), `src/routes/admin.tsx` (nova aba + claim admin button), `src/routes/junior.tsx` (filtro por settings).
-
-## Perguntas
-
-1. **Conta admin**: usar `claim_first_admin` (botão na UI, mais seguro) ou quer que crie uma conta dedicada via edge function (precisa email+password)?
-2. **Tradução trivia**: confirmar uso do Lovable AI Gateway (já configurado, sem custo direto) — ok?
-3. Faço **tudo numa só batch** (tabelas + função + 14 jogos + aba admin) ou divido em passos?
+Posso começar? Se quiseres remover ou re-priorizar algum dos 7 blocos diz já — caso contrário arranco pela ordem acima.

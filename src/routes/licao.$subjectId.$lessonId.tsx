@@ -1,21 +1,26 @@
 import { createFileRoute, Link, useNavigate, useParams } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { submitChallengeScore } from "@/lib/challenges.functions";
+import { explainMistake } from "@/lib/ai.functions";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import confetti from "canvas-confetti";
 import { Mascot } from "@/components/Mascot";
+import { MascotExpression } from "@/components/MascotExpression";
+import { useMascotReaction } from "@/hooks/useMascotReaction";
+import { LessonScene } from "@/components/LessonScene";
 import { ChunkyButton } from "@/components/ChunkyButton";
 import { SoundToggle } from "@/components/SoundToggle";
 import { getLesson, getSubject } from "@/lib/curriculum";
-import { completeLesson, loadProfile, type Profile } from "@/lib/storage";
+import { completeLesson, loadProfile, updateProfile, type Profile } from "@/lib/storage";
 import { getMascot } from "@/lib/mascots";
 import { playCorrect, playWrong, playLevelUp, speak, stopSpeech, ttsAvailable } from "@/lib/audio";
 import { checkAndUnlockAchievements, type Achievement } from "@/lib/achievements";
 import { useVoiceMatch, isVoiceAvailable } from "@/lib/voice";
-import { Check, Coins, Heart, Mic, Trophy, Volume2, X } from "lucide-react";
+import { Check, Coins, Heart, Mic, Sparkles, Trophy, Volume2, X, Zap } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { haptic } from "@/lib/haptics";
+
 
 export const Route = createFileRoute("/licao/$subjectId/$lessonId")({
   validateSearch: (search: Record<string, unknown>) => ({
@@ -49,8 +54,10 @@ function LessonPage() {
   const { subjectId, lessonId } = useParams({ from: "/licao/$subjectId/$lessonId" });
   const navigate = useNavigate();
   const fnSubmitChallenge = useServerFn(submitChallengeScore);
+  const fnExplainMistake = useServerFn(explainMistake);
   const search = Route.useSearch();
   const challengeId = search.challenge ?? null;
+
 
   const subject = getSubject(subjectId);
   const lesson = getLesson(subjectId, lessonId);
@@ -65,8 +72,17 @@ function LessonPage() {
   const [coinsEarned, setCoinsEarned] = useState(0);
   const [xpEarned, setXpEarned] = useState(0);
   const [newAchievements, setNewAchievements] = useState<Achievement[]>([]);
+  const [combo, setCombo] = useState(0);
+  const [wrongAttempts, setWrongAttempts] = useState(0);
+  const [bonusXp, setBonusXp] = useState(0);
+  const [firstTryRight, setFirstTryRight] = useState(0);
+  const [aiHint, setAiHint] = useState<string | null>(null);
+  const [aiLoading, setAiLoading] = useState(false);
   const lastSpokenRef = useRef<string>("");
   const startTimeRef = useRef<number>(Date.now());
+  const questionStartRef = useRef<number>(Date.now());
+  const reaction = useMascotReaction({ childName: undefined, speak: false });
+
 
   useEffect(() => {
     const p = loadProfile();
@@ -127,22 +143,51 @@ function LessonPage() {
   const onCheck = () => {
     if (selected === null) return;
     setRevealed(true);
+    const elapsed = (Date.now() - questionStartRef.current) / 1000;
     if (selected === q.answerIndex) {
       setCorrect((c) => c + 1);
       playCorrect();
-      haptic("success");
+      const wasFirstTry = wrongAttempts === 0;
+      if (wasFirstTry) setFirstTryRight((n) => n + 1);
+      const nextCombo = combo + 1;
+      setCombo(nextCombo);
+      // Bónus: combo (x5 XP por nível ≥3) + velocidade (≤8s = +5)
+      let extra = 0;
+      if (nextCombo >= 3) extra += (nextCombo - 2) * 5;
+      if (wasFirstTry && elapsed <= 8) extra += 5;
+      if (extra > 0) setBonusXp((b) => b + extra);
+      reaction.react(nextCombo >= 3 ? "comboUp" : "correct");
       speak("Boa! Resposta certa!");
       confetti({
-        particleCount: 60,
+        particleCount: 60 + Math.min(60, nextCombo * 10),
         spread: 70,
         origin: { y: 0.7 },
         colors: ["#ff8c42", "#5db1ff", "#7cd16e", "#ffd166"],
       });
     } else {
       setHearts((h) => Math.max(0, h - 1));
+      setCombo(0);
+      const attempts = wrongAttempts + 1;
+      setWrongAttempts(attempts);
       playWrong();
-      haptic("error");
+      reaction.react("wrong");
       speak(`Quase! A resposta certa é ${q.options[q.answerIndex]}.`);
+      // Após 2 tentativas erradas, busca explicação personalizada da IA.
+      if (attempts >= 2 && !aiHint && !aiLoading) {
+        setAiLoading(true);
+        fnExplainMistake({
+          data: {
+            question: q.prompt,
+            childAnswer: q.options[selected],
+            correctAnswer: q.options[q.answerIndex],
+            subject: subject.id,
+            grade: lesson.grade,
+          },
+        })
+          .then((res) => setAiHint(`${res.explanation} ${res.hint}`.trim()))
+          .catch(() => setAiHint(`A resposta certa é "${q.options[q.answerIndex]}". Tu consegues à próxima!`))
+          .finally(() => setAiLoading(false));
+      }
     }
   };
 
@@ -158,21 +203,21 @@ function LessonPage() {
         total,
         durationSeconds,
       });
-      const xpDelta = updated.xp - profile.xp;
-      const coinsDelta = updated.coins - profile.coins;
+      // Aplica bónus de combos/velocidade por cima do XP base.
+      const withBonus = bonusXp > 0 ? updateProfile({ xp: updated.xp + bonusXp }) : updated;
+      const xpDelta = withBonus.xp - profile.xp;
+      const coinsDelta = withBonus.coins - profile.coins;
       setXpEarned(xpDelta);
       setCoinsEarned(coinsDelta);
-      setProfile(updated);
+      setProfile(withBonus);
       setDone(true);
       playLevelUp();
-      haptic("celebrate");
+      reaction.react("outro");
       confetti({ particleCount: 200, spread: 110, origin: { y: 0.6 } });
-      // Submete pontuação ao desafio (PvP ou IA) se aplicável
       if (challengeId) {
         const score = total > 0 ? Math.round((finalCorrect / total) * 100) : 0;
         void fnSubmitChallenge({ data: { challengeId, score } }).catch((e) => console.error("submitChallengeScore", e));
       }
-      // Verifica conquistas em background
       void checkAndUnlockAchievements({ wasPerfect: finalCorrect === total }).then((unlocked) => {
         if (unlocked.length > 0) {
           setNewAchievements(unlocked);
@@ -184,8 +229,13 @@ function LessonPage() {
       setQIndex((i) => i + 1);
       setSelected(null);
       setRevealed(false);
+      setWrongAttempts(0);
+      setAiHint(null);
+      questionStartRef.current = Date.now();
     }
   };
+
+
 
   if (done) {
     const finalCorrect = correct;
@@ -261,9 +311,10 @@ function LessonPage() {
   }
 
   return (
-    <main className="min-h-[100dvh] bg-background pb-32" style={{ paddingBottom: "calc(8rem + env(safe-area-inset-bottom))" }}>
+    <LessonScene subject={subject.id}>
+    <main className="min-h-[100dvh] pb-32" style={{ paddingBottom: "calc(8rem + env(safe-area-inset-bottom))" }}>
       <header
-        className="sticky top-0 z-20 bg-background/95 backdrop-blur"
+        className="sticky top-0 z-20 bg-background/80 backdrop-blur"
         style={{ paddingTop: "env(safe-area-inset-top)" }}
       >
         <div className="mx-auto flex max-w-2xl items-center gap-3 px-4 py-3">
@@ -277,6 +328,11 @@ function LessonPage() {
               transition={{ type: "spring", stiffness: 120, damping: 18 }}
             />
           </div>
+          {combo >= 2 && (
+            <span className="inline-flex items-center gap-1 rounded-full bg-xp/20 px-2 py-0.5 text-xs font-display font-bold text-xp">
+              <Zap className="h-3.5 w-3.5" /> Combo x{combo}
+            </span>
+          )}
           <div className="flex items-center gap-1 font-display text-destructive">
             <Heart className="h-5 w-5 fill-current" />
             <span className="font-semibold">{hearts}</span>
@@ -293,7 +349,12 @@ function LessonPage() {
           transition={{ duration: 0.3 }}
         >
           <div className="mb-5 flex items-end gap-3">
-            <Mascot id={profile.mascot} size="md" equippedItemId={profile.equippedItem} />
+            <MascotExpression
+              mascotId={profile.mascot}
+              size="md"
+              mood={reaction.mood}
+              equippedItemId={profile.equippedItem}
+            />
             <div className="card-chunky relative flex-1 rounded-3xl rounded-bl-none border border-border bg-card px-4 py-3 sm:px-5 sm:py-4">
               <p className="pr-8 font-display text-base leading-snug sm:text-lg">{q.prompt}</p>
               {ttsAvailable() && (
@@ -308,6 +369,21 @@ function LessonPage() {
               )}
             </div>
           </div>
+
+          {(aiLoading || aiHint) && (
+            <motion.div
+              initial={{ opacity: 0, y: -6 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-4 flex items-start gap-2 rounded-2xl border-2 border-primary/40 bg-primary/10 px-3 py-2 text-sm"
+            >
+              <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+              <p className="leading-snug">
+                {aiLoading ? "A pensar numa explicação fácil…" : aiHint}
+              </p>
+            </motion.div>
+          )}
+
+
 
           <div className="grid gap-2.5 sm:grid-cols-2 sm:gap-3">
             {q.options.map((opt, i) => {
@@ -414,7 +490,9 @@ function LessonPage() {
         </div>
       )}
     </main>
+    </LessonScene>
   );
+
 }
 
 function Stat({ label, value, icon }: { label: string; value: string; icon?: React.ReactNode }) {

@@ -1,5 +1,4 @@
-// IA adaptativa — server function que analisa as últimas sessões da criança
-// e devolve uma recomendação + dica motivacional personalizada.
+// IA adaptativa — server functions para recomendação e explicação de erros.
 
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
@@ -10,6 +9,100 @@ interface Recommendation {
   focusSubject: "portugues" | "matematica" | "estudo-do-meio" | "geral";
   difficulty: "facil" | "medio" | "dificil";
 }
+
+interface MistakeExplanationInput {
+  question: string;
+  childAnswer: string;
+  correctAnswer: string;
+  subject: string;
+  grade: number;
+}
+
+interface MistakeExplanation {
+  explanation: string;
+  hint: string;
+}
+
+export const explainMistake = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown): MistakeExplanationInput => {
+    const i = input as Partial<MistakeExplanationInput>;
+    return {
+      question: String(i.question ?? "").slice(0, 500),
+      childAnswer: String(i.childAnswer ?? "").slice(0, 200),
+      correctAnswer: String(i.correctAnswer ?? "").slice(0, 200),
+      subject: String(i.subject ?? "geral").slice(0, 40),
+      grade: Math.min(6, Math.max(1, Number(i.grade) || 1)),
+    };
+  })
+  .handler(async ({ data }): Promise<MistakeExplanation> => {
+    const apiKey = process.env.LOVABLE_API_KEY;
+    if (!apiKey) {
+      return {
+        explanation: `A resposta certa é "${data.correctAnswer}". Não faz mal — vamos tentar outra vez!`,
+        hint: "Lê devagar a pergunta antes de responderes.",
+      };
+    }
+
+    const systemMsg = `És um tutor educacional carinhoso para crianças do ${data.grade}.º ano em Portugal.
+Responde SEMPRE em pt-PT, com tom encorajador, sem nunca dizer "errado". Usa frases curtas e uma analogia simples.
+NUNCA reveles a resposta correta antes de explicar o porquê.`;
+
+    const userMsg = `Disciplina: ${data.subject}
+Pergunta: "${data.question}"
+Resposta da criança: "${data.childAnswer}"
+Resposta correta: "${data.correctAnswer}"
+
+Explica em 1-2 frases curtas porque a resposta correta é a correta, e dá uma dica para a próxima tentativa.`;
+
+    try {
+      const resp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model: "google/gemini-3-flash-preview",
+          messages: [
+            { role: "system", content: systemMsg },
+            { role: "user", content: userMsg },
+          ],
+          tools: [{
+            type: "function",
+            function: {
+              name: "explain",
+              description: "Explicar de forma encorajadora à criança",
+              parameters: {
+                type: "object",
+                properties: {
+                  explanation: { type: "string", description: "Explicação curta e gentil em pt-PT (1-2 frases)" },
+                  hint: { type: "string", description: "Dica curta para a próxima tentativa em pt-PT" },
+                },
+                required: ["explanation", "hint"],
+                additionalProperties: false,
+              },
+            },
+          }],
+          tool_choice: { type: "function", function: { name: "explain" } },
+        }),
+      });
+
+      if (resp.status === 429) {
+        return { explanation: "Vamos com calma — respira fundo!", hint: "Tenta de novo daqui a pouco." };
+      }
+      if (!resp.ok) throw new Error(`AI ${resp.status}`);
+      const json = await resp.json();
+      const args = json.choices?.[0]?.message?.tool_calls?.[0]?.function?.arguments;
+      if (args) return JSON.parse(args) as MistakeExplanation;
+    } catch {
+      /* fallthrough */
+    }
+
+    return {
+      explanation: `A resposta certa é "${data.correctAnswer}". Olha bem para a pergunta — vais ver que faz sentido!`,
+      hint: "Lê a pergunta em voz alta antes de escolher.",
+    };
+  });
+
+
 
 export const getAdaptiveRecommendation = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
