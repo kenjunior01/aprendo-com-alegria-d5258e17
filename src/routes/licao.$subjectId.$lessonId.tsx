@@ -1,21 +1,26 @@
 import { createFileRoute, Link, useNavigate, useParams } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { submitChallengeScore } from "@/lib/challenges.functions";
+import { explainMistake } from "@/lib/ai.functions";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import confetti from "canvas-confetti";
 import { Mascot } from "@/components/Mascot";
+import { MascotExpression } from "@/components/MascotExpression";
+import { useMascotReaction } from "@/hooks/useMascotReaction";
+import { LessonScene } from "@/components/LessonScene";
 import { ChunkyButton } from "@/components/ChunkyButton";
 import { SoundToggle } from "@/components/SoundToggle";
 import { getLesson, getSubject } from "@/lib/curriculum";
-import { completeLesson, loadProfile, type Profile } from "@/lib/storage";
+import { completeLesson, loadProfile, updateProfile, type Profile } from "@/lib/storage";
 import { getMascot } from "@/lib/mascots";
 import { playCorrect, playWrong, playLevelUp, speak, stopSpeech, ttsAvailable } from "@/lib/audio";
 import { checkAndUnlockAchievements, type Achievement } from "@/lib/achievements";
 import { useVoiceMatch, isVoiceAvailable } from "@/lib/voice";
-import { Check, Coins, Heart, Mic, Trophy, Volume2, X } from "lucide-react";
+import { Check, Coins, Heart, Mic, Sparkles, Trophy, Volume2, X, Zap } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { haptic } from "@/lib/haptics";
+
 
 export const Route = createFileRoute("/licao/$subjectId/$lessonId")({
   validateSearch: (search: Record<string, unknown>) => ({
@@ -49,8 +54,10 @@ function LessonPage() {
   const { subjectId, lessonId } = useParams({ from: "/licao/$subjectId/$lessonId" });
   const navigate = useNavigate();
   const fnSubmitChallenge = useServerFn(submitChallengeScore);
+  const fnExplainMistake = useServerFn(explainMistake);
   const search = Route.useSearch();
   const challengeId = search.challenge ?? null;
+
 
   const subject = getSubject(subjectId);
   const lesson = getLesson(subjectId, lessonId);
@@ -65,8 +72,17 @@ function LessonPage() {
   const [coinsEarned, setCoinsEarned] = useState(0);
   const [xpEarned, setXpEarned] = useState(0);
   const [newAchievements, setNewAchievements] = useState<Achievement[]>([]);
+  const [combo, setCombo] = useState(0);
+  const [wrongAttempts, setWrongAttempts] = useState(0);
+  const [bonusXp, setBonusXp] = useState(0);
+  const [firstTryRight, setFirstTryRight] = useState(0);
+  const [aiHint, setAiHint] = useState<string | null>(null);
+  const [aiLoading, setAiLoading] = useState(false);
   const lastSpokenRef = useRef<string>("");
   const startTimeRef = useRef<number>(Date.now());
+  const questionStartRef = useRef<number>(Date.now());
+  const reaction = useMascotReaction({ childName: undefined, speak: false });
+
 
   useEffect(() => {
     const p = loadProfile();
