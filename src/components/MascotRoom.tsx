@@ -161,7 +161,7 @@ export function MascotRoom({ profile }: Props) {
   return (
     <div
       onMouseMove={handleMouseMove}
-      className={cn("relative flex h-full w-full flex-col overflow-hidden transition-colors duration-700", getBackground())}
+      className={cn("relative flex h-full w-full flex-col overflow-hidden transition-colors duration-700 touch-none select-none", getBackground())}
     >
       <motion.div animate={{ x: mousePos.x, y: mousePos.y }} className="pointer-events-none absolute inset-0 z-0 opacity-20">
         <div className="absolute left-[10%] top-[20%] text-9xl">☁️</div>
