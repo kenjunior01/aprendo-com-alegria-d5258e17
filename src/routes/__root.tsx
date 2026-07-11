@@ -4,6 +4,7 @@ import { UsageGuard } from "@/components/UsageGuard";
 import { installServerFnAuthInterceptor } from "@/integrations/supabase/serverFnAuth";
 import { registerServiceWorker } from "@/lib/registerSW";
 import { loadHapticsPref } from "@/lib/haptics";
+import { usePushNotifications } from "@/hooks/usePushNotifications";
 
 import appCss from "../styles.css?url";
 
@@ -109,6 +110,7 @@ function RootShell({ children }: { children: React.ReactNode }) {
 }
 
 function RootComponent() {
+  usePushNotifications();
   useEffect(() => {
     installServerFnAuthInterceptor();
     loadHapticsPref();

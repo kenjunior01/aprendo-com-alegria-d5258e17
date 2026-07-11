@@ -33,7 +33,7 @@ export function BottomNav() {
     : [
         { to: "/app", label: "Início", icon: MapIcon, match: (p) => p === "/app" || p.startsWith("/licao") || p.startsWith("/capitulo") },
         { to: "/leitura", label: "Explorar", icon: BookOpen, match: (p) => p.startsWith("/leitura") || p.startsWith("/ra") || p.startsWith("/jardim") },
-        { to: "/tutor", label: "O Meu Amigo", mascot: true, match: (p) => p.startsWith("/tutor") },
+        { to: "/mascote", label: "O Meu Amigo", mascot: true, match: (p) => p.startsWith("/mascote") || p.startsWith("/tutor") },
         { to: "/desafios", label: "Desafios", icon: Swords, match: (p) => p.startsWith("/desafios") },
         { to: "/conquistas", label: "Prémios", icon: Trophy, match: (p) => p.startsWith("/conquistas") || p.startsWith("/loja") },
         { to: "/perfil", label: "Eu", icon: User, match: (p) => p.startsWith("/perfil") },
@@ -63,7 +63,7 @@ export function BottomNav() {
               >
                 {item.mascot ? (
                   <div className={cn("transition-transform", active && "scale-110")}>
-                    <Mascot id="owl" size="sm" bouncing={active} />
+                    <Mascot id={profile?.mascot || "owl"} size="sm" bouncing={active} />
                   </div>
                 ) : Icon ? (
                   <Icon className={cn("h-7 w-7 transition-transform", active && "scale-110")} strokeWidth={active ? 2.6 : 2} />

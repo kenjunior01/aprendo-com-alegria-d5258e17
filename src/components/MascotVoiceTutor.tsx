@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Mic, Square, Sparkles, Zap } from "lucide-react";
-import { Mascot } from "@/components/Mascot";
+import { MascotExpression } from "@/components/MascotExpression";
 import type { MascotId } from "@/lib/mascots";
 import { getMascot } from "@/lib/mascots";
 import { haptic } from "@/lib/haptics";
@@ -16,6 +16,7 @@ interface Props {
   className?: string;
   /** Quando passado, mostra a Energia da Mascote (derivada do progresso). */
   profile?: Pick<Profile, "xp" | "streak" | "lastPlayed" | "completedLessons">;
+  growthScale?: number;
 }
 
 const TAP_PHRASES = [
@@ -28,7 +29,7 @@ const TAP_PHRASES = [
 ];
 
 // Pitch shift via playbackRate on a recorded blob (leve, sem libs externas)
-export function MascotVoiceTutor({ mascotId, equippedItemId, className, profile }: Props) {
+export function MascotVoiceTutor({ mascotId, equippedItemId, className, profile, growthScale = 1 }: Props) {
   const m = getMascot(mascotId);
   const [recording, setRecording] = useState(false);
   const [playing, setPlaying] = useState(false);
@@ -183,7 +184,13 @@ export function MascotVoiceTutor({ mascotId, equippedItemId, className, profile 
           className="rounded-full focus:outline-none focus-visible:ring-4 focus-visible:ring-primary/40"
           aria-label={`Tocar na mascote ${m.name}`}
         >
-          <Mascot id={mascotId} size="lg" equippedItemId={equippedItemId} />
+          <MascotExpression
+            mascotId={mascotId}
+            size="lg"
+            equippedItemId={equippedItemId}
+            growthScale={growthScale}
+            mood={recording ? "listening" : (playing ? "happy" : "neutral")}
+          />
         </motion.button>
 
         {/* halo when listening */}

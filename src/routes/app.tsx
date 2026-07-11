@@ -11,7 +11,7 @@ import { getMascot } from "@/lib/mascots";
 import { AdaptiveTip } from "@/components/AdaptiveTip";
 import { MissionOfTheDay } from "@/components/MissionOfTheDay";
 import { SeasonalBanner } from "@/components/SeasonalBanner";
-import { Lock, Star, CheckCircle2, Crown, Play } from "lucide-react";
+import { Lock, Star, CheckCircle2, Crown, Play, Gamepad2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { haptic } from "@/lib/haptics";
 
@@ -85,21 +85,39 @@ function AppHome() {
           </div>
         </motion.section>
 
-        {/* Talking Tutor — interactive mascot */}
+        {/* Mascot Room Hero - Entry to Talking Tom Mode */}
         <motion.section
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="card-chunky mb-5 rounded-3xl border-2 border-border bg-gradient-to-br from-primary/10 via-card to-accent/20 p-4 sm:p-5"
+          className="relative mb-5 overflow-hidden rounded-[2.5rem] border border-white/40 bg-gradient-to-br from-primary/20 via-card to-accent/20 p-6 shadow-xl backdrop-blur-xl"
           aria-label="Área de interação com a mascote"
         >
-          <div className="mb-3 text-center">
-            <p className="font-display text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
-              Área de interação
+          <div className="flex flex-col items-center text-center">
+            <p className="mb-1 font-display text-[10px] font-bold uppercase tracking-[0.2em] text-primary/70">
+              O Teu Melhor Amigo
             </p>
-            <h3 className="font-display text-lg leading-tight">Fala com o {mascot.name} 🎤</h3>
+            <h3 className="mb-4 font-display text-2xl leading-tight">Vem brincar com o {mascot.name}! ✨</h3>
+
+            <Link
+              to="/mascote"
+              className="group relative flex flex-col items-center gap-4 transition-transform active:scale-95"
+            >
+              <div className="relative">
+                <Mascot id={profile.mascot} size="lg" bouncing equippedItemId={profile.equippedItem} />
+                <motion.div
+                  animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.6, 0.3] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                  className="absolute inset-0 -z-10 rounded-full bg-primary/30 blur-2xl"
+                />
+              </div>
+
+              <div className="btn-chunky flex items-center gap-2 rounded-full bg-primary px-8 py-3 text-white shadow-lg">
+                <Gamepad2 className="h-5 w-5" />
+                <span>Entrar no Quarto</span>
+              </div>
+            </Link>
           </div>
-          <MascotVoiceTutor mascotId={profile.mascot} equippedItemId={profile.equippedItem} profile={profile} />
         </motion.section>
 
         <SeasonalBanner region={profile.region ?? null} />

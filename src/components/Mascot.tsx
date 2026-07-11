@@ -9,6 +9,7 @@ interface Props {
   bouncing?: boolean;
   className?: string;
   equippedItemId?: string | null;
+  growthScale?: number;
 }
 
 const sizeMap = {
@@ -25,7 +26,7 @@ const itemSize = {
   xl: { hat: "text-6xl -top-5 -right-4", outfit: "text-5xl bottom-2 -right-4", badge: "text-4xl -bottom-2 -left-4" },
 };
 
-export function Mascot({ id, size = "md", bouncing = false, className, equippedItemId }: Props) {
+export function Mascot({ id, size = "md", bouncing = false, className, equippedItemId, growthScale = 1 }: Props) {
   const m = getMascot(id);
   const item = getItem(equippedItemId);
   const isWearable = item && (item.type === "hat" || item.type === "outfit" || item.type === "badge");
@@ -33,8 +34,8 @@ export function Mascot({ id, size = "md", bouncing = false, className, equippedI
 
   return (
     <motion.div
-      initial={{ scale: 0.85, opacity: 0 }}
-      animate={{ scale: 1, opacity: 1 }}
+      initial={{ scale: 0.85 * growthScale, opacity: 0 }}
+      animate={{ scale: growthScale, opacity: 1 }}
       transition={{ type: "spring", stiffness: 220, damping: 14 }}
       className={cn("relative inline-flex", className)}
     >
@@ -54,6 +55,7 @@ export function Mascot({ id, size = "md", bouncing = false, className, equippedI
         <span
           aria-hidden
           className={cn("pointer-events-none absolute select-none drop-shadow-md", itemPos)}
+          style={{ transform: `scale(${1 / growthScale})` }}
         >
           {item.emoji}
         </span>

@@ -25,6 +25,13 @@ export interface Profile {
   bedtimeHour?: number | null;
   region?: RegionCode | null;
   interests?: string[];
+  // Mascot Needs (Talking Tom style)
+  hunger: number; // 0..100
+  energy: number; // 0..100
+  fun: number; // 0..100
+  knowledge: number; // 0..100
+  pushToken?: string | null;
+  lastDailyGift?: string | null; // YYYY-MM-DD
 }
 
 const KEY = "lusis-profile-v2";
@@ -51,6 +58,11 @@ export const defaultProfile = (): Profile => ({
   bedtimeHour: null,
   region: null,
   interests: [],
+  hunger: 80,
+  energy: 100,
+  fun: 90,
+  knowledge: 50,
+  lastDailyGift: null,
 });
 
 export const loadProfile = (): Profile | null => {
@@ -201,6 +213,12 @@ async function syncProfileToCloud(p: Profile) {
       bedtime_hour: p.bedtimeHour ?? null,
       region: p.region ?? null,
       interests: p.interests ?? [],
+      hunger: p.hunger,
+      energy: p.energy,
+      fun: p.fun,
+      knowledge: p.knowledge,
+      push_token: p.pushToken ?? null,
+      last_daily_gift: p.lastDailyGift ?? null,
     });
   } catch {
     // offline ou sem sessão — ignora
@@ -259,6 +277,12 @@ export async function pullProfileFromCloud(): Promise<Profile | null> {
       bedtimeHour: (data as { bedtime_hour?: number | null }).bedtime_hour ?? null,
       region: ((data as { region?: RegionCode | null }).region ?? null),
       interests: ((data as { interests?: string[] }).interests ?? []),
+      hunger: data.hunger ?? 80,
+      energy: data.energy ?? 100,
+      fun: data.fun ?? 90,
+      knowledge: data.knowledge ?? 50,
+      pushToken: (data as any).push_token ?? null,
+      lastDailyGift: (data as any).last_daily_gift ?? null,
     };
     const local = loadProfile();
     const merged = mergeProfiles(local, cloudProfile);
@@ -298,6 +322,11 @@ function mergeProfiles(local: Profile | null, cloud: Profile): Profile {
     bedtimeHour: cloud.bedtimeHour ?? local.bedtimeHour ?? null,
     region: cloud.region ?? local.region ?? null,
     interests: (cloud.interests?.length ? cloud.interests : local.interests) ?? [],
+    hunger: cloud.hunger,
+    energy: cloud.energy,
+    fun: cloud.fun,
+    knowledge: cloud.knowledge,
+    pushToken: cloud.pushToken ?? local.pushToken ?? null,
   };
 }
 

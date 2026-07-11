@@ -70,6 +70,27 @@ export function playTap() {
   tone(440, 0.06, "square", 0.08, 0);
 }
 
+export function playEat() {
+  if (muted) return;
+  // som de "nham" mastigando
+  tone(200, 0.1, "sine", 0.2, 0);
+  tone(250, 0.1, "sine", 0.2, 0.05);
+}
+
+export function playWhistle() {
+  if (muted) return;
+  // som de assobio ascendente
+  tone(880, 0.1, "sine", 0.1, 0);
+  tone(1100, 0.15, "sine", 0.1, 0.08);
+}
+
+export function playFun() {
+  if (muted) return;
+  // som de "bolha" ou diversão
+  tone(600, 0.2, "sine", 0.2, 0);
+  tone(800, 0.2, "sine", 0.2, 0.1);
+}
+
 export function playLevelUp() {
   if (muted) return;
   tone(523.25, 0.12, "triangle", 0.22, 0);

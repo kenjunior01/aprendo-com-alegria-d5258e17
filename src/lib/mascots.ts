@@ -51,3 +51,12 @@ export const MASCOTS: Mascot[] = [
 
 export const getMascot = (id: MascotId | null | undefined): Mascot =>
   MASCOTS.find((m) => m.id === id) ?? MASCOTS[0];
+
+export type GrowthStage = "bebé" | "júnior" | "aventureiro" | "mestre";
+
+export function getGrowthStage(grade: number, xp: number): { stage: GrowthStage; scale: number; label: string } {
+  if (grade >= 4 || xp > 5000) return { stage: "mestre", scale: 1.2, label: "Mestre do Saber" };
+  if (grade >= 3 || xp > 2000) return { stage: "aventureiro", scale: 1.05, label: "Aventureiro" };
+  if (grade >= 2 || xp > 500) return { stage: "júnior", scale: 0.9, label: "Aprendiz Júnior" };
+  return { stage: "bebé", scale: 0.75, label: "Mascote Bebé" };
+}

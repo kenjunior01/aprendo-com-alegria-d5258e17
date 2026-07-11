@@ -102,7 +102,25 @@ const VOCAB_AO: VocabMap = {
 const VOCAB_MZ: VocabMap = {
   pequeno_almoco: "matabicho",
   autocarro: "machimbombo",
+  estudar: "estudar",
+  escola: "escola",
+  aprender: "aprender",
+  moçambique: "Moçambique",
 };
+
+const MOZAMBIQUE_FACTS = [
+  "Moçambique fica na costa oriental da África! 🌍",
+  "A bandeira de Moçambique é a única com uma arma moderna (AK-47)! 🇲🇿",
+  "O Arquipélago das Quirimbas tem ilhas maravilhosas! 🏝️",
+  "O Monte Namuli é a segunda montanha mais alta de Moçambique! ⛰️",
+  "A Marrabenta é um estilo de música e dança muito popular! 💃",
+  "A Ilha de Moçambique foi a primeira capital do país! 🏛️",
+  "O Rio Zambeze é o maior rio que atravessa Moçambique! 🌊",
+];
+
+export function getMozambiqueFact() {
+  return MOZAMBIQUE_FACTS[Math.floor(Math.random() * MOZAMBIQUE_FACTS.length)];
+}
 
 const VOCAB_CV: VocabMap = {
   // Mantém PT-PT na escrita formal; cabo-verdiano oral fica de fora desta camada.
