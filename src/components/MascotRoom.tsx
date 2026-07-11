@@ -158,11 +158,79 @@ export function MascotRoom({ profile }: Props) {
     { id: "talk", icon: Mic, value: 100, color: "bg-indigo-400", room: "talk" as RoomType },
   ];
 
+  const handleMascotClick = () => {
+    if (room === "talk") return;
+    haptic("tap");
+    setMood("happy");
+    setBubble(t(mascot.greeting));
+    setTimeout(() => {
+      setMood("neutral");
+      setBubble(null);
+    }, 3000);
+  };
+
   return (
     <div
       onMouseMove={handleMouseMove}
       className={cn("relative flex h-full w-full flex-col overflow-hidden transition-colors duration-700 touch-none select-none", getBackground())}
     >
+      {/* Dynamic Background Elements for Immersive Scenarios */}
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={room}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.5 }}
+          className="pointer-events-none absolute inset-0 z-0"
+        >
+          {room === "classroom" && (
+            <>
+              {/* Blackboard */}
+              <div className="absolute left-[10%] right-[10%] top-[15%] h-[40%] rounded-xl border-8 border-amber-900 bg-emerald-900 shadow-2xl">
+                <div className="flex h-full flex-col items-center justify-center p-4 text-white/20">
+                  <div className="font-display text-4xl font-bold uppercase tracking-widest sm:text-6xl">
+                    ABC • 123
+                  </div>
+                  <div className="mt-4 h-1 w-32 rounded-full bg-white/10" />
+                </div>
+              </div>
+              {/* Desk shadow/floor line */}
+              <div className="absolute bottom-0 left-0 right-0 h-[30%] bg-amber-100/50" />
+            </>
+          )}
+
+          {room === "kitchen" && (
+            <>
+              {/* Tiles pattern */}
+              <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle, #000 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
+              {/* Counter */}
+              <div className="absolute bottom-0 left-0 right-0 h-[35%] border-t-4 border-orange-300 bg-white/40" />
+            </>
+          )}
+
+          {room === "bedroom" && (
+            <>
+              {/* Window with stars */}
+              <div className="absolute right-[10%] top-[10%] h-40 w-32 rounded-t-full border-4 border-white bg-indigo-950 p-4 shadow-inner">
+                <div className="flex h-full items-center justify-center text-2xl">✨</div>
+              </div>
+              {/* Rug */}
+              <div className="absolute bottom-[5%] left-1/2 h-[20%] w-[80%] -translate-x-1/2 rounded-[100%] bg-purple-400/30 blur-xl" />
+            </>
+          )}
+
+          {room === "living" && (
+            <>
+              {/* Wallpaper pattern */}
+              <div className="absolute inset-0 opacity-5" style={{ backgroundImage: 'linear-gradient(45deg, #000 25%, transparent 25%, transparent 75%, #000 75%, #000), linear-gradient(45deg, #000 25%, transparent 25%, transparent 75%, #000 75%, #000)', backgroundSize: '60px 60px', backgroundPosition: '0 0, 30px 30px' }} />
+              {/* Floor */}
+              <div className="absolute bottom-0 left-0 right-0 h-[25%] bg-sky-100/40" />
+            </>
+          )}
+        </motion.div>
+      </AnimatePresence>
+
       <motion.div animate={{ x: mousePos.x, y: mousePos.y }} className="pointer-events-none absolute inset-0 z-0 opacity-20">
         <div className="absolute left-[10%] top-[20%] text-9xl">☁️</div>
         <div className="absolute right-[15%] top-[10%] text-8xl">☁️</div>
@@ -268,7 +336,7 @@ export function MascotRoom({ profile }: Props) {
             </AnimatePresence>
 
             {room === "talk" ? (
-              <div className="relative scale-125">
+              <div className="relative scale-125 md:scale-150 transition-transform">
                 {growth.stage === "mestre" && (
                   <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="pointer-events-none absolute inset-0 z-0">
                     {[...Array(6)].map((_, i) => (
@@ -279,7 +347,7 @@ export function MascotRoom({ profile }: Props) {
                 <MascotVoiceTutor mascotId={profile.mascot} equippedItemId={profile.equippedItem} growthScale={growth.scale} />
               </div>
             ) : (
-              <div onClick={handleMascotClick} className="relative cursor-pointer transition-transform active:scale-95">
+              <div onClick={handleMascotClick} className="relative cursor-pointer transition-transform active:scale-95 scale-110 md:scale-125">
                 {growth.stage === "mestre" && <motion.div animate={{ rotate: 360 }} transition={{ duration: 10, repeat: Infinity, ease: "linear" }} className="pointer-events-none absolute -inset-10 z-0 rounded-full border-2 border-dashed border-amber-400/30" />}
                 <MascotExpression mascotId={profile.mascot} size="xl" mood={mood} bubble={bubble} equippedItemId={profile.equippedItem} growthScale={growth.scale} />
               </div>

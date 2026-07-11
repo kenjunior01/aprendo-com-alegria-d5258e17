@@ -5,7 +5,12 @@ import { loadProfile, pullProfileFromCloud, type Profile } from "@/lib/storage";
 import { ArrowLeft } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 
-export const Route = createFileRoute("/mascote")({
+export const Route = createFileRoute("/amigo")({
+  head: () => ({
+    meta: [
+      { title: "O Meu Amigo — Kidoz" },
+    ],
+  }),
   component: MascoteMode,
 });
 

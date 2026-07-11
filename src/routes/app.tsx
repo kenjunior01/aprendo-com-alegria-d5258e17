@@ -100,7 +100,7 @@ function AppHome() {
             <h3 className="mb-4 font-display text-2xl leading-tight">Vem brincar com o {mascot.name}! ✨</h3>
 
             <Link
-              to="/mascote"
+              to="/amigo"
               className="group relative flex flex-col items-center gap-4 transition-transform active:scale-95"
             >
               <div className="relative">

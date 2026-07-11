@@ -29,6 +29,7 @@ import { Route as ComecarRouteImport } from './routes/comecar'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ArcadeRouteImport } from './routes/arcade'
 import { Route as AppRouteImport } from './routes/app'
+import { Route as AmigoRouteImport } from './routes/amigo'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DesafiosInfinitosRouteImport } from './routes/desafios.infinitos'
@@ -144,6 +145,11 @@ const AppRoute = AppRouteImport.update({
   path: '/app',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AmigoRoute = AmigoRouteImport.update({
+  id: '/amigo',
+  path: '/amigo',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminRoute = AdminRouteImport.update({
   id: '/admin',
   path: '/admin',
@@ -220,6 +226,7 @@ const ApiPublicPaymentsWebhookRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
+  '/amigo': typeof AmigoRoute
   '/app': typeof AppRoute
   '/arcade': typeof ArcadeRoute
   '/auth': typeof AuthRoute
@@ -256,6 +263,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
+  '/amigo': typeof AmigoRoute
   '/app': typeof AppRoute
   '/arcade': typeof ArcadeRoute
   '/auth': typeof AuthRoute
@@ -293,6 +301,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
+  '/amigo': typeof AmigoRoute
   '/app': typeof AppRoute
   '/arcade': typeof ArcadeRoute
   '/auth': typeof AuthRoute
@@ -331,6 +340,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/admin'
+    | '/amigo'
     | '/app'
     | '/arcade'
     | '/auth'
@@ -367,6 +377,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/admin'
+    | '/amigo'
     | '/app'
     | '/arcade'
     | '/auth'
@@ -403,6 +414,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/admin'
+    | '/amigo'
     | '/app'
     | '/arcade'
     | '/auth'
@@ -440,6 +452,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRoute
+  AmigoRoute: typeof AmigoRoute
   AppRoute: typeof AppRoute
   ArcadeRoute: typeof ArcadeRoute
   AuthRoute: typeof AuthRoute
@@ -615,6 +628,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/amigo': {
+      id: '/amigo'
+      path: '/amigo'
+      fullPath: '/amigo'
+      preLoaderRoute: typeof AmigoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin': {
       id: '/admin'
       path: '/admin'
@@ -731,6 +751,7 @@ const DesafiosRouteWithChildren = DesafiosRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRoute,
+  AmigoRoute: AmigoRoute,
   AppRoute: AppRoute,
   ArcadeRoute: ArcadeRoute,
   AuthRoute: AuthRoute,
