@@ -11,10 +11,10 @@ export const Route = createFileRoute("/amigo")({
       { title: "O Meu Amigo — Kidoz" },
     ],
   }),
-  component: MascoteMode,
+  component: AmigoMode,
 });
 
-function MascoteMode() {
+function AmigoMode() {
   const navigate = useNavigate();
   const [profile, setProfile] = useState<Profile | null>(null);
 
