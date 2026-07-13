@@ -1,21 +1,5 @@
-// Painel de Ligas — escolhe a criança, junta-te à liga semanal por escalão,
-// partilha o código de convite e vê estatísticas simples.
-import { useEffect, useMemo, useState } from "react";
-import { useServerFn } from "@tanstack/react-start";
-import { motion } from "framer-motion";
-import { Trophy, Bot, UserCheck, Plus, Copy, Check, Share2, Users, BarChart3, Ticket } from "lucide-react";
-import {
-  listActiveLeagues, joinWeeklyLeague, getLeagueLeaderboard, addLeagueScore,
-  ageToGroup, type LeagueRow,
-} from "@/lib/leagues.functions";
-import { ChunkyButton } from "@/components/ChunkyButton";
-import { toast } from "sonner";
-import { listJuniorChildren, getActiveJuniorChildId, type JuniorChild } from "@/lib/junior";
-
-interface Props {
-  /** Escalão por defeito quando não há criança ativa (legacy). */
-  ageGroup?: string;
-}
+import { Stat } from "./LigasPanel";
+import { cn } from "@/lib/utils";
 
 export function LigasPanel({ ageGroup: defaultAgeGroup = "mixed" }: Props) {
   const fnList = useServerFn(listActiveLeagues);
@@ -120,164 +104,208 @@ export function LigasPanel({ ageGroup: defaultAgeGroup = "mixed" }: Props) {
   }, []);
 
   return (
-    <section className="card-chunky rounded-3xl border-2 border-border bg-card p-5 space-y-4">
-      <header className="flex items-center justify-between gap-2 flex-wrap">
-        <h3 className="font-display text-2xl flex items-center gap-2">
-          <Trophy className="h-5 w-5 text-xp" /> Ligas Semanais
-        </h3>
-        <span className="rounded-full bg-muted px-3 py-1 text-xs">Escalão: <strong>{ageGroup}</strong></span>
-      </header>
+    <div className="space-y-6">
+      {/* High-Impact League Header */}
+      <section className="relative overflow-hidden rounded-[2.5rem] border-4 border-amber-200 bg-white p-6 shadow-xl">
+        <div className="absolute -right-6 -top-6 text-amber-100 opacity-20">
+          <Trophy className="h-40 w-40" />
+        </div>
 
-      {/* Selector de criança */}
-      <div className="rounded-2xl border border-border bg-muted/40 p-3">
-        <p className="mb-2 flex items-center gap-1 text-xs font-semibold uppercase text-muted-foreground">
-          <Users className="h-3.5 w-3.5" /> Quem vai jogar
-        </p>
-        {children.length === 0 ? (
-          <p className="text-sm text-muted-foreground">Cria um perfil em <strong>Júnior</strong> para entrar na liga.</p>
-        ) : (
-          <div className="flex flex-wrap gap-2">
-            {children.map((c) => (
-              <button
-                key={c.id}
-                onClick={() => setActiveChildId(c.id)}
-                className={`flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs transition ${
-                  activeChildId === c.id
-                    ? "border-primary bg-primary text-primary-foreground"
-                    : "border-border bg-card hover:border-primary/50"
-                }`}
-              >
-                <span>🧒</span>
-                <span className="font-display">{c.name}</span>
-                <span className="opacity-70">· {c.age}a</span>
-              </button>
-            ))}
+        <div className="relative z-10 flex flex-col gap-4">
+          <div className="flex items-center justify-between gap-2 flex-wrap">
+            <div>
+              <h3 className="font-display text-3xl font-black text-amber-900 leading-tight">Ligas Semanais</h3>
+              <p className="text-sm font-medium text-amber-700/70 uppercase tracking-widest">Escalão: {ageGroup}</p>
+            </div>
+            <div className="rounded-2xl bg-amber-400 px-4 py-2 text-amber-950 font-black shadow-lg">
+              <Trophy className="h-5 w-5 inline mr-1" /> RANKING VIVO
+            </div>
           </div>
-        )}
-      </div>
 
-      <div className="flex flex-wrap items-center gap-2">
-        <ChunkyButton tone="primary" onClick={join} disabled={!activeChild}>
-          <Plus className="mr-1 h-4 w-4" /> Entrar na liga ({ageGroup})
-        </ChunkyButton>
-        <div className="flex items-center gap-2">
-          <Ticket className="h-4 w-4 text-muted-foreground" />
-          <input
-            value={inviteInput}
-            onChange={(e) => setInviteInput(e.target.value.toUpperCase().slice(0, 8))}
-            placeholder="CÓDIGO"
-            className="w-28 rounded-full border border-border bg-background px-3 py-1.5 text-center font-display tracking-widest outline-none focus:border-primary"
-          />
-          <ChunkyButton tone="secondary" onClick={joinByCode} disabled={!activeChild || inviteInput.length < 4}>
-            Juntar
-          </ChunkyButton>
+          {/* Selector de criança - More spectacular */}
+          <div className="rounded-[2rem] border-2 border-slate-100 bg-slate-50 p-4">
+            <p className="mb-3 flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
+              <Users className="h-4 w-4" /> Seleciona o Teu Campeão
+            </p>
+            {children.length === 0 ? (
+              <p className="text-sm text-slate-500">Cria um perfil em <strong className="text-primary">Júnior</strong> para competir.</p>
+            ) : (
+              <div className="flex flex-wrap gap-3">
+                {children.map((c) => (
+                  <button
+                    key={c.id}
+                    onClick={() => setActiveChildId(c.id)}
+                    className={cn(
+                      "group relative flex items-center gap-2 rounded-2xl border-2 px-4 py-2 transition-all active:scale-95",
+                      activeChildId === c.id
+                        ? "border-primary bg-primary text-white shadow-lg"
+                        : "border-slate-200 bg-white hover:border-primary/30"
+                    )}
+                  >
+                    <span className="text-xl">🧒</span>
+                    <span className="font-display font-bold">{c.name}</span>
+                    {activeChildId === c.id && (
+                       <motion.div layoutId="active-child" className="absolute -inset-1 rounded-2xl border-2 border-primary" />
+                    )}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div className="flex flex-wrap items-center gap-3">
+            <Button
+              size="lg"
+              onClick={join}
+              disabled={!activeChild}
+              className="h-14 rounded-2xl bg-amber-500 hover:bg-amber-600 text-lg font-black border-b-4 border-amber-700 active:border-b-0 transition-all shadow-xl"
+            >
+              <Plus className="mr-2 h-6 w-6" /> CRIAR MINHA LIGA
+            </Button>
+
+            <div className="flex flex-1 items-center gap-2 bg-white rounded-2xl border-2 border-slate-100 p-2 shadow-inner min-w-[200px]">
+              <Ticket className="ml-2 h-5 w-5 text-slate-300" />
+              <input
+                value={inviteInput}
+                onChange={(e) => setInviteInput(e.target.value.toUpperCase().slice(0, 8))}
+                placeholder="CÓDIGO"
+                className="flex-1 bg-transparent text-center font-display text-xl font-bold tracking-[0.2em] outline-none placeholder:text-slate-200"
+              />
+              <Button onClick={joinByCode} disabled={!activeChild || inviteInput.length < 4} className="rounded-xl bg-slate-800">
+                LIGAR
+              </Button>
+            </div>
+          </div>
         </div>
-      </div>
-
-      {loading ? <p className="text-sm text-muted-foreground">A carregar…</p> : null}
-
-      {leagues.length > 0 && (
-        <div className="flex flex-wrap gap-2">
-          {leagues.map((l) => (
-            <button key={l.id}
-              onClick={() => setActive(l)}
-              className={`rounded-full border px-3 py-1 text-xs ${active?.id === l.id ? "bg-primary text-primary-foreground" : "bg-muted"}`}>
-              {l.name}
-            </button>
-          ))}
-        </div>
-      )}
+      </section>
 
       {active && (
-        <>
-          {/* Convite partilhável */}
-          <div className="rounded-2xl border-2 border-dashed border-primary/60 bg-primary/5 p-3">
-            <div className="flex items-center justify-between gap-2 flex-wrap">
-              <div>
-                <p className="text-xs uppercase tracking-wide text-muted-foreground">Código da liga</p>
-                <p className="font-display text-3xl tracking-[0.3em] text-primary">{active.invite_code}</p>
-                <p className="mt-1 text-[11px] text-muted-foreground">
-                  {active.starts_on} → {active.ends_on}
-                </p>
-              </div>
-              <div className="flex gap-2">
-                <button
-                  onClick={copyShare}
-                  className="inline-flex items-center gap-1 rounded-full bg-card px-3 py-2 text-xs font-semibold shadow-sm hover:bg-muted"
-                >
-                  {copied ? <><Check className="h-3.5 w-3.5" /> Copiado</> : <><Share2 className="h-3.5 w-3.5" /> Partilhar</>}
-                </button>
-                <button
-                  onClick={async () => {
-                    await navigator.clipboard.writeText(active.invite_code);
-                    toast.success("Código copiado!");
-                  }}
-                  className="inline-flex items-center gap-1 rounded-full bg-card px-3 py-2 text-xs font-semibold shadow-sm hover:bg-muted"
-                >
-                  <Copy className="h-3.5 w-3.5" /> Código
-                </button>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="space-y-6"
+        >
+          {/* Spectacular Invitation Area */}
+          <div className="rounded-[2.5rem] bg-indigo-900 p-8 text-white shadow-2xl relative overflow-hidden">
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
+              className="absolute -right-20 -bottom-20 h-80 w-80 rounded-full border-[20px] border-white/5"
+            />
+
+            <div className="relative z-10 text-center">
+              <p className="text-xs font-black uppercase tracking-[0.3em] text-indigo-300 mb-2">Convite da Tua Liga</p>
+              <h2 className="font-display text-6xl font-black tracking-widest text-white mb-2">{active.invite_code}</h2>
+              <p className="text-sm font-medium text-indigo-200 mb-6 italic">
+                 Válida até {active.ends_on}
+              </p>
+
+              <div className="flex justify-center gap-3">
+                <Button onClick={copyShare} size="lg" className="h-12 rounded-xl bg-white text-indigo-900 font-bold hover:bg-indigo-50 px-8">
+                  {copied ? <><Check className="mr-2 h-5 w-5" /> COPIADO</> : <><Share2 className="mr-2 h-5 w-5" /> PARTILHAR</>}
+                </Button>
               </div>
             </div>
           </div>
 
-          {/* Estatísticas */}
+          {/* Epic Leaderboard */}
+          <section className="overflow-hidden rounded-[2.5rem] border-2 border-slate-100 bg-white shadow-xl">
+            <div className="bg-slate-50 p-6 flex justify-between items-center border-b-2 border-slate-100">
+               <h4 className="font-display text-xl font-bold text-slate-800">Classificação Atual</h4>
+               {stats && <Badge className="bg-primary px-3 py-1 font-bold">#{stats.myRank} LUGAR</Badge>}
+            </div>
+
+            <div className="p-4">
+              <ol className="space-y-3">
+                {board.map((m, i) => {
+                  const isTop3 = i < 3;
+                  const medal = i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉";
+
+                  return (
+                    <motion.li key={m.memberId}
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: i * 0.05 }}
+                      className={cn(
+                        "flex items-center justify-between rounded-2xl border-2 p-4 transition-all hover:scale-[1.01]",
+                        m.isMe ? "border-primary bg-primary/5 shadow-md" : "border-slate-50 bg-white"
+                      )}>
+                      <div className="flex items-center gap-4 min-w-0">
+                        <span className={cn(
+                          "w-8 text-center font-display text-2xl font-black",
+                          i === 0 ? "text-yellow-500" : i === 1 ? "text-slate-400" : i === 2 ? "text-amber-700" : "text-slate-200"
+                        )}>
+                          {isTop3 ? medal : m.rank}
+                        </span>
+                        <div className="text-3xl">{m.isBot ? "🤖" : "🧒"}</div>
+                        <div className="flex flex-col min-w-0">
+                           <span className="truncate font-display text-lg font-bold text-slate-800">{m.name}</span>
+                           <div className="flex items-center gap-1">
+                             {m.isBot ? (
+                               <Badge variant="outline" className="text-[9px] uppercase h-4 px-1">{m.difficulty}</Badge>
+                             ) : (
+                               <Badge className="bg-success text-white text-[9px] uppercase h-4 px-1">Lenda</Badge>
+                             )}
+                           </div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-4">
+                        <div className="text-right">
+                           <p className="text-xl font-black text-slate-800 leading-none">{m.score}</p>
+                           <p className="text-[10px] font-bold text-slate-400 uppercase">Pontos</p>
+                        </div>
+                      </div>
+                    </motion.li>
+                  );
+                })}
+                {board.length === 0 && <p className="text-center py-8 text-slate-400">À espera dos primeiros competidores...</p>}
+              </ol>
+            </div>
+
+            <div className="bg-slate-50 p-6 flex justify-center border-t-2 border-slate-100">
+               <Button
+                onClick={train}
+                disabled={!activeChild}
+                size="lg"
+                className="h-14 rounded-2xl bg-success hover:bg-success/90 text-white font-black px-12 shadow-lg border-b-4 border-emerald-700 active:border-b-0 transition-all"
+               >
+                 TREINAR E SUBIR! 🚀
+               </Button>
+            </div>
+          </section>
+
           {stats && (
-            <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-              <Stat label="A minha posição" value={stats.myRank ? `#${stats.myRank}` : "—"} />
-              <Stat label="Os meus pontos" value={String(stats.myScore)} />
-              <Stat label="Jogos" value={String(stats.myGames)} />
-              <Stat label="Distância ao 1.º" value={stats.gapToLeader != null ? String(stats.gapToLeader) : "—"} />
+            <div className="grid grid-cols-2 gap-4">
+              <ModernStat icon={<Swords className="text-primary" />} label="Batalhas" value={String(stats.myGames)} />
+              <ModernStat icon={<Zap className="text-yellow-500" />} label="Distância Top" value={stats.gapToLeader != null ? String(stats.gapToLeader) : "0"} />
             </div>
           )}
-          {stats && (
-            <p className="flex items-center gap-1 text-[11px] text-muted-foreground">
-              <BarChart3 className="h-3 w-3" />
-              {stats.participants} participantes ({stats.realPlayers} crianças, {stats.bots} bots) · média {stats.avgScore} pts · {stats.totalGames} jogos no total
-            </p>
-          )}
-
-          {/* Ranking */}
-          <ol className="space-y-2">
-            {board.map((m) => (
-              <motion.li key={m.memberId}
-                initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
-                className={`flex items-center justify-between rounded-2xl border px-3 py-2 ${m.isMe ? "border-primary bg-primary/10" : "bg-muted/40"}`}>
-                <div className="flex items-center gap-2 min-w-0">
-                  <span className="w-6 text-center font-display">{m.rank}</span>
-                  <span className="text-2xl">{m.isBot ? "🤖" : "🧒"}</span>
-                  <span className="truncate font-display">{m.name}</span>
-                  {m.isBot
-                    ? <Bot className="h-3 w-3 shrink-0 text-muted-foreground" aria-label={`Bot ${m.difficulty ?? "medium"}`} />
-                    : <UserCheck className="h-3 w-3 shrink-0 text-success" />}
-                  {m.isBot && m.difficulty && (
-                    <span className="rounded-full bg-card px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-muted-foreground">
-                      {m.difficulty}
-                    </span>
-                  )}
-                </div>
-                <div className="flex items-center gap-3">
-                  {m.gamesPlayed > 0 && (
-                    <span className="text-[10px] text-muted-foreground">{m.gamesPlayed} jogos</span>
-                  )}
-                  <span className="font-display text-lg">{m.score}</span>
-                </div>
-              </motion.li>
-            ))}
-            {board.length === 0 && <p className="text-sm text-muted-foreground">Ainda sem participantes.</p>}
-          </ol>
-
-          <div className="text-right">
-            <ChunkyButton tone="success" onClick={train} disabled={!activeChild}>Treinar (+pontos)</ChunkyButton>
-          </div>
-        </>
+        </motion.div>
       )}
+    </div>
+  );
+}
 
-      {!loading && leagues.length === 0 && (
-        <p className="text-sm text-muted-foreground">
-          Ainda não há ligas. Carrega em <strong>Entrar na liga</strong> para criar a tua e desafiar bots e amigos!
-        </p>
-      )}
-    </section>
+function ModernStat({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
+  return (
+    <div className="flex items-center gap-4 rounded-3xl border-2 border-slate-100 bg-white p-5 shadow-sm">
+      <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-50">
+        {icon}
+      </div>
+      <div>
+        <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">{label}</p>
+        <p className="font-display text-2xl font-black text-slate-800 leading-none">{value}</p>
+      </div>
+    </div>
+  );
+}
+
+function Stat({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-2xl border border-border bg-muted/40 p-2 text-center">
+      <p className="text-[10px] uppercase tracking-wide text-muted-foreground">{label}</p>
+      <p className="font-display text-xl">{value}</p>
+    </div>
   );
 }
 
