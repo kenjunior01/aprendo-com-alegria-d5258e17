@@ -6,10 +6,14 @@ import { BottomNav } from "@/components/BottomNav";
 import { Mascot } from "@/components/Mascot";
 import { loadProfile, type Profile } from "@/lib/storage";
 import { appendMessages, getHistory } from "@/lib/tutorHistory";
+import { getMascot, type MascotId } from "@/lib/mascots";
 import { ArrowLeft, Send, Sparkles, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/tutor")({
+  validateSearch: (search: Record<string, unknown>) => ({
+    mascotId: (search.mascotId as MascotId) || undefined,
+  }),
   head: () => ({
     meta: [
       { title: "Mocha, o teu tutor — Kidoz" },
@@ -36,6 +40,7 @@ const SUGGESTIONS = [
 
 function TutorChat() {
   const navigate = useNavigate();
+  const { mascotId: searchMascotId } = Route.useSearch();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
@@ -44,6 +49,9 @@ function TutorChat() {
   const [error, setError] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const abortRef = useRef<AbortController | null>(null);
+
+  const effectiveMascotId = searchMascotId || profile?.mascot || "owl";
+  const mascot = getMascot(effectiveMascotId);
 
   useEffect(() => {
     const p = loadProfile();
@@ -56,10 +64,10 @@ function TutorChat() {
     } else {
       setMessages([{
         role: "assistant",
-        content: `Olá, ${p.name}! 👋 Sou o Mocha, o teu tutor. Podes perguntar-me o que quiseres — sobre matemática, leitura, animais, planetas… ou pede uma adivinha!`,
+        content: `Olá, ${p.name}! 👋 Sou o ${mascot.name}, o teu tutor. Podes perguntar-me o que quiseres — sobre matemática, leitura, animais, planetas… ou pede uma adivinha!`,
       }]);
     }
-  }, [navigate]);
+  }, [navigate, effectiveMascotId]);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
@@ -99,6 +107,7 @@ function TutorChat() {
           messages: next,
           childName: profile.name,
           childGrade: profile.grade,
+          mascotPersona: mascot.persona,
         }),
         signal: ctrl.signal,
       });
@@ -166,9 +175,9 @@ function TutorChat() {
         </Link>
 
         <div className="card-chunky mb-3 flex items-center gap-3 rounded-3xl border border-border bg-card/90 p-4 backdrop-blur">
-          <Mascot id="owl" size="md" bouncing />
+          <Mascot id={effectiveMascotId} size="md" bouncing />
           <div className="flex-1">
-            <h1 className="font-display text-xl">Mocha 🦉</h1>
+            <h1 className="font-display text-xl">{mascot.name}</h1>
             <p className="text-xs text-muted-foreground">O teu tutor pessoal · {messages.length - 1} mensagens guardadas</p>
           </div>
           <button
@@ -214,7 +223,7 @@ function TutorChat() {
             {loading && !streaming && (
               <div className="flex justify-start">
                 <div className="rounded-2xl bg-muted px-4 py-2.5 text-sm">
-                  <span className="mr-2 font-display text-xs text-muted-foreground">Mocha está a pensar</span>
+                  <span className="mr-2 font-display text-xs text-muted-foreground">{mascot.name} está a pensar</span>
                   <span className="inline-flex gap-1 align-middle">
                     <span className="h-2 w-2 animate-bounce rounded-full bg-foreground/40" style={{ animationDelay: "0ms" }} />
                     <span className="h-2 w-2 animate-bounce rounded-full bg-foreground/40" style={{ animationDelay: "150ms" }} />
@@ -250,7 +259,7 @@ function TutorChat() {
           <input
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Pergunta o que quiseres ao Mocha…"
+            placeholder={`Pergunta o que quiseres ao ${mascot.name}…`}
             disabled={loading}
             className="flex-1 bg-transparent px-3 py-2 text-base outline-none disabled:opacity-50"
           />

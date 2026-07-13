@@ -115,7 +115,7 @@ export function MascotRoom({ profile }: Props) {
   const handleStatAction = (statId: string) => {
     if (statId === "talk") {
       playTap();
-      setRoom("talk");
+      navigate({ to: "/tutor", search: { mascotId: profile.mascot } });
       return;
     }
 
@@ -187,6 +187,13 @@ export function MascotRoom({ profile }: Props) {
     { id: "talk", icon: Mic, value: 100, color: "bg-indigo-400", room: "talk" as RoomType },
   ];
 
+  const growthProgress = useMemo(() => {
+    if (growth.stage === "bebé") return (profile.xp / 500) * 100;
+    if (growth.stage === "júnior") return ((profile.xp - 500) / 1500) * 100;
+    if (growth.stage === "aventureiro") return ((profile.xp - 2000) / 3000) * 100;
+    return 100;
+  }, [profile.xp, growth.stage]);
+
   const handleMascotClick = () => {
     if (room === "talk") return;
     haptic("tap");
@@ -216,12 +223,16 @@ export function MascotRoom({ profile }: Props) {
           {room === "classroom" && (
             <>
               {/* Blackboard */}
-              <div className="absolute left-[10%] right-[10%] top-[15%] h-[40%] rounded-xl border-8 border-amber-900 bg-emerald-900 shadow-2xl">
+              <div
+                onClick={() => navigate({ to: "/tutor", search: { mascotId: profile.mascot } })}
+                className="absolute left-[10%] right-[10%] top-[15%] h-[40%] rounded-xl border-8 border-amber-900 bg-emerald-900 shadow-2xl cursor-pointer hover:brightness-110 transition-all group"
+              >
                 <div className="flex h-full flex-col items-center justify-center p-4 text-white/20">
                   <div className="font-display text-4xl font-bold uppercase tracking-widest sm:text-6xl">
                     ABC • 123
                   </div>
                   <div className="mt-4 h-1 w-32 rounded-full bg-white/10" />
+                  <div className="opacity-0 group-hover:opacity-100 transition-opacity text-white/60 text-xs mt-4 font-display">Toca para conversar com o {mascot.name}</div>
                 </div>
               </div>
               {/* Desk shadow/floor line */}
@@ -320,6 +331,16 @@ export function MascotRoom({ profile }: Props) {
           <span className="font-display text-xs font-bold uppercase tracking-wider">{t(growth.label)}</span>
           {growth.stage === "mestre" && <motion.div animate={{ opacity: [0, 1, 0] }} transition={{ duration: 2, repeat: Infinity }} className="absolute -inset-1 rounded-full border-2 border-amber-300" />}
         </motion.div>
+
+        {/* Growth Progress Bar */}
+        <div className="mt-1 w-32 h-1.5 overflow-hidden rounded-full bg-white/20 border border-white/40">
+          <motion.div
+            initial={{ width: 0 }}
+            animate={{ width: `${growthProgress}%` }}
+            className="h-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]"
+          />
+        </div>
+
         <span className="text-[10px] font-medium text-muted-foreground opacity-80">{REGIONS[region]?.flag} Região: {REGIONS[region]?.country}</span>
       </div>
 
@@ -372,8 +393,14 @@ export function MascotRoom({ profile }: Props) {
               {room === "bedroom" && <motion.span initial={{ opacity: 0, scale: 0 }} animate={{ opacity: 0.5, scale: 1 }} exit={{ opacity: 0, scale: 0 }} key="bedroom-icon" className="absolute right-10 top-1/3 text-6xl">🛌</motion.span>}
               {room === "classroom" && (
                 <motion.div initial={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0 }} key="classroom-icon" className="absolute inset-0 flex flex-col items-center justify-start pt-20">
-                  <span className="text-6xl opacity-50 mb-4">📖</span>
-                  {region === "MZ" && <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="bg-white/60 backdrop-blur-sm p-4 rounded-2xl border-2 border-emerald-500 max-w-[280px] text-center"><MapPin className="h-5 w-5 text-emerald-600 mx-auto mb-2" /><p className="font-display text-sm text-emerald-900">Sabias que o <strong>Zambeze</strong> é o maior rio de Moçambique? 🌊</p></motion.div>}
+                  <div
+                    onClick={() => setAlbumOpen(true)}
+                    className="cursor-pointer hover:scale-110 transition-transform flex flex-col items-center"
+                  >
+                    <span className="text-6xl opacity-50 mb-2">📖</span>
+                    <span className="bg-white/40 backdrop-blur-sm px-3 py-1 rounded-full text-[10px] font-bold text-emerald-800 border border-white/40 uppercase tracking-widest">O meu Livro</span>
+                  </div>
+                  {region === "MZ" && <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="bg-white/60 backdrop-blur-sm p-4 rounded-2xl border-2 border-emerald-500 max-w-[280px] text-center mt-4"><MapPin className="h-5 w-5 text-emerald-600 mx-auto mb-2" /><p className="font-display text-sm text-emerald-900">Sabias que o <strong>Zambeze</strong> é o maior rio de Moçambique? 🌊</p></motion.div>}
                 </motion.div>
               )}
             </AnimatePresence>

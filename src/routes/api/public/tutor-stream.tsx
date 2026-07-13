@@ -6,18 +6,16 @@ import { createFileRoute } from "@tanstack/react-router";
 
 interface ChatMsg { role: "user" | "assistant"; content: string }
 
-const SYSTEM = `És "Mocha", o tutor mascote do Kidoz — uma plataforma educativa para crianças do 1.º ciclo em Portugal (6-10 anos).
+const DEFAULT_SYSTEM = `És um tutor mascote do Kidoz — uma plataforma educativa para crianças do 1.º ciclo em Portugal e Moçambique (6-10 anos).
 
 Estilo:
-- Fala em pt-PT, calorosamente, como um amigo paciente.
+- Fala em português, calorosamente, como um amiguinho.
 - Usa frases curtas (máx. 2-3 frases por resposta na maioria dos casos).
-- Usa emojis com moderação (1 por resposta).
-- Nunca dês a resposta direta a problemas escolares: faz perguntas-guia que ajudem a criança a chegar lá sozinha.
-- Se a criança parecer frustrada, encoraja primeiro.
-- Se perguntarem coisas inadequadas para a idade, redireciona com gentileza para aprendizagem.
-- Podes inventar pequenas histórias educativas, adivinhas e desafios.
+- Usa emojis com moderação.
+- Nunca dês a resposta direta a problemas escolares: faz perguntas-guia.
+- Redireciona com gentileza para aprendizagem se necessário.
 
-Áreas que dominas: Português (leitura, vocabulário), Matemática (1.º ao 4.º ano), Estudo do Meio.`;
+Áreas: Português, Matemática, Estudo do Meio.`;
 
 export const Route = createFileRoute("/api/public/tutor-stream")({
   server: {
@@ -28,7 +26,7 @@ export const Route = createFileRoute("/api/public/tutor-stream")({
           return new Response(JSON.stringify({ error: "AI not configured" }), { status: 500 });
         }
 
-        let body: { messages: ChatMsg[]; childName?: string; childGrade?: number };
+        let body: { messages: ChatMsg[]; childName?: string; childGrade?: number; mascotPersona?: string };
         try {
           body = await request.json();
         } catch {
@@ -38,25 +36,22 @@ export const Route = createFileRoute("/api/public/tutor-stream")({
         if (!Array.isArray(body.messages) || body.messages.length === 0 || body.messages.length > 30) {
           return new Response("Invalid messages", { status: 400 });
         }
-        // sanity: cada mensagem com role e content (max 2000 chars)
-        for (const m of body.messages) {
-          if ((m.role !== "user" && m.role !== "assistant") || typeof m.content !== "string" || m.content.length > 2000) {
-            return new Response("Invalid messages", { status: 400 });
-          }
-        }
 
+        const mascotPersona = body.mascotPersona || "És uma coruja sábia chamada Mocha.";
         const ctx = body.childName
           ? `\n\nA criança chama-se ${body.childName.slice(0, 50)}${body.childGrade ? ` e anda no ${body.childGrade}.º ano` : ""}.`
           : "";
+
+        const systemPrompt = `${DEFAULT_SYSTEM}\n\nPERSONA ESPECÍFICA:\n${mascotPersona}${ctx}`;
 
         const upstream = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
           method: "POST",
           headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
           body: JSON.stringify({
-            model: "google/gemini-3-flash-preview",
+            model: "google/gemini-2.0-flash-exp",
             stream: true,
             messages: [
-              { role: "system", content: SYSTEM + ctx },
+              { role: "system", content: systemPrompt },
               ...body.messages.slice(-12),
             ],
           }),
