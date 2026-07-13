@@ -32,6 +32,7 @@ export interface Profile {
   knowledge: number; // 0..100
   pushToken?: string | null;
   lastDailyGift?: string | null; // YYYY-MM-DD
+  unlockedStickers: string[]; // IDs dos cromos colecionados
 }
 
 const KEY = "lusis-profile-v2";
@@ -63,6 +64,7 @@ export const defaultProfile = (): Profile => ({
   fun: 90,
   knowledge: 50,
   lastDailyGift: null,
+  unlockedStickers: [],
 });
 
 export const loadProfile = (): Profile | null => {
@@ -219,6 +221,7 @@ async function syncProfileToCloud(p: Profile) {
       knowledge: p.knowledge,
       push_token: p.pushToken ?? null,
       last_daily_gift: p.lastDailyGift ?? null,
+      unlocked_stickers: p.unlockedStickers,
     });
   } catch {
     // offline ou sem sessão — ignora
@@ -283,6 +286,7 @@ export async function pullProfileFromCloud(): Promise<Profile | null> {
       knowledge: data.knowledge ?? 50,
       pushToken: (data as any).push_token ?? null,
       lastDailyGift: (data as any).last_daily_gift ?? null,
+      unlockedStickers: (data as any).unlocked_stickers ?? [],
     };
     const local = loadProfile();
     const merged = mergeProfiles(local, cloudProfile);
@@ -327,6 +331,7 @@ function mergeProfiles(local: Profile | null, cloud: Profile): Profile {
     fun: cloud.fun,
     knowledge: cloud.knowledge,
     pushToken: cloud.pushToken ?? local.pushToken ?? null,
+    unlockedStickers: Array.from(new Set([...(local.unlockedStickers ?? []), ...(cloud.unlockedStickers ?? [])])),
   };
 }
 

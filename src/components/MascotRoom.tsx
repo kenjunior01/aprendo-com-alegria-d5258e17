@@ -5,18 +5,20 @@ import { MascotVoiceTutor } from "./MascotVoiceTutor";
 import { type Profile, updateProfile } from "@/lib/storage";
 import { getMascot, getGrowthStage } from "@/lib/mascots";
 import { cn } from "@/lib/utils";
-import { Utensils, Zap, Gamepad2, GraduationCap, Heart, Coins, MessageCircle, ShoppingBag, Mic, TrendingUp, Sparkles as SparklesIcon, X, Play, MapPin, Trophy, Gift, ListChecks, Camera } from "lucide-react";
+import { Utensils, Zap, Gamepad2, GraduationCap, Heart, Coins, MessageCircle, ShoppingBag, Mic, TrendingUp, Sparkles as SparklesIcon, X, Play, MapPin, Trophy, Gift, ListChecks, Camera, BookOpen } from "lucide-react";
 import { haptic } from "@/lib/haptics";
 import { toast } from "sonner";
 import { useNavigate } from "@tanstack/react-router";
 import { REGIONS, getMozambiqueFact, localize } from "@/lib/region";
-import { playEat, playFun, playTap, playLevelUp, playWhistle } from "@/lib/audio";
+import { playEat, playFun, playTap, playLevelUp, playWhistle, playCorrect } from "@/lib/audio";
 import {
   GameTapCor, GameAnimaTap, GameFrutaTap, GameEstrelasTap
 } from "@/components/junior/JuniorGamesV6";
 import {
   GameProvinciasMZ, GameComidaMZ, GameAnimaisMZ, GameCulturaMZ, GameBandeiraMZ, GameRiosMZ, GameCidadesMZ, GameHeroisMZ
 } from "@/components/junior/MozambiqueGames";
+import { StickerAlbum } from "./StickerAlbum";
+import { getRandomSticker } from "@/lib/stickers";
 
 type RoomType = "living" | "kitchen" | "bedroom" | "classroom" | "talk" | "games";
 
@@ -31,6 +33,7 @@ export function MascotRoom({ profile }: Props) {
   const [bubble, setBubble] = useState<string | null>(null);
   const [selectedGame, setSelectedGame] = useState<string | null>(null);
   const [photoMode, setPhotoMode] = useState(false);
+  const [albumOpen, setAlbumOpen] = useState(false);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
 
   const mascot = getMascot(profile.mascot);
@@ -124,6 +127,19 @@ export function MascotRoom({ profile }: Props) {
       triggerBurst();
       setMood("happy");
       setBubble(t("Nhame! Que delícia! 🍎"));
+
+      // Bonus: chance of finding a sticker when eating healthy!
+      if (Math.random() > 0.7) {
+        const sticker = getRandomSticker();
+        if (!profile.unlockedStickers.includes(sticker.id)) {
+          updateProfile({
+            unlockedStickers: [...profile.unlockedStickers, sticker.id]
+          });
+          toast.success(t(`Encontraste um cromo no teu lanche: ${sticker.name}! 🌟`), { icon: "📖" });
+          playCorrect();
+        }
+      }
+
       updateProfile({ hunger: Math.min(100, profile.hunger + 20), coins: profile.coins - 5 });
     } else if (statId === "fun") {
       playTap();
@@ -280,6 +296,14 @@ export function MascotRoom({ profile }: Props) {
           <motion.button whileTap={{ scale: 0.9 }} onClick={takePhoto} className="flex items-center gap-2 rounded-2xl border border-white/40 bg-white/20 px-4 py-2 font-display text-sm font-bold text-slate-700 shadow-lg backdrop-blur-xl transition-all hover:bg-white/30">
             <Camera className="h-4 w-4" />
           </motion.button>
+          <motion.button
+            whileTap={{ scale: 0.9 }}
+            onClick={() => setAlbumOpen(true)}
+            className="flex items-center gap-2 rounded-2xl border border-indigo-400/40 bg-indigo-400/20 px-4 py-2 font-display text-sm font-bold text-indigo-700 shadow-lg backdrop-blur-xl transition-all hover:bg-indigo-400/30"
+          >
+            <BookOpen className="h-4 w-4" />
+            <span className="hidden sm:inline">{t("Álbum")}</span>
+          </motion.button>
         </div>
 
         <motion.div whileHover={{ scale: 1.05 }} className="flex items-center gap-2 rounded-2xl border border-white/40 bg-white/30 px-4 py-2 shadow-lg backdrop-blur-xl">
@@ -321,6 +345,12 @@ export function MascotRoom({ profile }: Props) {
                     <Play className="h-5 w-5 fill-current" /> {t("Concluir")}
                   </button>
                 </div>
+                {/* Win a sticker chance when finishing a game */}
+                {Math.random() > 0.5 && (
+                  <div className="mt-2 text-center text-[10px] font-bold text-indigo-400">
+                    Dica: Continua a jogar para ganhares cromos raros! 🦁
+                  </div>
+                )}
               </motion.div>
             )}
           </div>
@@ -383,6 +413,10 @@ export function MascotRoom({ profile }: Props) {
           ))}
         </div>
       </div>
+
+      <AnimatePresence>
+        {albumOpen && <StickerAlbum profile={profile} onClose={() => setAlbumOpen(false)} />}
+      </AnimatePresence>
     </div>
   );
 }
