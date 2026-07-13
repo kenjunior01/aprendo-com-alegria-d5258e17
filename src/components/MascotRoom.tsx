@@ -10,7 +10,7 @@ import { haptic } from "@/lib/haptics";
 import { toast } from "sonner";
 import { useNavigate } from "@tanstack/react-router";
 import { REGIONS, getMozambiqueFact, localize } from "@/lib/region";
-import { playEat, playFun, playTap, playLevelUp, playWhistle, playCorrect } from "@/lib/audio";
+import { playEat, playFun, playTap, playLevelUp, playWhistle, playCorrect, playWrong } from "@/lib/audio";
 import {
   GameTapCor, GameAnimaTap, GameFrutaTap, GameEstrelasTap
 } from "@/components/junior/JuniorGamesV6";
@@ -20,6 +20,7 @@ import {
 import { StickerAlbum } from "./StickerAlbum";
 import { getRandomSticker, type Sticker } from "@/lib/stickers";
 import { StickerPackOpening } from "./StickerPackOpening";
+import { getRandomTrivia, type TriviaQuestion } from "@/lib/triviaBank";
 
 type RoomType = "living" | "kitchen" | "bedroom" | "classroom" | "talk" | "games";
 
@@ -36,6 +37,7 @@ export function MascotRoom({ profile }: Props) {
   const [photoMode, setPhotoMode] = useState(false);
   const [albumOpen, setAlbumOpen] = useState(false);
   const [newSticker, setNewSticker] = useState<Sticker | null>(null);
+  const [currentTrivia, setCurrentTrivia] = useState<TriviaQuestion | null>(null);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
 
   const mascot = getMascot(profile.mascot);
@@ -155,10 +157,11 @@ export function MascotRoom({ profile }: Props) {
       updateProfile({ energy: Math.min(100, profile.energy + 25) });
     } else if (statId === "knowledge") {
       playTap();
-      triggerBurst();
+      const trivia = getRandomTrivia(1)[0];
+      setCurrentTrivia(trivia);
       setMood("thinking");
-      setBubble(region === "MZ" ? getMozambiqueFact() : t("Vamos aprender algo novo? 📚"));
-      updateProfile({ knowledge: Math.min(100, profile.knowledge + 10) });
+      setRoom("classroom");
+      return; // Skip the default neutral timeout since we're in a minigame
     }
 
     setTimeout(() => {
@@ -180,10 +183,10 @@ export function MascotRoom({ profile }: Props) {
 
   const ActiveGame = selectedGame ? miniGames.find(g => g.id === selectedGame)?.component : null;
   const stats = [
-    { id: "hunger", icon: Utensils, value: profile.hunger, color: "bg-orange-400", room: "kitchen" as RoomType },
-    { id: "energy", icon: Zap, value: profile.energy, color: "bg-yellow-400", room: "bedroom" as RoomType },
-    { id: "fun", icon: Gamepad2, value: profile.fun, color: "bg-pink-400", room: "living" as RoomType },
-    { id: "knowledge", icon: GraduationCap, value: profile.knowledge, color: "bg-blue-400", room: "classroom" as RoomType },
+    { id: "hunger", icon: Utensils, value: profile.hunger, color: profile.hunger < 25 ? "bg-red-500" : "bg-orange-400", room: "kitchen" as RoomType },
+    { id: "energy", icon: Zap, value: profile.energy, color: profile.energy < 25 ? "bg-red-500" : "bg-yellow-400", room: "bedroom" as RoomType },
+    { id: "fun", icon: Gamepad2, value: profile.fun, color: profile.fun < 25 ? "bg-red-500" : "bg-pink-400", room: "living" as RoomType },
+    { id: "knowledge", icon: GraduationCap, value: profile.knowledge, color: profile.knowledge < 30 ? "bg-red-600 animate-pulse" : "bg-blue-400", room: "classroom" as RoomType },
     { id: "talk", icon: Mic, value: 100, color: "bg-indigo-400", room: "talk" as RoomType },
   ];
 
@@ -345,7 +348,62 @@ export function MascotRoom({ profile }: Props) {
       </div>
 
       <div className="relative flex flex-1 flex-col items-center justify-center">
-        {room === "games" ? (
+        {currentTrivia ? (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            className="z-50 w-full max-w-sm rounded-[2.5rem] border-4 border-white bg-white/90 p-8 shadow-2xl backdrop-blur-xl"
+          >
+            <div className="mb-6 text-center">
+              <span className="inline-block rounded-full bg-blue-100 px-4 py-1 text-[10px] font-black uppercase tracking-widest text-blue-600">
+                {currentTrivia.category}
+              </span>
+              <h3 className="mt-3 font-display text-xl font-bold text-slate-800">
+                {currentTrivia.prompt}
+              </h3>
+            </div>
+
+            <div className="grid gap-3">
+              {currentTrivia.options.map((opt, i) => (
+                <motion.button
+                  key={i}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => {
+                    if (i === currentTrivia.answerIndex) {
+                      haptic("celebrate");
+                      playCorrect();
+                      triggerBurst();
+                      setMood("happy");
+                      setBubble(t("Boa! Aprendi algo novo! 🧠✨"));
+                      updateProfile({
+                        knowledge: Math.min(100, profile.knowledge + 15),
+                        xp: profile.xp + 10,
+                        coins: profile.coins + 2
+                      });
+                      setCurrentTrivia(null);
+                    } else {
+                      haptic("error");
+                      playWrong();
+                      setMood("sad");
+                      setBubble(t("Ups! Tenta outra vez..."));
+                    }
+                  }}
+                  className="rounded-2xl border-2 border-slate-100 bg-white p-4 text-center font-display text-sm font-bold text-slate-700 transition-all hover:border-blue-400 hover:bg-blue-50"
+                >
+                  {opt}
+                </motion.button>
+              ))}
+            </div>
+
+            <button
+              onClick={() => setCurrentTrivia(null)}
+              className="mt-6 w-full text-center text-xs font-bold text-slate-400 hover:text-slate-600"
+            >
+              Agora não
+            </button>
+          </motion.div>
+        ) : room === "games" ? (
           <div className="w-full max-w-md px-6 h-full overflow-y-auto pt-10 pb-20 scrollbar-none">
             {!selectedGame ? (
               <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="grid grid-cols-2 gap-4 pb-10">
@@ -430,8 +488,17 @@ export function MascotRoom({ profile }: Props) {
         <div className="mx-auto flex max-w-lg justify-between gap-2 rounded-[2.5rem] border border-white/40 bg-white/40 p-4 shadow-[0_20px_50px_rgba(0,0,0,0.1)] backdrop-blur-2xl">
           {stats.map((stat) => (
             <div key={stat.id} className="flex flex-col items-center gap-2">
-              <motion.button whileHover={{ y: -5 }} whileTap={{ scale: 0.85 }} onClick={() => { setRoom(stat.room); handleStatAction(stat.id); }} className={cn("flex h-16 w-16 items-center justify-center rounded-3xl border-4 border-white shadow-xl transition-all", room === stat.room ? stat.color : "bg-white/90")}>
+              <motion.button whileHover={{ y: -5 }} whileTap={{ scale: 0.85 }} onClick={() => { setRoom(stat.room); handleStatAction(stat.id); }} className={cn("relative flex h-16 w-16 items-center justify-center rounded-3xl border-4 border-white shadow-xl transition-all", room === stat.room ? stat.color : "bg-white/90")}>
                 <stat.icon className={cn("h-7 w-7", room === stat.room ? "text-white" : "text-slate-600")} />
+
+                {/* Visual cue for knowledge "feeding" */}
+                {stat.id === "knowledge" && profile.knowledge < 30 && (
+                  <motion.div
+                    animate={{ scale: [1, 1.2, 1], opacity: [0.5, 1, 0.5] }}
+                    transition={{ duration: 2, repeat: Infinity }}
+                    className="absolute -right-1 -top-1 h-4 w-4 rounded-full bg-blue-500 shadow-lg"
+                  />
+                )}
               </motion.button>
               {stat.id !== "talk" && (
                 <div className="h-2 w-12 overflow-hidden rounded-full bg-slate-200/50">
