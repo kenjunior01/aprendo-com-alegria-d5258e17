@@ -18,7 +18,8 @@ import {
   GameProvinciasMZ, GameComidaMZ, GameAnimaisMZ, GameCulturaMZ, GameBandeiraMZ, GameRiosMZ, GameCidadesMZ, GameHeroisMZ
 } from "@/components/junior/MozambiqueGames";
 import { StickerAlbum } from "./StickerAlbum";
-import { getRandomSticker } from "@/lib/stickers";
+import { getRandomSticker, type Sticker } from "@/lib/stickers";
+import { StickerPackOpening } from "./StickerPackOpening";
 
 type RoomType = "living" | "kitchen" | "bedroom" | "classroom" | "talk" | "games";
 
@@ -34,6 +35,7 @@ export function MascotRoom({ profile }: Props) {
   const [selectedGame, setSelectedGame] = useState<string | null>(null);
   const [photoMode, setPhotoMode] = useState(false);
   const [albumOpen, setAlbumOpen] = useState(false);
+  const [newSticker, setNewSticker] = useState<Sticker | null>(null);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
 
   const mascot = getMascot(profile.mascot);
@@ -135,7 +137,7 @@ export function MascotRoom({ profile }: Props) {
           updateProfile({
             unlockedStickers: [...profile.unlockedStickers, sticker.id]
           });
-          toast.success(t(`Encontraste um cromo no teu lanche: ${sticker.name}! 🌟`), { icon: "📖" });
+          setNewSticker(sticker);
           playCorrect();
         }
       }
@@ -416,6 +418,7 @@ export function MascotRoom({ profile }: Props) {
 
       <AnimatePresence>
         {albumOpen && <StickerAlbum profile={profile} onClose={() => setAlbumOpen(false)} />}
+        {newSticker && <StickerPackOpening sticker={newSticker} onClose={() => setNewSticker(null)} />}
       </AnimatePresence>
     </div>
   );
