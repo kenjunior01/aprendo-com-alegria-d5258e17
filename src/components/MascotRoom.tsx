@@ -14,6 +14,9 @@ import { playEat, playFun, playTap, playLevelUp, playWhistle } from "@/lib/audio
 import {
   GameTapCor, GameAnimaTap, GameFrutaTap, GameEstrelasTap
 } from "@/components/junior/JuniorGamesV6";
+import {
+  GameProvinciasMZ, GameComidaMZ, GameAnimaisMZ, GameCulturaMZ, GameBandeiraMZ, GameRiosMZ, GameCidadesMZ, GameHeroisMZ
+} from "@/components/junior/MozambiqueGames";
 
 type RoomType = "living" | "kitchen" | "bedroom" | "classroom" | "talk" | "games";
 
@@ -43,6 +46,14 @@ export function MascotRoom({ profile }: Props) {
     { id: "animals", name: t("Animais"), emoji: "🐶", component: GameAnimaTap },
     { id: "fruits", name: t("Frutas"), emoji: "🍎", component: GameFrutaTap },
     { id: "stars", name: t("Estrelas"), emoji: "⭐", component: GameEstrelasTap },
+    { id: "mz-provinces", name: t("Províncias"), emoji: "🇲🇿", component: GameProvinciasMZ },
+    { id: "mz-food", name: t("Sabores"), emoji: "🥘", component: GameComidaMZ },
+    { id: "mz-animals", name: t("Fauna MZ"), emoji: "🦒", component: GameAnimaisMZ },
+    { id: "mz-culture", name: t("Ritmos"), emoji: "🎸", component: GameCulturaMZ },
+    { id: "mz-flag", name: t("Bandeira"), emoji: "🚩", component: GameBandeiraMZ },
+    { id: "mz-rivers", name: t("Rios MZ"), emoji: "🌊", component: GameRiosMZ },
+    { id: "mz-cities", name: t("Cidades"), emoji: "🏢", component: GameCidadesMZ },
+    { id: "mz-heroes", name: t("Heróis"), emoji: "🏅", component: GameHeroisMZ },
   ];
 
   useEffect(() => {
@@ -288,13 +299,13 @@ export function MascotRoom({ profile }: Props) {
 
       <div className="relative flex flex-1 flex-col items-center justify-center">
         {room === "games" ? (
-          <div className="w-full max-w-md px-6">
+          <div className="w-full max-w-md px-6 h-full overflow-y-auto pt-10 pb-20 scrollbar-none">
             {!selectedGame ? (
-              <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="grid grid-cols-2 gap-4">
+              <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="grid grid-cols-2 gap-4 pb-10">
                 {miniGames.map((game) => (
                   <button key={game.id} onClick={() => { haptic("tap"); setSelectedGame(game.id); }} className="flex flex-col items-center justify-center gap-2 rounded-3xl border-4 border-white bg-white/60 p-6 shadow-lg transition-transform active:scale-95">
                     <span className="text-5xl">{game.emoji}</span>
-                    <span className="font-display text-sm font-bold">{game.name}</span>
+                    <span className="font-display text-sm font-bold text-center">{game.name}</span>
                   </button>
                 ))}
               </motion.div>

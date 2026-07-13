@@ -106,6 +106,18 @@ const VOCAB_MZ: VocabMap = {
   escola: "escola",
   aprender: "aprender",
   moçambique: "Moçambique",
+  Cores: "Cores",
+  Animais: "Animais",
+  Frutas: "Frutas",
+  Estrelas: "Estrelas",
+  Províncias: "Províncias",
+  Sabores: "Sabores",
+  "Fauna MZ": "Fauna de Moçambique",
+  Ritmos: "Ritmos e Danças",
+  Bandeira: "A nossa Bandeira",
+  "Rios MZ": "Rios de Moçambique",
+  Cidades: "Cidades",
+  Heróis: "Heróis Nacionais",
 };
 
 const MOZAMBIQUE_FACTS = [
