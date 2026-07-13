@@ -488,151 +488,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/tutor': {
-      id: '/tutor'
-      path: '/tutor'
-      fullPath: '/tutor'
-      preLoaderRoute: typeof TutorRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/sitemap.xml': {
-      id: '/sitemap.xml'
-      path: '/sitemap.xml'
-      fullPath: '/sitemap.xml'
-      preLoaderRoute: typeof SitemapDotxmlRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/ra': {
-      id: '/ra'
-      path: '/ra'
-      fullPath: '/ra'
-      preLoaderRoute: typeof RaRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/premium': {
-      id: '/premium'
-      path: '/premium'
-      fullPath: '/premium'
-      preLoaderRoute: typeof PremiumRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/perfil': {
-      id: '/perfil'
-      path: '/perfil'
-      fullPath: '/perfil'
-      preLoaderRoute: typeof PerfilRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/pais': {
-      id: '/pais'
-      path: '/pais'
-      fullPath: '/pais'
-      preLoaderRoute: typeof PaisRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/mundo': {
-      id: '/mundo'
-      path: '/mundo'
-      fullPath: '/mundo'
-      preLoaderRoute: typeof MundoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/loja': {
-      id: '/loja'
-      path: '/loja'
-      fullPath: '/loja'
-      preLoaderRoute: typeof LojaRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/leitura': {
-      id: '/leitura'
-      path: '/leitura'
-      fullPath: '/leitura'
-      preLoaderRoute: typeof LeituraRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/junior': {
-      id: '/junior'
-      path: '/junior'
-      fullPath: '/junior'
-      preLoaderRoute: typeof JuniorRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/jardim': {
-      id: '/jardim'
-      path: '/jardim'
-      fullPath: '/jardim'
-      preLoaderRoute: typeof JardimRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/escolas': {
-      id: '/escolas'
-      path: '/escolas'
-      fullPath: '/escolas'
-      preLoaderRoute: typeof EscolasRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/escola': {
-      id: '/escola'
-      path: '/escola'
-      fullPath: '/escola'
-      preLoaderRoute: typeof EscolaRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/desafios': {
-      id: '/desafios'
-      path: '/desafios'
-      fullPath: '/desafios'
-      preLoaderRoute: typeof DesafiosRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/creches': {
-      id: '/creches'
-      path: '/creches'
-      fullPath: '/creches'
-      preLoaderRoute: typeof CrechesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/conquistas': {
-      id: '/conquistas'
-      path: '/conquistas'
-      fullPath: '/conquistas'
-      preLoaderRoute: typeof ConquistasRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/comecar': {
-      id: '/comecar'
-      path: '/comecar'
-      fullPath: '/comecar'
-      preLoaderRoute: typeof ComecarRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/auth': {
-      id: '/auth'
-      path: '/auth'
-      fullPath: '/auth'
-      preLoaderRoute: typeof AuthRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/arcade': {
-      id: '/arcade'
-      path: '/arcade'
-      fullPath: '/arcade'
-      preLoaderRoute: typeof ArcadeRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/app': {
-      id: '/app'
-      path: '/app'
-      fullPath: '/app'
-      preLoaderRoute: typeof AppRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/amigo': {
-      id: '/amigo'
-      path: '/amigo'
-      fullPath: '/amigo'
-      preLoaderRoute: typeof AmigoRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin': {
@@ -642,46 +502,151 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+    '/amigo': {
+      id: '/amigo'
+      path: '/amigo'
+      fullPath: '/amigo'
+      preLoaderRoute: typeof AmigoRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/desafios/infinitos': {
-      id: '/desafios/infinitos'
-      path: '/infinitos'
-      fullPath: '/desafios/infinitos'
-      preLoaderRoute: typeof DesafiosInfinitosRouteImport
-      parentRoute: typeof DesafiosRoute
-    }
-    '/checkout/return': {
-      id: '/checkout/return'
-      path: '/checkout/return'
-      fullPath: '/checkout/return'
-      preLoaderRoute: typeof CheckoutReturnRouteImport
+    '/app': {
+      id: '/app'
+      path: '/app'
+      fullPath: '/app'
+      preLoaderRoute: typeof AppRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/capitulo/$chapterId': {
-      id: '/capitulo/$chapterId'
-      path: '/capitulo/$chapterId'
-      fullPath: '/capitulo/$chapterId'
-      preLoaderRoute: typeof CapituloChapterIdRouteImport
+    '/arcade': {
+      id: '/arcade'
+      path: '/arcade'
+      fullPath: '/arcade'
+      preLoaderRoute: typeof ArcadeRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/aprender/portugues': {
-      id: '/aprender/portugues'
-      path: '/aprender/portugues'
-      fullPath: '/aprender/portugues'
-      preLoaderRoute: typeof AprenderPortuguesRouteImport
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/aprender/matematica': {
-      id: '/aprender/matematica'
-      path: '/aprender/matematica'
-      fullPath: '/aprender/matematica'
-      preLoaderRoute: typeof AprenderMatematicaRouteImport
+    '/comecar': {
+      id: '/comecar'
+      path: '/comecar'
+      fullPath: '/comecar'
+      preLoaderRoute: typeof ComecarRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/conquistas': {
+      id: '/conquistas'
+      path: '/conquistas'
+      fullPath: '/conquistas'
+      preLoaderRoute: typeof ConquistasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/creches': {
+      id: '/creches'
+      path: '/creches'
+      fullPath: '/creches'
+      preLoaderRoute: typeof CrechesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/desafios': {
+      id: '/desafios'
+      path: '/desafios'
+      fullPath: '/desafios'
+      preLoaderRoute: typeof DesafiosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/escola': {
+      id: '/escola'
+      path: '/escola'
+      fullPath: '/escola'
+      preLoaderRoute: typeof EscolaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/escolas': {
+      id: '/escolas'
+      path: '/escolas'
+      fullPath: '/escolas'
+      preLoaderRoute: typeof EscolasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/jardim': {
+      id: '/jardim'
+      path: '/jardim'
+      fullPath: '/jardim'
+      preLoaderRoute: typeof JardimRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/junior': {
+      id: '/junior'
+      path: '/junior'
+      fullPath: '/junior'
+      preLoaderRoute: typeof JuniorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/leitura': {
+      id: '/leitura'
+      path: '/leitura'
+      fullPath: '/leitura'
+      preLoaderRoute: typeof LeituraRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/loja': {
+      id: '/loja'
+      path: '/loja'
+      fullPath: '/loja'
+      preLoaderRoute: typeof LojaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mundo': {
+      id: '/mundo'
+      path: '/mundo'
+      fullPath: '/mundo'
+      preLoaderRoute: typeof MundoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pais': {
+      id: '/pais'
+      path: '/pais'
+      fullPath: '/pais'
+      preLoaderRoute: typeof PaisRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/perfil': {
+      id: '/perfil'
+      path: '/perfil'
+      fullPath: '/perfil'
+      preLoaderRoute: typeof PerfilRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/premium': {
+      id: '/premium'
+      path: '/premium'
+      fullPath: '/premium'
+      preLoaderRoute: typeof PremiumRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ra': {
+      id: '/ra'
+      path: '/ra'
+      fullPath: '/ra'
+      preLoaderRoute: typeof RaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tutor': {
+      id: '/tutor'
+      path: '/tutor'
+      fullPath: '/tutor'
+      preLoaderRoute: typeof TutorRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/aprender/estudo-do-meio': {
@@ -691,12 +656,40 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AprenderEstudoDoMeioRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/licao/$subjectId/$lessonId': {
-      id: '/licao/$subjectId/$lessonId'
-      path: '/licao/$subjectId/$lessonId'
-      fullPath: '/licao/$subjectId/$lessonId'
-      preLoaderRoute: typeof LicaoSubjectIdLessonIdRouteImport
+    '/aprender/matematica': {
+      id: '/aprender/matematica'
+      path: '/aprender/matematica'
+      fullPath: '/aprender/matematica'
+      preLoaderRoute: typeof AprenderMatematicaRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/aprender/portugues': {
+      id: '/aprender/portugues'
+      path: '/aprender/portugues'
+      fullPath: '/aprender/portugues'
+      preLoaderRoute: typeof AprenderPortuguesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/capitulo/$chapterId': {
+      id: '/capitulo/$chapterId'
+      path: '/capitulo/$chapterId'
+      fullPath: '/capitulo/$chapterId'
+      preLoaderRoute: typeof CapituloChapterIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/checkout/return': {
+      id: '/checkout/return'
+      path: '/checkout/return'
+      fullPath: '/checkout/return'
+      preLoaderRoute: typeof CheckoutReturnRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/desafios/infinitos': {
+      id: '/desafios/infinitos'
+      path: '/infinitos'
+      fullPath: '/desafios/infinitos'
+      preLoaderRoute: typeof DesafiosInfinitosRouteImport
+      parentRoute: typeof DesafiosRoute
     }
     '/api/public/tutor-stream': {
       id: '/api/public/tutor-stream'
@@ -705,18 +698,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicTutorStreamRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/lovable/email/queue/process': {
-      id: '/lovable/email/queue/process'
-      path: '/lovable/email/queue/process'
-      fullPath: '/lovable/email/queue/process'
-      preLoaderRoute: typeof LovableEmailQueueProcessRouteImport
+    '/licao/$subjectId/$lessonId': {
+      id: '/licao/$subjectId/$lessonId'
+      path: '/licao/$subjectId/$lessonId'
+      fullPath: '/licao/$subjectId/$lessonId'
+      preLoaderRoute: typeof LicaoSubjectIdLessonIdRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/lovable/email/auth/webhook': {
-      id: '/lovable/email/auth/webhook'
-      path: '/lovable/email/auth/webhook'
-      fullPath: '/lovable/email/auth/webhook'
-      preLoaderRoute: typeof LovableEmailAuthWebhookRouteImport
+    '/api/public/payments/webhook': {
+      id: '/api/public/payments/webhook'
+      path: '/api/public/payments/webhook'
+      fullPath: '/api/public/payments/webhook'
+      preLoaderRoute: typeof ApiPublicPaymentsWebhookRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/lovable/email/auth/preview': {
@@ -726,11 +719,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LovableEmailAuthPreviewRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/public/payments/webhook': {
-      id: '/api/public/payments/webhook'
-      path: '/api/public/payments/webhook'
-      fullPath: '/api/public/payments/webhook'
-      preLoaderRoute: typeof ApiPublicPaymentsWebhookRouteImport
+    '/lovable/email/auth/webhook': {
+      id: '/lovable/email/auth/webhook'
+      path: '/lovable/email/auth/webhook'
+      fullPath: '/lovable/email/auth/webhook'
+      preLoaderRoute: typeof LovableEmailAuthWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lovable/email/queue/process': {
+      id: '/lovable/email/queue/process'
+      path: '/lovable/email/queue/process'
+      fullPath: '/lovable/email/queue/process'
+      preLoaderRoute: typeof LovableEmailQueueProcessRouteImport
       parentRoute: typeof rootRouteImport
     }
   }

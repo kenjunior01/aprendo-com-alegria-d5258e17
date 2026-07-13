@@ -84,6 +84,20 @@ export function playWhistle() {
   tone(1100, 0.15, "sine", 0.1, 0.08);
 }
 
+export function playHungry() {
+  if (muted) return;
+  // som de "estômago a roncar" sintetizado
+  tone(100, 0.3, "sine", 0.15, 0);
+  tone(90, 0.4, "sine", 0.1, 0.1);
+}
+
+export function playKnowledgeWarning() {
+  if (muted) return;
+  // tom de aviso intelectual (limpo mas urgente)
+  tone(660, 0.1, "triangle", 0.15, 0);
+  tone(660, 0.1, "triangle", 0.15, 0.15);
+}
+
 export function playFun() {
   if (muted) return;
   // som de "bolha" ou diversão

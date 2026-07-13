@@ -10,7 +10,7 @@ import { haptic } from "@/lib/haptics";
 import { toast } from "sonner";
 import { useNavigate } from "@tanstack/react-router";
 import { REGIONS, getMozambiqueFact, localize } from "@/lib/region";
-import { playEat, playFun, playTap, playLevelUp, playWhistle, playCorrect, playWrong } from "@/lib/audio";
+import { playEat, playFun, playTap, playLevelUp, playWhistle, playCorrect, playWrong, playHungry, playKnowledgeWarning } from "@/lib/audio";
 import {
   GameTapCor, GameAnimaTap, GameFrutaTap, GameEstrelasTap
 } from "@/components/junior/JuniorGamesV6";
@@ -66,14 +66,24 @@ export function MascotRoom({ profile }: Props) {
   useEffect(() => {
     playWhistle();
     const timer = setInterval(() => {
+      const nextHunger = Math.max(0, profile.hunger - 0.1);
+      const nextEnergy = Math.max(0, profile.energy - 0.05);
+      const nextFun = Math.max(0, profile.fun - 0.15);
+      const nextKnowledge = Math.max(0, profile.knowledge - 0.1);
+
+      // Play warning sounds if stats just entered red zone
+      if (profile.hunger >= 25 && nextHunger < 25) playHungry();
+      if (profile.knowledge >= 30 && nextKnowledge < 30) playKnowledgeWarning();
+
       updateProfile({
-        hunger: Math.max(0, profile.hunger - 0.1),
-        energy: Math.max(0, profile.energy - 0.05),
-        fun: Math.max(0, profile.fun - 0.15),
+        hunger: nextHunger,
+        energy: nextEnergy,
+        fun: nextFun,
+        knowledge: nextKnowledge,
       });
     }, 60000);
     return () => clearInterval(timer);
-  }, []);
+  }, [profile.hunger, profile.knowledge]);
 
   const triggerBurst = () => {
     import("canvas-confetti").then(confetti => {
