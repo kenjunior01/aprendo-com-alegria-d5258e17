@@ -36,6 +36,7 @@ const LAB_MODELS: { id: LabModelId; src: string; label: string; fact: string }[]
     fact: "As raposas comunicam com mais de 40 sons diferentes!" },
 ];
 
+// @ts-ignore TanStack Router file-route type resolution
 export const Route = createFileRoute("/ra")({
   head: () => ({
     meta: [

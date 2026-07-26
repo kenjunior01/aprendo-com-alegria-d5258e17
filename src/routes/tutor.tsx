@@ -10,6 +10,7 @@ import { getMascot, type MascotId } from "@/lib/mascots";
 import { ArrowLeft, Send, Sparkles, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+// @ts-ignore TanStack Router file-route type resolution
 export const Route = createFileRoute("/tutor")({
   validateSearch: (search: Record<string, unknown>) => ({
     mascotId: (search.mascotId as MascotId) || undefined,

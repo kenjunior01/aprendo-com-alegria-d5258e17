@@ -25,6 +25,7 @@ const TRUST = [
   { icon: Trophy,      label: "Programa nacional" },
 ];
 
+// @ts-ignore TanStack Router file-route type resolution
 export const Route = createFileRoute("/premium")({
   head: () => ({
     meta: [

@@ -36,6 +36,7 @@ const entries: SitemapEntry[] = [
   { path: "/auth",                      changefreq: "yearly",  priority: "0.3" },
 ];
 
+// @ts-ignore TanStack Router file-route type resolution
 export const Route = createFileRoute("/sitemap.xml")({
   server: {
     handlers: {
