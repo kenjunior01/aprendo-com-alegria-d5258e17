@@ -176,21 +176,31 @@ function ShopPage() {
                 ) : lockedPremium ? (
                   <Link to="/premium" className="w-full">
                     <button className="btn-chunky w-full rounded-2xl bg-gradient-to-r from-primary to-secondary px-3 py-1.5 font-display text-xs font-semibold text-primary-foreground sm:text-sm">
-                      <Lock className="mr-1 inline h-3 w-3" />Premium
+                      <Lock className="mr-1 inline h-3 w-3" aria-hidden="true" />Premium — precisa de conta Premium
                     </button>
                   </Link>
-                ) : (
+                ) : canAfford ? (
                   <button
                     onClick={() => onBuy(item)}
-                    disabled={!canAfford}
-                    className={cn(
-                      "btn-chunky inline-flex w-full items-center justify-center gap-1 rounded-2xl px-3 py-1.5 font-display text-xs font-semibold sm:text-sm",
-                      canAfford ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground",
-                    )}
+                    className="btn-chunky inline-flex w-full items-center justify-center gap-1 rounded-2xl bg-primary px-3 py-1.5 font-display text-xs font-semibold text-primary-foreground sm:text-sm"
                   >
-                    <Coins className="h-3.5 w-3.5" />
+                    <Coins className="h-3.5 w-3.5" aria-hidden="true" />
                     {item.price}
                   </button>
+                ) : (
+                  <div className="w-full">
+                    <button
+                      onClick={() => onBuy(item)}
+                      disabled
+                      className="btn-chunky inline-flex w-full items-center justify-center gap-1 rounded-2xl bg-muted px-3 py-1.5 font-display text-xs font-semibold text-muted-foreground sm:text-sm"
+                    >
+                      <Coins className="h-3.5 w-3.5" aria-hidden="true" />
+                      {item.price}
+                    </button>
+                    <p className="mt-1 text-[10px] text-muted-foreground font-semibold">
+                      Faltam {item.price - profile.coins} Abracadinhos — completa missões para ganhar mais!
+                    </p>
+                  </div>
                 )}
               </motion.div>
             );

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo, Suspense, lazy } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { MascotExpression, type MascotMood } from "./MascotExpression";
 import { MascotVoiceTutor } from "./MascotVoiceTutor";
@@ -11,16 +11,21 @@ import { toast } from "sonner";
 import { useNavigate } from "@tanstack/react-router";
 import { REGIONS, getMozambiqueFact, localize } from "@/lib/region";
 import { playEat, playFun, playTap, playLevelUp, playWhistle, playCorrect, playWrong, playHungry, playKnowledgeWarning } from "@/lib/audio";
-import {
-  GameTapCor, GameAnimaTap, GameFrutaTap, GameEstrelasTap
-} from "@/components/junior/JuniorGamesV6";
-import {
-  GameProvinciasMZ, GameComidaMZ, GameAnimaisMZ, GameCulturaMZ, GameBandeiraMZ, GameRiosMZ, GameCidadesMZ, GameHeroisMZ
-} from "@/components/junior/MozambiqueGames";
-import { StickerAlbum } from "./StickerAlbum";
+import { GAME_REGISTRY, type GameEntry } from "@/lib/juniorGameRegistry";
 import { getRandomSticker, type Sticker } from "@/lib/stickers";
-import { StickerPackOpening } from "./StickerPackOpening";
 import { getRandomTrivia, type TriviaQuestion } from "@/lib/triviaBank";
+
+// --- Lazy-loaded heavy components ---
+const StickerAlbum = lazy(() => import("./StickerAlbum").then(m => ({ default: m.StickerAlbum })));
+const StickerPackOpening = lazy(() => import("./StickerPackOpening").then(m => ({ default: m.StickerPackOpening })));
+
+function GameLoader({ children }: { children: React.ReactNode }) {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center p-8"><motion.span animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1, ease: "linear" }} className="text-4xl">🎮</motion.span></div>}>
+      {children}
+    </Suspense>
+  );
+}
 
 type RoomType = "living" | "kitchen" | "bedroom" | "classroom" | "talk" | "games";
 
@@ -48,20 +53,20 @@ export function MascotRoom({ profile }: Props) {
   const today = new Date().toISOString().slice(0, 10);
   const hasGift = profile.lastDailyGift !== today;
 
-  const miniGames = [
-    { id: "colors", name: t("Cores"), emoji: "🎨", component: GameTapCor },
-    { id: "animals", name: t("Animais"), emoji: "🐶", component: GameAnimaTap },
-    { id: "fruits", name: t("Frutas"), emoji: "🍎", component: GameFrutaTap },
-    { id: "stars", name: t("Estrelas"), emoji: "⭐", component: GameEstrelasTap },
-    { id: "mz-provinces", name: t("Províncias"), emoji: "🇲🇿", component: GameProvinciasMZ },
-    { id: "mz-food", name: t("Sabores"), emoji: "🥘", component: GameComidaMZ },
-    { id: "mz-animals", name: t("Fauna MZ"), emoji: "🦒", component: GameAnimaisMZ },
-    { id: "mz-culture", name: t("Ritmos"), emoji: "🎸", component: GameCulturaMZ },
-    { id: "mz-flag", name: t("Bandeira"), emoji: "🚩", component: GameBandeiraMZ },
-    { id: "mz-rivers", name: t("Rios MZ"), emoji: "🌊", component: GameRiosMZ },
-    { id: "mz-cities", name: t("Cidades"), emoji: "🏢", component: GameCidadesMZ },
-    { id: "mz-heroes", name: t("Heróis"), emoji: "🏅", component: GameHeroisMZ },
-  ];
+  // Mini-games disponíveis na sala de jogos
+  const miniGameIds = useMemo(() => [
+    "tap-cor", "anima-tap", "fruta-tap", "estrelas-tap",
+    "mz-provinces", "mz-food", "mz-animals", "mz-culture",
+    "mz-flag", "mz-rivers", "mz-cities", "mz-heroes",
+  ], [region]);
+
+  const miniGames = useMemo(() =>
+    miniGameIds
+      .map(id => GAME_REGISTRY[id])
+      .filter((g): g is GameEntry => g != null)
+      .map(g => ({ id: g.id, name: t(g.title), emoji: g.emoji, component: g.component })),
+    [miniGameIds, region]
+  );
 
   useEffect(() => {
     playWhistle();

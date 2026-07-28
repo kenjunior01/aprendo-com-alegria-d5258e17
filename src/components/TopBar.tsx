@@ -20,10 +20,10 @@ export function TopBar({ profile }: { profile: Profile }) {
         </Link>
 
         <div className="flex items-center gap-1.5 sm:gap-2">
-          <Stat icon={<Flame className="h-4 w-4" />} value={profile.streak} color="text-streak" title="Sequência" />
-          <Stat icon={<Coins className="h-4 w-4" />} value={profile.coins} color="text-xp" title="Abracadinhos" />
-          <Stat icon={<Star className="h-4 w-4 fill-current" />} value={profile.xp} color="text-xp" title="XP" />
-          <Stat icon={<Heart className="h-4 w-4 fill-current" />} value={profile.hearts} color="text-destructive" title="Corações" />
+          <Stat icon={<Flame className="h-4 w-4" aria-hidden="true" />} value={profile.streak} color="text-streak" title="Sequência" />
+          <Stat icon={<Coins className="h-4 w-4" aria-hidden="true" />} value={profile.coins} color="text-xp" title="Abracadinhos" />
+          <Stat icon={<Star className="h-4 w-4 fill-current" aria-hidden="true" />} value={profile.xp} color="text-xp" title="XP" />
+          <Stat icon={<Heart className="h-4 w-4 fill-current" aria-hidden="true" />} value={profile.hearts} color="text-destructive" title="Corações" />
           <SoundToggle className="ml-1" />
         </div>
       </div>

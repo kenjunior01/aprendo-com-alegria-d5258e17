@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
 import { TopBar } from "@/components/TopBar";
 import { BottomNav } from "@/components/BottomNav";
 import { ChunkyButton } from "@/components/ChunkyButton";
@@ -118,6 +119,23 @@ function AchievementsPage() {
         </header>
 
         {loading && <p className="text-center text-muted-foreground">A carregar…</p>}
+
+        {!loading && unlockedCount === 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="card-chunky mb-6 rounded-3xl border-2 border-border bg-card p-6 text-center"
+          >
+            <div className="text-5xl mb-3">🏆</div>
+            <h2 className="font-display text-xl">Sem conquistas ainda</h2>
+            <p className="text-sm text-muted-foreground mt-2">
+              Começa a aprender para ganhar conquistas! 🏆 Cada missão que completas te dá medalhas e Abracadinhos.
+            </p>
+            <Link to="/app" className="mt-4 inline-block">
+              <ChunkyButton tone="primary">Começar aventura</ChunkyButton>
+            </Link>
+          </motion.div>
+        )}
 
         {!loading && profile && Object.entries(grouped).map(([cat, items]) => (
           <section key={cat} className="mb-6">

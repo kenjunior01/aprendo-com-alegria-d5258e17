@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { motion } from "framer-motion";
 import { BottomNav } from "@/components/BottomNav";
 import { ChunkyButton } from "@/components/ChunkyButton";
@@ -16,38 +16,7 @@ import { JuniorCelebration } from "@/components/junior/JuniorCelebration";
 import { JuniorStickerBook } from "@/components/junior/JuniorStickerBook";
 import { haptic } from "@/lib/haptics";
 import { pullJuniorCloud, scheduleJuniorCloudPush } from "@/lib/juniorCloud";
-import {
-  GameJardimCores, GameOrquestraAnimais, GameRotinasKido, GameLivroMagico,
-} from "@/components/junior/JuniorGames";
-import {
-  GameContaPatinhos, GameBolhas, GameMeuCorpo, GameMemoria, GameLetraAventura,
-  GameFormas, GameMercado, GameSoletrar, GameMatematica, GameCientista,
-  GameRelogio, GamePalop,
-} from "@/components/junior/JuniorGamesExtra";
-import {
-  GamePinta, GameEco, GameJardimMagico, GamePuzzle, GameCacaTesouro, GameEstacoes, GameEmocoes,
-} from "@/components/junior/JuniorGamesV2";
-import {
-  GameSombras, GamePadroes, GameLabirinto, GameTriviaJr,
-} from "@/components/junior/JuniorGamesV3";
-import {
-  GameSomaRapida, GameTabuada, GameFracoes, GameSilabas, GameFormaFrase, GameAntonimos,
-  GameMapaPT, GameCicloAgua, GameHabitats, GameBandeiras, GameSpellingEN, GameColorsEN,
-  GameSimon, GameLogica, GameTriviaOnline,
-} from "@/components/junior/JuniorGamesV4";
-import {
-  GameBaloes, GamePares, GameTransportes, GameTamanho, GameContaDedos,
-  GameAlimentaBebe, GameOndeEsta, GameNumeros, GameFormasCor, GameImitaSom,
-} from "@/components/junior/JuniorGamesV5";
-import {
-  GameTapCor, GameAnimaTap, GameNumTap13, GameGrandePequeno, GameFrutaTap,
-  GameSomAnima, GameCorRoupa, GameAnimaGrande, GameTapPatPat, GameEstrelasTap,
-  GameCarroCor, GameAnimaCasa, GameComidaTap, GameFormaRedonda, GameLuzTap,
-} from "@/components/junior/JuniorGamesV6";
-import {
-  GameInstrumentos, GameTempo, GameProfissoes, GameParteDia, GameContrarios,
-  GameNum46, GameFormaSimples, GameFamilia, GameVeiculos, GameSonsNatu,
-} from "@/components/junior/JuniorGamesV7";
+import { getGameComponent } from "@/lib/juniorGameRegistry";
 import { ParentModePanel } from "@/components/junior/ParentModePanel";
 import { JuniorChildSwitcher } from "@/components/junior/JuniorChildSwitcher";
 import { JuniorMascotStage } from "@/components/junior/JuniorMascotStage";
@@ -274,83 +243,12 @@ function JuniorPage() {
             </DialogTitle>
           </DialogHeader>
           <div className="py-2">
-            {active?.id === "jardim-cores" && <GameJardimCores />}
-            {active?.id === "orquestra-animais" && <GameOrquestraAnimais />}
-            {active?.id === "rotinas-kido" && <GameRotinasKido />}
-            {active?.id === "livro-magico" && <GameLivroMagico />}
-            {active?.id === "conta-patinhos" && <GameContaPatinhos />}
-            {active?.id === "bolhas-sabao" && <GameBolhas />}
-            {active?.id === "meu-corpo" && <GameMeuCorpo />}
-            {active?.id === "memoria-animais" && <GameMemoria />}
-            {active?.id === "letra-aventura" && <GameLetraAventura />}
-            {active?.id === "formas-geo" && <GameFormas />}
-            {active?.id === "frutas-mercado" && <GameMercado />}
-            {active?.id === "soletrar" && <GameSoletrar />}
-            {active?.id === "matematica-magica" && <GameMatematica />}
-            {active?.id === "pequeno-cientista" && <GameCientista />}
-            {active?.id === "relogio-kido" && <GameRelogio />}
-            {active?.id === "mapa-palop" && <GamePalop />}
-            {active?.id === "pinta-desenho" && <GamePinta />}
-            {active?.id === "eco-som" && <GameEco />}
-            {active?.id === "jardim-magico" && <GameJardimMagico />}
-            {active?.id === "puzzle-kido" && <GamePuzzle />}
-            {active?.id === "caca-tesouro" && <GameCacaTesouro />}
-            {active?.id === "estacoes-ano" && <GameEstacoes />}
-            {active?.id === "emocoes-kido" && <GameEmocoes />}
-            {active?.id === "sombras" && <GameSombras />}
-            {active?.id === "padroes" && <GamePadroes />}
-            {active?.id === "labirinto" && <GameLabirinto />}
-            {active?.id === "trivia-jr" && <GameTriviaJr />}
-            {active?.id === "soma-rapida" && <GameSomaRapida />}
-            {active?.id === "tabuada" && <GameTabuada />}
-            {active?.id === "fracoes" && <GameFracoes />}
-            {active?.id === "silabas" && <GameSilabas />}
-            {active?.id === "forma-frase" && <GameFormaFrase />}
-            {active?.id === "antonimos" && <GameAntonimos />}
-            {active?.id === "mapa-pt" && <GameMapaPT />}
-            {active?.id === "ciclo-agua" && <GameCicloAgua />}
-            {active?.id === "habitats" && <GameHabitats />}
-            {active?.id === "bandeiras" && <GameBandeiras />}
-            {active?.id === "spelling-en" && <GameSpellingEN />}
-            {active?.id === "colors-en" && <GameColorsEN />}
-            {active?.id === "simon" && <GameSimon />}
-            {active?.id === "logica" && <GameLogica />}
-            {active?.id === "trivia-online" && <GameTriviaOnline category="general" count={8} />}
-            {active?.id === "baloes" && <GameBaloes />}
-            {active?.id === "pares-jr" && <GamePares />}
-            {active?.id === "transportes" && <GameTransportes />}
-            {active?.id === "tamanho" && <GameTamanho />}
-            {active?.id === "conta-dedos" && <GameContaDedos />}
-            {active?.id === "alimenta-bebe" && <GameAlimentaBebe />}
-            {active?.id === "onde-esta" && <GameOndeEsta />}
-            {active?.id === "numeros-tap" && <GameNumeros />}
-            {active?.id === "formas-cor" && <GameFormasCor />}
-            {active?.id === "imita-som" && <GameImitaSom />}
-            {active?.id === "tap-cor" && <GameTapCor />}
-            {active?.id === "anima-tap" && <GameAnimaTap />}
-            {active?.id === "num-tap-1-3" && <GameNumTap13 />}
-            {active?.id === "grande-pequeno-tap" && <GameGrandePequeno />}
-            {active?.id === "fruta-tap" && <GameFrutaTap />}
-            {active?.id === "som-anima" && <GameSomAnima />}
-            {active?.id === "cor-roupa" && <GameCorRoupa />}
-            {active?.id === "anima-grande" && <GameAnimaGrande />}
-            {active?.id === "tap-pat-pat" && <GameTapPatPat />}
-            {active?.id === "estrelas-tap" && <GameEstrelasTap />}
-            {active?.id === "carro-cor" && <GameCarroCor />}
-            {active?.id === "anima-casa" && <GameAnimaCasa />}
-            {active?.id === "comida-tap" && <GameComidaTap />}
-            {active?.id === "forma-redonda" && <GameFormaRedonda />}
-            {active?.id === "luz-tap" && <GameLuzTap />}
-            {active?.id === "instrumentos" && <GameInstrumentos />}
-            {active?.id === "tempo-meteo" && <GameTempo />}
-            {active?.id === "profissoes" && <GameProfissoes />}
-            {active?.id === "parte-dia" && <GameParteDia />}
-            {active?.id === "contrarios" && <GameContrarios />}
-            {active?.id === "num-tap-4-6" && <GameNum46 />}
-            {active?.id === "forma-simples" && <GameFormaSimples />}
-            {active?.id === "familia" && <GameFamilia />}
-            {active?.id === "veiculos-tap" && <GameVeiculos />}
-            {active?.id === "sons-natu" && <GameSonsNatu />}
+            {active && (() => {
+              const entry = getGameComponent(active.id);
+              if (!entry) return <p className="text-center text-muted-foreground">Jogo não encontrado.</p>;
+              const GameComp = entry.component;
+              return <Suspense fallback={<div className="flex items-center justify-center p-8"><motion.span animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1, ease: "linear" }} className="text-4xl">🎮</motion.span></div>}><GameComp /></Suspense>;
+            })()}
           </div>
           <div className="mt-2 flex flex-col-reverse gap-2 sm:flex-row sm:justify-between">
             <ChunkyButton tone="ghost" onClick={() => setActive(null)}>Sair</ChunkyButton>

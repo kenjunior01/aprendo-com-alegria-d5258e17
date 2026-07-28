@@ -1,5 +1,5 @@
 import { Link, useLocation } from "@tanstack/react-router";
-import { Map as MapIcon, BookOpen, Trophy, BarChart3, User, Swords } from "lucide-react";
+import { Map as MapIcon, BookOpen, Trophy, BarChart3, User, Swords, HelpCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
 import { loadProfile } from "@/lib/storage";
@@ -36,6 +36,7 @@ export function BottomNav() {
         { to: "/amigo", label: "O Meu Amigo", mascot: true, match: (p) => p.startsWith("/amigo") || p.startsWith("/tutor") },
         { to: "/desafios", label: "Desafios", icon: Swords, match: (p) => p.startsWith("/desafios") },
         { to: "/conquistas", label: "Prémios", icon: Trophy, match: (p) => p.startsWith("/conquistas") || p.startsWith("/loja") },
+        { to: "/ajuda", label: "Ajuda", icon: HelpCircle, match: (p) => p.startsWith("/ajuda") },
         { to: "/perfil", label: "Eu", icon: User, match: (p) => p.startsWith("/perfil") },
       ];
 
@@ -66,7 +67,7 @@ export function BottomNav() {
                     <Mascot id={profile?.mascot || "owl"} size="sm" bouncing={active} />
                   </div>
                 ) : Icon ? (
-                  <Icon className={cn("h-7 w-7 transition-transform", active && "scale-110")} strokeWidth={active ? 2.6 : 2} />
+                  <Icon className={cn("h-7 w-7 transition-transform", active && "scale-110")} strokeWidth={active ? 2.6 : 2} aria-hidden="true" />
                 ) : null}
                 <span className="leading-tight">{item.label}</span>
               </Link>

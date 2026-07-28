@@ -17,7 +17,7 @@ export function SoundToggle({ className = "" }: { className?: string }) {
       title={muted ? "Ativar som" : "Desligar som"}
       className={`flex h-10 w-10 items-center justify-center rounded-full bg-card text-foreground shadow-sm transition-transform active:scale-90 ${className}`}
     >
-      {muted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
+      {muted ? <VolumeX className="h-5 w-5" aria-hidden="true" /> : <Volume2 className="h-5 w-5" aria-hidden="true" />}
     </button>
   );
 }

@@ -1,20 +1,12 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import * as React from "react";
-import { useMemo, useState } from "react";
+import { useMemo, useState, Suspense } from "react";
 import { motion } from "framer-motion";
 import { ArrowLeft, Trophy, Sparkles } from "lucide-react";
 import { BottomNav } from "@/components/BottomNav";
 import { ChunkyButton } from "@/components/ChunkyButton";
 import { playLevelUp, playCorrect, speak } from "@/lib/audio";
-import {
-  GameTapCor, GameAnimaTap, GameNumTap13, GameGrandePequeno, GameFrutaTap,
-  GameCorRoupa, GameAnimaGrande, GameEstrelasTap, GameCarroCor,
-  GameComidaTap, GameFormaRedonda,
-} from "@/components/junior/JuniorGamesV6";
-import {
-  GameInstrumentos, GameTempo, GameProfissoes, GameParteDia, GameContrarios,
-  GameNum46, GameFormaSimples, GameFamilia, GameVeiculos, GameSonsNatu,
-} from "@/components/junior/JuniorGamesV7";
+import { ARCADE_POOL, type GameEntry } from "@/lib/juniorGameRegistry";
 
 export const Route = createFileRoute("/arcade")({
   head: () => ({
@@ -30,41 +22,21 @@ export const Route = createFileRoute("/arcade")({
   component: ArcadePage,
 });
 
-type ArcadeEntry = { id: string; title: string; emoji: string; el: React.ComponentType };
-
-const POOL: ArcadeEntry[] = [
-  { id: "tap-cor", title: "Toca na Cor", emoji: "🎨", el: GameTapCor },
-  { id: "anima-tap", title: "Toca no Animal", emoji: "🐶", el: GameAnimaTap },
-  { id: "num-tap-1-3", title: "Números 1·2·3", emoji: "🔢", el: GameNumTap13 },
-  { id: "grande-pequeno-tap", title: "Grande/Pequeno", emoji: "🐘", el: GameGrandePequeno },
-  { id: "fruta-tap", title: "Toca na Fruta", emoji: "🍎", el: GameFrutaTap },
-  { id: "cor-roupa", title: "Cor da Roupa", emoji: "🧥", el: GameCorRoupa },
-  { id: "anima-grande", title: "Animal Grande", emoji: "🦁", el: GameAnimaGrande },
-  { id: "estrelas-tap", title: "Conta Estrelas", emoji: "⭐", el: GameEstrelasTap },
-  { id: "carro-cor", title: "Carro da Cor", emoji: "🚗", el: GameCarroCor },
-  { id: "comida-tap", title: "Toca na Comida", emoji: "🍞", el: GameComidaTap },
-  { id: "forma-redonda", title: "Toca na Forma", emoji: "⚪", el: GameFormaRedonda },
-  { id: "instrumentos", title: "Instrumento", emoji: "🎶", el: GameInstrumentos },
-  { id: "tempo-meteo", title: "Que tempo faz?", emoji: "🌦️", el: GameTempo },
-  { id: "profissoes", title: "Profissões", emoji: "🧑‍⚕️", el: GameProfissoes },
-  { id: "parte-dia", title: "Parte do Dia", emoji: "🌅", el: GameParteDia },
-  { id: "contrarios", title: "Quente/Frio", emoji: "🔥", el: GameContrarios },
-  { id: "num-tap-4-6", title: "Números 4·5·6", emoji: "🔢", el: GameNum46 },
-  { id: "forma-simples", title: "Forma+", emoji: "⭐", el: GameFormaSimples },
-  { id: "familia", title: "Família", emoji: "👪", el: GameFamilia },
-  { id: "veiculos-tap", title: "Veículos", emoji: "🚗", el: GameVeiculos },
-  { id: "sons-natu", title: "Sons da Natureza", emoji: "🌳", el: GameSonsNatu },
-];
+const GameLoader = ({ children }: { children: React.ReactNode }) => (
+  <Suspense fallback={<div className="flex items-center justify-center p-8"><motion.span animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1, ease: "linear" }} className="text-4xl">🎮</motion.span></div>}>
+    {children}
+  </Suspense>
+);
 
 const HISCORE_KEY = "kidoz-arcade-hiscore";
 
-function pickRun(n: number): ArcadeEntry[] {
-  const shuffled = [...POOL].sort(() => Math.random() - 0.5);
+function pickRun(n: number): GameEntry[] {
+  const shuffled = [...ARCADE_POOL].sort(() => Math.random() - 0.5);
   return shuffled.slice(0, n);
 }
 
 function ArcadePage() {
-  const [run, setRun] = useState<ArcadeEntry[] | null>(null);
+  const [run, setRun] = useState<GameEntry[] | null>(null);
   const [idx, setIdx] = useState(0);
   const [score, setScore] = useState(0);
   const [finished, setFinished] = useState(false);
@@ -94,7 +66,8 @@ function ArcadePage() {
     }
   };
 
-  const Current = run?.[idx]?.el;
+  const currentEntry = run?.[idx];
+  const CurrentComp = currentEntry?.component;
 
   return (
     <div className="bg-sky-island min-h-[100dvh] pb-28">
@@ -126,15 +99,17 @@ function ArcadePage() {
           </motion.section>
         )}
 
-        {run && !finished && Current && (
+        {run && !finished && currentEntry && CurrentComp && (
           <section>
             <div className="mb-3 flex items-center justify-between">
               <span className="font-display text-sm">Jogo {idx + 1}/{run.length}</span>
               <span className="rounded-full bg-card px-3 py-1 font-display text-sm">⭐ {score} pts</span>
             </div>
             <div className="rounded-3xl bg-card/80 p-4">
-              <h2 className="text-center font-display text-2xl">{run[idx].emoji} {run[idx].title}</h2>
-              <div className="mt-3"><Current /></div>
+              <h2 className="text-center font-display text-2xl">{currentEntry.emoji} {currentEntry.title}</h2>
+              <div className="mt-3">
+                <GameLoader><CurrentComp /></GameLoader>
+              </div>
             </div>
             <div className="mt-4 flex justify-end">
               <ChunkyButton tone="success" onClick={nextGame}>
