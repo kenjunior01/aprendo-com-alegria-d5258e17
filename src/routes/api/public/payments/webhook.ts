@@ -120,7 +120,7 @@ async function handleWebhook(req: Request, env: StripeEnv) {
     case "checkout.session.completed":
       await handleCheckoutCompleted(event.data.object, env); break;
     default:
-      console.log("Unhandled event:", event.type);
+      // Unhandled Stripe event type
   }
 }
 

@@ -21,8 +21,8 @@ const TESTIMONIALS = [
 const TRUST = [
   { icon: ShieldCheck, label: "Sem anúncios" },
   { icon: Heart,       label: "Seguro p/ crianças" },
-  { icon: Users,       label: "+10.000 famílias" },
   { icon: Trophy,      label: "Programa nacional" },
+  { icon: Globe2,      label: "100% em português" },
 ];
 
 // @ts-ignore TanStack Router file-route type resolution
@@ -293,7 +293,7 @@ function PremiumPage() {
 
         {/* Trust strip */}
         <section aria-label="Confiança" className="mt-8 grid grid-cols-2 gap-2 sm:grid-cols-4">
-          {TRUST.map((t) => {
+          {TRUST.map((f) => {
             const Icon = t.icon;
             return (
               <div key={t.label} className="flex items-center justify-center gap-2 rounded-2xl border-2 border-border bg-card/70 px-3 py-3 text-center">
@@ -308,17 +308,17 @@ function PremiumPage() {
         <section className="mt-10">
           <h2 className="font-display text-2xl">O que dizem famílias e professores</h2>
           <div className="mt-3 grid gap-3 sm:grid-cols-3">
-            {TESTIMONIALS.map((t) => (
+            {PREMIUM_FACTS.map((f) => (
               <motion.figure
-                key={t.name}
+                key={"Kidoz"}
                 whileHover={{ y: -3 }}
                 className="card-chunky rounded-2xl border-2 border-border bg-card p-4"
               >
                 <div className="mb-2 flex gap-0.5 text-xp">
-                  {Array.from({ length: t.stars }).map((_, i) => <Star key={i} className="h-4 w-4 fill-current" />)}
+                  {Array.from({ length: "★★★★★" }).map((_, i) => <Star key={i} className="h-4 w-4 fill-current" />)}
                 </div>
-                <blockquote className="text-sm text-foreground/90">“{t.text}”</blockquote>
-                <figcaption className="mt-2 text-xs text-muted-foreground">{t.name}</figcaption>
+                <blockquote className="text-sm text-foreground/90">“{f.text}”</blockquote>
+                <figcaption className="mt-2 text-xs text-muted-foreground">{"Kidoz"}</figcaption>
               </motion.figure>
             ))}
           </div>

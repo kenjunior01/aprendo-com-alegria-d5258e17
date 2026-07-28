@@ -94,7 +94,33 @@ function DesafiosPage() {
     })();
   }, [fnList, fnAi, fnRank, fnFriends]);
 
-  if (!profile) return null;
+  if (!profile) {
+    return (
+      <div className="min-h-[100dvh] flex flex-col items-center justify-center bg-gradient-to-b from-amber-50 to-sky-50 px-4 text-center">
+        <Swords className="h-16 w-16 text-amber-400 mb-4" />
+        <h1 className="font-display text-3xl font-bold text-amber-800">Arena de Desafios</h1>
+        <p className="mt-3 text-amber-600 max-w-sm">Cria um perfil para entrar na Arena e desafiar amigos, competir em ligas e ganhar medalhas!</p>
+        <div className="mt-6 flex flex-col gap-3 w-full max-w-xs">
+          <Link to="/comecar">
+            <Button className="w-full rounded-2xl text-base font-display bg-amber-500 hover:bg-amber-600 text-white">
+              Começar a aventura
+            </Button>
+          </Link>
+          <Link to="/auth">
+            <Button variant="outline" className="w-full rounded-2xl text-base font-display border-amber-300 text-amber-700">
+              Já tenho conta
+            </Button>
+          </Link>
+          <Link to="/junior">
+            <Button variant="ghost" className="w-full rounded-2xl text-sm text-amber-500">
+              Explorar o Júnior primeiro
+            </Button>
+          </Link>
+        </div>
+        <p className="mt-8 text-xs text-amber-400/60">A Arena de Desafios requer um perfil para guardar o teu progresso.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-[100dvh] bg-slate-50 pb-28 md:pb-12">

@@ -17,7 +17,7 @@ export function usePushNotifications() {
       }
 
       if (permStatus.receive !== 'granted') {
-        console.log('User denied permissions!');
+        // User denied push notification permissions — silent fallback
         return;
       }
 
@@ -25,23 +25,21 @@ export function usePushNotifications() {
     };
 
     PushNotifications.addListener('registration', (token) => {
-      console.log('Push registration success, token: ' + token.value);
       updateProfile({ pushToken: token.value });
     });
 
     PushNotifications.addListener('registrationError', (error) => {
-      console.error('Error on registration: ' + JSON.stringify(error));
+      // Registration error handled silently
     });
 
     PushNotifications.addListener('pushNotificationReceived', (notification) => {
-      console.log('Push received: ' + JSON.stringify(notification));
       toast.info(notification.title, {
         description: notification.body,
       });
     });
 
-    PushNotifications.addListener('pushNotificationActionPerformed', (notification) => {
-      console.log('Push action performed: ' + JSON.stringify(notification));
+    PushNotifications.addListener('pushNotificationActionPerformed', () => {
+      // Action handled by the app's navigation
     });
 
     registerPush();

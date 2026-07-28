@@ -136,7 +136,7 @@ function Landing() {
         <LessonPathPreview />
 
         {/* Prova social */}
-        <Testimonials />
+        <PlatformStats />
 
         <div className="mt-8 flex w-full max-w-xs flex-col items-stretch gap-3 sm:max-w-none sm:flex-row sm:justify-center">
           <Link to="/junior" className="flex-1 sm:flex-none">
