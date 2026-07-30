@@ -42,7 +42,7 @@ export function JuniorParentReport() {
     return (
       <div className="card-chunky rounded-3xl border-2 border-dashed border-border bg-card/60 p-5 text-center">
         <Sparkles className="mx-auto h-6 w-6 text-primary" />
-        <p className="mt-2 font-display text-lg">Sem perfis Kidoz Júnior</p>
+        <p className="mt-2 font-display text-lg">Sem perfis Alegria Júnior</p>
         <p className="text-xs text-muted-foreground">
           Vai a /junior para criar o primeiro perfil de criança (2-5 anos).
         </p>

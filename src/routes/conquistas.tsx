@@ -19,14 +19,14 @@ import {
 export const Route = createFileRoute("/conquistas")({
   head: () => ({
     meta: [
-      { title: "Conquistas — Kidoz" },
+      { title: "Conquistas — Alegria" },
       { name: "description", content: "Vê as tuas medalhas desbloqueadas e as próximas a conquistar." },
-      { property: "og:title", content: 'As minhas conquistas — Kidoz' },
+      { property: "og:title", content: 'As minhas conquistas — Alegria' },
       { property: "og:description", content: 'Vê as tuas medalhas desbloqueadas e as próximas a conquistar.' },
-      { property: "og:url", content: "https://kidoz.online/conquistas" },
+      { property: "og:url", content: "https://alegria.online/conquistas" },
     ],
     links: [
-      { rel: "canonical", href: "https://kidoz.online/conquistas" },
+      { rel: "canonical", href: "https://alegria.online/conquistas" },
     ],
   }),
   component: AchievementsPage,

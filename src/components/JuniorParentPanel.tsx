@@ -36,7 +36,7 @@ export function JuniorParentPanel() {
           <Sparkles className="h-6 w-6" />
         </div>
         <div className="flex-1">
-          <h2 className="font-display text-xl sm:text-2xl">Kidoz Júnior · Jornada por criança</h2>
+          <h2 className="font-display text-xl sm:text-2xl">Alegria Júnior · Jornada por criança</h2>
           <p className="text-sm text-muted-foreground">2-5 anos · progresso individual de cada perfil.</p>
         </div>
         <Link
@@ -67,7 +67,7 @@ export function JuniorParentPanel() {
         to="/junior"
         className="mt-4 inline-block w-full rounded-2xl bg-primary px-4 py-3 text-center font-display text-primary-foreground sm:hidden"
       >
-        Abrir Kidoz Júnior →
+        Abrir Alegria Júnior →
       </Link>
     </motion.section>
   );

@@ -1,4 +1,4 @@
-// Kidoz Júnior — autocolantes e celebrações por jogo
+// Alegria Júnior — autocolantes e celebrações por jogo
 import { getActiveJuniorChildId } from "./junior";
 
 export interface JuniorSticker {
@@ -25,7 +25,7 @@ export const STICKERS: Record<string, JuniorSticker> = {
   "pequeno-cientista": { id: "pequeno-cientista", emoji: "🧪", label: "Cientista Curioso",    cheer: "Descobriste algo novo!" },
   "relogio-kido":      { id: "relogio-kido",      emoji: "⏰", label: "Senhor do Tempo",      cheer: "Tic-tac perfeito!" },
   "mapa-palop":        { id: "mapa-palop",        emoji: "🌍", label: "Pequeno Viajante",     cheer: "Conheces o mundo!" },
-  "pinta-desenho":     { id: "pinta-desenho",     emoji: "🎨", label: "Artista do Kidoz",     cheer: "Que obra de arte!" },
+  "pinta-desenho":     { id: "pinta-desenho",     emoji: "🎨", label: "Artista do Alegria",     cheer: "Que obra de arte!" },
   "eco-som":           { id: "eco-som",           emoji: "🎵", label: "Ouvido Mágico",        cheer: "Música nos ouvidos!" },
   "jardim-magico":     { id: "jardim-magico",     emoji: "🌷", label: "Jardineiro Mágico",    cheer: "As tuas plantas brilham!" },
   "puzzle-kido":       { id: "puzzle-kido",       emoji: "🧩", label: "Mestre dos Puzzles",   cheer: "Encaixaste tudo certinho!" },
@@ -34,7 +34,7 @@ export const STICKERS: Record<string, JuniorSticker> = {
   "emocoes-kido":      { id: "emocoes-kido",      emoji: "😊", label: "Coração Sentido",      cheer: "Que coração grande!" },
 };
 
-const STICKER_KEY = (childId: string) => `kidoz-junior-stickers::${childId}`;
+const STICKER_KEY = (childId: string) => `alegria-junior-stickers::${childId}`;
 
 const isBrowser = () => typeof window !== "undefined";
 

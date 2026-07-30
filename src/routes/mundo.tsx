@@ -29,14 +29,14 @@ import { toast } from "sonner";
 export const Route = createFileRoute("/mundo")({
   head: () => ({
     meta: [
-      { title: "O Meu Mundo — Kidoz" },
+      { title: "O Meu Mundo — Alegria" },
       { name: "description", content: "Decora o teu quarto virtual com Abracadinhos. Adiciona móveis, plantas e fundos divertidos." },
-      { property: "og:title", content: 'O Meu Mundo — Kidoz' },
+      { property: "og:title", content: 'O Meu Mundo — Alegria' },
       { property: "og:description", content: 'Decora o teu quarto virtual com Abracadinhos.' },
-      { property: "og:url", content: "https://kidoz.online/mundo" },
+      { property: "og:url", content: "https://alegria.online/mundo" },
     ],
     links: [
-      { rel: "canonical", href: "https://kidoz.online/mundo" },
+      { rel: "canonical", href: "https://alegria.online/mundo" },
     ],
   }),
   component: MundoPage,

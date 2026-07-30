@@ -34,8 +34,8 @@ export const generateCertificate = createServerFn({ method: "POST" })
     const tw = titleFont.widthOfTextAtSize(title, 36);
     page.drawText(title, { x: (width - tw) / 2, y: height - 100, size: 36, font: titleFont, color: rgb(0.18, 0.16, 0.32) });
 
-    // Subtítulo Kidoz
-    const sub = "Kidoz.online";
+    // Subtítulo Alegria
+    const sub = "Alegria.online";
     const sw = bodyFont.widthOfTextAtSize(sub, 16);
     page.drawText(sub, { x: (width - sw) / 2, y: height - 130, size: 16, font: bodyFont, color: rgb(0.45, 0.4, 0.55) });
 
@@ -49,7 +49,7 @@ export const generateCertificate = createServerFn({ method: "POST" })
     const nameW = titleFont.widthOfTextAtSize(name, nameSize);
     page.drawText(name, { x: (width - nameW) / 2, y: height - 260, size: nameSize, font: titleFont, color: rgb(0.13, 0.45, 0.78) });
 
-    const desc = `concluiu com sucesso o ${data.grade}.\u00ba ano na Kidoz`;
+    const desc = `concluiu com sucesso o ${data.grade}.\u00ba ano na Alegria`;
     const descW = bodyFont.widthOfTextAtSize(desc, 18);
     page.drawText(desc, { x: (width - descW) / 2, y: height - 305, size: 18, font: bodyFont, color: rgb(0.2, 0.2, 0.2) });
 
@@ -74,5 +74,5 @@ export const generateCertificate = createServerFn({ method: "POST" })
 
     const bytes = await pdf.save();
     const base64 = btoa(String.fromCharCode(...new Uint8Array(bytes)));
-    return { pdfBase64: base64, fileName: `certificado-kidoz-${data.grade}ano.pdf` };
+    return { pdfBase64: base64, fileName: `certificado-alegria-${data.grade}ano.pdf` };
   });

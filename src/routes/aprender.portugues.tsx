@@ -5,21 +5,21 @@ import { ChunkyButton } from "@/components/ChunkyButton";
 export const Route = createFileRoute("/aprender/portugues")({
   head: () => ({
     meta: [
-      { title: "Aprender Português — 1.º ciclo | Kidoz" },
+      { title: "Aprender Português — 1.º ciclo | Alegria" },
       { name: "description", content: "Lições interativas de Português para crianças do 1.º ciclo: leitura, escrita, gramática, vocabulário e ortografia. Alinhado com o programa nacional português." },
-      { property: "og:title", content: "Aprender Português — 1.º ciclo | Kidoz" },
+      { property: "og:title", content: "Aprender Português — 1.º ciclo | Alegria" },
       { property: "og:description", content: "Leitura, escrita, gramática e vocabulário em lições curtas e gamificadas para crianças do 1.º ciclo." },
-      { property: "og:url", content: "https://kidoz.online/aprender/portugues" },
+      { property: "og:url", content: "https://alegria.online/aprender/portugues" },
     ],
-    links: [{ rel: "canonical", href: "https://kidoz.online/aprender/portugues" }],
+    links: [{ rel: "canonical", href: "https://alegria.online/aprender/portugues" }],
     scripts: [{
       type: "application/ld+json",
       children: JSON.stringify({
         "@context": "https://schema.org",
         "@type": "Course",
-        name: "Português — 1.º ciclo (Kidoz)",
+        name: "Português — 1.º ciclo (Alegria)",
         description: "Lições interativas de Português alinhadas com o programa do 1.º ciclo em Portugal.",
-        provider: { "@type": "Organization", name: "Kidoz", url: "https://kidoz.online" },
+        provider: { "@type": "Organization", name: "Alegria", url: "https://alegria.online" },
         inLanguage: "pt-PT",
         educationalLevel: "Primary",
       }),
@@ -42,7 +42,7 @@ function PortuguesPage() {
         <Link to="/" className="text-sm text-muted-foreground hover:text-foreground">← Início</Link>
         <h1 className="mt-3 font-display text-4xl sm:text-5xl">Aprender Português a brincar</h1>
         <p className="mt-3 text-base text-foreground/80">
-          O Kidoz transforma o programa de <strong>Português do 1.º ciclo</strong> numa aventura em lições
+          O Alegria transforma o programa de <strong>Português do 1.º ciclo</strong> numa aventura em lições
           curtas de 3 a 5 minutos. As mascotes leem em voz alta com pronúncia <strong>pt-PT</strong>,
           ajudam quando a criança erra, e celebram cada conquista — para que aprender pareça brincar.
         </p>

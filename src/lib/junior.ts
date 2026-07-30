@@ -1,4 +1,4 @@
-// Kidoz Júnior — conteúdo + perfis por criança (2-5 anos)
+// Alegria Júnior — conteúdo + perfis por criança (2-5 anos)
 
 import type { MascotId } from "./mascots";
 
@@ -199,10 +199,10 @@ export interface JuniorProgress {
   medals: JuniorMedal[];
 }
 
-const CHILDREN_KEY = "kidoz-junior-children-v1";
-const ACTIVE_KEY   = "kidoz-junior-active-v1";
-const LEGACY_PROGRESS = "kidoz-junior-progress-v1";
-const progressKey  = (childId: string) => `kidoz-junior-progress::${childId}`;
+const CHILDREN_KEY = "alegria-junior-children-v1";
+const ACTIVE_KEY   = "alegria-junior-active-v1";
+const LEGACY_PROGRESS = "alegria-junior-progress-v1";
+const progressKey  = (childId: string) => `alegria-junior-progress::${childId}`;
 
 const emptyProgress = (): JuniorProgress => ({
   playedGames: [], totalSessions: 0, lastPlayedAt: null, highlights: [],

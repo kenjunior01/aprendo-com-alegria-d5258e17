@@ -1,4 +1,4 @@
-import logoSrc from "@/assets/kidoz-logo.png";
+import logoSrc from "@/assets/alegria-logo.png";
 
 type Props = {
   className?: string;
@@ -6,7 +6,7 @@ type Props = {
   priority?: boolean;
 };
 
-export function KidozLogo({ className, alt = "Kidoz", priority = false }: Props) {
+export function AlegriaLogo({ className, alt = "Alegria", priority = false }: Props) {
   return (
     <img
       src={logoSrc}

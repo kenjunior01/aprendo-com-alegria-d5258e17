@@ -5,4 +5,4 @@ Disallow: /api/
 Disallow: /lovable/
 Disallow: /checkout.return
 
-Sitemap: https://kidoz.online/sitemap.xml
+Sitemap: https://alegria.online/sitemap.xml

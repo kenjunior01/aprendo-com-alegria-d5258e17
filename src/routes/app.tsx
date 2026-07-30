@@ -81,7 +81,8 @@ function AppHome() {
 
       <main className="mx-auto max-w-2xl px-4 py-4 sm:py-6">
         <h1 className="sr-only">A minha aventura no Alegria — caminho de aprendizagem de {profile.name}</h1>
-        {/* Hero greeting */}
+
+        {/* ── 1. Hero greeting — quem sou e onde estou ── */}
         <motion.section
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -100,65 +101,40 @@ function AppHome() {
           </div>
         </motion.section>
 
-        {/* Mascot Room Hero - Entry to Talking Tom Mode */}
-        <motion.section
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="relative mb-5 overflow-hidden rounded-[2.5rem] border border-white/40 bg-gradient-to-br from-primary/20 via-card to-accent/20 p-6 shadow-xl backdrop-blur-xl"
-          aria-label="Área de interação com a mascote"
-        >
-          <div className="flex flex-col items-center text-center">
-            <p className="mb-1 font-display text-[10px] font-bold uppercase tracking-[0.2em] text-primary/70">
-              O Teu Melhor Amigo
-            </p>
-            <h3 className="mb-4 font-display text-2xl leading-tight">Vem brincar com o {mascot.name}! ✨</h3>
+        {/* ── 2. Ação principal: Desafio Diário + Missão do Dia ── */}
+        <div className="mb-5 space-y-4">
+          <DailyChallengeCard profile={profile} />
+          <MissionOfTheDay completedLessons={profile.completedLessons} grade={profile.grade} />
+        </div>
 
-            <Link
-              to="/amigo"
-              className="group relative flex flex-col items-center gap-4 transition-transform active:scale-95"
-            >
-              <div className="relative">
-                <Mascot id={profile.mascot} size="lg" bouncing equippedItemId={profile.equippedItem} />
-                <motion.div
-                  animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.6, 0.3] }}
-                  transition={{ duration: 2, repeat: Infinity }}
-                  className="absolute inset-0 -z-10 rounded-full bg-primary/30 blur-2xl"
-                />
-              </div>
-
-              <div className="btn-chunky flex items-center gap-2 rounded-full bg-primary px-8 py-3 text-white shadow-lg">
-                <Gamepad2 className="h-5 w-5" />
-                <span>Entrar no Quarto</span>
-              </div>
-            </Link>
-          </div>
-        </motion.section>
-
-        <SeasonalBanner region={profile.region ?? null} />
-
-        {/* Daily Challenge */}
-        <DailyChallengeCard profile={profile} />
-
-        <MissionOfTheDay completedLessons={profile.completedLessons} grade={profile.grade} />
-
-        <AdaptiveTip />
-
-        {/* League Leaderboard */}
-        <LeagueLeaderboard profile={profile} />
-
-        {/* Quick links */}
-        <div className="mb-6 grid grid-cols-3 gap-2 sm:gap-3">
+        {/* ── 3. Quick links — acções rápidas ── */}
+        <div className="mb-6 grid grid-cols-4 gap-2 sm:gap-3">
+          <QuickLink to="/amigo" emoji="🐾" title="Mascote" subtitle="Brincar" tone="primary" />
           <QuickLink to="/mundo" emoji="🏠" title="Meu Mundo" subtitle="Decorar" tone="primary" />
           <QuickLink to="/leitura" emoji="🎤" title="Ler" subtitle="Em voz alta" tone="primary" />
           <QuickLink to="/jardim" emoji="🌱" title="Jardim" subtitle="Que cresce" tone="success" />
         </div>
 
-        {/* Chapter paths — Duolingo-style winding journey */}
-        <div className="space-y-8">
-          {visibleChapters.map((chapter) => (
-            <ChapterPath key={chapter.id} chapter={chapter} completedLessons={profile.completedLessons} />
-          ))}
+        {/* ── 4. Caminho de aprendizagem — o foco principal ── */}
+        <section>
+          <div className="mb-4 flex items-center justify-between">
+            <h2 className="font-display text-lg font-bold">O Meu Caminho</h2>
+            <span className="text-xs text-muted-foreground">
+              {profile.completedLessons.length} lições completas
+            </span>
+          </div>
+          <div className="space-y-8">
+            {visibleChapters.map((chapter) => (
+              <ChapterPath key={chapter.id} chapter={chapter} completedLessons={profile.completedLessons} />
+            ))}
+          </div>
+        </section>
+
+        {/* ── 5. Elementos secundários ── */}
+        <div className="mt-8 space-y-4">
+          <SeasonalBanner region={profile.region ?? null} />
+          <AdaptiveTip />
+          <LeagueLeaderboard profile={profile} />
         </div>
 
         <p className="mt-10 text-center text-sm text-muted-foreground">
@@ -183,7 +159,7 @@ function AppHome() {
   );
 }
 
-function QuickLink({ to, emoji, title, subtitle, tone }: { to: "/leitura" | "/jardim" | "/mundo"; emoji: string; title: string; subtitle: string; tone: "primary" | "success" }) {
+function QuickLink({ to, emoji, title, subtitle, tone }: { to: "/leitura" | "/jardim" | "/mundo" | "/amigo"; emoji: string; title: string; subtitle: string; tone: "primary" | "success" }) {
   const ring = tone === "primary" ? "from-primary/20" : "from-success/20";
   return (
     <Link

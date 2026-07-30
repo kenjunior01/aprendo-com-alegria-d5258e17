@@ -146,7 +146,7 @@ export async function pushWorldState(state: WorldState): Promise<void> {
   }
 }
 
-const LOCAL_KEY = "kidoz-world-v1";
+const LOCAL_KEY = "alegria-world-v1";
 
 export function loadLocalWorld(): WorldState {
   if (typeof window === "undefined") return defaultWorldState();

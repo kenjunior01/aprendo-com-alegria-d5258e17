@@ -39,14 +39,14 @@ import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianG
 export const Route = createFileRoute("/escola")({
   head: () => ({
     meta: [
-      { title: "Painel da Escola — Kidoz" },
+      { title: "Painel da Escola — Alegria" },
       { name: "description", content: "Painel para professores: turmas, métricas dos alunos e exportação CSV." },
-      { property: "og:title", content: 'Painel da Escola — Kidoz' },
+      { property: "og:title", content: 'Painel da Escola — Alegria' },
       { property: "og:description", content: 'Painel para professores: turmas, métricas dos alunos e exportação CSV.' },
-      { property: "og:url", content: "https://kidoz.online/escola" },
+      { property: "og:url", content: "https://alegria.online/escola" },
     ],
     links: [
-      { rel: "canonical", href: "https://kidoz.online/escola" },
+      { rel: "canonical", href: "https://alegria.online/escola" },
     ],
   }),
   component: EscolaPage,

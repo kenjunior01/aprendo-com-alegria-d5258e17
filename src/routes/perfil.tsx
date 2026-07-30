@@ -18,14 +18,14 @@ import { Cloud, CloudOff, LogOut } from "lucide-react";
 export const Route = createFileRoute("/perfil")({
   head: () => ({
     meta: [
-      { title: "Perfil — Kidoz" },
+      { title: "Perfil — Alegria" },
       { name: "description", content: "Vê o teu progresso e troca de mascote." },
-      { property: "og:title", content: 'Perfil — Kidoz' },
+      { property: "og:title", content: 'Perfil — Alegria' },
       { property: "og:description", content: 'Vê o teu progresso e troca de mascote.' },
-      { property: "og:url", content: "https://kidoz.online/perfil" },
+      { property: "og:url", content: "https://alegria.online/perfil" },
     ],
     links: [
-      { rel: "canonical", href: "https://kidoz.online/perfil" },
+      { rel: "canonical", href: "https://alegria.online/perfil" },
     ],
   }),
   component: ProfilePage,

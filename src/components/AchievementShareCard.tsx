@@ -14,13 +14,13 @@ interface Props {
 export function AchievementShareCard({ childName, xp, streak, unlockedCount, totalCount, className }: Props) {
   const [copied, setCopied] = useState(false);
 
-  const text = `🌟 ${childName} no Kidoz!\n` +
+  const text = `🌟 ${childName} no Alegria!\n` +
     `🏅 ${unlockedCount}/${totalCount} medalhas conquistadas\n` +
     `⭐ ${xp} XP · 🔥 ${streak} dias seguidos\n` +
-    `Aprende a brincar em https://kidoz.online`;
+    `Aprende a brincar em https://alegria.online`;
 
   const handle = async () => {
-    const data = { title: "Kidoz — As minhas conquistas", text, url: "https://kidoz.online" };
+    const data = { title: "Alegria — As minhas conquistas", text, url: "https://alegria.online" };
     try {
       if (typeof navigator !== "undefined" && "share" in navigator) {
         await (navigator as Navigator & { share: (d: ShareData) => Promise<void> }).share(data);

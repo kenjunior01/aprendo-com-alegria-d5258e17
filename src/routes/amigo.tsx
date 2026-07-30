@@ -8,7 +8,7 @@ import { Link } from "@tanstack/react-router";
 export const Route = createFileRoute("/amigo")({
   head: () => ({
     meta: [
-      { title: "O Meu Amigo — Kidoz" },
+      { title: "O Meu Amigo — Alegria" },
     ],
   }),
   component: AmigoMode,

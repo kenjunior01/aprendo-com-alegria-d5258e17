@@ -13,9 +13,9 @@ import { useSubscription } from "@/hooks/useSubscription";
 import { ArrowLeft, Brain, Check, Crown, Gamepad2, Globe2, GraduationCap, Heart, Infinity as InfinityIcon, Palette, ShieldCheck, Sparkles, Star, Trophy, Users, Zap } from "lucide-react";
 
 const TESTIMONIALS = [
-  { name: "Sofia, mãe da Matilde (7)", text: "A Matilde pede para ‘fazer Kidoz’ antes do desenho animado. As mascotes tornaram a leitura divertida.", stars: 5 },
+  { name: "Sofia, mãe da Matilde (7)", text: "A Matilde pede para ‘fazer Alegria’ antes do desenho animado. As mascotes tornaram a leitura divertida.", stars: 5 },
   { name: "João, pai do Tomás (9)", text: "O Tutor Mocha explica matemática melhor do que eu! E vejo o progresso semanal no painel de pais.", stars: 5 },
-  { name: "Prof. Inês, 2.º ano", text: "Uso o Kidoz como reforço na sala. O alinhamento com o programa nacional faz toda a diferença.", stars: 5 },
+  { name: "Prof. Inês, 2.º ano", text: "Uso o Alegria como reforço na sala. O alinhamento com o programa nacional faz toda a diferença.", stars: 5 },
 ];
 
 const TRUST = [
@@ -29,14 +29,14 @@ const TRUST = [
 export const Route = createFileRoute("/premium")({
   head: () => ({
     meta: [
-      { title: "Subscrição Kidoz Premium — desde 3,33€/mês" },
+      { title: "Subscrição Alegria Premium — desde 3,33€/mês" },
       { name: "description", content: "Acesso ilimitado a todas as disciplinas, Mocha IA, modo família e relatórios. Planos a partir de 3,33€/mês." },
-      { property: "og:title", content: 'Kidoz Premium — desde 3,33€/mês' },
+      { property: "og:title", content: 'Alegria Premium — desde 3,33€/mês' },
       { property: "og:description", content: 'Acesso ilimitado a todas as disciplinas, Mocha IA, modo família e relatórios.' },
-      { property: "og:url", content: "https://kidoz.online/premium" },
+      { property: "og:url", content: "https://alegria.online/premium" },
     ],
     links: [
-      { rel: "canonical", href: "https://kidoz.online/premium" },
+      { rel: "canonical", href: "https://alegria.online/premium" },
     ],
     scripts: [
       {
@@ -109,7 +109,7 @@ const PLANS: Plan[] = [
     price: "79,99€",
     priceLabel: "uma vez · oferta limitada",
     perks: [
-      "👑 Acesso vitalício a tudo no Kidoz",
+      "👑 Acesso vitalício a tudo no Alegria",
       "Para os primeiros early-adopters",
       "Sem renovações nem cobranças futuras",
       "Inclui todas as atualizações futuras",
@@ -129,7 +129,7 @@ interface Feature {
 
 const FEATURES: Feature[] = [
   { icon: InfinityIcon, title: "Desafios Infinitos", desc: "Milhares de níveis procedurais em 12 disciplinas. Aritmética, álgebra, geometria, gramática, vocabulário, geografia, história, lógica e mais — sem fim." },
-  { icon: GraduationCap, title: "Para todas as idades", desc: "Do Kidoz Júnior (2–5) ao avançado (10+). Conteúdo ajustado à idade, ano escolar e região (PT, BR, AO, MZ, CV)." },
+  { icon: GraduationCap, title: "Para todas as idades", desc: "Do Alegria Júnior (2–5) ao avançado (10+). Conteúdo ajustado à idade, ano escolar e região (PT, BR, AO, MZ, CV)." },
   { icon: Brain, title: "Tutor Mocha IA", desc: "Explicações passo-a-passo, exemplos personalizados e respostas adaptadas ao nível da criança." },
   { icon: Gamepad2, title: "Jogos exclusivos", desc: "Mini-jogos premium, modo família 1v1, desafios PvP com amigos e ranking semanal." },
   { icon: Palette, title: "Personalização total", desc: "Mascotes dourados, fatos exclusivos, cenários animados, jardim e mundo personalizáveis." },
@@ -181,7 +181,7 @@ function PremiumPage() {
           className="card-chunky relative overflow-hidden rounded-3xl border border-border bg-gradient-to-br from-primary/15 via-secondary/20 to-accent/30 p-6 sm:p-8 text-center"
         >
           <Crown className="mx-auto h-10 w-10 text-primary" />
-          <h1 className="mt-2 font-display text-3xl sm:text-4xl">Kidoz Premium</h1>
+          <h1 className="mt-2 font-display text-3xl sm:text-4xl">Alegria Premium</h1>
           <p className="mt-2 text-sm text-muted-foreground sm:text-base">
             Mais aventura, mais aprendizagem, mais magia. Sem anúncios. Sem limites.
           </p>
@@ -310,7 +310,7 @@ function PremiumPage() {
           <div className="mt-3 grid gap-3 sm:grid-cols-3">
             {PREMIUM_FACTS.map((f) => (
               <motion.figure
-                key={"Kidoz"}
+                key={"Alegria"}
                 whileHover={{ y: -3 }}
                 className="card-chunky rounded-2xl border-2 border-border bg-card p-4"
               >
@@ -318,7 +318,7 @@ function PremiumPage() {
                   {Array.from({ length: "★★★★★" }).map((_, i) => <Star key={i} className="h-4 w-4 fill-current" />)}
                 </div>
                 <blockquote className="text-sm text-foreground/90">“{f.text}”</blockquote>
-                <figcaption className="mt-2 text-xs text-muted-foreground">{"Kidoz"}</figcaption>
+                <figcaption className="mt-2 text-xs text-muted-foreground">{"Alegria"}</figcaption>
               </motion.figure>
             ))}
           </div>
@@ -354,7 +354,7 @@ function PremiumPage() {
 
         <div className="card-chunky mt-8 rounded-3xl border-2 border-primary/40 bg-gradient-to-br from-primary/10 to-accent/10 p-5 text-center">
           <Heart className="mx-auto h-7 w-7 text-primary" />
-          <p className="mt-2 font-display text-lg">Cresce sem limites com o Kidoz Premium</p>
+          <p className="mt-2 font-display text-lg">Cresce sem limites com o Alegria Premium</p>
           <p className="text-xs text-muted-foreground">Mais de 10 000 perguntas, jogos e desafios à tua espera.</p>
         </div>
       </main>

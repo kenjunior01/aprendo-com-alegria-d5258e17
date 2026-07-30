@@ -15,14 +15,14 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/ajuda")({
   head: () => ({
     meta: [
-      { title: "Ajuda — Kidoz" },
-      { name: "description", content: "Página de ajuda do Kidoz: perguntas frequentes, como usar cada funcionalidade e informação de acessibilidade." },
-      { property: "og:title", content: "Ajuda — Kidoz" },
+      { title: "Ajuda — Alegria" },
+      { name: "description", content: "Página de ajuda do Alegria: perguntas frequentes, como usar cada funcionalidade e informação de acessibilidade." },
+      { property: "og:title", content: "Ajuda — Alegria" },
       { property: "og:description", content: "Perguntas frequentes, como usar cada funcionalidade e informação de acessibilidade." },
-      { property: "og:url", content: "https://kidoz.online/ajuda" },
+      { property: "og:url", content: "https://alegria.online/ajuda" },
     ],
     links: [
-      { rel: "canonical", href: "https://kidoz.online/ajuda" },
+      { rel: "canonical", href: "https://alegria.online/ajuda" },
     ],
   }),
   component: AjudaPage,
@@ -44,7 +44,7 @@ const FAQ_CHILDREN: FAQItem[] = [
   },
   {
     question: "O que são Abracadinhos?",
-    answer: "Abracadinhos são as moedas do Kidoz! Ganhas 3 Abracadinhos por cada resposta certa, e 10 bónus se completas uma missão sem erros. Usa-os na Loja para comprar chapéus, fatos e cenários para a tua mascote.",
+    answer: "Abracadinhos são as moedas do Alegria! Ganhas 3 Abracadinhos por cada resposta certa, e 10 bónus se completas uma missão sem erros. Usa-os na Loja para comprar chapéus, fatos e cenários para a tua mascote.",
     icon: Lightbulb,
   },
   {
@@ -54,7 +54,7 @@ const FAQ_CHILDREN: FAQItem[] = [
   },
   {
     question: "Como leio em voz alta?",
-    answer: "Na página Ler, escolhe um texto do teu ano escolar. O Kidoz lê primeiro, e depois é a tua vez! Carrega no botão do microfone para gravar a tua leitura. A mascote vai dar-te feedback e celebrar quando lês bem.",
+    answer: "Na página Ler, escolhe um texto do teu ano escolar. O Alegria lê primeiro, e depois é a tua vez! Carrega no botão do microfone para gravar a tua leitura. A mascote vai dar-te feedback e celebrar quando lês bem.",
     icon: BookOpen,
   },
   {
@@ -64,7 +64,7 @@ const FAQ_CHILDREN: FAQItem[] = [
   },
   {
     question: "O que significa a sequência (🔥)?",
-    answer: "A sequência mostra quantos dias seguidos jogaste no Kidoz. Se jogares todos os dias, a sequência aumenta! Quanto maior a sequência, mais forte fica a tua mascote. Não quebras a sequência — jogas pelo menos uma missão por dia!",
+    answer: "A sequência mostra quantos dias seguidos jogaste no Alegria. Se jogares todos os dias, a sequência aumenta! Quanto maior a sequência, mais forte fica a tua mascote. Não quebras a sequência — jogas pelo menos uma missão por dia!",
   },
   {
     question: "Como brinco com a mascote?",
@@ -85,20 +85,20 @@ const FAQ_PARENTS: FAQItem[] = [
   },
   {
     question: "O que é o Premium?",
-    answer: "O Premium Kidoz dá acesso a conteúdo extra: mais missões, cenários exclusivos para a mascote, relatórios detalhados para pais, e realidade aumentada sem limites. O Premium ajuda a manter a plataforma livre de publicidade para todas as crianças.",
+    answer: "O Premium Alegria dá acesso a conteúdo extra: mais missões, cenários exclusivos para a mascote, relatórios detalhados para pais, e realidade aumentada sem limites. O Premium ajuda a manter a plataforma livre de publicidade para todas as crianças.",
     icon: GraduationCap,
   },
   {
     question: "Como configurar limites de tempo?",
-    answer: "No Painel de Pais, acede às 'Controles Parentais'. Podes definir o tempo máximo de uso por dia (ex.: 30 min) e a hora de dormir, quando o Kidoz bloqueia automaticamente. O PIN parental impede que a criança altere estas configurações.",
+    answer: "No Painel de Pais, acede às 'Controles Parentais'. Podes definir o tempo máximo de uso por dia (ex.: 30 min) e a hora de dormir, quando o Alegria bloqueia automaticamente. O PIN parental impede que a criança altere estas configurações.",
   },
   {
     question: "Os dados do meu filho/a estão seguros?",
-    answer: "Sim! O Kidoz segue as melhores práticas de proteção de dados para crianças. Não recolhemos dados pessoais além do nome e idade (necessários para adaptar o conteúdo). Não há publicidade, não há partilha com terceiros, e todos os dados são encriptados. Cumprimos o RGPD europeu.",
+    answer: "Sim! O Alegria segue as melhores práticas de proteção de dados para crianças. Não recolhemos dados pessoais além do nome e idade (necessários para adaptar o conteúdo). Não há publicidade, não há partilha com terceiros, e todos os dados são encriptados. Cumprimos o RGPD europeu.",
     icon: Shield,
   },
   {
-    question: "O Kidoz está adaptado ao currículo português?",
+    question: "O Alegria está adaptado ao currículo português?",
     answer: "Sim! Todo o conteúdo segue o currículo do 1.º ciclo do ensino básico em Portugal (Português, Matemática e Estudo do Meio). As missões estão organizadas por ano escolar (1.º ao 4.º) e adaptam-se ao nível da criança.",
     icon: BookOpen,
   },
@@ -107,9 +107,9 @@ const FAQ_PARENTS: FAQItem[] = [
 /* ─── Accessibility Info ─── */
 
 const ACCESSIBILITY_ITEMS = [
-  { icon: Eye, title: "Alto Contraste", desc: "O Kidoz usa cores vibrantes e contrasto elevado para facilitar a leitura. Podes ajustar o tamanho do texto nas configurações do teu dispositivo." },
+  { icon: Eye, title: "Alto Contraste", desc: "O Alegria usa cores vibrantes e contrasto elevado para facilitar a leitura. Podes ajustar o tamanho do texto nas configurações do teu dispositivo." },
   { icon: Volume2, title: "Leitura em Voz Alta", desc: "Todos os textos podem ser lidos pela mascote em português de Portugal. Carrega no ícone de som para ativar/desativar." },
-  { icon: Keyboard, title: "Navegação por Teclado", desc: "Todas as funcionalidades do Kidoz podem ser acessadas usando apenas o teclado. Usa Tab para navegar e Enter para seleccionar." },
+  { icon: Keyboard, title: "Navegação por Teclado", desc: "Todas as funcionalidades do Alegria podem ser acessadas usando apenas o teclado. Usa Tab para navegar e Enter para seleccionar." },
   { icon: Accessibility, title: "Etiquetas de Acessibilidade", desc: "Todos os ícones e botões têm etiquetas descritivas (aria-label) para leitores de screen. As imagens decorativas são marcadas como aria-hidden." },
 ];
 
@@ -219,7 +219,7 @@ function AjudaPage() {
           </div>
           <h1 className="mt-3 font-display text-3xl sm:text-4xl">Ajuda</h1>
           <p className="text-muted-foreground">
-            Encontras aqui as respostas às tuas perguntas sobre o Kidoz ✨
+            Encontras aqui as respostas às tuas perguntas sobre o Alegria ✨
           </p>
         </motion.header>
 
@@ -272,7 +272,7 @@ function AjudaPage() {
         >
           <h2 className="mb-4 font-display text-xl sm:text-2xl">♿ Acessibilidade</h2>
           <p className="mb-4 text-sm text-muted-foreground">
-            O Kidoz está construído para ser acessível a todas as crianças. Aqui estão as funcionalidades que tornam a experiência mais inclusiva:
+            O Alegria está construído para ser acessível a todas as crianças. Aqui estão as funcionalidades que tornam a experiência mais inclusiva:
           </p>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             {ACCESSIBILITY_ITEMS.map((item) => {
@@ -316,12 +316,12 @@ function AjudaPage() {
               <p className="flex items-center gap-2">
                 <Mail className="h-4 w-4 text-primary" aria-hidden="true" />
                 <span className="font-semibold">E-mail geral:</span>
-                <a href="mailto:creches@kidoz.online" className="text-primary underline">creches@kidoz.online</a>
+                <a href="mailto:creches@alegria.online" className="text-primary underline">creches@alegria.online</a>
               </p>
               <p className="flex items-center gap-2">
                 <Mail className="h-4 w-4 text-primary" aria-hidden="true" />
                 <span className="font-semibold">E-mail suporte:</span>
-                <a href="mailto:suporte@kidoz.online" className="text-primary underline">suporte@kidoz.online</a>
+                <a href="mailto:suporte@alegria.online" className="text-primary underline">suporte@alegria.online</a>
               </p>
             </div>
           </div>

@@ -33,7 +33,7 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/desafios")({
   head: () => ({
     meta: [
-      { title: "Arena de Desafios — Kidoz" },
+      { title: "Arena de Desafios — Alegria" },
       { name: "description", content: "Desafios diários da IA, batalhas épicas com amigos e ligas nacionais." },
     ],
   }),
@@ -399,7 +399,7 @@ function RankingView({ ranking }: { ranking: Awaited<ReturnType<typeof getWeekly
           <h3 className="font-display text-2xl font-bold flex items-center gap-2">
             <Trophy className="h-6 w-6 text-yellow-300" /> Melhores da Semana
           </h3>
-          <p className="text-sm text-white/70">Top 10 aventureiros do Kidoz</p>
+          <p className="text-sm text-white/70">Top 10 aventureiros do Alegria</p>
         </div>
         {ranking.me?.rank && (
           <div className="text-center bg-white/20 px-4 py-2 rounded-2xl backdrop-blur-md border border-white/30">

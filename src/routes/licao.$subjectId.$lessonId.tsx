@@ -31,9 +31,9 @@ export const Route = createFileRoute("/licao/$subjectId/$lessonId")({
     const lesson = getLesson(params.subjectId, params.lessonId);
     const subjectName = subject?.name ?? "Matérias";
     const lessonTitle = lesson?.title ?? "Lição";
-    const title = `${lessonTitle} (${subjectName}) — Lição interativa | Kidoz`;
-    const description = `Lição interativa de ${subjectName} para o 1.º ciclo: ${lessonTitle}. Perguntas adaptativas, voz e mascotes para aprender a brincar no Kidoz.`;
-    const url = `https://kidoz.online/licao/${params.subjectId}/${params.lessonId}`;
+    const title = `${lessonTitle} (${subjectName}) — Lição interativa | Alegria`;
+    const description = `Lição interativa de ${subjectName} para o 1.º ciclo: ${lessonTitle}. Perguntas adaptativas, voz e mascotes para aprender a brincar no Alegria.`;
+    const url = `https://alegria.online/licao/${params.subjectId}/${params.lessonId}`;
     return {
       meta: [
         { title },

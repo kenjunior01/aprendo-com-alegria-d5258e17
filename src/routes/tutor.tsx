@@ -17,14 +17,14 @@ export const Route = createFileRoute("/tutor")({
   }),
   head: () => ({
     meta: [
-      { title: "Mocha, o teu tutor — Kidoz" },
+      { title: "Mocha, o teu tutor — Alegria" },
       { name: "description", content: "Conversa com o Mocha, o teu tutor IA. Faz perguntas, aprende e diverte-te." },
-      { property: "og:title", content: 'Mocha, o teu tutor — Kidoz' },
+      { property: "og:title", content: 'Mocha, o teu tutor — Alegria' },
       { property: "og:description", content: 'Conversa com o Mocha, o teu tutor IA. Faz perguntas, aprende e diverte-te.' },
-      { property: "og:url", content: "https://kidoz.online/tutor" },
+      { property: "og:url", content: "https://alegria.online/tutor" },
     ],
     links: [
-      { rel: "canonical", href: "https://kidoz.online/tutor" },
+      { rel: "canonical", href: "https://alegria.online/tutor" },
     ],
   }),
   component: TutorChat,

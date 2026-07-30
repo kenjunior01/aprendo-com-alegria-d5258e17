@@ -95,7 +95,7 @@ async function handleCheckoutCompleted(session: any, env: StripeEnv) {
       user_id: userId,
       stripe_subscription_id: `lifetime_${session.id}`,
       stripe_customer_id: session.customer || "lifetime",
-      product_id: "kidoz_vitalicio",
+      product_id: "alegria_vitalicio",
       price_id: priceId,
       status: "active",
       current_period_start: new Date().toISOString(),

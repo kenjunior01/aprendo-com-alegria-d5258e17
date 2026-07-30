@@ -109,7 +109,7 @@ export const listUserInvoices = createServerFn({ method: "POST" })
         records.push({
           id: inv.id ?? `inv_${inv.number}`,
           date: new Date((inv.created ?? 0) * 1000).toISOString(),
-          description: inv.lines?.data?.[0]?.description || inv.description || "Subscrição Kidoz",
+          description: inv.lines?.data?.[0]?.description || inv.description || "Subscrição Alegria",
           amount: (inv.amount_paid ?? inv.amount_due ?? 0) / 100,
           currency: (inv.currency || "eur").toUpperCase(),
           status: inv.status || "unknown",
@@ -126,7 +126,7 @@ export const listUserInvoices = createServerFn({ method: "POST" })
         records.push({
           id: ch.id,
           date: new Date(ch.created * 1000).toISOString(),
-          description: ch.description || "Pagamento Kidoz",
+          description: ch.description || "Pagamento Alegria",
           amount: (ch.amount_captured ?? ch.amount) / 100,
           currency: (ch.currency || "eur").toUpperCase(),
           status: ch.status,

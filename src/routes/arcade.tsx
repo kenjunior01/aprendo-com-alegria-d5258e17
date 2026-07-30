@@ -11,13 +11,13 @@ import { ARCADE_POOL, type GameEntry } from "@/lib/juniorGameRegistry";
 export const Route = createFileRoute("/arcade")({
   head: () => ({
     meta: [
-      { title: "Modo Arcade — Kidoz" },
-      { name: "description", content: "Modo Arcade Kidoz: varios mini-jogos seguidos para todas as idades. Ganha pontos e bate o teu recorde!" },
-      { property: "og:title", content: "Modo Arcade — Kidoz" },
-      { property: "og:description", content: "Modo Arcade Kidoz: varios mini-jogos seguidos. Ganha pontos e bate o teu recorde." },
-      { property: "og:url", content: "https://kidoz.online/arcade" },
+      { title: "Modo Arcade — Alegria" },
+      { name: "description", content: "Modo Arcade Alegria: varios mini-jogos seguidos para todas as idades. Ganha pontos e bate o teu recorde!" },
+      { property: "og:title", content: "Modo Arcade — Alegria" },
+      { property: "og:description", content: "Modo Arcade Alegria: varios mini-jogos seguidos. Ganha pontos e bate o teu recorde." },
+      { property: "og:url", content: "https://alegria.online/arcade" },
     ],
-    links: [{ rel: "canonical", href: "https://kidoz.online/arcade" }],
+    links: [{ rel: "canonical", href: "https://alegria.online/arcade" }],
   }),
   component: ArcadePage,
 });
@@ -28,7 +28,7 @@ const GameLoader = ({ children }: { children: React.ReactNode }) => (
   </Suspense>
 );
 
-const HISCORE_KEY = "kidoz-arcade-hiscore";
+const HISCORE_KEY = "alegria-arcade-hiscore";
 
 const GAME_TYPES = [
   { emoji: "🎯", label: "Toca no objecto", desc: "Formas, cores e sons" },

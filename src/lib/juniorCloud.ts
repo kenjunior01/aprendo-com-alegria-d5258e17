@@ -1,4 +1,4 @@
-// Sync do estado Kidoz Júnior (perfis, progresso, autocolantes) com a cloud.
+// Sync do estado Alegria Júnior (perfis, progresso, autocolantes) com a cloud.
 // Estratégia: snapshot completo em jsonb por user_id. Pull faz merge "cloud é a fonte
 // se for mais recente que o local"; push sobrescreve sempre o cloud.
 
@@ -18,10 +18,10 @@ interface JuniorCloudSnapshot {
   savedAt: string;
 }
 
-const CHILDREN_KEY = "kidoz-junior-children-v1";
-const ACTIVE_KEY   = "kidoz-junior-active-v1";
-const progressKey  = (id: string) => `kidoz-junior-progress::${id}`;
-const stickerKey   = (id: string) => `kidoz-junior-stickers::${id}`;
+const CHILDREN_KEY = "alegria-junior-children-v1";
+const ACTIVE_KEY   = "alegria-junior-active-v1";
+const progressKey  = (id: string) => `alegria-junior-progress::${id}`;
+const stickerKey   = (id: string) => `alegria-junior-stickers::${id}`;
 
 function snapshotLocal(): JuniorCloudSnapshot {
   const children = listJuniorChildren();

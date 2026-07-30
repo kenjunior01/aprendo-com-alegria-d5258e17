@@ -21,9 +21,9 @@ import { FamilyChallengePanel } from "@/components/FamilyChallengePanel";
 import { ChildChallengesPanel } from "@/components/ChildChallengesPanel";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 
-const GATE_KEY = "kidoz-parent-gate-ts";
+const GATE_KEY = "alegria-parent-gate-ts";
 const GATE_TTL_MIN = 30;
-const SEEN_KEY = "kidoz-parent-tab-seen";
+const SEEN_KEY = "alegria-parent-tab-seen";
 type TabId = "resumo" | "controlos" | "desafios" | "junior" | "atividade" | "compras";
 type SeenMap = Partial<Record<TabId, number>>;
 
@@ -39,14 +39,14 @@ function saveSeen(m: SeenMap) {
 export const Route = createFileRoute("/pais")({
   head: () => ({
     meta: [
-      { title: "Painel de Pais — Kidoz" },
+      { title: "Painel de Pais — Alegria" },
       { name: "description", content: "Acompanha o progresso dos teus filhos: tempo de estudo, áreas fortes e fracas, recomendações." },
-      { property: "og:title", content: 'Painel de Pais — Kidoz' },
+      { property: "og:title", content: 'Painel de Pais — Alegria' },
       { property: "og:description", content: 'Acompanha o progresso dos teus filhos: tempo de estudo, áreas fortes e fracas.' },
-      { property: "og:url", content: "https://kidoz.online/pais" },
+      { property: "og:url", content: "https://alegria.online/pais" },
     ],
     links: [
-      { rel: "canonical", href: "https://kidoz.online/pais" },
+      { rel: "canonical", href: "https://alegria.online/pais" },
     ],
   }),
   component: ParentDashboard,
@@ -465,7 +465,7 @@ function ParentDashboard() {
                   <div className="space-y-5">
                     <JuniorParentPanel />
                     <section>
-                      <h3 className="mb-3 font-display text-xl">🧸 Atividade Kidoz Júnior (2-5 anos)</h3>
+                      <h3 className="mb-3 font-display text-xl">🧸 Atividade Alegria Júnior (2-5 anos)</h3>
                       <JuniorParentReport />
                     </section>
                   </div>

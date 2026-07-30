@@ -68,9 +68,9 @@ export function LeagueLeaderboard({ profile, className }: LeagueLeaderboardProps
   };
 
   const rankBadge = (rank: number) => {
-    if (rank === 1) return <Crown className="h-5 w-5 text-yellow-500" />;
-    if (rank === 2) return <Medal className="h-5 w-5 text-gray-400" />;
-    if (rank === 3) return <Medal className="h-5 w-5 text-amber-700" />;
+    if (rank === 1) return <Crown className="h-5 w-5 text-leagues-ouro" />;
+    if (rank === 2) return <Medal className="h-5 w-5 text-leagues-prata" />;
+    if (rank === 3) return <Medal className="h-5 w-5 text-leagues-bronze" />;
     return <span className="text-sm font-bold text-muted-foreground">{rank}</span>;
   };
 
@@ -87,9 +87,9 @@ export function LeagueLeaderboard({ profile, className }: LeagueLeaderboardProps
       >
         <div
           className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl shadow-sm"
-          style={{ backgroundColor: `${leagueInfo.color}22` }}
+          style={{ backgroundColor: `color-mix(in oklab, var(${leagueInfo.colorVar}) 14%, var(--card))` }}
         >
-          <leagueInfo.icon className="h-6 w-6" style={{ color: leagueInfo.color }} />
+          <leagueInfo.icon className="h-6 w-6" style={{ color: `var(${leagueInfo.colorVar})` }} />
         </div>
         <div className="min-w-0 flex-1">
           <p className="font-display text-[10px] font-bold uppercase tracking-widest text-muted-foreground">

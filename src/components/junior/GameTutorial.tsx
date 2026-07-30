@@ -23,7 +23,7 @@ interface Props {
   parentNote?: string;
 }
 
-const KEY = (id: string) => `kidoz-tutorial-seen::${id}`;
+const KEY = (id: string) => `alegria-tutorial-seen::${id}`;
 
 export function useShouldShowTutorial(gameId: string) {
   const [show, setShow] = useState(true);

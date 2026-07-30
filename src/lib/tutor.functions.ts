@@ -4,7 +4,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 interface ChatMsg { role: "user" | "assistant"; content: string }
 
-const SYSTEM = `És "Mocha", o tutor mascote do Kidoz — uma plataforma educativa para crianças do 1.º ciclo em Portugal (6-10 anos).
+const SYSTEM = `És "Mocha", o tutor mascote do Alegria — uma plataforma educativa para crianças do 1.º ciclo em Portugal (6-10 anos).
 
 Estilo:
 - Fala em pt-PT, calorosamente, como um amigo paciente.

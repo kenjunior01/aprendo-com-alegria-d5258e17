@@ -27,14 +27,14 @@ import { useContentSettings } from "@/hooks/useContentSettings";
 export const Route = createFileRoute("/junior")({
   head: () => ({
     meta: [
-      { title: "Kidoz Júnior — Jogos para crianças 2-5 anos" },
+      { title: "Alegria Júnior — Jogos para crianças 2-5 anos" },
       { name: "description", content: "Jogos seguros e divertidos para crianças dos 2 aos 5 anos: cores, animais, rotinas e histórias mágicas." },
-      { property: "og:title", content: 'Kidoz Júnior — Jogos para crianças 2-5 anos' },
+      { property: "og:title", content: 'Alegria Júnior — Jogos para crianças 2-5 anos' },
       { property: "og:description", content: 'Jogos seguros e divertidos para crianças dos 2 aos 5 anos: cores, animais, rotinas e histórias mágicas.' },
-      { property: "og:url", content: "https://kidoz.online/junior" },
+      { property: "og:url", content: "https://alegria.online/junior" },
     ],
     links: [
-      { rel: "canonical", href: "https://kidoz.online/junior" },
+      { rel: "canonical", href: "https://alegria.online/junior" },
     ],
   }),
   component: JuniorPage,
@@ -83,7 +83,7 @@ function JuniorPage() {
           <ArrowLeft className="h-4 w-4" /> Início
         </Link>
         <div className="flex items-center gap-2 rounded-full bg-card px-3 py-1 font-display text-xs">
-          <Sparkles className="h-3 w-3 text-primary" /> Kidoz Júnior · 2-5 anos
+          <Sparkles className="h-3 w-3 text-primary" /> Alegria Júnior · 2-5 anos
         </div>
       </header>
 

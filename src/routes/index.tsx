@@ -2,27 +2,41 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { Mascot } from "@/components/Mascot";
 import { ChunkyButton } from "@/components/ChunkyButton";
-import { KidozLogo } from "@/components/KidozLogo";
+import { AlegriaLogo } from "@/components/AlegriaLogo";
 import { MASCOTS } from "@/lib/mascots";
 import { loadProfile, pullProfileFromCloud } from "@/lib/storage";
 import { useEffect, useState } from "react";
 import { detectRegion, regionBadgeText, type RegionInfo } from "@/lib/region";
+import { Flame, Heart, Zap, Trophy, BookOpen, Calculator, Globe, Star, Users, Shield, Sparkles } from "lucide-react";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Kidoz — Aprender a brincar | App educativa para crianças" },
+      { title: "Alegria — Aprender a brincar | App educativa para crianças" },
       { name: "description", content: "App de aprendizagem infantil estilo Duolingo, para o 1.º ciclo em Portugal. Português, Matemática e Estudo do Meio com mascotes divertidas." },
-      { property: "og:title", content: 'Kidoz — Aprender a brincar | App educativa para crianças' },
+      { property: "og:title", content: 'Alegria — Aprender a brincar | App educativa para crianças' },
       { property: "og:description", content: 'App de aprendizagem infantil estilo Duolingo, para o 1.º ciclo em Portugal. Português, Matemática e Estudo do Meio com mascotes divertidas.' },
-      { property: "og:url", content: "https://kidoz.online/" },
+      { property: "og:url", content: "https://alegria.online/" },
     ],
     links: [
-      { rel: "canonical", href: "https://kidoz.online/" },
+      { rel: "canonical", href: "https://alegria.online/" },
     ],
   }),
   component: Landing,
 });
+
+// ─── Animation Variants ───
+const fadeUp = {
+  hidden: { opacity: 0, y: 24 },
+  visible: (i: number) => ({
+    opacity: 1, y: 0,
+    transition: { delay: i * 0.1, duration: 0.6, ease: [0.22, 1, 0.36, 1] },
+  }),
+};
+
+const stagger = {
+  visible: { transition: { staggerChildren: 0.08 } },
+};
 
 function Landing() {
   const navigate = useNavigate();
@@ -40,24 +54,23 @@ function Landing() {
       }
     };
     check();
-    return () => {
-      cancelled = true;
-    };
+    return () => { cancelled = true; };
   }, [navigate]);
 
   return (
-    <main className="bg-sky-island relative min-h-[100dvh] overflow-hidden">
-      {/* floating shapes */}
+    <main className="bg-alegria-hero relative min-h-[100dvh] overflow-hidden">
       <FloatingDecor />
 
       <div className="relative mx-auto flex min-h-[100dvh] max-w-5xl flex-col items-center justify-center px-5 py-10 text-center sm:px-6 sm:py-12">
+
+        {/* ─── Hero Section ─── */}
         <motion.div
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ type: "spring", stiffness: 200, damping: 15 }}
-          className="mb-3"
+          className="mb-4"
         >
-          <KidozLogo priority className="h-20 w-auto sm:h-24 md:h-28" alt="Kidoz — Aprender a brincar" />
+          <AlegriaLogo priority className="h-20 w-auto sm:h-24 md:h-28" alt="Alegria — Aprender a brincar" />
         </motion.div>
 
         <motion.div
@@ -87,8 +100,8 @@ function Landing() {
           Português, Matemática e Estudo do Meio com mascotes divertidas, lições curtas e muitas estrelinhas. ✨
         </motion.p>
 
-        {/* mascot row */}
-        <div className="my-8 flex flex-wrap items-end justify-center gap-2 sm:my-10 sm:gap-4">
+        {/* ─── Mascot Row ─── */}
+        <div className="my-8 flex flex-wrap items-end justify-center gap-3 sm:my-10 sm:gap-5">
           {MASCOTS.map((m, i) => (
             <motion.div
               key={m.id}
@@ -100,10 +113,12 @@ function Landing() {
               <Mascot id={m.id} size="md" bouncing={i === 1} className="sm:hidden" />
               <Mascot id={m.id} size="lg" bouncing={i === 1} className="hidden sm:inline-flex" />
               <p className="mt-1 font-display text-xs font-semibold sm:text-sm">{m.name}</p>
+              <p className="text-[10px] text-muted-foreground">{m.personality}</p>
             </motion.div>
           ))}
         </div>
 
+        {/* ─── CTA Buttons ─── */}
         <motion.div
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
@@ -123,24 +138,59 @@ function Landing() {
           </Link>
         </motion.div>
 
-        <div className="mt-12 grid w-full gap-3 sm:mt-16 sm:gap-4 md:grid-cols-3">
-          <FeatureCard emoji="📚" title="Português" text="Vogais, sílabas, gramática, plurais" />
-          <FeatureCard emoji="➕" title="Matemática" text="Tabuada, divisões, frações" />
-          <FeatureCard emoji="🌍" title="Estudo do Meio" text="Portugal, história, ambiente" />
+        {/* ─── Social Proof Strip ─── */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1 }}
+          className="mt-8 flex flex-wrap items-center justify-center gap-4 text-sm text-muted-foreground"
+        >
+          <span className="flex items-center gap-1"><Users className="h-4 w-4" /> 5.000+ famílias</span>
+          <span className="flex items-center gap-1"><Star className="h-4 w-4 text-xp" /> 4.9/5 avaliações</span>
+          <span className="flex items-center gap-1"><Shield className="h-4 w-4 text-success" /> 100% seguro</span>
+        </motion.div>
+
+        {/* ─── Subject Feature Cards ─── */}
+        <div className="mt-14 grid w-full gap-4 sm:mt-16 sm:gap-5 md:grid-cols-3">
+          <SubjectFeatureCard
+            emoji="📚"
+            title="Português"
+            text="Vogais, sílabas, gramática e escrita — do 1.º ao 4.º ano"
+            colorVar="--pt-portuguese"
+            icon={<BookOpen className="h-5 w-5" />}
+          />
+          <SubjectFeatureCard
+            emoji="➕"
+            title="Matemática"
+            text="Contar, tabuada, frações e problemas — passo a passo"
+            colorVar="--pt-math"
+            icon={<Calculator className="h-5 w-5" />}
+          />
+          <SubjectFeatureCard
+            emoji="🌍"
+            title="Estudo do Meio"
+            text="Portugal, ciências, história e ambiente — descobrir o mundo"
+            colorVar="--pt-world"
+            icon={<Globe className="h-5 w-5" />}
+          />
         </div>
 
-        {/* Como funciona — estilo Duolingo ABC */}
+        {/* ─── How It Works ─── */}
         <HowItWorks />
 
-        {/* Mini caminho de lições, mobile-first */}
+        {/* ─── Gamification Preview ─── */}
+        <GamificationPreview />
+
+        {/* ─── Lesson Path Preview ─── */}
         <LessonPathPreview />
 
-        {/* Prova social */}
-        <PlatformStats />
+        {/* ─── Testimonials ─── */}
+        <Testimonials />
 
-        <div className="mt-8 flex w-full max-w-xs flex-col items-stretch gap-3 sm:max-w-none sm:flex-row sm:justify-center">
+        {/* ─── Bottom CTAs ─── */}
+        <div className="mt-10 flex w-full max-w-xs flex-col items-stretch gap-3 sm:max-w-none sm:flex-row sm:justify-center">
           <Link to="/junior" className="flex-1 sm:flex-none">
-            <ChunkyButton tone="secondary" className="w-full">🌱 Kidoz Júnior — 2 a 5 anos</ChunkyButton>
+            <ChunkyButton tone="secondary" className="w-full">🌱 Alegria Júnior — 2 a 5 anos</ChunkyButton>
           </Link>
           <Link to="/escolas" className="flex-1 sm:flex-none">
             <ChunkyButton tone="ghost" className="w-full">🏫 Escolas — 0,99€/aluno</ChunkyButton>
@@ -154,29 +204,64 @@ function Landing() {
   );
 }
 
+// ─── Subject Feature Card ───
+function SubjectFeatureCard({ emoji, title, text, colorVar, icon }: {
+  emoji: string; title: string; text: string; colorVar: string; icon: React.ReactNode;
+}) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 16 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      className="card-chunky group overflow-hidden rounded-3xl border border-border bg-card p-5 text-left transition-transform hover:scale-[1.02]"
+    >
+      <div className="flex items-center gap-3">
+        <div
+          className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl text-2xl shadow-sm"
+          style={{ backgroundColor: `color-mix(in oklab, var(${colorVar}) 18%, var(--card))` }}
+        >
+          {emoji}
+        </div>
+        <div className="flex items-center gap-2" style={{ color: `var(${colorVar})` }}>
+          {icon}
+          <h3 className="font-display text-lg">{title}</h3>
+        </div>
+      </div>
+      <p className="mt-3 text-sm text-muted-foreground">{text}</p>
+      <div className="mt-3 flex items-center gap-1 text-xs font-display" style={{ color: `var(${colorVar})` }}>
+        <Sparkles className="h-3.5 w-3.5" />
+        <span>Alinhado com o programa nacional</span>
+      </div>
+    </motion.div>
+  );
+}
+
+// ─── How It Works ───
 function HowItWorks() {
   const steps = [
-    { n: "1", emoji: "👶", title: "Escolhe o teu mascote", text: "Cria um perfil divertido em segundos." },
-    { n: "2", emoji: "📚", title: "Lições curtinhas", text: "5 minutos por dia chega para evoluir." },
-    { n: "3", emoji: "🏆", title: "Sobe de nível", text: "Ganha estrelas, medalhas e mantém a streak 🔥" },
+    { n: "1", emoji: "👶", title: "Escolhe o teu mascote", text: "Cria um perfil divertido em segundos. A tua mascote cresce contigo!" },
+    { n: "2", emoji: "📚", title: "Lições curtinhas", text: "5 minutos por dia chega para evoluir. Cada lição é um mini-jogo." },
+    { n: "3", emoji: "🏆", title: "Sobe de nível", text: "Ganha XP, moedas e mantém a streak! Compete com amigos na liga semanal." },
   ];
   return (
-    <section className="mt-12 w-full sm:mt-16">
-      <h2 className="mb-1 text-center font-display text-2xl sm:text-3xl">Como funciona</h2>
-      <p className="mb-5 text-center text-sm text-muted-foreground">Aprender pouco e muitas vezes — como o Duolingo, mas para o programa português.</p>
-      <ol className="grid gap-3 sm:gap-4 md:grid-cols-3">
-        {steps.map((s) => (
+    <section className="mt-16 w-full sm:mt-20">
+      <h2 className="mb-2 text-center font-display text-2xl sm:text-3xl">Como funciona</h2>
+      <p className="mb-6 text-center text-sm text-muted-foreground">Aprender pouco e muitas vezes — como o Duolingo, mas para o programa português.</p>
+      <ol className="grid gap-4 sm:gap-5 md:grid-cols-3">
+        {steps.map((s, i) => (
           <motion.li
             key={s.n}
-            initial={{ opacity: 0, y: 12 }}
-            whileInView={{ opacity: 1, y: 0 }}
+            custom={i}
+            initial="hidden"
+            whileInView="visible"
             viewport={{ once: true }}
-            className="card-chunky relative overflow-hidden rounded-3xl border border-border bg-card p-5 text-left"
+            variants={fadeUp}
+            className="card-chunky relative overflow-hidden rounded-3xl border border-border bg-card p-6 text-left"
           >
-            <span className="absolute -right-3 -top-3 text-7xl opacity-10">{s.n}</span>
+            <span className="absolute -right-3 -top-3 text-8xl opacity-[0.06] font-display font-bold">{s.n}</span>
             <div className="text-3xl">{s.emoji}</div>
-            <h3 className="mt-2 font-display text-lg sm:text-xl">{s.title}</h3>
-            <p className="text-sm text-muted-foreground">{s.text}</p>
+            <h3 className="mt-3 font-display text-lg sm:text-xl">{s.title}</h3>
+            <p className="mt-1 text-sm text-muted-foreground">{s.text}</p>
           </motion.li>
         ))}
       </ol>
@@ -184,6 +269,44 @@ function HowItWorks() {
   );
 }
 
+// ─── Gamification Preview ───
+function GamificationPreview() {
+  const features = [
+    { icon: <Flame className="h-5 w-5" />, label: "Streak", desc: "Dias seguidos", color: "text-streak" },
+    { icon: <Heart className="h-5 w-5" />, label: "Corações", desc: "Vidas de jogo", color: "text-hearts" },
+    { icon: <Zap className="h-5 w-5" />, label: "XP", desc: "Pontos de experiência", color: "text-xp" },
+    { icon: <Trophy className="h-5 w-5" />, label: "Ligas", desc: "Competição semanal", color: "text-leagues-ouro" },
+  ];
+  return (
+    <section className="mt-16 w-full sm:mt-20">
+      <h2 className="mb-2 text-center font-display text-2xl sm:text-3xl">Aprender a brincar, evoluir a jogar</h2>
+      <p className="mb-6 text-center text-sm text-muted-foreground">Mecânicas de jogo que mantêm a motivação — como o Duolingo, mas para crianças.</p>
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-4">
+        {features.map((f, i) => (
+          <motion.div
+            key={f.label}
+            custom={i}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            variants={fadeUp}
+            className="card-chunky flex flex-col items-center rounded-3xl border border-border bg-card p-5 text-center"
+          >
+            <div className={cn("mb-2", f.color)}>{f.icon}</div>
+            <p className="font-display text-sm font-bold">{f.label}</p>
+            <p className="text-xs text-muted-foreground">{f.desc}</p>
+          </motion.div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function cn(...classes: (string | undefined | false)[]) {
+  return classes.filter(Boolean).join(" ");
+}
+
+// ─── Lesson Path Preview ───
 function LessonPathPreview() {
   const nodes = [
     { e: "🅰️", t: "Vogais", tone: "bg-primary text-primary-foreground" },
@@ -193,8 +316,8 @@ function LessonPathPreview() {
     { e: "🌍", t: "Mundo", tone: "bg-xp text-foreground" },
   ];
   return (
-    <section className="mt-12 w-full sm:mt-16">
-      <h2 className="mb-1 text-center font-display text-2xl sm:text-3xl">O caminho da aprendizagem</h2>
+    <section className="mt-16 w-full sm:mt-20">
+      <h2 className="mb-2 text-center font-display text-2xl sm:text-3xl">O caminho da aprendizagem</h2>
       <p className="mb-6 text-center text-sm text-muted-foreground">Cada nó é uma mini-lição, com sons, animações e mascotes.</p>
       <div className="relative mx-auto max-w-md">
         {nodes.map((n, i) => (
@@ -221,16 +344,7 @@ function LessonPathPreview() {
   );
 }
 
-function FeatureCard({ emoji, title, text }: { emoji: string; title: string; text: string }) {
-  return (
-    <div className="card-chunky rounded-3xl border border-border bg-card p-4 text-left sm:p-5">
-      <div className="text-2xl sm:text-3xl">{emoji}</div>
-      <h3 className="mt-2 font-display text-lg sm:text-xl">{title}</h3>
-      <p className="text-sm text-muted-foreground">{text}</p>
-    </div>
-  );
-}
-
+// ─── Testimonials ───
 const TESTIMONIALS = [
   { name: "Sofia M.", role: "Mãe do Tomás (6)", text: "O meu filho pede para fazer 'mais uma' lição todos os dias. Aprende sem perceber!", emoji: "👩" },
   { name: "Prof. Ana", role: "1.º ciclo · Lisboa", text: "Uso na sala de aula. Os miúdos adoram e o currículo está mesmo alinhado com o programa nacional.", emoji: "👩‍🏫" },
@@ -239,21 +353,22 @@ const TESTIMONIALS = [
 
 function Testimonials() {
   return (
-    <section className="mt-12 w-full sm:mt-16">
-      <h2 className="mb-1 font-display text-2xl sm:text-3xl">O que dizem pais e professores</h2>
-      <p className="mb-5 text-sm text-muted-foreground">Famílias reais a aprender com a Kidoz em Portugal e países PALOP.</p>
-      <div className="grid gap-3 sm:gap-4 md:grid-cols-3">
+    <section className="mt-16 w-full sm:mt-20">
+      <h2 className="mb-2 text-center font-display text-2xl sm:text-3xl">O que dizem pais e professores</h2>
+      <p className="mb-6 text-center text-sm text-muted-foreground">Famílias reais a aprender com a Alegria em Portugal e países PALOP.</p>
+      <div className="grid gap-4 sm:gap-5 md:grid-cols-3">
         {TESTIMONIALS.map((t, i) => (
           <motion.figure
             key={t.name}
-            initial={{ opacity: 0, y: 12 }}
-            whileInView={{ opacity: 1, y: 0 }}
+            custom={i}
+            initial="hidden"
+            whileInView="visible"
             viewport={{ once: true }}
-            transition={{ delay: i * 0.1 }}
-            className="card-chunky rounded-3xl border border-border bg-card p-4 text-left sm:p-5"
+            variants={fadeUp}
+            className="card-chunky rounded-3xl border border-border bg-card p-5 text-left"
           >
             <div className="mb-2 flex gap-0.5 text-xp text-sm">★★★★★</div>
-            <blockquote className="text-sm leading-snug">“{t.text}”</blockquote>
+            <blockquote className="text-sm leading-snug">"{t.text}"</blockquote>
             <figcaption className="mt-3 flex items-center gap-2 text-xs">
               <span className="text-2xl">{t.emoji}</span>
               <div>
@@ -268,6 +383,7 @@ function Testimonials() {
   );
 }
 
+// ─── Floating Decorations ───
 function FloatingDecor() {
   const items = ["⭐", "🎈", "✨", "🌈", "☁️", "🎨"];
   return (
@@ -275,7 +391,7 @@ function FloatingDecor() {
       {items.map((e, i) => (
         <motion.span
           key={i}
-          className="absolute text-2xl opacity-60 sm:text-3xl sm:opacity-70"
+          className="absolute text-2xl opacity-50 sm:text-3xl sm:opacity-60"
           style={{
             left: `${(i * 17 + 8) % 95}%`,
             top: `${(i * 23 + 10) % 80}%`,

@@ -14,14 +14,14 @@ import { detectRegion } from "@/lib/region";
 export const Route = createFileRoute("/leitura")({
   head: () => ({
     meta: [
-      { title: "Leitura em voz alta — Kidoz" },
+      { title: "Leitura em voz alta — Alegria" },
       { name: "description", content: "Pratica a leitura com reconhecimento de voz adaptado a crianças." },
-      { property: "og:title", content: 'Leitura em voz alta — Kidoz' },
+      { property: "og:title", content: 'Leitura em voz alta — Alegria' },
       { property: "og:description", content: 'Pratica a leitura com reconhecimento de voz adaptado a crianças.' },
-      { property: "og:url", content: "https://kidoz.online/leitura" },
+      { property: "og:url", content: "https://alegria.online/leitura" },
     ],
     links: [
-      { rel: "canonical", href: "https://kidoz.online/leitura" },
+      { rel: "canonical", href: "https://alegria.online/leitura" },
     ],
   }),
   component: ReadingPage,

@@ -1,12 +1,12 @@
-# Kidoz
+# Alegria
 
 > Aplicação educativa portuguesa estilo Duolingo para crianças dos 2 aos 10 anos. Português, Matemática e Estudo do Meio com mascotes, jogos, tutor IA e modo família.
 
-Kidoz combina um caminho de aprendizagem do 1.º ao 4.º ano (Português, Matemática, Estudo do Meio), o universo Kidoz Júnior para os 2-5 anos (cores, sons, formas, pré-leitura), Desafios Infinitos procedurais, leitura em voz alta, painel para pais, planos para escolas e creches, e um tutor IA chamado Mocha.
+Alegria combina um caminho de aprendizagem do 1.º ao 4.º ano (Português, Matemática, Estudo do Meio), o universo Alegria Júnior para os 2-5 anos (cores, sons, formas, pré-leitura), Desafios Infinitos procedurais, leitura em voz alta, painel para pais, planos para escolas e creches, e um tutor IA chamado Mocha.
 
 ## Pages
 
-- [Início](/): Página principal com apresentação do Kidoz.
+- [Início](/): Página principal com apresentação do Alegria.
 - [Começar](/comecar): Criar o perfil da criança ou do encarregado.
 - [Aventura](/app): Caminho de lições para crianças do 1.º ciclo.
 - [Júnior](/junior): Jogos para crianças dos 2 aos 5 anos.

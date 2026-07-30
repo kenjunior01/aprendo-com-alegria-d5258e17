@@ -14,14 +14,14 @@ import { playCorrect, playWrong } from "@/lib/audio";
 export const Route = createFileRoute("/loja")({
   head: () => ({
     meta: [
-      { title: "Loja — Kidoz" },
+      { title: "Loja — Alegria" },
       { name: "description", content: "Personaliza a tua mascote com chapéus, fatos e cenários ganhos com Abracadinhos." },
-      { property: "og:title", content: 'Loja Kidoz — personaliza a tua mascote' },
+      { property: "og:title", content: 'Loja Alegria — personaliza a tua mascote' },
       { property: "og:description", content: 'Chapéus, fatos e cenários para a tua mascote, ganhos com Abracadinhos.' },
-      { property: "og:url", content: "https://kidoz.online/loja" },
+      { property: "og:url", content: "https://alegria.online/loja" },
     ],
     links: [
-      { rel: "canonical", href: "https://kidoz.online/loja" },
+      { rel: "canonical", href: "https://alegria.online/loja" },
     ],
   }),
   component: ShopPage,

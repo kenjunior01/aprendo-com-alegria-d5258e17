@@ -1,5 +1,5 @@
 // Tracks per-day app usage minutes locally so parental time-limits can be enforced.
-const KEY = "kidoz-usage-v1";
+const KEY = "alegria-usage-v1";
 
 interface UsageMap { [date: string]: number } // minutes
 

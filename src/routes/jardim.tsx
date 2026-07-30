@@ -14,14 +14,14 @@ import confetti from "canvas-confetti";
 export const Route = createFileRoute("/jardim")({
   head: () => ({
     meta: [
-      { title: "O meu Jardim Mágico — Kidoz" },
+      { title: "O meu Jardim Mágico — Alegria" },
       { name: "description", content: "O teu jardim cresce a cada missão completada. Vê o que conseguiste desbloquear!" },
-      { property: "og:title", content: 'O meu Jardim Mágico — Kidoz' },
+      { property: "og:title", content: 'O meu Jardim Mágico — Alegria' },
       { property: "og:description", content: 'O teu jardim cresce a cada missão completada.' },
-      { property: "og:url", content: "https://kidoz.online/jardim" },
+      { property: "og:url", content: "https://alegria.online/jardim" },
     ],
     links: [
-      { rel: "canonical", href: "https://kidoz.online/jardim" },
+      { rel: "canonical", href: "https://alegria.online/jardim" },
     ],
   }),
   component: GardenPage,

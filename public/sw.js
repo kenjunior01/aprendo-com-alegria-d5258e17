@@ -1,10 +1,10 @@
-// Kidoz Service Worker — minimal offline cache
+// Alegria Service Worker — minimal offline cache
 // Cache strategy:
 //  - HTML navigations: NetworkFirst (always try fresh, fall back to cache)
 //  - Static assets (JS/CSS/img/fonts): StaleWhileRevalidate
 //  - Same-origin API responses are NOT cached (avoid stale data)
 
-const CACHE_VERSION = 'kidoz-v1';
+const CACHE_VERSION = 'alegria-v1';
 const STATIC_CACHE = `${CACHE_VERSION}-static`;
 const HTML_CACHE = `${CACHE_VERSION}-html`;
 const PRECACHE_URLS = ['/', '/manifest.webmanifest', '/icon-192.png', '/icon-512.png'];

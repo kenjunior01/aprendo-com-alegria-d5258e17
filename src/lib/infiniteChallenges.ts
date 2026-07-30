@@ -275,7 +275,7 @@ export function generateQuestions(track: TrackId, level: number, count = 8): Gen
 }
 
 // === Progress storage ===
-const PROG_KEY = "kidoz-infinite-progress-v1";
+const PROG_KEY = "alegria-infinite-progress-v1";
 export interface InfiniteProgress {
   levels: Partial<Record<TrackId, number>>; // current unlocked level per track
   bestStars: Partial<Record<string, number>>; // `${track}:${level}` -> stars

@@ -27,7 +27,7 @@ export interface LeagueMemberRow {
   last_played_at: string | null;
 }
 
-const BOT_NAMES = ["Kido Bot", "Estrelinha", "Trovão", "Lua", "Bolinha", "Faísca", "Pipoca", "Zumbido", "Pintinho", "Nuvem"];
+const BOT_NAMES = ["Alegria Bot", "Estrelinha", "Trovão", "Lua", "Bolinha", "Faísca", "Pipoca", "Zumbido", "Pintinho", "Nuvem"];
 const BOT_MASCOTS = ["fox", "owl", "rabbit", "panda", "lion", "turtle"];
 const BOT_DIFFICULTIES = ["easy", "easy", "medium", "medium", "hard"] as const;
 

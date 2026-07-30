@@ -46,11 +46,11 @@ export function getXPProgress(xp: number) {
 
 // ─── League Badges ───
 export const LEAGUES = [
-  { tier: "bronze",  name: "Liga Bronze",  minXP: 0,    color: "#CD7F32", icon: Shield },
-  { tier: "prata",   name: "Liga Prata",   minXP: 300,  color: "#C0C0C0", icon: Medal },
-  { tier: "ouro",    name: "Liga Ouro",    minXP: 1000, color: "#FFD700", icon: Award },
-  { tier: "diamante", name: "Liga Diamante", minXP: 2500, color: "#B9F2FF", icon: Crown },
-  { tier: "lenda",   name: "Liga Lenda",   minXP: 5500, color: "#E040FB", icon: Trophy },
+  { tier: "bronze",  name: "Liga Bronze",  minXP: 0,    colorVar: "--leagues-bronze",  icon: Shield },
+  { tier: "prata",   name: "Liga Prata",   minXP: 300,  colorVar: "--leagues-prata",   icon: Medal },
+  { tier: "ouro",    name: "Liga Ouro",    minXP: 1000, colorVar: "--leagues-ouro",    icon: Award },
+  { tier: "diamante", name: "Liga Diamante", minXP: 2500, colorVar: "--leagues-diamante", icon: Crown },
+  { tier: "lenda",   name: "Liga Lenda",   minXP: 5500, colorVar: "--leagues-lenda",   icon: Trophy },
 ] as const;
 
 export type LeagueTier = (typeof LEAGUES)[number]["tier"];
@@ -130,7 +130,7 @@ export function DuolingoBar({ profile, compact = false, className }: DuolingoBar
       <div className={cn("flex items-center gap-3 rounded-full bg-card/80 px-3 py-1.5 backdrop-blur-sm", className)}>
         {/* League badge */}
         <div className="flex items-center gap-1" title={league.name}>
-          <LeagueIcon className="h-3.5 w-3.5" style={{ color: league.color }} />
+          <LeagueIcon className="h-3.5 w-3.5" style={{ color: `var(${league.colorVar})` }} />
           <span className="text-[10px] font-bold">{xpLevel.icon}</span>
         </div>
         {/* XP progress */}
@@ -141,18 +141,18 @@ export function DuolingoBar({ profile, compact = false, className }: DuolingoBar
         {/* Streak */}
         {profile.streak > 0 && (
           <div className="flex items-center gap-0.5">
-            <Flame className={cn("h-3 w-3", profile.streak >= 7 ? "text-orange-500" : "text-muted-foreground")} />
+            <Flame className={cn("h-3 w-3", profile.streak >= 7 ? "text-streak" : "text-muted-foreground")} />
             <span className="text-[10px] font-bold tabular-nums">{profile.streak}</span>
           </div>
         )}
         {/* Hearts */}
         <div className="flex items-center gap-0.5">
-          <Heart className={cn("h-3 w-3", currentHearts > 0 ? "text-red-500 fill-red-500" : "text-muted-foreground")} />
+          <Heart className={cn("h-3 w-3", currentHearts > 0 ? "text-hearts fill-hearts" : "text-muted-foreground")} />
           <span className="text-[10px] font-bold tabular-nums">{currentHearts}</span>
         </div>
         {/* Coins */}
         <div className="flex items-center gap-0.5">
-          <Coins className="h-3 w-3 text-yellow-500" />
+          <Coins className="h-3 w-3 text-coins" />
           <span className="text-[10px] font-bold tabular-nums">{profile.coins}</span>
         </div>
       </div>
@@ -165,10 +165,10 @@ export function DuolingoBar({ profile, compact = false, className }: DuolingoBar
         {/* League badge */}
         <div
           className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl shadow-sm"
-          style={{ backgroundColor: `${league.color}22` }}
+          style={{ backgroundColor: `color-mix(in oklab, var(${league.colorVar}) 14%, var(--card))` }}
           title={league.name}
         >
-          <LeagueIcon className="h-5 w-5" style={{ color: league.color }} />
+          <LeagueIcon className="h-5 w-5" style={{ color: `var(${league.colorVar})` }} />
         </div>
 
         {/* XP Progress */}
@@ -208,7 +208,7 @@ export function DuolingoBar({ profile, compact = false, className }: DuolingoBar
             animate={profile.streak >= 7 ? { scale: [1, 1.15, 1] } : undefined}
             transition={{ duration: 1.5, repeat: Infinity }}
           >
-            <Flame className={cn("h-6 w-6", profile.streak >= 7 ? "text-orange-500" : profile.streak > 0 ? "text-amber-500" : "text-muted-foreground")} />
+            <Flame className={cn("h-6 w-6", profile.streak >= 7 ? "text-streak" : profile.streak > 0 ? "text-streak" : "text-muted-foreground")} />
           </motion.div>
           <span className="text-[10px] font-bold tabular-nums">{profile.streak}d</span>
         </div>
@@ -221,7 +221,7 @@ export function DuolingoBar({ profile, compact = false, className }: DuolingoBar
                 key={i}
                 className={cn(
                   "h-4 w-4 transition-colors",
-                  i < currentHearts ? "text-red-500 fill-red-500" : "text-muted-foreground/40"
+                  i < currentHearts ? "text-hearts fill-hearts" : "text-muted-foreground/40"
                 )}
               />
             ))}
@@ -235,7 +235,7 @@ export function DuolingoBar({ profile, compact = false, className }: DuolingoBar
 
         {/* Coins */}
         <div className="flex flex-col items-center">
-          <Coins className="h-5 w-5 text-yellow-500" />
+          <Coins className="h-5 w-5 text-coins" />
           <span className="text-[10px] font-bold tabular-nums">{profile.coins}</span>
         </div>
       </div>

@@ -21,14 +21,14 @@ import { ArrowLeft, Crown, Infinity as InfinityIcon, Lock, Sparkles, Star, Troph
 export const Route = createFileRoute("/desafios/infinitos")({
   head: () => ({
     meta: [
-      { title: "Desafios Infinitos — níveis para todas as idades | Kidoz" },
+      { title: "Desafios Infinitos — níveis para todas as idades | Alegria" },
       { name: "description", content: "Centenas de níveis procedurais de matemática, língua, ciências e lógica. Aprende sem fim, do pré-escolar ao avançado." },
-      { property: "og:title", content: 'Desafios Infinitos — Kidoz' },
+      { property: "og:title", content: 'Desafios Infinitos — Alegria' },
       { property: "og:description", content: 'Centenas de níveis procedurais de matemática, língua, ciências e lógica.' },
-      { property: "og:url", content: "https://kidoz.online/desafios/infinitos" },
+      { property: "og:url", content: "https://alegria.online/desafios/infinitos" },
     ],
     links: [
-      { rel: "canonical", href: "https://kidoz.online/desafios/infinitos" },
+      { rel: "canonical", href: "https://alegria.online/desafios/infinitos" },
     ],
   }),
   component: InfinitePage,

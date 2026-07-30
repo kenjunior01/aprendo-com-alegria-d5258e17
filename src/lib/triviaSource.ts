@@ -2,7 +2,7 @@
 import { supabase } from "@/integrations/supabase/client";
 import { TRIVIA_BANK, type TriviaQuestion } from "@/lib/triviaBank";
 
-const LS_PREFIX = "kidoz.trivia.cache.v1::";
+const LS_PREFIX = "alegria.trivia.cache.v1::";
 const LS_TTL_MS = 6 * 3600 * 1000; // 6h client cache
 
 export interface RemoteTriviaQ {

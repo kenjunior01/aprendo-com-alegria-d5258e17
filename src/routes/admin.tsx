@@ -45,7 +45,7 @@ import { ContentSettingsTab } from "@/components/admin/ContentSettingsTab";
 export const Route = createFileRoute("/admin")({
   head: () => ({
     meta: [
-      { title: "Admin — Kidoz" },
+      { title: "Admin — Alegria" },
       { name: "robots", content: "noindex" },
     ],
   }),
@@ -140,7 +140,7 @@ function AdminDashboard() {
               </div>
               <div>
                 <h1 className="font-bold leading-tight">Painel Admin</h1>
-                <p className="text-xs text-muted-foreground">Kidoz · gestão da plataforma</p>
+                <p className="text-xs text-muted-foreground">Alegria · gestão da plataforma</p>
               </div>
             </div>
             <Button asChild variant="ghost" size="sm">

@@ -15,13 +15,13 @@ let enabled = true;
 export function setHapticsEnabled(v: boolean) {
   enabled = v;
   if (typeof window !== "undefined") {
-    localStorage.setItem("kidoz-haptics", v ? "1" : "0");
+    localStorage.setItem("alegria-haptics", v ? "1" : "0");
   }
 }
 
 export function loadHapticsPref() {
   if (typeof window === "undefined") return;
-  const v = localStorage.getItem("kidoz-haptics");
+  const v = localStorage.getItem("alegria-haptics");
   if (v === "0") enabled = false;
 }
 

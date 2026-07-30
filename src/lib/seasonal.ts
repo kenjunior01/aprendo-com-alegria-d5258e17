@@ -43,7 +43,7 @@ const EVENTS: SeasonalEvent[] = [
     id: "dia-crianca-pt",
     emoji: "🎈",
     title: "Dia da Criança",
-    message: "Hoje és o herói da Kidoz! Missões mais doces, prémios em dobro.",
+    message: "Hoje és o herói da Alegria! Missões mais doces, prémios em dobro.",
     bg: "from-sky-300/30 via-pink-300/30 to-amber-200/30",
     start: { m: 6, d: 1 }, end: { m: 6, d: 1 },
   },

@@ -15,9 +15,9 @@ export const Route = createFileRoute("/capitulo/$chapterId")({
     const chapter = getChapter(params.chapterId);
     const chapterTitle = chapter?.title ?? "Capítulo";
     const subtitle = chapter?.subtitle ?? "Missões interativas para crianças do 1.º ciclo";
-    const title = `Capítulo: ${chapterTitle} — Aventura | Kidoz`;
-    const description = `Capítulo "${chapterTitle}" no Kidoz: ${subtitle}. Missões curtas, voz e recompensas para aprender a brincar.`;
-    const url = `https://kidoz.online/capitulo/${params.chapterId}`;
+    const title = `Capítulo: ${chapterTitle} — Aventura | Alegria`;
+    const description = `Capítulo "${chapterTitle}" no Alegria: ${subtitle}. Missões curtas, voz e recompensas para aprender a brincar.`;
+    const url = `https://alegria.online/capitulo/${params.chapterId}`;
     return {
       meta: [
         { title },

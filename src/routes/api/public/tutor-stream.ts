@@ -6,7 +6,7 @@ import { createFileRoute } from "@tanstack/react-router";
 
 interface ChatMsg { role: "user" | "assistant"; content: string }
 
-const DEFAULT_SYSTEM = `És um tutor mascote do Kidoz — uma plataforma educativa para crianças do 1.º ciclo em Portugal e Moçambique (6-10 anos).
+const DEFAULT_SYSTEM = `És um tutor mascote do Alegria — uma plataforma educativa para crianças do 1.º ciclo em Portugal e Moçambique (6-10 anos).
 
 Estilo:
 - Fala em português, calorosamente, como um amiguinho.

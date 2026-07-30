@@ -40,14 +40,14 @@ const LAB_MODELS: { id: LabModelId; src: string; label: string; fact: string }[]
 export const Route = createFileRoute("/ra")({
   head: () => ({
     meta: [
-      { title: "Realidade Aumentada — Kidoz" },
-      { name: "description", content: "Vê os mascotes do Kidoz no teu mundo real, em 3D!" },
-      { property: "og:title", content: 'Realidade Aumentada — Kidoz' },
-      { property: "og:description", content: 'Vê os mascotes do Kidoz no teu mundo real, em 3D.' },
-      { property: "og:url", content: "https://kidoz.online/ra" },
+      { title: "Realidade Aumentada — Alegria" },
+      { name: "description", content: "Vê os mascotes do Alegria no teu mundo real, em 3D!" },
+      { property: "og:title", content: 'Realidade Aumentada — Alegria' },
+      { property: "og:description", content: 'Vê os mascotes do Alegria no teu mundo real, em 3D.' },
+      { property: "og:url", content: "https://alegria.online/ra" },
     ],
     links: [
-      { rel: "canonical", href: "https://kidoz.online/ra" },
+      { rel: "canonical", href: "https://alegria.online/ra" },
     ],
   }),
   component: ARPage,

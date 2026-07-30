@@ -24,18 +24,18 @@ import {
 export const Route = createFileRoute("/escolas")({
   head: () => ({
     meta: [
-      { title: "Plano Escolas Kidoz — 0,99€ por aluno/mês" },
+      { title: "Plano Escolas Alegria — 0,99€ por aluno/mês" },
       {
         name: "description",
         content:
           "Plano dedicado para escolas e instituições: 0,99€ por aluno/mês, mínimo 20 alunos. Painel de turmas, relatórios de progresso e suporte dedicado.",
       },
-      { property: "og:title", content: 'Plano Escolas Kidoz — 0,99€/aluno/mês' },
+      { property: "og:title", content: 'Plano Escolas Alegria — 0,99€/aluno/mês' },
       { property: "og:description", content: 'Plano dedicado para escolas e instituições, painel de turmas e relatórios de progresso.' },
-      { property: "og:url", content: "https://kidoz.online/escolas" },
+      { property: "og:url", content: "https://alegria.online/escolas" },
     ],
     links: [
-      { rel: "canonical", href: "https://kidoz.online/escolas" },
+      { rel: "canonical", href: "https://alegria.online/escolas" },
     ],
   }),
   component: EscolasPage,
@@ -124,7 +124,7 @@ function EscolasPage() {
             <SchoolIcon className="h-7 w-7" />
           </div>
           <h1 className="mt-3 font-display text-3xl sm:text-4xl">
-            Kidoz para Escolas
+            Alegria para Escolas
           </h1>
           <p className="mx-auto mt-3 max-w-2xl text-base text-muted-foreground sm:text-lg">
             Uma plataforma de aprendizagem lúdica para a tua escola, adaptada à
@@ -242,7 +242,7 @@ function EscolasPage() {
               Subscrever {students} alunos
             </ChunkyButton>
             <a
-              href="mailto:escolas@kidoz.online?subject=Pedido%20de%20demonstra%C3%A7%C3%A3o%20Kidoz%20Escolas"
+              href="mailto:escolas@alegria.online?subject=Pedido%20de%20demonstra%C3%A7%C3%A3o%20Alegria%20Escolas"
               className="inline-flex min-h-[56px] flex-1 items-center justify-center rounded-2xl border-2 border-border bg-card px-5 font-display text-base hover:bg-muted"
             >
               Falar com vendas

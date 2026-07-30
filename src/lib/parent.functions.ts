@@ -112,7 +112,7 @@ export const getChildDashboard = createServerFn({ method: "POST" })
     const insights: ParentDashboardData["insights"] = [];
 
     if (totals.sessions === 0) {
-      insights.push({ type: "info", text: "Sem atividade nos últimos 14 dias. Convida o teu filho a abrir o Kidoz hoje." });
+      insights.push({ type: "info", text: "Sem atividade nos últimos 14 dias. Convida o teu filho a abrir o Alegria hoje." });
     } else {
       if (accuracy >= 0.85) insights.push({ type: "good", text: `Excelente precisão de ${Math.round(accuracy * 100)}% — pronto para o próximo nível.` });
       else if (accuracy < 0.6) insights.push({ type: "warn", text: `Precisão de ${Math.round(accuracy * 100)}%. Pode beneficiar de revisão dos básicos.` });
@@ -348,7 +348,7 @@ export const createChildProfile = createServerFn({ method: "POST" })
     const parentId = context.userId;
 
     // Email sintético único — não é usado para login
-    const synthEmail = `child+${parentId.slice(0, 8)}-${Date.now().toString(36)}@kidoz.local`;
+    const synthEmail = `child+${parentId.slice(0, 8)}-${Date.now().toString(36)}@alegria.local`;
     const synthPassword = crypto.randomUUID() + crypto.randomUUID();
 
     const { data: created, error: createErr } = await supabaseAdmin.auth.admin.createUser({

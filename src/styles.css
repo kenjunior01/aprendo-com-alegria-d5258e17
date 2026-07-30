@@ -10,6 +10,18 @@
   --font-sans: "Nunito", ui-sans-serif, system-ui;
   --font-display: "Fredoka", "Nunito", system-ui;
 
+  /* ─── Spacing Scale (4px base) ─── */
+  --spacing-2xs: 2px;
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 12px;
+  --spacing-lg: 16px;
+  --spacing-xl: 24px;
+  --spacing-2xl: 32px;
+  --spacing-3xl: 48px;
+  --spacing-4xl: 64px;
+
+  /* ─── Radius Scale ─── */
   --radius-sm: calc(var(--radius) - 6px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -17,6 +29,7 @@
   --radius-2xl: calc(var(--radius) + 14px);
   --radius-3xl: calc(var(--radius) + 22px);
 
+  /* ─── Semantic Color Mapping ─── */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -38,6 +51,7 @@
   --color-ring: var(--ring);
   --color-ring-offset-background: var(--background);
 
+  /* ─── Brand Semantic Colors ─── */
   --color-success: var(--success);
   --color-success-foreground: var(--success-foreground);
   --color-warning: var(--warning);
@@ -49,90 +63,118 @@
   --color-xp: var(--xp);
   --color-gem: var(--gem);
 
+  /* ─── Hearts & Coins (semantic) ─── */
+  --color-hearts: var(--hearts);
+  --color-coins: var(--coins);
+  --color-leagues-bronze: var(--leagues-bronze);
+  --color-leagues-prata: var(--leagues-prata);
+  --color-leagues-ouro: var(--leagues-ouro);
+  --color-leagues-diamante: var(--leagues-diamante);
+  --color-leagues-lenda: var(--leagues-lenda);
+
+  /* ─── Animations ─── */
   --animate-bounce-soft: bounce-soft 1.6s ease-in-out infinite;
   --animate-wiggle: wiggle 0.6s ease-in-out;
   --animate-pop: pop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  --animate-pulse-glow: pulse-glow 2s ease-in-out infinite;
+  --animate-shimmer: shimmer 2s ease-in-out infinite;
 }
 
 :root {
   --radius: 1rem;
 
-  /* sky-cream playful background */
+  /* ─── Alegria Brand Palette ─── */
+  /* Warm cream background — soft, inviting for kids */
   --background: oklch(0.985 0.015 95);
-  --foreground: oklch(0.25 0.04 260);
+  --foreground: oklch(0.22 0.04 260);
 
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.25 0.04 260);
+  --card-foreground: oklch(0.22 0.04 260);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.25 0.04 260);
+  --popover-foreground: oklch(0.22 0.04 260);
 
-  /* warm orange — primary */
-  --primary: oklch(0.74 0.18 45);
+  /* Primary: Warm coral-orange — the heart of Alegria */
+  --primary: oklch(0.72 0.19 40);
   --primary-foreground: oklch(0.99 0 0);
 
-  /* sky blue — secondary */
-  --secondary: oklch(0.85 0.09 230);
-  --secondary-foreground: oklch(0.25 0.05 260);
+  /* Secondary: Sky blue — trust, calm, learning */
+  --secondary: oklch(0.82 0.1 230);
+  --secondary-foreground: oklch(0.22 0.05 260);
 
   --muted: oklch(0.96 0.015 90);
   --muted-foreground: oklch(0.5 0.03 260);
 
-  --accent: oklch(0.92 0.08 95);
+  /* Accent: Warm gold — celebration, achievement */
+  --accent: oklch(0.9 0.09 90);
   --accent-foreground: oklch(0.3 0.05 50);
 
-  --destructive: oklch(0.65 0.22 25);
+  /* Destructive: Warm red — errors, hearts */
+  --destructive: oklch(0.62 0.22 25);
   --destructive-foreground: oklch(0.99 0 0);
 
+  /* Success: Fresh green — correct, completed */
   --success: oklch(0.72 0.18 145);
   --success-foreground: oklch(0.99 0 0);
 
+  /* Warning: Warm yellow — alerts */
   --warning: oklch(0.82 0.16 85);
   --warning-foreground: oklch(0.25 0.05 60);
 
   --border: oklch(0.9 0.02 90);
   --input: oklch(0.9 0.02 90);
-  --ring: oklch(0.74 0.18 45);
+  --ring: oklch(0.72 0.19 40);
 
-  /* subject themes */
-  --pt-portuguese: oklch(0.7 0.19 25);   /* warm red-orange */
-  --pt-math: oklch(0.68 0.16 250);       /* friendly blue */
-  --pt-world: oklch(0.72 0.17 145);      /* fresh green */
+  /* ─── Subject Colors — vibrant but accessible ─── */
+  --pt-portuguese: oklch(0.68 0.19 25);   /* Warm red-orange */
+  --pt-math: oklch(0.65 0.17 250);       /* Friendly blue */
+  --pt-world: oklch(0.7 0.17 145);       /* Fresh green */
 
-  /* gamification */
-  --streak: oklch(0.74 0.19 55);   /* flame orange */
-  --xp: oklch(0.78 0.16 95);       /* gold */
-  --gem: oklch(0.72 0.15 200);     /* cyan */
+  /* ─── Gamification Colors ─── */
+  --streak: oklch(0.74 0.19 55);          /* Flame orange */
+  --xp: oklch(0.78 0.16 95);              /* Gold */
+  --gem: oklch(0.72 0.15 200);            /* Cyan */
+  --hearts: oklch(0.62 0.22 25);          /* Red — hearts */
+  --coins: oklch(0.8 0.16 85);            /* Gold — coins */
 
-  --chart-1: oklch(0.74 0.18 45);
-  --chart-2: oklch(0.68 0.16 250);
-  --chart-3: oklch(0.72 0.17 145);
+  /* ─── League Colors ─── */
+  --leagues-bronze: oklch(0.65 0.1 55);
+  --leagues-prata: oklch(0.75 0.02 260);
+  --leagues-ouro: oklch(0.8 0.16 95);
+  --leagues-diamante: oklch(0.78 0.1 210);
+  --leagues-lenda: oklch(0.65 0.2 310);
+
+  /* ─── Chart Colors ─── */
+  --chart-1: oklch(0.72 0.19 40);
+  --chart-2: oklch(0.65 0.17 250);
+  --chart-3: oklch(0.7 0.17 145);
   --chart-4: oklch(0.78 0.16 95);
-  --chart-5: oklch(0.7 0.19 25);
+  --chart-5: oklch(0.68 0.19 25);
 
+  /* ─── Sidebar ─── */
   --sidebar: oklch(0.98 0.01 90);
-  --sidebar-foreground: oklch(0.25 0.04 260);
-  --sidebar-primary: oklch(0.74 0.18 45);
+  --sidebar-foreground: oklch(0.22 0.04 260);
+  --sidebar-primary: oklch(0.72 0.19 40);
   --sidebar-primary-foreground: oklch(0.99 0 0);
-  --sidebar-accent: oklch(0.92 0.08 95);
+  --sidebar-accent: oklch(0.9 0.09 90);
   --sidebar-accent-foreground: oklch(0.3 0.05 50);
   --sidebar-border: oklch(0.9 0.02 90);
-  --sidebar-ring: oklch(0.74 0.18 45);
+  --sidebar-ring: oklch(0.72 0.19 40);
 }
 
 .dark {
-  --background: oklch(0.2 0.04 260);
+  --background: oklch(0.18 0.04 260);
   --foreground: oklch(0.97 0.01 90);
-  --card: oklch(0.26 0.045 260);
+  --card: oklch(0.24 0.045 260);
   --card-foreground: oklch(0.97 0.01 90);
-  --popover: oklch(0.26 0.045 260);
+  --popover: oklch(0.24 0.045 260);
   --popover-foreground: oklch(0.97 0.01 90);
-  --primary: oklch(0.78 0.18 45);
-  --primary-foreground: oklch(0.2 0.04 260);
-  --secondary: oklch(0.4 0.08 230);
+  --primary: oklch(0.76 0.19 40);
+  --primary-foreground: oklch(0.18 0.04 260);
+  --secondary: oklch(0.38 0.08 230);
   --secondary-foreground: oklch(0.97 0.01 90);
-  --muted: oklch(0.3 0.04 260);
+  --muted: oklch(0.28 0.04 260);
   --muted-foreground: oklch(0.75 0.02 260);
-  --accent: oklch(0.35 0.06 80);
+  --accent: oklch(0.32 0.06 80);
   --accent-foreground: oklch(0.97 0.01 90);
   --destructive: oklch(0.7 0.2 25);
   --destructive-foreground: oklch(0.99 0 0);
@@ -142,21 +184,28 @@
   --warning-foreground: oklch(0.2 0.04 60);
   --border: oklch(1 0 0 / 12%);
   --input: oklch(1 0 0 / 16%);
-  --ring: oklch(0.78 0.18 45);
+  --ring: oklch(0.76 0.19 40);
   --pt-portuguese: oklch(0.72 0.19 25);
   --pt-math: oklch(0.72 0.17 250);
   --pt-world: oklch(0.74 0.17 145);
   --streak: oklch(0.76 0.19 55);
   --xp: oklch(0.8 0.16 95);
   --gem: oklch(0.74 0.15 200);
-  --sidebar: oklch(0.26 0.045 260);
+  --hearts: oklch(0.7 0.2 25);
+  --coins: oklch(0.8 0.16 85);
+  --leagues-bronze: oklch(0.7 0.1 55);
+  --leagues-prata: oklch(0.8 0.02 260);
+  --leagues-ouro: oklch(0.82 0.16 95);
+  --leagues-diamante: oklch(0.8 0.1 210);
+  --leagues-lenda: oklch(0.7 0.2 310);
+  --sidebar: oklch(0.24 0.045 260);
   --sidebar-foreground: oklch(0.97 0.01 90);
-  --sidebar-primary: oklch(0.78 0.18 45);
-  --sidebar-primary-foreground: oklch(0.2 0.04 260);
-  --sidebar-accent: oklch(0.35 0.06 80);
+  --sidebar-primary: oklch(0.76 0.19 40);
+  --sidebar-primary-foreground: oklch(0.18 0.04 260);
+  --sidebar-accent: oklch(0.32 0.06 80);
   --sidebar-accent-foreground: oklch(0.97 0.01 90);
   --sidebar-border: oklch(1 0 0 / 12%);
-  --sidebar-ring: oklch(0.78 0.18 45);
+  --sidebar-ring: oklch(0.76 0.19 40);
 }
 
 @layer base {
@@ -172,7 +221,7 @@
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
     overscroll-behavior-y: none;
-    /* Slightly larger base type for kids 6-10 (proposal §1.2) */
+    /* Slightly larger base type for kids 6-10 */
     font-size: 17px;
   }
   @media (min-width: 640px) {
@@ -188,12 +237,17 @@
     font-family: var(--font-display);
     letter-spacing: -0.01em;
   }
+
+  /* Smooth scrolling with reduced motion support */
+  @media (prefers-reduced-motion: no-preference) {
+    html { scroll-behavior: smooth; }
+  }
 }
 
 @layer utilities {
   .font-display { font-family: var(--font-display); }
 
-  /* chunky 3D button — playful kid-friendly press effect */
+  /* ─── 3D Chunky Button — playful kid-friendly press effect ─── */
   .btn-chunky {
     box-shadow: 0 5px 0 0 color-mix(in oklab, currentColor 25%, black);
     transition: transform 0.08s ease, box-shadow 0.08s ease;
@@ -203,10 +257,12 @@
     box-shadow: 0 1px 0 0 color-mix(in oklab, currentColor 25%, black);
   }
 
+  /* ─── 3D Chunky Card ─── */
   .card-chunky {
     box-shadow: 0 6px 0 0 var(--color-border);
   }
 
+  /* ─── Background Patterns ─── */
   .bg-paper {
     background-image:
       radial-gradient(circle at 20% 10%, oklch(0.95 0.06 50 / 0.5), transparent 40%),
@@ -223,33 +279,67 @@
       linear-gradient(to bottom, oklch(0.97 0.02 220), oklch(0.985 0.015 95));
   }
 
+  /* ─── Alegria Hero Gradient — warm, inviting, brand-forward ─── */
+  .bg-alegria-hero {
+    background:
+      radial-gradient(ellipse at 20% 0%, oklch(0.95 0.12 40 / 0.6), transparent 50%),
+      radial-gradient(ellipse at 80% 10%, oklch(0.92 0.1 230 / 0.5), transparent 50%),
+      radial-gradient(ellipse at 50% 100%, oklch(0.93 0.1 145 / 0.4), transparent 50%),
+      linear-gradient(to bottom, oklch(0.98 0.02 50), oklch(0.985 0.015 95));
+  }
+
+  /* ─── Text Effects ─── */
   .text-shadow-soft {
     text-shadow: 0 2px 0 color-mix(in oklab, currentColor 18%, transparent);
   }
 
-  /* Touch-target helpers — Guia Mobile §1.4 / §2.3 */
+  /* ─── Touch-target helpers ─── */
   .touch-target { min-height: 48px; min-width: 48px; }
   .touch-target-lg { min-height: 56px; min-width: 56px; }
   .touch-target-kid { min-height: 75px; min-width: 75px; }
 
-  /* Used to outline mascot/cards floating in the scene */
+  /* ─── Floating mascot/cards outline ─── */
   .ring-soft {
     box-shadow:
       0 0 0 4px oklch(1 0 0 / 0.7),
       0 18px 30px -12px oklch(0.4 0.05 260 / 0.25);
   }
 
-  /* Consistent elevation tokens for cards / overlays */
+  /* ─── Elevation tokens ─── */
   .shadow-elegant { box-shadow: 0 14px 40px -18px color-mix(in oklab, var(--color-primary) 35%, transparent); }
   .shadow-soft    { box-shadow: 0 6px 20px -10px color-mix(in oklab, var(--color-foreground) 25%, transparent); }
 
-  /* Unified focus ring for keyboard a11y */
+  /* ─── Keyboard a11y focus ring ─── */
   .focus-ring:focus-visible {
     outline: none;
     box-shadow: 0 0 0 3px var(--color-background), 0 0 0 6px var(--color-ring);
   }
+
+  /* ─── Glass-morphism for overlays ─── */
+  .glass-morphism {
+    background: oklch(1 0 0 / 0.7);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+  }
+  .dark .glass-morphism {
+    background: oklch(0.2 0.04 260 / 0.7);
+  }
+
+  /* ─── Perspective for 3D transforms ─── */
+  .perspective-1000 {
+    perspective: 1000px;
+  }
+
+  /* ─── Chapter color utilities ─── */
+  .chapter-bg-portuguese { background-color: color-mix(in oklab, var(--pt-portuguese) 14%, var(--card)); }
+  .chapter-bg-math { background-color: color-mix(in oklab, var(--pt-math) 14%, var(--card)); }
+  .chapter-bg-world { background-color: color-mix(in oklab, var(--pt-world) 14%, var(--card)); }
+  .chapter-icon-portuguese { background-color: color-mix(in oklab, var(--pt-portuguese) 28%, var(--card)); }
+  .chapter-icon-math { background-color: color-mix(in oklab, var(--pt-math) 28%, var(--card)); }
+  .chapter-icon-world { background-color: color-mix(in oklab, var(--pt-world) 28%, var(--card)); }
 }
 
+/* ─── Keyframes ─── */
 @keyframes float-slow {
   0%, 100% { transform: translateY(0) rotate(0deg); }
   50% { transform: translateY(-12px) rotate(2deg); }
@@ -274,4 +364,14 @@
   0% { transform: scale(0.6); opacity: 0; }
   60% { transform: scale(1.08); opacity: 1; }
   100% { transform: scale(1); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 0 0 color-mix(in oklab, var(--color-primary) 30%, transparent); }
+  50% { box-shadow: 0 0 0 8px color-mix(in oklab, var(--color-primary) 0%, transparent); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
 }

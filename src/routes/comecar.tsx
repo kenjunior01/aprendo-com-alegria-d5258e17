@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Mascot } from "@/components/Mascot";
-import { KidozLogo } from "@/components/KidozLogo";
+import { AlegriaLogo } from "@/components/AlegriaLogo";
 import { ChunkyButton } from "@/components/ChunkyButton";
 import { MASCOTS, type MascotId } from "@/lib/mascots";
 import { defaultProfile, saveProfile } from "@/lib/storage";
@@ -11,14 +11,14 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/comecar")({
   head: () => ({
     meta: [
-      { title: "Começar — Kidoz" },
+      { title: "Começar — Alegria" },
       { name: "description", content: "Cria o teu perfil e escolhe a tua mascote para começar a aventura." },
-      { property: "og:title", content: 'Começar no Kidoz' },
+      { property: "og:title", content: 'Começar no Alegria' },
       { property: "og:description", content: 'Cria o teu perfil e escolhe a tua mascote para começar a aventura.' },
-      { property: "og:url", content: "https://kidoz.online/comecar" },
+      { property: "og:url", content: "https://alegria.online/comecar" },
     ],
     links: [
-      { rel: "canonical", href: "https://kidoz.online/comecar" },
+      { rel: "canonical", href: "https://alegria.online/comecar" },
     ],
   }),
   component: Onboarding,
@@ -74,7 +74,7 @@ function Onboarding() {
     <main className="bg-paper min-h-[100dvh] px-4 py-8 sm:py-10">
       <div className="mx-auto max-w-2xl">
         <div className="mb-4 flex justify-center">
-          <KidozLogo priority className="h-12 w-auto sm:h-14" />
+          <AlegriaLogo priority className="h-12 w-auto sm:h-14" />
         </div>
         <div className="mb-8 flex justify-center gap-2">
           {Array.from({ length: STEPS_TOTAL }).map((_, i) => (
@@ -100,7 +100,7 @@ function Onboarding() {
                   )}
                 >
                   <div className="text-4xl">🧸</div>
-                  <p className="mt-2 font-display text-lg">Kidoz Júnior</p>
+                  <p className="mt-2 font-display text-lg">Alegria Júnior</p>
                   <p className="text-xs text-muted-foreground">2 a 5 anos · jogos simples</p>
                 </button>
                 <button
