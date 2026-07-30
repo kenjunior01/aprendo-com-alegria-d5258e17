@@ -2,12 +2,13 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Mascot } from "@/components/Mascot";
+import { MascotIcon } from "@/components/MascotIcon";
 import { AlegriaLogo } from "@/components/AlegriaLogo";
 import { ChunkyButton } from "@/components/ChunkyButton";
 import { MASCOTS, type MascotId } from "@/lib/mascots";
 import { defaultProfile, saveProfile } from "@/lib/storage";
 import { cn } from "@/lib/utils";
-import { Sparkles, ArrowRight, ArrowLeft, User, Baby, Users } from "lucide-react";
+import { Sparkles, ArrowRight, ArrowLeft, User, Baby, Users, Check } from "lucide-react";
 
 export const Route = createFileRoute("/comecar")({
   head: () => ({
@@ -299,8 +300,18 @@ function Onboarding() {
                       {mascot === m.id && (
                         <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-primary to-xp" />
                       )}
+                      {/* Selected checkmark */}
+                      {mascot === m.id && (
+                        <div className="absolute right-2 top-2 flex h-6 w-6 items-center justify-center rounded-full bg-primary text-primary-foreground">
+                          <Check className="h-3.5 w-3.5" strokeWidth={3} />
+                        </div>
+                      )}
                       <Mascot id={m.id} size="md" bouncing={mascot === m.id} />
                       <p className="mt-1 font-display font-bold">{m.name}</p>
+                      {/* Mascot SVG icon as small badge */}
+                      <div className="mt-1 flex justify-center">
+                        <MascotIcon id={m.id} size={20} />
+                      </div>
                     </button>
                   ))}
                 </div>

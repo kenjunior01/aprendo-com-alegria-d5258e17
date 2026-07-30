@@ -636,3 +636,109 @@
   animation: breathe 3s ease-in-out infinite;
   transform-origin: bottom center;
 }
+
+/* ─── Dark Mode Refinements ─── */
+.dark .bg-alegria-hero {
+  background:
+    radial-gradient(ellipse at 15% 0%, oklch(0.25 0.08 35 / 0.4), transparent 50%),
+    radial-gradient(ellipse at 85% 5%, oklch(0.2 0.06 235 / 0.35), transparent 50%),
+    radial-gradient(ellipse at 50% 100%, oklch(0.22 0.07 148 / 0.25), transparent 50%),
+    linear-gradient(170deg, oklch(0.14 0.02 260), oklch(0.16 0.035 260));
+}
+
+.dark .bg-alegria-app {
+  background:
+    radial-gradient(ellipse at 50% 0%, oklch(0.2 0.03 40 / 0.2), transparent 60%),
+    radial-gradient(ellipse at 80% 100%, oklch(0.18 0.02 230 / 0.15), transparent 50%),
+    linear-gradient(180deg, var(--background), color-mix(in oklab, var(--background) 97%, var(--card)));
+}
+
+.dark .bg-paper {
+  background-image:
+    radial-gradient(circle at 20% 10%, oklch(0.25 0.06 50 / 0.3), transparent 40%),
+    radial-gradient(circle at 80% 0%, oklch(0.2 0.06 200 / 0.25), transparent 45%),
+    radial-gradient(circle at 50% 100%, oklch(0.22 0.06 145 / 0.2), transparent 50%);
+}
+
+.dark .bg-sky-island {
+  background:
+    radial-gradient(ellipse at top, oklch(0.2 0.06 220 / 0.5), transparent 55%),
+    radial-gradient(ellipse at bottom right, oklch(0.18 0.06 30 / 0.4), transparent 50%),
+    radial-gradient(ellipse at bottom left, oklch(0.2 0.06 145 / 0.35), transparent 55%),
+    linear-gradient(to bottom, oklch(0.16 0.02 220), oklch(0.16 0.035 260));
+}
+
+/* Dark mode card refinements — reduce shadow intensity, increase border visibility */
+.dark .card-premium {
+  box-shadow:
+    0 1px 2px color-mix(in oklab, var(--color-foreground) 8%, transparent),
+    0 4px 12px -2px color-mix(in oklab, var(--color-foreground) 12%, transparent),
+    0 12px 28px -8px color-mix(in oklab, var(--color-primary) 8%, transparent);
+  border: 1px solid color-mix(in oklab, var(--color-foreground) 12%, var(--color-card));
+}
+
+.dark .card-chunky {
+  box-shadow: 0 6px 0 0 color-mix(in oklab, var(--color-foreground) 15%, var(--color-border)),
+              0 10px 24px -6px color-mix(in oklab, var(--color-foreground) 12%, transparent);
+}
+
+/* Dark mode button refinements — stronger bottom shadow for depth */
+.dark .btn-chunky {
+  box-shadow: 0 5px 0 0 color-mix(in oklab, currentColor 35%, black),
+              0 8px 16px -4px color-mix(in oklab, currentColor 20%, transparent);
+}
+
+/* Dark mode shadow refinements */
+.dark .shadow-glow {
+  box-shadow: 0 0 24px -4px color-mix(in oklab, var(--color-primary) 25%, transparent);
+}
+
+.dark .shadow-elegant {
+  box-shadow: 0 14px 40px -18px color-mix(in oklab, var(--color-primary) 25%, transparent);
+}
+
+/* Dark mode progress bar glow — more visible */
+.dark .progress-glow::after {
+  box-shadow: 0 0 16px 4px color-mix(in oklab, var(--color-xp) 35%, transparent);
+}
+
+/* Dark mode text gradient — lighter for visibility */
+.dark .text-gradient-brand {
+  background: linear-gradient(135deg, var(--color-primary), var(--color-xp), var(--color-secondary));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Dark mode chapter color backgrounds — slightly more visible */
+.dark .chapter-bg-portuguese { background-color: color-mix(in oklab, var(--pt-portuguese) 18%, var(--card)); }
+.dark .chapter-bg-math { background-color: color-mix(in oklab, var(--pt-math) 18%, var(--card)); }
+.dark .chapter-bg-world { background-color: color-mix(in oklab, var(--pt-world) 18%, var(--card)); }
+.dark .chapter-icon-portuguese { background-color: color-mix(in oklab, var(--pt-portuguese) 25%, var(--card)); }
+.dark .chapter-icon-math { background-color: color-mix(in oklab, var(--pt-math) 25%, var(--card)); }
+.dark .chapter-icon-world { background-color: color-mix(in oklab, var(--pt-world) 25%, var(--card)); }
+
+/* Dark mode scrollbar — more visible */
+.dark .scrollbar-thin {
+  scrollbar-color: color-mix(in oklab, var(--color-foreground) 25%, transparent) transparent;
+}
+.dark .scrollbar-thin::-webkit-scrollbar-thumb {
+  background-color: color-mix(in oklab, var(--color-foreground) 25%, transparent);
+}
+
+/* Dark mode animated border glow — more visible */
+.dark .border-glow:hover::before {
+  opacity: 0.8;
+}
+
+/* Dark mode shimmer — lighter for visibility */
+.dark .progress-shimmer::after {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    oklch(1 0 0 / 0.15) 50%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 2s ease-in-out infinite;
+}
