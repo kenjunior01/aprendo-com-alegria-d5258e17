@@ -9,216 +9,225 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as IndexRouteImport } from './routes/index'
-import { Route as AdminRouteImport } from './routes/admin'
-import { Route as AjudaRouteImport } from './routes/ajuda'
-import { Route as AmigoRouteImport } from './routes/amigo'
-import { Route as AppRouteImport } from './routes/app'
-import { Route as ArcadeRouteImport } from './routes/arcade'
-import { Route as AuthRouteImport } from './routes/auth'
-import { Route as ComecarRouteImport } from './routes/comecar'
-import { Route as ConquistasRouteImport } from './routes/conquistas'
-import { Route as CrechesRouteImport } from './routes/creches'
-import { Route as DesafiosRouteImport } from './routes/desafios'
-import { Route as EscolaRouteImport } from './routes/escola'
-import { Route as EscolasRouteImport } from './routes/escolas'
-import { Route as JardimRouteImport } from './routes/jardim'
-import { Route as JuniorRouteImport } from './routes/junior'
-import { Route as LeituraRouteImport } from './routes/leitura'
-import { Route as LojaRouteImport } from './routes/loja'
-import { Route as MundoRouteImport } from './routes/mundo'
-import { Route as PaisRouteImport } from './routes/pais'
-import { Route as PerfilRouteImport } from './routes/perfil'
-import { Route as PremiumRouteImport } from './routes/premium'
-import { Route as RaRouteImport } from './routes/ra'
 import { Route as TutorRouteImport } from './routes/tutor'
-import { Route as AprenderEstudoDoMeioRouteImport } from './routes/aprender.estudo-do-meio'
-import { Route as AprenderMatematicaRouteImport } from './routes/aprender.matematica'
-import { Route as AprenderPortuguesRouteImport } from './routes/aprender.portugues'
-import { Route as CapituloChapterIdRouteImport } from './routes/capitulo.$chapterId'
-import { Route as CheckoutReturnRouteImport } from './routes/checkout.return'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as RaRouteImport } from './routes/ra'
+import { Route as PremiumRouteImport } from './routes/premium'
+import { Route as PerfilRouteImport } from './routes/perfil'
+import { Route as PaisRouteImport } from './routes/pais'
+import { Route as MundoRouteImport } from './routes/mundo'
+import { Route as LojaRouteImport } from './routes/loja'
+import { Route as LeituraRouteImport } from './routes/leitura'
+import { Route as JuniorRouteImport } from './routes/junior'
+import { Route as JardimRouteImport } from './routes/jardim'
+import { Route as EscolasRouteImport } from './routes/escolas'
+import { Route as EscolaRouteImport } from './routes/escola'
+import { Route as DesafiosRouteImport } from './routes/desafios'
+import { Route as CrechesRouteImport } from './routes/creches'
+import { Route as ConquistasRouteImport } from './routes/conquistas'
+import { Route as ComecarRouteImport } from './routes/comecar'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as ArcadeRouteImport } from './routes/arcade'
+import { Route as AppRouteImport } from './routes/app'
+import { Route as AmigoRouteImport } from './routes/amigo'
+import { Route as AjudaRouteImport } from './routes/ajuda'
+import { Route as AdminRouteImport } from './routes/admin'
+import { Route as IndexRouteImport } from './routes/index'
 import { Route as DesafiosInfinitosRouteImport } from './routes/desafios.infinitos'
+import { Route as CheckoutReturnRouteImport } from './routes/checkout.return'
+import { Route as CapituloChapterIdRouteImport } from './routes/capitulo.$chapterId'
+import { Route as AprenderPortuguesRouteImport } from './routes/aprender.portugues'
+import { Route as AprenderMatematicaRouteImport } from './routes/aprender.matematica'
+import { Route as AprenderEstudoDoMeioRouteImport } from './routes/aprender.estudo-do-meio'
 import { Route as LicaoSubjectIdLessonIdRouteImport } from './routes/licao.$subjectId.$lessonId'
-
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-
-const AdminRoute = AdminRouteImport.update({
-  id: '/admin',
-  path: '/admin',
-  getParentRoute: () => rootRouteImport,
-} as any)
-
-const AjudaRoute = AjudaRouteImport.update({
-  id: '/ajuda',
-  path: '/ajuda',
-  getParentRoute: () => rootRouteImport,
-} as any)
-
-const AmigoRoute = AmigoRouteImport.update({
-  id: '/amigo',
-  path: '/amigo',
-  getParentRoute: () => rootRouteImport,
-} as any)
-
-const AppRoute = AppRouteImport.update({
-  id: '/app',
-  path: '/app',
-  getParentRoute: () => rootRouteImport,
-} as any)
-
-const ArcadeRoute = ArcadeRouteImport.update({
-  id: '/arcade',
-  path: '/arcade',
-  getParentRoute: () => rootRouteImport,
-} as any)
-
-const AuthRoute = AuthRouteImport.update({
-  id: '/auth',
-  path: '/auth',
-  getParentRoute: () => rootRouteImport,
-} as any)
-
-const ComecarRoute = ComecarRouteImport.update({
-  id: '/comecar',
-  path: '/comecar',
-  getParentRoute: () => rootRouteImport,
-} as any)
-
-const ConquistasRoute = ConquistasRouteImport.update({
-  id: '/conquistas',
-  path: '/conquistas',
-  getParentRoute: () => rootRouteImport,
-} as any)
-
-const CrechesRoute = CrechesRouteImport.update({
-  id: '/creches',
-  path: '/creches',
-  getParentRoute: () => rootRouteImport,
-} as any)
-
-const DesafiosRoute = DesafiosRouteImport.update({
-  id: '/desafios',
-  path: '/desafios',
-  getParentRoute: () => rootRouteImport,
-} as any)
-
-const EscolaRoute = EscolaRouteImport.update({
-  id: '/escola',
-  path: '/escola',
-  getParentRoute: () => rootRouteImport,
-} as any)
-
-const EscolasRoute = EscolasRouteImport.update({
-  id: '/escolas',
-  path: '/escolas',
-  getParentRoute: () => rootRouteImport,
-} as any)
-
-const JardimRoute = JardimRouteImport.update({
-  id: '/jardim',
-  path: '/jardim',
-  getParentRoute: () => rootRouteImport,
-} as any)
-
-const JuniorRoute = JuniorRouteImport.update({
-  id: '/junior',
-  path: '/junior',
-  getParentRoute: () => rootRouteImport,
-} as any)
-
-const LeituraRoute = LeituraRouteImport.update({
-  id: '/leitura',
-  path: '/leitura',
-  getParentRoute: () => rootRouteImport,
-} as any)
-
-const LojaRoute = LojaRouteImport.update({
-  id: '/loja',
-  path: '/loja',
-  getParentRoute: () => rootRouteImport,
-} as any)
-
-const MundoRoute = MundoRouteImport.update({
-  id: '/mundo',
-  path: '/mundo',
-  getParentRoute: () => rootRouteImport,
-} as any)
-
-const PaisRoute = PaisRouteImport.update({
-  id: '/pais',
-  path: '/pais',
-  getParentRoute: () => rootRouteImport,
-} as any)
-
-const PerfilRoute = PerfilRouteImport.update({
-  id: '/perfil',
-  path: '/perfil',
-  getParentRoute: () => rootRouteImport,
-} as any)
-
-const PremiumRoute = PremiumRouteImport.update({
-  id: '/premium',
-  path: '/premium',
-  getParentRoute: () => rootRouteImport,
-} as any)
-
-const RaRoute = RaRouteImport.update({
-  id: '/ra',
-  path: '/ra',
-  getParentRoute: () => rootRouteImport,
-} as any)
+import { Route as ApiPublicTutorStreamRouteImport } from './routes/api/public/tutor-stream'
+import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
+import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
+import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
+import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
 
 const TutorRoute = TutorRouteImport.update({
   id: '/tutor',
   path: '/tutor',
   getParentRoute: () => rootRouteImport,
 } as any)
-
-const AprenderEstudoDoMeioRoute = AprenderEstudoDoMeioRouteImport.update({
-  id: '/aprender/estudo-do-meio',
-  path: '/aprender/estudo-do-meio',
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
-
-const AprenderMatematicaRoute = AprenderMatematicaRouteImport.update({
-  id: '/aprender/matematica',
-  path: '/aprender/matematica',
+const RaRoute = RaRouteImport.update({
+  id: '/ra',
+  path: '/ra',
   getParentRoute: () => rootRouteImport,
 } as any)
-
-const AprenderPortuguesRoute = AprenderPortuguesRouteImport.update({
-  id: '/aprender/portugues',
-  path: '/aprender/portugues',
+const PremiumRoute = PremiumRouteImport.update({
+  id: '/premium',
+  path: '/premium',
   getParentRoute: () => rootRouteImport,
 } as any)
-
-const CapituloChapterIdRoute = CapituloChapterIdRouteImport.update({
-  id: '/capitulo/$chapterId',
-  path: '/capitulo/$chapterId',
+const PerfilRoute = PerfilRouteImport.update({
+  id: '/perfil',
+  path: '/perfil',
   getParentRoute: () => rootRouteImport,
 } as any)
-
-const CheckoutReturnRoute = CheckoutReturnRouteImport.update({
-  id: '/checkout/return',
-  path: '/checkout/return',
+const PaisRoute = PaisRouteImport.update({
+  id: '/pais',
+  path: '/pais',
   getParentRoute: () => rootRouteImport,
 } as any)
-
+const MundoRoute = MundoRouteImport.update({
+  id: '/mundo',
+  path: '/mundo',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LojaRoute = LojaRouteImport.update({
+  id: '/loja',
+  path: '/loja',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LeituraRoute = LeituraRouteImport.update({
+  id: '/leitura',
+  path: '/leitura',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const JuniorRoute = JuniorRouteImport.update({
+  id: '/junior',
+  path: '/junior',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const JardimRoute = JardimRouteImport.update({
+  id: '/jardim',
+  path: '/jardim',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EscolasRoute = EscolasRouteImport.update({
+  id: '/escolas',
+  path: '/escolas',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EscolaRoute = EscolaRouteImport.update({
+  id: '/escola',
+  path: '/escola',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DesafiosRoute = DesafiosRouteImport.update({
+  id: '/desafios',
+  path: '/desafios',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CrechesRoute = CrechesRouteImport.update({
+  id: '/creches',
+  path: '/creches',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ConquistasRoute = ConquistasRouteImport.update({
+  id: '/conquistas',
+  path: '/conquistas',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ComecarRoute = ComecarRouteImport.update({
+  id: '/comecar',
+  path: '/comecar',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ArcadeRoute = ArcadeRouteImport.update({
+  id: '/arcade',
+  path: '/arcade',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AppRoute = AppRouteImport.update({
+  id: '/app',
+  path: '/app',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AmigoRoute = AmigoRouteImport.update({
+  id: '/amigo',
+  path: '/amigo',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AjudaRoute = AjudaRouteImport.update({
+  id: '/ajuda',
+  path: '/ajuda',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DesafiosInfinitosRoute = DesafiosInfinitosRouteImport.update({
   id: '/infinitos',
   path: '/infinitos',
   getParentRoute: () => DesafiosRoute,
 } as any)
-
+const CheckoutReturnRoute = CheckoutReturnRouteImport.update({
+  id: '/checkout/return',
+  path: '/checkout/return',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CapituloChapterIdRoute = CapituloChapterIdRouteImport.update({
+  id: '/capitulo/$chapterId',
+  path: '/capitulo/$chapterId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AprenderPortuguesRoute = AprenderPortuguesRouteImport.update({
+  id: '/aprender/portugues',
+  path: '/aprender/portugues',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AprenderMatematicaRoute = AprenderMatematicaRouteImport.update({
+  id: '/aprender/matematica',
+  path: '/aprender/matematica',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AprenderEstudoDoMeioRoute = AprenderEstudoDoMeioRouteImport.update({
+  id: '/aprender/estudo-do-meio',
+  path: '/aprender/estudo-do-meio',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LicaoSubjectIdLessonIdRoute = LicaoSubjectIdLessonIdRouteImport.update({
   id: '/licao/$subjectId/$lessonId',
   path: '/licao/$subjectId/$lessonId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicTutorStreamRoute = ApiPublicTutorStreamRouteImport.update({
+  id: '/api/public/tutor-stream',
+  path: '/api/public/tutor-stream',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LovableEmailQueueProcessRoute =
+  LovableEmailQueueProcessRouteImport.update({
+    id: '/lovable/email/queue/process',
+    path: '/lovable/email/queue/process',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const LovableEmailAuthWebhookRoute = LovableEmailAuthWebhookRouteImport.update({
+  id: '/lovable/email/auth/webhook',
+  path: '/lovable/email/auth/webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LovableEmailAuthPreviewRoute = LovableEmailAuthPreviewRouteImport.update({
+  id: '/lovable/email/auth/preview',
+  path: '/lovable/email/auth/preview',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicPaymentsWebhookRoute =
+  ApiPublicPaymentsWebhookRouteImport.update({
+    id: '/api/public/payments/webhook',
+    path: '/api/public/payments/webhook',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -243,6 +252,7 @@ export interface FileRoutesByFullPath {
   '/perfil': typeof PerfilRoute
   '/premium': typeof PremiumRoute
   '/ra': typeof RaRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/tutor': typeof TutorRoute
   '/aprender/estudo-do-meio': typeof AprenderEstudoDoMeioRoute
   '/aprender/matematica': typeof AprenderMatematicaRoute
@@ -250,9 +260,13 @@ export interface FileRoutesByFullPath {
   '/capitulo/$chapterId': typeof CapituloChapterIdRoute
   '/checkout/return': typeof CheckoutReturnRoute
   '/desafios/infinitos': typeof DesafiosInfinitosRoute
+  '/api/public/tutor-stream': typeof ApiPublicTutorStreamRoute
   '/licao/$subjectId/$lessonId': typeof LicaoSubjectIdLessonIdRoute
+  '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
+  '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
+  '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
+  '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
 }
-
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
@@ -276,6 +290,7 @@ export interface FileRoutesByTo {
   '/perfil': typeof PerfilRoute
   '/premium': typeof PremiumRoute
   '/ra': typeof RaRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/tutor': typeof TutorRoute
   '/aprender/estudo-do-meio': typeof AprenderEstudoDoMeioRoute
   '/aprender/matematica': typeof AprenderMatematicaRoute
@@ -283,9 +298,13 @@ export interface FileRoutesByTo {
   '/capitulo/$chapterId': typeof CapituloChapterIdRoute
   '/checkout/return': typeof CheckoutReturnRoute
   '/desafios/infinitos': typeof DesafiosInfinitosRoute
+  '/api/public/tutor-stream': typeof ApiPublicTutorStreamRoute
   '/licao/$subjectId/$lessonId': typeof LicaoSubjectIdLessonIdRoute
+  '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
+  '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
+  '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
+  '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
 }
-
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
@@ -310,6 +329,7 @@ export interface FileRoutesById {
   '/perfil': typeof PerfilRoute
   '/premium': typeof PremiumRoute
   '/ra': typeof RaRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/tutor': typeof TutorRoute
   '/aprender/estudo-do-meio': typeof AprenderEstudoDoMeioRoute
   '/aprender/matematica': typeof AprenderMatematicaRoute
@@ -317,9 +337,13 @@ export interface FileRoutesById {
   '/capitulo/$chapterId': typeof CapituloChapterIdRoute
   '/checkout/return': typeof CheckoutReturnRoute
   '/desafios/infinitos': typeof DesafiosInfinitosRoute
+  '/api/public/tutor-stream': typeof ApiPublicTutorStreamRoute
   '/licao/$subjectId/$lessonId': typeof LicaoSubjectIdLessonIdRoute
+  '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
+  '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
+  '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
+  '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
 }
-
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
@@ -345,6 +369,7 @@ export interface FileRouteTypes {
     | '/perfil'
     | '/premium'
     | '/ra'
+    | '/sitemap.xml'
     | '/tutor'
     | '/aprender/estudo-do-meio'
     | '/aprender/matematica'
@@ -352,7 +377,12 @@ export interface FileRouteTypes {
     | '/capitulo/$chapterId'
     | '/checkout/return'
     | '/desafios/infinitos'
+    | '/api/public/tutor-stream'
     | '/licao/$subjectId/$lessonId'
+    | '/api/public/payments/webhook'
+    | '/lovable/email/auth/preview'
+    | '/lovable/email/auth/webhook'
+    | '/lovable/email/queue/process'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -377,6 +407,7 @@ export interface FileRouteTypes {
     | '/perfil'
     | '/premium'
     | '/ra'
+    | '/sitemap.xml'
     | '/tutor'
     | '/aprender/estudo-do-meio'
     | '/aprender/matematica'
@@ -384,7 +415,12 @@ export interface FileRouteTypes {
     | '/capitulo/$chapterId'
     | '/checkout/return'
     | '/desafios/infinitos'
+    | '/api/public/tutor-stream'
     | '/licao/$subjectId/$lessonId'
+    | '/api/public/payments/webhook'
+    | '/lovable/email/auth/preview'
+    | '/lovable/email/auth/webhook'
+    | '/lovable/email/queue/process'
   id:
     | '__root__'
     | '/'
@@ -409,6 +445,7 @@ export interface FileRouteTypes {
     | '/perfil'
     | '/premium'
     | '/ra'
+    | '/sitemap.xml'
     | '/tutor'
     | '/aprender/estudo-do-meio'
     | '/aprender/matematica'
@@ -416,10 +453,14 @@ export interface FileRouteTypes {
     | '/capitulo/$chapterId'
     | '/checkout/return'
     | '/desafios/infinitos'
+    | '/api/public/tutor-stream'
     | '/licao/$subjectId/$lessonId'
+    | '/api/public/payments/webhook'
+    | '/lovable/email/auth/preview'
+    | '/lovable/email/auth/webhook'
+    | '/lovable/email/queue/process'
   fileRoutesById: FileRoutesById
 }
-
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRoute
@@ -443,16 +484,283 @@ export interface RootRouteChildren {
   PerfilRoute: typeof PerfilRoute
   PremiumRoute: typeof PremiumRoute
   RaRoute: typeof RaRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TutorRoute: typeof TutorRoute
   AprenderEstudoDoMeioRoute: typeof AprenderEstudoDoMeioRoute
   AprenderMatematicaRoute: typeof AprenderMatematicaRoute
   AprenderPortuguesRoute: typeof AprenderPortuguesRoute
   CapituloChapterIdRoute: typeof CapituloChapterIdRoute
   CheckoutReturnRoute: typeof CheckoutReturnRoute
+  ApiPublicTutorStreamRoute: typeof ApiPublicTutorStreamRoute
   LicaoSubjectIdLessonIdRoute: typeof LicaoSubjectIdLessonIdRoute
+  ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
+  LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
+  LovableEmailAuthWebhookRoute: typeof LovableEmailAuthWebhookRoute
+  LovableEmailQueueProcessRoute: typeof LovableEmailQueueProcessRoute
 }
 
-const DesafiosRouteChildren = {
+declare module '@tanstack/react-router' {
+  interface FileRoutesByPath {
+    '/tutor': {
+      id: '/tutor'
+      path: '/tutor'
+      fullPath: '/tutor'
+      preLoaderRoute: typeof TutorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ra': {
+      id: '/ra'
+      path: '/ra'
+      fullPath: '/ra'
+      preLoaderRoute: typeof RaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/premium': {
+      id: '/premium'
+      path: '/premium'
+      fullPath: '/premium'
+      preLoaderRoute: typeof PremiumRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/perfil': {
+      id: '/perfil'
+      path: '/perfil'
+      fullPath: '/perfil'
+      preLoaderRoute: typeof PerfilRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pais': {
+      id: '/pais'
+      path: '/pais'
+      fullPath: '/pais'
+      preLoaderRoute: typeof PaisRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mundo': {
+      id: '/mundo'
+      path: '/mundo'
+      fullPath: '/mundo'
+      preLoaderRoute: typeof MundoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/loja': {
+      id: '/loja'
+      path: '/loja'
+      fullPath: '/loja'
+      preLoaderRoute: typeof LojaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/leitura': {
+      id: '/leitura'
+      path: '/leitura'
+      fullPath: '/leitura'
+      preLoaderRoute: typeof LeituraRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/junior': {
+      id: '/junior'
+      path: '/junior'
+      fullPath: '/junior'
+      preLoaderRoute: typeof JuniorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/jardim': {
+      id: '/jardim'
+      path: '/jardim'
+      fullPath: '/jardim'
+      preLoaderRoute: typeof JardimRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/escolas': {
+      id: '/escolas'
+      path: '/escolas'
+      fullPath: '/escolas'
+      preLoaderRoute: typeof EscolasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/escola': {
+      id: '/escola'
+      path: '/escola'
+      fullPath: '/escola'
+      preLoaderRoute: typeof EscolaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/desafios': {
+      id: '/desafios'
+      path: '/desafios'
+      fullPath: '/desafios'
+      preLoaderRoute: typeof DesafiosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/creches': {
+      id: '/creches'
+      path: '/creches'
+      fullPath: '/creches'
+      preLoaderRoute: typeof CrechesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/conquistas': {
+      id: '/conquistas'
+      path: '/conquistas'
+      fullPath: '/conquistas'
+      preLoaderRoute: typeof ConquistasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/comecar': {
+      id: '/comecar'
+      path: '/comecar'
+      fullPath: '/comecar'
+      preLoaderRoute: typeof ComecarRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/arcade': {
+      id: '/arcade'
+      path: '/arcade'
+      fullPath: '/arcade'
+      preLoaderRoute: typeof ArcadeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/app': {
+      id: '/app'
+      path: '/app'
+      fullPath: '/app'
+      preLoaderRoute: typeof AppRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/amigo': {
+      id: '/amigo'
+      path: '/amigo'
+      fullPath: '/amigo'
+      preLoaderRoute: typeof AmigoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ajuda': {
+      id: '/ajuda'
+      path: '/ajuda'
+      fullPath: '/ajuda'
+      preLoaderRoute: typeof AjudaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/desafios/infinitos': {
+      id: '/desafios/infinitos'
+      path: '/infinitos'
+      fullPath: '/desafios/infinitos'
+      preLoaderRoute: typeof DesafiosInfinitosRouteImport
+      parentRoute: typeof DesafiosRoute
+    }
+    '/checkout/return': {
+      id: '/checkout/return'
+      path: '/checkout/return'
+      fullPath: '/checkout/return'
+      preLoaderRoute: typeof CheckoutReturnRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/capitulo/$chapterId': {
+      id: '/capitulo/$chapterId'
+      path: '/capitulo/$chapterId'
+      fullPath: '/capitulo/$chapterId'
+      preLoaderRoute: typeof CapituloChapterIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/aprender/portugues': {
+      id: '/aprender/portugues'
+      path: '/aprender/portugues'
+      fullPath: '/aprender/portugues'
+      preLoaderRoute: typeof AprenderPortuguesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/aprender/matematica': {
+      id: '/aprender/matematica'
+      path: '/aprender/matematica'
+      fullPath: '/aprender/matematica'
+      preLoaderRoute: typeof AprenderMatematicaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/aprender/estudo-do-meio': {
+      id: '/aprender/estudo-do-meio'
+      path: '/aprender/estudo-do-meio'
+      fullPath: '/aprender/estudo-do-meio'
+      preLoaderRoute: typeof AprenderEstudoDoMeioRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/licao/$subjectId/$lessonId': {
+      id: '/licao/$subjectId/$lessonId'
+      path: '/licao/$subjectId/$lessonId'
+      fullPath: '/licao/$subjectId/$lessonId'
+      preLoaderRoute: typeof LicaoSubjectIdLessonIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/tutor-stream': {
+      id: '/api/public/tutor-stream'
+      path: '/api/public/tutor-stream'
+      fullPath: '/api/public/tutor-stream'
+      preLoaderRoute: typeof ApiPublicTutorStreamRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lovable/email/queue/process': {
+      id: '/lovable/email/queue/process'
+      path: '/lovable/email/queue/process'
+      fullPath: '/lovable/email/queue/process'
+      preLoaderRoute: typeof LovableEmailQueueProcessRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lovable/email/auth/webhook': {
+      id: '/lovable/email/auth/webhook'
+      path: '/lovable/email/auth/webhook'
+      fullPath: '/lovable/email/auth/webhook'
+      preLoaderRoute: typeof LovableEmailAuthWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lovable/email/auth/preview': {
+      id: '/lovable/email/auth/preview'
+      path: '/lovable/email/auth/preview'
+      fullPath: '/lovable/email/auth/preview'
+      preLoaderRoute: typeof LovableEmailAuthPreviewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/payments/webhook': {
+      id: '/api/public/payments/webhook'
+      path: '/api/public/payments/webhook'
+      fullPath: '/api/public/payments/webhook'
+      preLoaderRoute: typeof ApiPublicPaymentsWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+  }
+}
+
+interface DesafiosRouteChildren {
+  DesafiosInfinitosRoute: typeof DesafiosInfinitosRoute
+}
+
+const DesafiosRouteChildren: DesafiosRouteChildren = {
   DesafiosInfinitosRoute: DesafiosInfinitosRoute,
 }
 
@@ -483,15 +791,29 @@ const rootRouteChildren: RootRouteChildren = {
   PerfilRoute: PerfilRoute,
   PremiumRoute: PremiumRoute,
   RaRoute: RaRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
   TutorRoute: TutorRoute,
   AprenderEstudoDoMeioRoute: AprenderEstudoDoMeioRoute,
   AprenderMatematicaRoute: AprenderMatematicaRoute,
   AprenderPortuguesRoute: AprenderPortuguesRoute,
   CapituloChapterIdRoute: CapituloChapterIdRoute,
   CheckoutReturnRoute: CheckoutReturnRoute,
+  ApiPublicTutorStreamRoute: ApiPublicTutorStreamRoute,
   LicaoSubjectIdLessonIdRoute: LicaoSubjectIdLessonIdRoute,
+  ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
+  LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
+  LovableEmailAuthWebhookRoute: LovableEmailAuthWebhookRoute,
+  LovableEmailQueueProcessRoute: LovableEmailQueueProcessRoute,
 }
-
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}

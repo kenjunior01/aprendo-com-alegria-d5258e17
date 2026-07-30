@@ -1,16 +1,19 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { TopBar } from "@/components/TopBar";
 import { BottomNav } from "@/components/BottomNav";
 import { Mascot } from "@/components/Mascot";
 import { MascotVoiceTutor } from "@/components/MascotVoiceTutor";
+import { DuolingoBar, StreakCelebration, HeartRefillNotification } from "@/components/DuolingoBar";
 import { CHAPTERS, type Chapter, type Mission } from "@/lib/chapters";
 import { loadProfile, pullProfileFromCloud, type Profile } from "@/lib/storage";
 import { getMascot } from "@/lib/mascots";
 import { AdaptiveTip } from "@/components/AdaptiveTip";
 import { MissionOfTheDay } from "@/components/MissionOfTheDay";
 import { SeasonalBanner } from "@/components/SeasonalBanner";
+import { DailyChallengeCard } from "@/components/DailyChallengeCard";
+import { LeagueLeaderboard } from "@/components/LeagueLeaderboard";
 import { Lock, Star, CheckCircle2, Crown, Play, Gamepad2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { haptic } from "@/lib/haptics";
@@ -18,14 +21,14 @@ import { haptic } from "@/lib/haptics";
 export const Route = createFileRoute("/app")({
   head: () => ({
     meta: [
-      { title: "A minha aventura — Kidoz" },
+      { title: "A minha aventura — Alegria" },
       { name: "description", content: "Caminho de aprendizagem visual: Português, Matemática e Estudo do Meio." },
-      { property: "og:title", content: 'A minha aventura — Kidoz' },
+      { property: "og:title", content: 'A minha aventura — Alegria' },
       { property: "og:description", content: 'Caminho de aprendizagem visual para Português, Matemática e Estudo do Meio do 1.º ciclo.' },
-      { property: "og:url", content: "https://kidoz.online/app" },
+      { property: "og:url", content: "https://alegria.online/app" },
     ],
     links: [
-      { rel: "canonical", href: "https://kidoz.online/app" },
+      { rel: "canonical", href: "https://alegria.online/app" },
     ],
   }),
   component: AppHome,
@@ -34,6 +37,8 @@ export const Route = createFileRoute("/app")({
 function AppHome() {
   const navigate = useNavigate();
   const [profile, setProfile] = useState<Profile | null>(null);
+  const [showStreakCelebration, setShowStreakCelebration] = useState(false);
+  const [showHeartWarning, setShowHeartWarning] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -50,6 +55,15 @@ function AppHome() {
         return;
       }
       setProfile(p);
+      // Check streak milestones
+      const milestones = [3, 7, 14, 30, 60, 100];
+      if (milestones.includes(p.streak)) {
+        setShowStreakCelebration(true);
+      }
+      // Show heart warning if low
+      if (p.hearts <= 1) {
+        setShowHeartWarning(true);
+      }
     };
     init();
     return () => { cancelled = true; };
@@ -63,9 +77,10 @@ function AppHome() {
   return (
     <div className="min-h-[100dvh] bg-background pb-28 md:pb-12">
       <TopBar profile={profile} />
+      <DuolingoBar profile={profile} />
 
       <main className="mx-auto max-w-2xl px-4 py-4 sm:py-6">
-        <h1 className="sr-only">A minha aventura no Kidoz — caminho de aprendizagem de {profile.name}</h1>
+        <h1 className="sr-only">A minha aventura no Alegria — caminho de aprendizagem de {profile.name}</h1>
         {/* Hero greeting */}
         <motion.section
           initial={{ opacity: 0, y: 10 }}
@@ -122,9 +137,15 @@ function AppHome() {
 
         <SeasonalBanner region={profile.region ?? null} />
 
+        {/* Daily Challenge */}
+        <DailyChallengeCard profile={profile} />
+
         <MissionOfTheDay completedLessons={profile.completedLessons} grade={profile.grade} />
 
         <AdaptiveTip />
+
+        {/* League Leaderboard */}
+        <LeagueLeaderboard profile={profile} />
 
         {/* Quick links */}
         <div className="mb-6 grid grid-cols-3 gap-2 sm:gap-3">
@@ -146,6 +167,18 @@ function AppHome() {
       </main>
 
       <BottomNav />
+
+      <AnimatePresence>
+        {showStreakCelebration && profile && (
+          <StreakCelebration streak={profile.streak} onDismiss={() => setShowStreakCelebration(false)} />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showHeartWarning && profile && (
+          <HeartRefillNotification hearts={profile.hearts} onDismiss={() => setShowHeartWarning(false)} />
+        )}
+      </AnimatePresence>
     </div>
   );
 }
