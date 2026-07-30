@@ -79,7 +79,7 @@ function Landing() {
           transition={{ duration: 0.5 }}
           className="mb-2 inline-flex items-center gap-2 rounded-full bg-card px-4 py-1.5 font-display text-xs font-semibold text-primary shadow-sm sm:text-sm"
         >
-          {region ? regionBadgeText(region) : "🌍 A detetar a tua região…"}
+          {region ? regionBadgeText(region) : "A detetar a tua região..."}
         </motion.div>
 
         <motion.h1
@@ -88,7 +88,7 @@ function Landing() {
           transition={{ delay: 0.1 }}
           className="font-display text-4xl font-bold leading-tight sm:text-5xl md:text-7xl"
         >
-          Aprender é <span className="text-primary">brincar</span>!
+          Aprender é <span className="text-gradient-brand">brincar</span>!
         </motion.h1>
 
         <motion.p
@@ -97,7 +97,7 @@ function Landing() {
           transition={{ delay: 0.2 }}
           className="mt-3 max-w-xl text-base text-foreground/80 sm:mt-4 sm:text-lg md:text-xl"
         >
-          Português, Matemática e Estudo do Meio com mascotes divertidas, lições curtas e muitas estrelinhas. ✨
+          Português, Matemática e Estudo do Meio com mascotes divertidas, lições curtas e muitas estrelinhas.
         </motion.p>
 
         {/* ─── Mascot Row ─── */}
@@ -127,14 +127,14 @@ function Landing() {
         >
           <Link to="/comecar" className="flex-1 sm:flex-none">
             <ChunkyButton tone="primary" className="w-full text-base sm:text-lg">
-              Começar a aventura 🚀
+              Começar a aventura
             </ChunkyButton>
           </Link>
           <Link to="/auth" className="flex-1 sm:flex-none">
             <ChunkyButton tone="ghost" className="w-full">Já tenho conta</ChunkyButton>
           </Link>
           <Link to="/pais" className="flex-1 sm:flex-none">
-            <ChunkyButton tone="secondary" className="w-full">👨‍👩‍👧 Sou pai/mãe</ChunkyButton>
+            <ChunkyButton tone="secondary" className="w-full">Sou pai/mãe</ChunkyButton>
           </Link>
         </motion.div>
 
@@ -190,13 +190,13 @@ function Landing() {
         {/* ─── Bottom CTAs ─── */}
         <div className="mt-10 flex w-full max-w-xs flex-col items-stretch gap-3 sm:max-w-none sm:flex-row sm:justify-center">
           <Link to="/junior" className="flex-1 sm:flex-none">
-            <ChunkyButton tone="secondary" className="w-full">🌱 Alegria Júnior — 2 a 5 anos</ChunkyButton>
+            <ChunkyButton tone="secondary" className="w-full">Alegria Júnior — 2 a 5 anos</ChunkyButton>
           </Link>
           <Link to="/escolas" className="flex-1 sm:flex-none">
-            <ChunkyButton tone="ghost" className="w-full">🏫 Escolas — 0,99€/aluno</ChunkyButton>
+            <ChunkyButton tone="ghost" className="w-full">Escolas — 0,99€/aluno</ChunkyButton>
           </Link>
           <Link to="/creches" className="flex-1 sm:flex-none">
-            <ChunkyButton tone="ghost" className="w-full">🏡 Creches — planos B2B</ChunkyButton>
+            <ChunkyButton tone="ghost" className="w-full">Creches — planos B2B</ChunkyButton>
           </Link>
         </div>
       </div>
@@ -204,7 +204,7 @@ function Landing() {
   );
 }
 
-// ─── Subject Feature Card ───
+// ─── Subject Feature Card — Premium ───
 function SubjectFeatureCard({ emoji, title, text, colorVar, icon }: {
   emoji: string; title: string; text: string; colorVar: string; icon: React.ReactNode;
 }) {
@@ -213,11 +213,11 @@ function SubjectFeatureCard({ emoji, title, text, colorVar, icon }: {
       initial={{ opacity: 0, y: 16 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
-      className="card-chunky group overflow-hidden rounded-3xl border border-border bg-card p-5 text-left transition-transform hover:scale-[1.02]"
+      className="card-premium group overflow-hidden rounded-3xl bg-card p-5 text-left transition-all hover:shadow-glow"
     >
       <div className="flex items-center gap-3">
         <div
-          className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl text-2xl shadow-sm"
+          className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl text-2xl shadow-sm transition-transform group-hover:scale-110"
           style={{ backgroundColor: `color-mix(in oklab, var(${colorVar}) 18%, var(--card))` }}
         >
           {emoji}
@@ -256,7 +256,7 @@ function HowItWorks() {
             whileInView="visible"
             viewport={{ once: true }}
             variants={fadeUp}
-            className="card-chunky relative overflow-hidden rounded-3xl border border-border bg-card p-6 text-left"
+            className="card-premium relative overflow-hidden rounded-3xl bg-card p-6 text-left"
           >
             <span className="absolute -right-3 -top-3 text-8xl opacity-[0.06] font-display font-bold">{s.n}</span>
             <div className="text-3xl">{s.emoji}</div>
@@ -290,7 +290,7 @@ function GamificationPreview() {
             whileInView="visible"
             viewport={{ once: true }}
             variants={fadeUp}
-            className="card-chunky flex flex-col items-center rounded-3xl border border-border bg-card p-5 text-center"
+            className="card-premium flex flex-col items-center rounded-3xl bg-card p-5 text-center transition-all hover:shadow-glow"
           >
             <div className={cn("mb-2", f.color)}>{f.icon}</div>
             <p className="font-display text-sm font-bold">{f.label}</p>
@@ -333,7 +333,7 @@ function LessonPathPreview() {
             <div className={`grid h-16 w-16 shrink-0 place-items-center rounded-full text-3xl shadow-md ring-4 ring-card ${n.tone}`}>
               {n.e}
             </div>
-            <div className="card-chunky flex-1 rounded-2xl border border-border bg-card px-4 py-3">
+            <div className="card-premium flex-1 rounded-2xl bg-card px-4 py-3">
               <p className="font-display text-base">{n.t}</p>
               <p className="text-xs text-muted-foreground">5 min · {(i + 1) * 10} XP</p>
             </div>
@@ -365,7 +365,7 @@ function Testimonials() {
             whileInView="visible"
             viewport={{ once: true }}
             variants={fadeUp}
-            className="card-chunky rounded-3xl border border-border bg-card p-5 text-left"
+            className="card-premium rounded-3xl bg-card p-5 text-left"
           >
             <div className="mb-2 flex gap-0.5 text-xp text-sm">★★★★★</div>
             <blockquote className="text-sm leading-snug">"{t.text}"</blockquote>

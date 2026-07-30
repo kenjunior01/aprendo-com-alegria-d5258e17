@@ -11,13 +11,13 @@ export function ChunkyButton({ tone = "primary", className, children, ...props }
     success: "bg-success text-success-foreground",
     secondary: "bg-secondary text-secondary-foreground",
     danger: "bg-destructive text-destructive-foreground",
-    ghost: "bg-card text-foreground",
+    ghost: "bg-card text-foreground border border-border",
   };
   return (
     <motion.button
       whileTap={{ scale: 0.97 }}
       className={cn(
-        "btn-chunky inline-flex items-center justify-center gap-2 rounded-2xl px-6 py-3 font-display text-base font-semibold uppercase tracking-wide disabled:opacity-50 disabled:pointer-events-none",
+        "btn-chunky inline-flex items-center justify-center gap-2 rounded-2xl px-6 py-3 font-display text-base font-semibold uppercase tracking-wide disabled:opacity-50 disabled:pointer-events-none transition-shadow hover:shadow-glow",
         tones[tone],
         className,
       )}

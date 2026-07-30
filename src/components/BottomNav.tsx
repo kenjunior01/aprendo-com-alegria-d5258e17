@@ -6,9 +6,10 @@ import { loadProfile } from "@/lib/storage";
 import { Mascot } from "./Mascot";
 
 /**
- * Mobile-first bottom navigation. Following the design proposal: large icons
- * (~28px), generous touch targets (>=64px tall), short labels, mascot as
- * tutor entry point. Hidden on md+ where in-page navigation is sufficient.
+ * Mobile-first bottom navigation — Premium Design
+ * Large icons (~28px), generous touch targets (>=64px tall),
+ * short labels, mascot as tutor entry point.
+ * Hidden on md+ where in-page navigation is sufficient.
  */
 export function BottomNav() {
   const location = useLocation();
@@ -43,7 +44,7 @@ export function BottomNav() {
   return (
     <nav
       aria-label="Navegação principal"
-      className="fixed inset-x-0 bottom-0 z-40 border-t-2 border-border bg-card/95 backdrop-blur md:hidden"
+      className="glass-premium fixed inset-x-0 bottom-0 z-40 border-t border-border/50 md:hidden"
       style={{ paddingBottom: "max(0.35rem, env(safe-area-inset-bottom))" }}
     >
       <ul className="mx-auto flex max-w-md items-stretch justify-around px-1 pt-1">
@@ -57,9 +58,10 @@ export function BottomNav() {
                 aria-label={item.label}
                 aria-current={active ? "page" : undefined}
                 className={cn(
-                  // Min 64px tall for finger-friendly hit area
-                  "flex min-h-[64px] flex-col items-center justify-center gap-1 rounded-2xl px-1 py-1.5 font-display text-[11px] font-bold transition-colors",
-                  active ? "text-primary bg-primary/10" : "text-muted-foreground active:bg-muted/60",
+                  "flex min-h-[64px] flex-col items-center justify-center gap-1 rounded-2xl px-1 py-1.5 font-display text-[11px] font-bold transition-all",
+                  active
+                    ? "text-primary bg-primary/10"
+                    : "text-muted-foreground active:bg-muted/60 hover:text-foreground",
                 )}
               >
                 {item.mascot ? (
@@ -67,7 +69,12 @@ export function BottomNav() {
                     <Mascot id={profile?.mascot || "owl"} size="sm" bouncing={active} />
                   </div>
                 ) : Icon ? (
-                  <Icon className={cn("h-7 w-7 transition-transform", active && "scale-110")} strokeWidth={active ? 2.6 : 2} aria-hidden="true" />
+                  <div className={cn(
+                    "flex h-7 w-7 items-center justify-center rounded-xl transition-all",
+                    active && "bg-primary/10"
+                  )}>
+                    <Icon className={cn("h-5 w-5 transition-transform", active && "scale-110")} strokeWidth={active ? 2.6 : 2} aria-hidden="true" />
+                  </div>
                 ) : null}
                 <span className="leading-tight">{item.label}</span>
               </Link>

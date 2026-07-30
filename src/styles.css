@@ -78,134 +78,138 @@
   --animate-pop: pop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
   --animate-pulse-glow: pulse-glow 2s ease-in-out infinite;
   --animate-shimmer: shimmer 2s ease-in-out infinite;
+  --animate-sparkle: sparkle 1.5s ease-in-out infinite;
+  --animate-slide-up: slide-up 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  --animate-scale-in: scale-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  --animate-glow-pulse: glow-pulse 2s ease-in-out infinite;
 }
 
 :root {
   --radius: 1rem;
 
-  /* ─── Alegria Brand Palette ─── */
-  /* Warm cream background — soft, inviting for kids */
-  --background: oklch(0.985 0.015 95);
-  --foreground: oklch(0.22 0.04 260);
+  /* ─── Alegria Brand Palette — Premium ─── */
+  /* Warm cream background with subtle warmth */
+  --background: oklch(0.985 0.012 80);
+  --foreground: oklch(0.18 0.04 260);
 
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.22 0.04 260);
+  --card-foreground: oklch(0.18 0.04 260);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.22 0.04 260);
+  --popover-foreground: oklch(0.18 0.04 260);
 
-  /* Primary: Warm coral-orange — the heart of Alegria */
-  --primary: oklch(0.72 0.19 40);
+  /* Primary: Vibrant coral-orange — Alegria's signature warmth */
+  --primary: oklch(0.7 0.2 35);
   --primary-foreground: oklch(0.99 0 0);
 
-  /* Secondary: Sky blue — trust, calm, learning */
-  --secondary: oklch(0.82 0.1 230);
-  --secondary-foreground: oklch(0.22 0.05 260);
+  /* Secondary: Deep sky blue — trust, calm, learning */
+  --secondary: oklch(0.8 0.12 235);
+  --secondary-foreground: oklch(0.15 0.04 260);
 
-  --muted: oklch(0.96 0.015 90);
-  --muted-foreground: oklch(0.5 0.03 260);
+  --muted: oklch(0.965 0.01 80);
+  --muted-foreground: oklch(0.48 0.03 260);
 
   /* Accent: Warm gold — celebration, achievement */
-  --accent: oklch(0.9 0.09 90);
-  --accent-foreground: oklch(0.3 0.05 50);
+  --accent: oklch(0.88 0.1 85);
+  --accent-foreground: oklch(0.28 0.06 50);
 
   /* Destructive: Warm red — errors, hearts */
-  --destructive: oklch(0.62 0.22 25);
+  --destructive: oklch(0.6 0.22 25);
   --destructive-foreground: oklch(0.99 0 0);
 
   /* Success: Fresh green — correct, completed */
-  --success: oklch(0.72 0.18 145);
+  --success: oklch(0.7 0.19 150);
   --success-foreground: oklch(0.99 0 0);
 
   /* Warning: Warm yellow — alerts */
   --warning: oklch(0.82 0.16 85);
   --warning-foreground: oklch(0.25 0.05 60);
 
-  --border: oklch(0.9 0.02 90);
-  --input: oklch(0.9 0.02 90);
-  --ring: oklch(0.72 0.19 40);
+  --border: oklch(0.91 0.015 80);
+  --input: oklch(0.91 0.015 80);
+  --ring: oklch(0.7 0.2 35);
 
-  /* ─── Subject Colors — vibrant but accessible ─── */
-  --pt-portuguese: oklch(0.68 0.19 25);   /* Warm red-orange */
-  --pt-math: oklch(0.65 0.17 250);       /* Friendly blue */
-  --pt-world: oklch(0.7 0.17 145);       /* Fresh green */
+  /* ─── Subject Colors — vibrant, distinct, accessible ─── */
+  --pt-portuguese: oklch(0.65 0.2 22);   /* Warm red-orange — Portuguese */
+  --pt-math: oklch(0.62 0.18 250);       /* Deep blue — Mathematics */
+  --pt-world: oklch(0.68 0.18 148);      /* Fresh green — World Studies */
 
   /* ─── Gamification Colors ─── */
-  --streak: oklch(0.74 0.19 55);          /* Flame orange */
-  --xp: oklch(0.78 0.16 95);              /* Gold */
-  --gem: oklch(0.72 0.15 200);            /* Cyan */
-  --hearts: oklch(0.62 0.22 25);          /* Red — hearts */
-  --coins: oklch(0.8 0.16 85);            /* Gold — coins */
+  --streak: oklch(0.72 0.2 55);          /* Flame orange */
+  --xp: oklch(0.76 0.17 90);             /* Gold — XP */
+  --gem: oklch(0.7 0.16 200);            /* Cyan — gems */
+  --hearts: oklch(0.6 0.22 25);          /* Warm red — hearts */
+  --coins: oklch(0.78 0.17 85);          /* Gold — coins/Abracadinhos */
 
   /* ─── League Colors ─── */
-  --leagues-bronze: oklch(0.65 0.1 55);
-  --leagues-prata: oklch(0.75 0.02 260);
-  --leagues-ouro: oklch(0.8 0.16 95);
-  --leagues-diamante: oklch(0.78 0.1 210);
-  --leagues-lenda: oklch(0.65 0.2 310);
+  --leagues-bronze: oklch(0.62 0.1 55);
+  --leagues-prata: oklch(0.74 0.02 260);
+  --leagues-ouro: oklch(0.78 0.17 95);
+  --leagues-diamante: oklch(0.76 0.12 210);
+  --leagues-lenda: oklch(0.62 0.22 310);
 
   /* ─── Chart Colors ─── */
-  --chart-1: oklch(0.72 0.19 40);
-  --chart-2: oklch(0.65 0.17 250);
-  --chart-3: oklch(0.7 0.17 145);
-  --chart-4: oklch(0.78 0.16 95);
-  --chart-5: oklch(0.68 0.19 25);
+  --chart-1: oklch(0.7 0.2 35);
+  --chart-2: oklch(0.62 0.18 250);
+  --chart-3: oklch(0.68 0.18 148);
+  --chart-4: oklch(0.76 0.17 90);
+  --chart-5: oklch(0.65 0.2 22);
 
   /* ─── Sidebar ─── */
-  --sidebar: oklch(0.98 0.01 90);
-  --sidebar-foreground: oklch(0.22 0.04 260);
-  --sidebar-primary: oklch(0.72 0.19 40);
+  --sidebar: oklch(0.98 0.01 80);
+  --sidebar-foreground: oklch(0.18 0.04 260);
+  --sidebar-primary: oklch(0.7 0.2 35);
   --sidebar-primary-foreground: oklch(0.99 0 0);
-  --sidebar-accent: oklch(0.9 0.09 90);
-  --sidebar-accent-foreground: oklch(0.3 0.05 50);
-  --sidebar-border: oklch(0.9 0.02 90);
-  --sidebar-ring: oklch(0.72 0.19 40);
+  --sidebar-accent: oklch(0.88 0.1 85);
+  --sidebar-accent-foreground: oklch(0.28 0.06 50);
+  --sidebar-border: oklch(0.91 0.015 80);
+  --sidebar-ring: oklch(0.7 0.2 35);
 }
 
 .dark {
-  --background: oklch(0.18 0.04 260);
-  --foreground: oklch(0.97 0.01 90);
-  --card: oklch(0.24 0.045 260);
-  --card-foreground: oklch(0.97 0.01 90);
-  --popover: oklch(0.24 0.045 260);
-  --popover-foreground: oklch(0.97 0.01 90);
-  --primary: oklch(0.76 0.19 40);
-  --primary-foreground: oklch(0.18 0.04 260);
-  --secondary: oklch(0.38 0.08 230);
-  --secondary-foreground: oklch(0.97 0.01 90);
-  --muted: oklch(0.28 0.04 260);
-  --muted-foreground: oklch(0.75 0.02 260);
-  --accent: oklch(0.32 0.06 80);
-  --accent-foreground: oklch(0.97 0.01 90);
-  --destructive: oklch(0.7 0.2 25);
+  --background: oklch(0.16 0.035 260);
+  --foreground: oklch(0.97 0.01 80);
+  --card: oklch(0.22 0.04 260);
+  --card-foreground: oklch(0.97 0.01 80);
+  --popover: oklch(0.22 0.04 260);
+  --popover-foreground: oklch(0.97 0.01 80);
+  --primary: oklch(0.74 0.2 35);
+  --primary-foreground: oklch(0.16 0.035 260);
+  --secondary: oklch(0.36 0.08 230);
+  --secondary-foreground: oklch(0.97 0.01 80);
+  --muted: oklch(0.26 0.035 260);
+  --muted-foreground: oklch(0.72 0.02 260);
+  --accent: oklch(0.3 0.06 80);
+  --accent-foreground: oklch(0.97 0.01 80);
+  --destructive: oklch(0.68 0.2 25);
   --destructive-foreground: oklch(0.99 0 0);
-  --success: oklch(0.72 0.18 145);
-  --success-foreground: oklch(0.15 0.02 145);
+  --success: oklch(0.7 0.19 150);
+  --success-foreground: oklch(0.14 0.02 145);
   --warning: oklch(0.82 0.16 85);
   --warning-foreground: oklch(0.2 0.04 60);
-  --border: oklch(1 0 0 / 12%);
-  --input: oklch(1 0 0 / 16%);
-  --ring: oklch(0.76 0.19 40);
-  --pt-portuguese: oklch(0.72 0.19 25);
-  --pt-math: oklch(0.72 0.17 250);
-  --pt-world: oklch(0.74 0.17 145);
-  --streak: oklch(0.76 0.19 55);
-  --xp: oklch(0.8 0.16 95);
-  --gem: oklch(0.74 0.15 200);
-  --hearts: oklch(0.7 0.2 25);
-  --coins: oklch(0.8 0.16 85);
-  --leagues-bronze: oklch(0.7 0.1 55);
-  --leagues-prata: oklch(0.8 0.02 260);
-  --leagues-ouro: oklch(0.82 0.16 95);
-  --leagues-diamante: oklch(0.8 0.1 210);
-  --leagues-lenda: oklch(0.7 0.2 310);
-  --sidebar: oklch(0.24 0.045 260);
-  --sidebar-foreground: oklch(0.97 0.01 90);
-  --sidebar-primary: oklch(0.76 0.19 40);
-  --sidebar-primary-foreground: oklch(0.18 0.04 260);
-  --sidebar-accent: oklch(0.32 0.06 80);
-  --sidebar-accent-foreground: oklch(0.97 0.01 90);
-  --sidebar-border: oklch(1 0 0 / 12%);
-  --sidebar-ring: oklch(0.76 0.19 40);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 14%);
+  --ring: oklch(0.74 0.2 35);
+  --pt-portuguese: oklch(0.7 0.2 22);
+  --pt-math: oklch(0.7 0.18 250);
+  --pt-world: oklch(0.72 0.18 148);
+  --streak: oklch(0.74 0.2 55);
+  --xp: oklch(0.78 0.17 90);
+  --gem: oklch(0.72 0.16 200);
+  --hearts: oklch(0.68 0.2 25);
+  --coins: oklch(0.78 0.17 85);
+  --leagues-bronze: oklch(0.68 0.1 55);
+  --leagues-prata: oklch(0.78 0.02 260);
+  --leagues-ouro: oklch(0.8 0.17 95);
+  --leagues-diamante: oklch(0.78 0.12 210);
+  --leagues-lenda: oklch(0.68 0.22 310);
+  --sidebar: oklch(0.22 0.04 260);
+  --sidebar-foreground: oklch(0.97 0.01 80);
+  --sidebar-primary: oklch(0.74 0.2 35);
+  --sidebar-primary-foreground: oklch(0.16 0.035 260);
+  --sidebar-accent: oklch(0.3 0.06 80);
+  --sidebar-accent-foreground: oklch(0.97 0.01 80);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.74 0.2 35);
 }
 
 @layer base {
@@ -219,6 +223,7 @@
     font-family: var(--font-sans);
     -webkit-tap-highlight-color: transparent;
     -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
     overscroll-behavior-y: none;
     /* Slightly larger base type for kids 6-10 */
@@ -242,6 +247,12 @@
   @media (prefers-reduced-motion: no-preference) {
     html { scroll-behavior: smooth; }
   }
+
+  /* Selection color */
+  ::selection {
+    background-color: color-mix(in oklab, var(--color-primary) 20%, var(--color-background));
+    color: var(--color-foreground);
+  }
 }
 
 @layer utilities {
@@ -249,17 +260,29 @@
 
   /* ─── 3D Chunky Button — playful kid-friendly press effect ─── */
   .btn-chunky {
-    box-shadow: 0 5px 0 0 color-mix(in oklab, currentColor 25%, black);
+    box-shadow: 0 5px 0 0 color-mix(in oklab, currentColor 25%, black),
+                0 8px 16px -4px color-mix(in oklab, currentColor 15%, transparent);
     transition: transform 0.08s ease, box-shadow 0.08s ease;
   }
   .btn-chunky:active {
     transform: translateY(4px);
-    box-shadow: 0 1px 0 0 color-mix(in oklab, currentColor 25%, black);
+    box-shadow: 0 1px 0 0 color-mix(in oklab, currentColor 25%, black),
+                0 2px 4px -2px color-mix(in oklab, currentColor 10%, transparent);
   }
 
-  /* ─── 3D Chunky Card ─── */
+  /* ─── 3D Chunky Card — premium depth ─── */
   .card-chunky {
-    box-shadow: 0 6px 0 0 var(--color-border);
+    box-shadow: 0 6px 0 0 var(--color-border),
+                0 10px 24px -6px color-mix(in oklab, var(--color-foreground) 8%, transparent);
+  }
+
+  /* ─── Premium Card — elevated with subtle glow ─── */
+  .card-premium {
+    box-shadow:
+      0 1px 2px color-mix(in oklab, var(--color-foreground) 5%, transparent),
+      0 4px 12px -2px color-mix(in oklab, var(--color-foreground) 8%, transparent),
+      0 12px 28px -8px color-mix(in oklab, var(--color-primary) 12%, transparent);
+    border: 1px solid color-mix(in oklab, var(--color-foreground) 6%, var(--color-card));
   }
 
   /* ─── Background Patterns ─── */
@@ -282,15 +305,27 @@
   /* ─── Alegria Hero Gradient — warm, inviting, brand-forward ─── */
   .bg-alegria-hero {
     background:
-      radial-gradient(ellipse at 20% 0%, oklch(0.95 0.12 40 / 0.6), transparent 50%),
-      radial-gradient(ellipse at 80% 10%, oklch(0.92 0.1 230 / 0.5), transparent 50%),
-      radial-gradient(ellipse at 50% 100%, oklch(0.93 0.1 145 / 0.4), transparent 50%),
-      linear-gradient(to bottom, oklch(0.98 0.02 50), oklch(0.985 0.015 95));
+      radial-gradient(ellipse at 15% 0%, oklch(0.94 0.14 35 / 0.55), transparent 50%),
+      radial-gradient(ellipse at 85% 5%, oklch(0.92 0.1 235 / 0.45), transparent 50%),
+      radial-gradient(ellipse at 50% 100%, oklch(0.93 0.1 148 / 0.35), transparent 50%),
+      linear-gradient(170deg, oklch(0.985 0.025 50), oklch(0.985 0.012 80));
+  }
+
+  /* ─── Alegria App Background — subtle warm gradient for the app ─── */
+  .bg-alegria-app {
+    background:
+      radial-gradient(ellipse at 50% 0%, oklch(0.96 0.04 40 / 0.3), transparent 60%),
+      radial-gradient(ellipse at 80% 100%, oklch(0.96 0.03 230 / 0.2), transparent 50%),
+      linear-gradient(180deg, var(--background), color-mix(in oklab, var(--background) 97%, var(--card)));
   }
 
   /* ─── Text Effects ─── */
   .text-shadow-soft {
     text-shadow: 0 2px 0 color-mix(in oklab, currentColor 18%, transparent);
+  }
+
+  .text-shadow-brand {
+    text-shadow: 0 2px 8px color-mix(in oklab, var(--color-primary) 25%, transparent);
   }
 
   /* ─── Touch-target helpers ─── */
@@ -308,6 +343,7 @@
   /* ─── Elevation tokens ─── */
   .shadow-elegant { box-shadow: 0 14px 40px -18px color-mix(in oklab, var(--color-primary) 35%, transparent); }
   .shadow-soft    { box-shadow: 0 6px 20px -10px color-mix(in oklab, var(--color-foreground) 25%, transparent); }
+  .shadow-glow    { box-shadow: 0 0 20px -4px color-mix(in oklab, var(--color-primary) 20%, transparent); }
 
   /* ─── Keyboard a11y focus ring ─── */
   .focus-ring:focus-visible {
@@ -325,6 +361,18 @@
     background: oklch(0.2 0.04 260 / 0.7);
   }
 
+  /* ─── Premium Glass — stronger blur for headers ─── */
+  .glass-premium {
+    background: oklch(1 0 0 / 0.8);
+    backdrop-filter: blur(24px) saturate(1.2);
+    -webkit-backdrop-filter: blur(24px) saturate(1.2);
+  }
+  .dark .glass-premium {
+    background: oklch(0.18 0.04 260 / 0.8);
+    backdrop-filter: blur(24px) saturate(1.2);
+    -webkit-backdrop-filter: blur(24px) saturate(1.2);
+  }
+
   /* ─── Perspective for 3D transforms ─── */
   .perspective-1000 {
     perspective: 1000px;
@@ -337,6 +385,75 @@
   .chapter-icon-portuguese { background-color: color-mix(in oklab, var(--pt-portuguese) 28%, var(--card)); }
   .chapter-icon-math { background-color: color-mix(in oklab, var(--pt-math) 28%, var(--card)); }
   .chapter-icon-world { background-color: color-mix(in oklab, var(--pt-world) 28%, var(--card)); }
+
+  /* ─── Gradient text ─── */
+  .text-gradient-brand {
+    background: linear-gradient(135deg, var(--color-primary), var(--color-xp));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .text-gradient-streak {
+    background: linear-gradient(135deg, var(--color-streak), oklch(0.78 0.14 40));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  /* ─── Progress bar glow ─── */
+  .progress-glow {
+    position: relative;
+  }
+  .progress-glow::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    box-shadow: 0 0 12px 2px color-mix(in oklab, var(--color-xp) 40%, transparent);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .progress-glow:hover::after,
+  .progress-glow:active::after {
+    opacity: 1;
+  }
+
+  /* ─── Animated border glow ─── */
+  .border-glow {
+    position: relative;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+  }
+  .border-glow::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border-radius: inherit;
+    background: linear-gradient(135deg, var(--color-primary), var(--color-secondary), var(--color-xp));
+    z-index: -1;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .border-glow:hover::before {
+    opacity: 0.6;
+  }
+
+  /* ─── Scrollbar styling ─── */
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in oklab, var(--color-foreground) 15%, transparent) transparent;
+  }
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+  }
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background-color: color-mix(in oklab, var(--color-foreground) 15%, transparent);
+    border-radius: 3px;
+  }
 }
 
 /* ─── Keyframes ─── */
@@ -374,4 +491,40 @@
 @keyframes shimmer {
   0% { background-position: -200% 0; }
   100% { background-position: 200% 0; }
+}
+
+@keyframes sparkle {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(1.2); }
+}
+
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes scale-in {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: 0 0 8px 0 color-mix(in oklab, var(--color-primary) 20%, transparent); }
+  50% { box-shadow: 0 0 20px 4px color-mix(in oklab, var(--color-primary) 30%, transparent); }
+}
+
+.animate-sparkle {
+  animation: sparkle 1.5s ease-in-out infinite;
+}
+
+.animate-slide-up {
+  animation: slide-up 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.animate-scale-in {
+  animation: scale-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.animate-glow-pulse {
+  animation: glow-pulse 2s ease-in-out infinite;
 }

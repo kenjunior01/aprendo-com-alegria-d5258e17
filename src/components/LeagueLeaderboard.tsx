@@ -1,14 +1,24 @@
-// LeagueLeaderboard — tabela classificativa da liga semanal
+// LeagueLeaderboard — tabela classificativa da liga semanal — Premium Design
 // Mostra posição, pontuação, e avatares estilo Duolingo
 import React, { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Trophy, Medal, Crown, Users, Zap, Share2, Copy, ChevronDown, ChevronUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { haptic } from "@/lib/haptics";
-import { getMascot } from "@/lib/mascots";
+import { getMascot, type MascotId } from "@/lib/mascots";
 import { getLeague, type LeagueTier } from "@/components/DuolingoBar";
 import type { Profile } from "@/lib/storage";
 import { toast } from "sonner";
+
+// Emoji map for mascot display in leaderboard
+const MASCOT_EMOJIS: Record<string, string> = {
+  fox: "🦊",
+  owl: "🦉",
+  bunny: "🐰",
+  turtle: "🐢",
+  panda: "🐼",
+  lion: "🦁",
+};
 
 // ─── Types ───
 interface LeaderboardEntry {
@@ -78,12 +88,12 @@ export function LeagueLeaderboard({ profile, className }: LeagueLeaderboardProps
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className={cn("card-chunky overflow-hidden rounded-3xl border-2 border-border", className)}
+      className={cn("card-premium overflow-hidden rounded-3xl", className)}
     >
       {/* Header */}
       <button
         onClick={() => { setExpanded(!expanded); haptic("tap"); }}
-        className="flex w-full items-center gap-3 p-4 text-left"
+        className="flex w-full items-center gap-3 p-4 text-left transition-colors hover:bg-muted/30"
       >
         <div
           className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl shadow-sm"
@@ -100,11 +110,16 @@ export function LeagueLeaderboard({ profile, className }: LeagueLeaderboardProps
             {daysRemaining} dias restantes · Posição #{myRank}
           </p>
         </div>
-        {expanded ? (
-          <ChevronUp className="h-5 w-5 text-muted-foreground" />
-        ) : (
-          <ChevronDown className="h-5 w-5 text-muted-foreground" />
-        )}
+        <div className={cn(
+          "flex h-8 w-8 items-center justify-center rounded-full transition-colors",
+          expanded ? "bg-muted" : "bg-muted/50"
+        )}>
+          {expanded ? (
+            <ChevronUp className="h-4 w-4 text-muted-foreground" />
+          ) : (
+            <ChevronDown className="h-4 w-4 text-muted-foreground" />
+          )}
+        </div>
       </button>
 
       {/* Leaderboard */}
@@ -117,15 +132,15 @@ export function LeagueLeaderboard({ profile, className }: LeagueLeaderboardProps
             transition={{ duration: 0.3 }}
             className="overflow-hidden"
           >
-            <div className="border-t border-border px-4 pb-4 pt-2">
-              {/* Top 3 podium */}
-              <div className="mb-3 flex items-end justify-center gap-2 py-2">
+            <div className="border-t border-border/50 px-4 pb-4 pt-3">
+              {/* Top 3 podium — premium */}
+              <div className="mb-4 flex items-end justify-center gap-3 py-2">
                 {/* 2nd place */}
                 {entries[1] && (
                   <div className="flex flex-col items-center">
-                    <span className="text-2xl">{getMascot(entries[1].mascot).emoji}</span>
-                    <div className="mt-1 rounded-lg bg-gray-100 px-3 py-1 text-center dark:bg-gray-800">
-                      <Medal className="mx-auto h-4 w-4 text-gray-400" />
+                    <span className="text-2xl">{MASCOT_EMOJIS[entries[1].mascot] || "🧸"}</span>
+                    <div className="mt-1 rounded-xl bg-leagues-prata/10 px-3 py-1.5 text-center">
+                      <Medal className="mx-auto h-4 w-4 text-leagues-prata" />
                       <p className="text-[10px] font-bold">{entries[1].name}</p>
                       <p className="text-[10px] text-muted-foreground">{entries[1].score} pts</p>
                     </div>
@@ -138,10 +153,10 @@ export function LeagueLeaderboard({ profile, className }: LeagueLeaderboardProps
                       animate={{ y: [0, -4, 0] }}
                       transition={{ duration: 2, repeat: Infinity }}
                     >
-                      <span className="text-3xl">{getMascot(entries[0].mascot).emoji}</span>
+                      <span className="text-3xl">{MASCOT_EMOJIS[entries[0].mascot] || "🧸"}</span>
                     </motion.div>
-                    <div className="mt-1 rounded-lg bg-yellow-50 px-4 py-2 text-center dark:bg-yellow-900/20">
-                      <Crown className="mx-auto h-5 w-5 text-yellow-500" />
+                    <div className="mt-1 rounded-xl bg-leagues-ouro/10 px-4 py-2 text-center shadow-glow">
+                      <Crown className="mx-auto h-5 w-5 text-leagues-ouro" />
                       <p className="text-xs font-bold">{entries[0].name}</p>
                       <p className="text-[10px] text-muted-foreground">{entries[0].score} pts</p>
                     </div>
@@ -150,9 +165,9 @@ export function LeagueLeaderboard({ profile, className }: LeagueLeaderboardProps
                 {/* 3rd place */}
                 {entries[2] && (
                   <div className="flex flex-col items-center">
-                    <span className="text-2xl">{getMascot(entries[2].mascot).emoji}</span>
-                    <div className="mt-1 rounded-lg bg-amber-50 px-3 py-1 text-center dark:bg-amber-900/20">
-                      <Medal className="mx-auto h-4 w-4 text-amber-700" />
+                    <span className="text-2xl">{MASCOT_EMOJIS[entries[2].mascot] || "🧸"}</span>
+                    <div className="mt-1 rounded-xl bg-leagues-bronze/10 px-3 py-1.5 text-center">
+                      <Medal className="mx-auto h-4 w-4 text-leagues-bronze" />
                       <p className="text-[10px] font-bold">{entries[2].name}</p>
                       <p className="text-[10px] text-muted-foreground">{entries[2].score} pts</p>
                     </div>
@@ -166,17 +181,17 @@ export function LeagueLeaderboard({ profile, className }: LeagueLeaderboardProps
                   <div
                     key={entry.rank}
                     className={cn(
-                      "flex items-center gap-3 rounded-2xl px-3 py-2 transition-colors",
-                      entry.isMe && "border-2 border-primary/30 bg-primary/5",
-                      !entry.isMe && "bg-muted/30",
+                      "flex items-center gap-3 rounded-2xl px-3 py-2 transition-all",
+                      entry.isMe && "border-2 border-primary/20 bg-primary/5",
+                      !entry.isMe && "bg-muted/30 hover:bg-muted/50",
                     )}
                   >
                     <div className="flex h-7 w-7 shrink-0 items-center justify-center">
                       {rankBadge(entry.rank)}
                     </div>
-                    <span className="text-lg">{getMascot(entry.mascot).emoji}</span>
+                    <span className="text-lg">{MASCOT_EMOJIS[entry.mascot] || "🧸"}</span>
                     <div className="min-w-0 flex-1">
-                      <p className={cn("truncate text-sm font-display", entry.isMe && "font-bold")}>
+                      <p className={cn("truncate text-sm font-display", entry.isMe && "font-bold text-primary")}>
                         {entry.name}
                         {entry.isBot && <span className="ml-1 text-[10px] text-muted-foreground">🤖</span>}
                       </p>
@@ -201,7 +216,7 @@ export function LeagueLeaderboard({ profile, className }: LeagueLeaderboardProps
                   </span>
                   <button
                     onClick={handleCopyCode}
-                    className="rounded-lg p-1 hover:bg-muted"
+                    className="rounded-lg p-1 hover:bg-muted transition-colors"
                   >
                     <Copy className="h-3.5 w-3.5 text-muted-foreground" />
                   </button>
@@ -211,10 +226,10 @@ export function LeagueLeaderboard({ profile, className }: LeagueLeaderboardProps
               {/* Motivation */}
               <p className="mt-3 text-center text-xs text-muted-foreground">
                 {myRank <= 3
-                  ? "Estás no pódio! Continua assim! 🏆"
+                  ? "Estás no pódio! Continua assim!"
                   : myRank <= 5
-                  ? "Quase lá! Mais alguns jogos e chegas ao topo! 💪"
-                  : "Joga mais para subir na classificação! 🚀"}
+                  ? "Quase lá! Mais alguns jogos e chegas ao topo!"
+                  : "Joga mais para subir na classificação!"}
               </p>
             </div>
           </motion.div>
