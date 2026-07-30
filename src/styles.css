@@ -528,3 +528,111 @@
 .animate-glow-pulse {
   animation: glow-pulse 2s ease-in-out infinite;
 }
+
+/* ─── Path node entrance animation ─── */
+@keyframes node-pop {
+  0% { transform: scale(0.3) translateY(20px); opacity: 0; }
+  60% { transform: scale(1.08) translateY(-4px); opacity: 1; }
+  100% { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+.animate-node-pop {
+  animation: node-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+/* ─── Active node pulse ring ─── */
+@keyframes pulse-ring {
+  0% { transform: scale(0.9); opacity: 0.6; }
+  50% { transform: scale(1.2); opacity: 0; }
+  100% { transform: scale(0.9); opacity: 0.6; }
+}
+
+.animate-pulse-ring {
+  animation: pulse-ring 2s ease-in-out infinite;
+}
+
+/* ─── Float up and fade (for celebration particles) ─── */
+@keyframes float-up-fade {
+  0% { transform: translateY(0) scale(1); opacity: 1; }
+  100% { transform: translateY(-60px) scale(0.5); opacity: 0; }
+}
+
+.animate-float-up-fade {
+  animation: float-up-fade 1.2s ease-out forwards;
+}
+
+/* ─── Celebration burst ─── */
+@keyframes burst {
+  0% { transform: scale(0); opacity: 1; }
+  50% { transform: scale(1.2); opacity: 0.8; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.animate-burst {
+  animation: burst 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+/* ─── Wobble (for wrong answer feedback) ─── */
+@keyframes wobble {
+  0%, 100% { transform: translateX(0); }
+  15% { transform: translateX(-6px); }
+  30% { transform: translateX(6px); }
+  45% { transform: translateX(-4px); }
+  60% { transform: translateX(4px); }
+  75% { transform: translateX(-2px); }
+  90% { transform: translateX(2px); }
+}
+
+.animate-wobble {
+  animation: wobble 0.6s ease-in-out;
+}
+
+/* ─── Connected path line animation ─── */
+@keyframes path-draw {
+  0% { stroke-dashoffset: 400; }
+  100% { stroke-dashoffset: 0; }
+}
+
+.animate-path-draw {
+  animation: path-draw 0.8s ease-out forwards;
+}
+
+/* ─── Shimmer gradient for progress bars ─── */
+.progress-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+.progress-shimmer::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    oklch(1 0 0 / 0.3) 50%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 2s ease-in-out infinite;
+}
+
+/* ─── Celebration particles ─── */
+@keyframes confetti-fall {
+  0% { transform: translateY(-10px) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(100px) rotate(720deg); opacity: 0; }
+}
+
+.animate-confetti-fall {
+  animation: confetti-fall 1.5s ease-in forwards;
+}
+
+/* ─── Mascot breathing animation ─── */
+@keyframes breathe {
+  0%, 100% { transform: scaleY(1); }
+  50% { transform: scaleY(1.03); }
+}
+
+.animate-breathe {
+  animation: breathe 3s ease-in-out infinite;
+  transform-origin: bottom center;
+}

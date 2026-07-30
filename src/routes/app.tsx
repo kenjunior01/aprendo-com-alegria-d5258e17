@@ -13,7 +13,9 @@ import { MissionOfTheDay } from "@/components/MissionOfTheDay";
 import { SeasonalBanner } from "@/components/SeasonalBanner";
 import { DailyChallengeCard } from "@/components/DailyChallengeCard";
 import { LeagueLeaderboard } from "@/components/LeagueLeaderboard";
-import { LearningTree } from "@/components/LearningTree";
+import { LearningPath } from "@/components/LearningPath";
+import { MascotBubble, getRandomEncouragement } from "@/components/MascotBubble";
+import { PathProgressIndicator } from "@/components/PathProgressIndicator";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Lock, Star, CheckCircle2, Crown, Play, Sparkles, ChevronRight, Flame, Zap, TreePine } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -207,7 +209,29 @@ function AppHome() {
               </span>
             </div>
           </div>
-          <LearningTree completedLessons={profile.completedLessons} grade={profile.grade} />
+
+          {/* Mascot encouragement bubble */}
+          <MascotBubble
+            id={profile.mascot}
+            message={getRandomEncouragement(profile.mascot)}
+            position="left"
+            size="sm"
+            autoHideMs={6000}
+            className="mb-4"
+          />
+
+          {/* Progress indicator */}
+          <PathProgressIndicator
+            mascotId={profile.mascot}
+            completedCount={profile.completedLessons.length}
+            totalCount={28}
+            xp={profile.xp}
+            streak={profile.streak}
+            level={Math.floor(profile.xp / 100) + 1}
+            className="mb-4"
+          />
+
+          <LearningPath completedLessons={profile.completedLessons} grade={profile.grade} />
         </motion.section>
 
         {/* ── 5. Elementos secundários ── */}
