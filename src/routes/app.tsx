@@ -13,7 +13,9 @@ import { MissionOfTheDay } from "@/components/MissionOfTheDay";
 import { SeasonalBanner } from "@/components/SeasonalBanner";
 import { DailyChallengeCard } from "@/components/DailyChallengeCard";
 import { LeagueLeaderboard } from "@/components/LeagueLeaderboard";
-import { Lock, Star, CheckCircle2, Crown, Play, Sparkles, ChevronRight, Flame, Zap } from "lucide-react";
+import { LearningTree } from "@/components/LearningTree";
+import { ThemeToggle } from "@/components/ThemeToggle";
+import { Lock, Star, CheckCircle2, Crown, Play, Sparkles, ChevronRight, Flame, Zap, TreePine } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { haptic } from "@/lib/haptics";
 
@@ -194,19 +196,18 @@ function AppHome() {
           <div className="mb-4 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary/10">
-                <Sparkles className="h-4 w-4 text-primary" />
+                <TreePine className="h-4 w-4 text-primary" />
               </div>
               <h2 className="font-display text-lg font-bold">O Meu Caminho</h2>
             </div>
-            <span className="rounded-full bg-muted px-3 py-1 text-xs font-display font-semibold text-muted-foreground">
-              {profile.completedLessons.length} completas
-            </span>
+            <div className="flex items-center gap-2">
+              <ThemeToggle />
+              <span className="rounded-full bg-muted px-3 py-1 text-xs font-display font-semibold text-muted-foreground">
+                {profile.completedLessons.length} completas
+              </span>
+            </div>
           </div>
-          <div className="space-y-8">
-            {visibleChapters.map((chapter) => (
-              <ChapterPath key={chapter.id} chapter={chapter} completedLessons={profile.completedLessons} />
-            ))}
-          </div>
+          <LearningTree completedLessons={profile.completedLessons} grade={profile.grade} />
         </motion.section>
 
         {/* ── 5. Elementos secundários ── */}
