@@ -11,13 +11,15 @@ import { useMascotReaction } from "@/hooks/useMascotReaction";
 import { LessonScene } from "@/components/LessonScene";
 import { ChunkyButton } from "@/components/ChunkyButton";
 import { SoundToggle } from "@/components/SoundToggle";
+import { LessonCompleteScreen } from "@/components/LessonCompleteScreen";
+import { ComboTracker, ComboPopup } from "@/components/ComboTracker";
 import { getLesson, getSubject } from "@/lib/curriculum";
 import { completeLesson, loadProfile, updateProfile, type Profile } from "@/lib/storage";
 import { getMascot } from "@/lib/mascots";
 import { playCorrect, playWrong, playLevelUp, speak, stopSpeech, ttsAvailable } from "@/lib/audio";
 import { checkAndUnlockAchievements, type Achievement } from "@/lib/achievements";
 import { useVoiceMatch, isVoiceAvailable } from "@/lib/voice";
-import { Check, Coins, Heart, Mic, Sparkles, Trophy, Volume2, X, Zap } from "lucide-react";
+import { Check, Heart, Mic, Sparkles, Volume2, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { haptic } from "@/lib/haptics";
 
@@ -73,9 +75,11 @@ function LessonPage() {
   const [xpEarned, setXpEarned] = useState(0);
   const [newAchievements, setNewAchievements] = useState<Achievement[]>([]);
   const [combo, setCombo] = useState(0);
+  const [maxCombo, setMaxCombo] = useState(0);
   const [wrongAttempts, setWrongAttempts] = useState(0);
   const [bonusXp, setBonusXp] = useState(0);
   const [firstTryRight, setFirstTryRight] = useState(0);
+  const [showComboPopup, setShowComboPopup] = useState(false);
   const [aiHint, setAiHint] = useState<string | null>(null);
   const [aiLoading, setAiLoading] = useState(false);
   const lastSpokenRef = useRef<string>("");
@@ -151,6 +155,7 @@ function LessonPage() {
       if (wasFirstTry) setFirstTryRight((n) => n + 1);
       const nextCombo = combo + 1;
       setCombo(nextCombo);
+      if (nextCombo > maxCombo) setMaxCombo(nextCombo);
       // Bónus: combo (x5 XP por nível ≥3) + velocidade (≤8s = +5)
       let extra = 0;
       if (nextCombo >= 3) extra += (nextCombo - 2) * 5;
@@ -164,6 +169,10 @@ function LessonPage() {
         origin: { y: 0.7 },
         colors: ["#ff8c42", "#5db1ff", "#7cd16e", "#ffd166"],
       });
+      // Show combo popup for big combos
+      if (nextCombo >= 3) {
+        setShowComboPopup(true);
+      }
     } else {
       setHearts((h) => Math.max(0, h - 1));
       setCombo(0);
@@ -239,60 +248,25 @@ function LessonPage() {
 
   if (done) {
     const finalCorrect = correct;
-    const accuracy = Math.round((finalCorrect / total) * 100);
+    const isPerfect = finalCorrect === total;
+    const durationSeconds = Math.round((Date.now() - startTimeRef.current) / 1000);
     return (
-      <main className="bg-paper flex min-h-[100dvh] flex-col items-center justify-center px-5 py-10 text-center">
-        <Mascot id={profile.mascot} size="xl" bouncing equippedItemId={profile.equippedItem} />
-        <h1 className="mt-4 font-display text-4xl text-primary sm:text-5xl">Boa! 🎉</h1>
-        <p className="mt-2 text-base text-muted-foreground sm:text-lg">
-          Missão completa: <strong>{lesson.title}</strong>
-        </p>
-        <div className="mt-6 grid w-full max-w-md grid-cols-2 gap-2 sm:grid-cols-4 sm:gap-3">
-          <Stat label="Acertos" value={`${finalCorrect}/${total}`} />
-          <Stat label="Precisão" value={`${accuracy}%`} />
-          <Stat label="XP" value={`+${xpEarned}`} />
-          <Stat label="Abracadinhos" value={`+${coinsEarned}`} icon={<Coins className="h-4 w-4 text-xp" />} />
-        </div>
-
-        {newAchievements.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: 12, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            transition={{ delay: 0.3, type: "spring", stiffness: 200, damping: 18 }}
-            className="mt-6 w-full max-w-md rounded-3xl border-2 border-primary bg-gradient-to-br from-primary/15 to-secondary/15 p-4 text-left card-chunky"
-          >
-            <div className="mb-2 flex items-center gap-2">
-              <Trophy className="h-5 w-5 text-primary" />
-              <h2 className="font-display text-lg">
-                {newAchievements.length === 1 ? "Nova conquista!" : `${newAchievements.length} novas conquistas!`}
-              </h2>
-            </div>
-            <ul className="space-y-1.5">
-              {newAchievements.map((a) => (
-                <li key={a.code} className="flex items-center justify-between gap-3 text-sm">
-                  <span className="font-semibold">🏅 {a.title}</span>
-                  <span className="shrink-0 text-xs font-semibold text-secondary">+{a.coin_reward} 🪙</span>
-                </li>
-              ))}
-            </ul>
-            <Link to="/conquistas" className="mt-3 block text-center text-xs font-semibold text-primary underline">
-              Ver todas as conquistas →
-            </Link>
-          </motion.div>
-        )}
-
-        <p className="mt-6 max-w-md text-sm italic text-muted-foreground sm:text-base">
-          💬 “{getMascot(profile.mascot).encourage}”
-        </p>
-        <div className="mt-8 flex w-full max-w-md flex-col gap-3 sm:flex-row sm:justify-center">
-          <Link to="/loja" className="flex-1">
-            <ChunkyButton tone="secondary" className="w-full">Visitar a loja 🛍️</ChunkyButton>
-          </Link>
-          <Link to="/app" className="flex-1">
-            <ChunkyButton tone="success" className="w-full">Continuar aventura</ChunkyButton>
-          </Link>
-        </div>
-      </main>
+      <LessonCompleteScreen
+        mascotId={profile.mascot}
+        lessonTitle={lesson.title}
+        correct={finalCorrect}
+        total={total}
+        xpEarned={xpEarned}
+        coinsEarned={coinsEarned}
+        newAchievements={newAchievements}
+        isPerfect={isPerfect}
+        durationSeconds={durationSeconds}
+        bonusXp={bonusXp}
+        maxCombo={maxCombo}
+        onContinue={() => navigate({ to: "/app" })}
+        onRetry={() => window.location.reload()}
+        nextLesson={null}
+      />
     );
   }
 
@@ -328,11 +302,7 @@ function LessonPage() {
               transition={{ type: "spring", stiffness: 120, damping: 18 }}
             />
           </div>
-          {combo >= 2 && (
-            <span className="inline-flex items-center gap-1 rounded-full bg-xp/20 px-2 py-0.5 text-xs font-display font-bold text-xp">
-              <Zap className="h-3.5 w-3.5" /> Combo x{combo}
-            </span>
-          )}
+          <ComboTracker combo={combo} variant="inline" />
           <div className="flex items-center gap-1 font-display text-destructive">
             <Heart className="h-5 w-5 fill-current" />
             <span className="font-semibold">{hearts}</span>
@@ -340,6 +310,13 @@ function LessonPage() {
           <SoundToggle />
         </div>
       </header>
+
+      {/* Combo popup overlay */}
+      <ComboPopup
+        combo={combo}
+        show={showComboPopup}
+        onDone={() => setShowComboPopup(false)}
+      />
 
       <div className="mx-auto max-w-2xl px-4 pt-6 sm:pt-8">
         <motion.div
@@ -493,16 +470,4 @@ function LessonPage() {
     </LessonScene>
   );
 
-}
-
-function Stat({ label, value, icon }: { label: string; value: string; icon?: React.ReactNode }) {
-  return (
-    <div className="card-chunky rounded-2xl border border-border bg-card p-3 sm:p-4">
-      <p className="flex items-center justify-center gap-1 text-[10px] uppercase text-muted-foreground sm:text-xs">
-        {icon}
-        {label}
-      </p>
-      <p className="mt-1 font-display text-lg sm:text-2xl">{value}</p>
-    </div>
-  );
 }
