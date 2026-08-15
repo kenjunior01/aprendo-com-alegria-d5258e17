@@ -368,7 +368,7 @@ function PremiumPage() {
       </main>
 
       <Dialog open={!!checkoutPriceId} onOpenChange={(o) => !o && setCheckoutPriceId(null)}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Finalizar subscrição</DialogTitle>
             <DialogDescription className="text-sm text-muted-foreground">Checkout seguro para finalizar a subscrição Premium.</DialogDescription>

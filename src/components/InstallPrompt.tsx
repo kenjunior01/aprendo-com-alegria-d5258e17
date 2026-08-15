@@ -53,7 +53,7 @@ export function InstallPrompt() {
 
   return (
     <div
-      className="fixed bottom-4 left-4 right-4 z-40 sm:left-auto sm:right-4 sm:max-w-sm"
+      className="fixed bottom-16 left-4 right-4 z-30 sm:left-auto sm:right-4 sm:bottom-4 sm:max-w-xs"
       role="dialog"
       aria-label="Instalar aplicação"
     >

@@ -299,7 +299,7 @@ function LessonPage() {
         className="sticky top-0 z-20 bg-background/80 backdrop-blur"
         style={{ paddingTop: "env(safe-area-inset-top)" }}
       >
-        <div className="mx-auto flex max-w-2xl items-center gap-3 px-4 py-3">
+        <div className="mx-auto flex max-w-3xl items-center gap-3 px-4 py-3">
           <Link to="/app" aria-label="Sair" className="rounded-full p-2 hover:bg-muted">
             <X className="h-6 w-6 text-muted-foreground" />
           </Link>
@@ -326,7 +326,7 @@ function LessonPage() {
         onDone={() => setShowComboPopup(false)}
       />
 
-      <div className="mx-auto max-w-2xl px-4 pt-6 sm:pt-8">
+      <div className="mx-auto max-w-3xl px-4 pt-6 sm:pt-8">
         <motion.div
           key={qIndex}
           initial={{ opacity: 0, x: 30 }}
@@ -415,7 +415,7 @@ function LessonPage() {
             )}
             style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
           >
-            <div className="mx-auto flex max-w-2xl flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:py-5">
+            <div className="mx-auto flex max-w-3xl flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:py-5">
               <div className="flex items-center gap-3">
                 <span
                   className={cn(
@@ -449,7 +449,7 @@ function LessonPage() {
           className="fixed inset-x-0 bottom-0 z-20 border-t border-border bg-card/95 backdrop-blur"
           style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
         >
-          <div className="mx-auto flex max-w-2xl items-center gap-2 px-4 py-3 sm:py-4">
+          <div className="mx-auto flex max-w-3xl items-center gap-2 px-4 py-3 sm:py-4">
             {voiceEnabled && (
               <button
                 type="button"

@@ -72,7 +72,7 @@ function AppHome() {
     <div className="min-h-[100dvh] bg-background pb-28 md:pb-12">
       <TopBar profile={profile} />
 
-      <main id="main-content" className="mx-auto max-w-2xl px-4 py-4 sm:py-6">
+      <main id="main-content" className="mx-auto max-w-3xl px-4 py-4 sm:py-6">
         <h1 className="sr-only">A minha aventura no Kidoz — caminho de aprendizagem de {profile.name}</h1>
         {/* Hero greeting */}
         <motion.section
@@ -234,7 +234,7 @@ function ChapterPath({ chapter, completedLessons }: { chapter: Chapter; complete
       </div>
 
       {/* Path of nodes */}
-      <ol className="relative mx-auto max-w-sm">
+      <ol className="relative mx-auto max-w-md">
         {missions.map((mission, idx) => {
           const isDone = completed.has(mission.lessonId);
           const isActive = idx === activeIdx;
@@ -321,7 +321,7 @@ function PathNode({
     return (
       <div className="flex flex-col items-center gap-1.5" aria-label={`${mission.title} (bloqueado)`}>
         {node}
-        <p className="max-w-[120px] text-center font-display text-[11px] text-muted-foreground line-clamp-2">
+        <p className="max-w-[140px] text-center font-display text-[11px] text-muted-foreground">
           {mission.title}
         </p>
       </div>
@@ -337,7 +337,7 @@ function PathNode({
       aria-label={`Iniciar missão: ${mission.title}`}
     >
       {node}
-      <p className="max-w-[140px] text-center font-display text-xs leading-tight line-clamp-2">
+      <p className="max-w-[160px] text-center font-display text-xs leading-tight">
         {mission.title}
       </p>
     </Link>

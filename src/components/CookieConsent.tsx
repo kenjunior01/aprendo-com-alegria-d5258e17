@@ -32,7 +32,7 @@ export function CookieConsent() {
       applyConsent(stored);
     } else {
       // Delay appearance slightly so it doesn't flash on every navigation
-      const t = setTimeout(() => setVisible(true), 1200);
+      const t = setTimeout(() => setVisible(true), 2500);
       return () => clearTimeout(t);
     }
   }, []);
@@ -51,37 +51,35 @@ export function CookieConsent() {
 
   return visible ? (
     <div
-      className="fixed bottom-0 left-0 right-0 z-50 border-t-2 border-border bg-card p-4 shadow-lg sm:p-5"
+      className="fixed bottom-0 left-0 right-0 z-40 border-t border-border/50 bg-card/95 p-3 shadow-lg backdrop-blur-sm sm:p-3.5"
       role="dialog"
       aria-modal="false"
       aria-label="Consentimento de cookies"
     >
-      <div className="mx-auto flex max-w-3xl flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
-        <div className="flex items-start gap-3">
-          <Cookie className="mt-0.5 h-5 w-5 shrink-0 text-primary" aria-hidden="true" />
-          <p className="text-sm text-foreground/90">
-            Usamos cookies para melhorar a experiência e analisar a utilização.{" "}
-            <a
-              href="/privacidade"
-              className="font-semibold text-primary underline underline-offset-2 hover:text-primary/80"
-            >
-              Saber mais
-            </a>
-          </p>
-        </div>
-        <div className="flex shrink-0 gap-2 sm:ml-auto">
+      <div className="mx-auto flex max-w-3xl items-center gap-3">
+        <Cookie className="h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
+        <p className="flex-1 text-xs text-foreground/80">
+          Usamos cookies para melhorar a experiência.{" "}
+          <a
+            href="/privacidade"
+            className="font-semibold text-primary underline underline-offset-2 hover:text-primary/80"
+          >
+            Saber mais
+          </a>
+        </p>
+        <div className="flex shrink-0 gap-2">
           <ChunkyButton
             tone="ghost"
             onClick={() => handleChoice("essential")}
-            className="text-sm"
+            className="text-xs px-3 py-1.5"
           >
-            Apenas essenciais
+            Essenciais
           </ChunkyButton>
           <ChunkyButton
             onClick={() => handleChoice("all")}
-            className="text-sm"
+            className="text-xs px-3 py-1.5"
           >
-            Aceitar todos
+            Aceitar
           </ChunkyButton>
         </div>
       </div>

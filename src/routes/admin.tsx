@@ -871,7 +871,7 @@ function ContentDialog({ open, onOpenChange, value, onSaved }: {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader><DialogTitle>{draft.id ? "Editar conteúdo" : "Novo conteúdo"}</DialogTitle><DialogDescription className="text-sm text-muted-foreground">Formulário para criar ou editar conteúdo educativo.</DialogDescription></DialogHeader>
         <div className="space-y-3">
           <div className="grid grid-cols-2 gap-2">
