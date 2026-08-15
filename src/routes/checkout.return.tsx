@@ -1,16 +1,18 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { RouteError } from "@/components/RouteError";
 
 export const Route = createFileRoute("/checkout/return")({
   validateSearch: (search: Record<string, unknown>): { session_id?: string } => ({
     session_id: typeof search.session_id === "string" ? search.session_id : undefined,
   }),
   component: CheckoutReturn,
+  errorComponent: RouteError,
 });
 
 function CheckoutReturn() {
   const { session_id } = Route.useSearch();
   return (
-    <div className="min-h-[100dvh] bg-background flex items-center justify-center p-6">
+    <div className="min-h-[100dvh] bg-background flex items-center justify-center p-6" id="main-content">
       <div className="card-chunky max-w-md rounded-3xl border border-border bg-card p-8 text-center">
         {session_id ? (
           <>

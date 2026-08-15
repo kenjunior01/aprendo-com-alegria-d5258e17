@@ -17,21 +17,25 @@ import {
 import { pullInfiniteCloud, scheduleInfiniteCloudPush } from "@/lib/infiniteCloud";
 import { submitInfiniteScore, getInfiniteWeeklyRanking, getInfiniteSeasonalTournament, type RankingRow } from "@/lib/infiniteRanking.functions";
 import { ArrowLeft, Crown, Infinity as InfinityIcon, Lock, Sparkles, Star, Trophy, Medal } from "lucide-react";
+import { RouteError } from "@/components/RouteError";
 
 export const Route = createFileRoute("/desafios/infinitos")({
   head: () => ({
     meta: [
-      { title: "Desafios Infinitos — níveis para todas as idades | Alegria" },
+      { title: "Desafios Infinitos — níveis para todas as idades | Kidoz" },
       { name: "description", content: "Centenas de níveis procedurais de matemática, língua, ciências e lógica. Aprende sem fim, do pré-escolar ao avançado." },
-      { property: "og:title", content: 'Desafios Infinitos — Alegria' },
+      { property: "og:title", content: 'Desafios Infinitos — Kidoz' },
       { property: "og:description", content: 'Centenas de níveis procedurais de matemática, língua, ciências e lógica.' },
-      { property: "og:url", content: "https://alegria.online/desafios/infinitos" },
+      { property: "og:url", content: "https://kidoz.online/desafios/infinitos" },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/acc7c5c1-6f57-466a-a906-520c14783216" },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/acc7c5c1-6f57-466a-a906-520c14783216" },
     ],
     links: [
-      { rel: "canonical", href: "https://alegria.online/desafios/infinitos" },
+      { rel: "canonical", href: "https://kidoz.online/desafios/infinitos" },
     ],
   }),
   component: InfinitePage,
+  errorComponent: RouteError,
 });
 
 type View = "tracks" | "levels" | "play" | "result";
@@ -67,7 +71,11 @@ function InfinitePage() {
   }, [profile, filterScope, getWeeklyFn, getSeasonFn]);
 
 
-  if (!profile) return null;
+  if (!profile) return (
+    <main id="main-content" className="flex min-h-[60dvh] items-center justify-center">
+      <p className="animate-pulse font-display text-lg text-muted-foreground" role="status" aria-live="polite">A carregar…</p>
+    </main>
+  );
   const isPremium = !!profile.isPremium;
   const age = profile.age || 7;
 
@@ -76,7 +84,7 @@ function InfinitePage() {
   return (
     <div className="min-h-[100dvh] bg-background pb-24 md:pb-12">
       <TopBar profile={profile} />
-      <main className="mx-auto max-w-5xl px-4 py-6">
+      <main id="main-content" className="mx-auto max-w-5xl px-4 py-6">
         <Link to="/desafios" className="mb-3 inline-flex items-center gap-1 text-sm font-display text-muted-foreground hover:text-foreground">
           <ArrowLeft className="h-4 w-4" /> Desafios
         </Link>

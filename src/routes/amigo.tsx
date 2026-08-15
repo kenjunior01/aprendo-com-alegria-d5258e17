@@ -4,14 +4,18 @@ import { MascotRoom } from "@/components/MascotRoom";
 import { loadProfile, pullProfileFromCloud, type Profile } from "@/lib/storage";
 import { ArrowLeft } from "lucide-react";
 import { Link } from "@tanstack/react-router";
+import { RouteError } from "@/components/RouteError";
 
 export const Route = createFileRoute("/amigo")({
   head: () => ({
     meta: [
-      { title: "O Meu Amigo — Alegria" },
+      { title: "O Meu Amigo — Kidoz" },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/acc7c5c1-6f57-466a-a906-520c14783216" },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/acc7c5c1-6f57-466a-a906-520c14783216" },
     ],
   }),
   component: AmigoMode,
+  errorComponent: RouteError,
 });
 
 function AmigoMode() {
@@ -34,10 +38,15 @@ function AmigoMode() {
     return () => { cancelled = true; };
   }, [navigate]);
 
-  if (!profile) return null;
+  if (!profile) return (
+    <main id="main-content" className="flex min-h-[60dvh] items-center justify-center">
+      <p className="animate-pulse font-display text-lg text-muted-foreground" role="status" aria-live="polite">A carregar…</p>
+    </main>
+  );
 
   return (
     <div className="fixed inset-0 z-50 flex h-[100dvh] w-screen flex-col overflow-hidden bg-background touch-none select-none">
+      <h1 className="sr-only">O Meu Amigo — Kidoz</h1>
       {/* HUD Header - Floating Back Button */}
       <div className="absolute left-6 top-6 z-[60]">
         <Link

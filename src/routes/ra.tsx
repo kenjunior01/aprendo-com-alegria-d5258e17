@@ -12,6 +12,7 @@ import { isPremium } from "@/lib/premium";
 import { LAB_MISSIONS, checkAnswer, type LabMission } from "@/lib/labMissions";
 import { ArrowLeft, Camera, Sparkles, Lock, FlaskConical, Target, RotateCcw, Trophy } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { RouteError } from "@/components/RouteError";
 
 type LabModelId = "astronaut" | "robot" | "horse" | "helmet" | "duck" | "fox-3d";
 
@@ -40,17 +41,20 @@ const LAB_MODELS: { id: LabModelId; src: string; label: string; fact: string }[]
 export const Route = createFileRoute("/ra")({
   head: () => ({
     meta: [
-      { title: "Realidade Aumentada — Alegria" },
-      { name: "description", content: "Vê os mascotes do Alegria no teu mundo real, em 3D!" },
-      { property: "og:title", content: 'Realidade Aumentada — Alegria' },
-      { property: "og:description", content: 'Vê os mascotes do Alegria no teu mundo real, em 3D.' },
-      { property: "og:url", content: "https://alegria.online/ra" },
+      { title: "Realidade Aumentada — Kidoz" },
+      { name: "description", content: "Vê os mascotes do Kidoz no teu mundo real, em 3D!" },
+      { property: "og:title", content: 'Realidade Aumentada — Kidoz' },
+      { property: "og:description", content: 'Vê os mascotes do Kidoz no teu mundo real, em 3D.' },
+      { property: "og:url", content: "https://kidoz.online/ra" },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/acc7c5c1-6f57-466a-a906-520c14783216" },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/acc7c5c1-6f57-466a-a906-520c14783216" },
     ],
     links: [
-      { rel: "canonical", href: "https://alegria.online/ra" },
+      { rel: "canonical", href: "https://kidoz.online/ra" },
     ],
   }),
   component: ARPage,
+  errorComponent: RouteError,
 });
 
 // Modelos 3D públicos (animados) — Khronos / Google sample assets, sem chave de API.
@@ -101,7 +105,11 @@ function ARPage() {
     }
   }, [navigate]);
 
-  if (!profile) return null;
+  if (!profile) return (
+    <main id="main-content" className="flex min-h-[60dvh] items-center justify-center">
+      <p className="animate-pulse font-display text-lg text-muted-foreground" role="status" aria-live="polite">A carregar…</p>
+    </main>
+  );
   const premium = isPremium(profile);
   const mascotModel = MODELS[selected];
   const labModel = LAB_MODELS.find((m) => m.id === labSelected)!;
@@ -117,7 +125,7 @@ function ARPage() {
   return (
     <div className="min-h-[100dvh] bg-background pb-24 md:pb-12">
       <TopBar profile={profile} />
-      <main className="mx-auto max-w-3xl px-4 py-6">
+      <main id="main-content" className="mx-auto max-w-3xl px-4 py-6">
         <Link to="/app" className="mb-3 inline-flex items-center gap-1 text-sm font-display text-muted-foreground hover:text-foreground">
           <ArrowLeft className="h-4 w-4" /> Aventura
         </Link>
@@ -368,7 +376,7 @@ function MissionPlayer({ mission, onClose, onComplete }: { mission: LabMission; 
             <p className="text-[11px] text-muted-foreground">{mission.intro}</p>
           </div>
         </div>
-        <button onClick={onClose} className="text-xs text-muted-foreground hover:text-foreground">✕</button>
+        <button onClick={onClose} className="text-xs text-muted-foreground hover:text-foreground" aria-label="Fechar">✕</button>
       </div>
 
       {/* Order kind */}

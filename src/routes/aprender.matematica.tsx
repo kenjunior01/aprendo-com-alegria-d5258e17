@@ -1,31 +1,35 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, Calculator, Hash, Ruler, Sparkles } from "lucide-react";
 import { ChunkyButton } from "@/components/ChunkyButton";
+import { RouteError } from "@/components/RouteError";
 
 export const Route = createFileRoute("/aprender/matematica")({
   head: () => ({
     meta: [
-      { title: "Aprender Matemática — 1.º ciclo | Alegria" },
+      { title: "Aprender Matemática — 1.º ciclo | Kidoz" },
       { name: "description", content: "Matemática para crianças do 1.º ciclo: números, operações, frações, geometria e resolução de problemas. Lições gamificadas alinhadas com o programa português." },
-      { property: "og:title", content: "Aprender Matemática — 1.º ciclo | Alegria" },
+      { property: "og:title", content: "Aprender Matemática — 1.º ciclo | Kidoz" },
       { property: "og:description", content: "Números, operações, frações e geometria em lições curtas e divertidas para crianças." },
-      { property: "og:url", content: "https://alegria.online/aprender/matematica" },
+      { property: "og:url", content: "https://kidoz.online/aprender/matematica" },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/acc7c5c1-6f57-466a-a906-520c14783216" },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/acc7c5c1-6f57-466a-a906-520c14783216" },
     ],
-    links: [{ rel: "canonical", href: "https://alegria.online/aprender/matematica" }],
+    links: [{ rel: "canonical", href: "https://kidoz.online/aprender/matematica" }],
     scripts: [{
       type: "application/ld+json",
       children: JSON.stringify({
         "@context": "https://schema.org",
         "@type": "Course",
-        name: "Matemática — 1.º ciclo (Alegria)",
+        name: "Matemática — 1.º ciclo (Kidoz)",
         description: "Lições interativas de Matemática alinhadas com o programa do 1.º ciclo em Portugal.",
-        provider: { "@type": "Organization", name: "Alegria", url: "https://alegria.online" },
+        provider: { "@type": "Organization", name: "Kidoz", url: "https://kidoz.online" },
         inLanguage: "pt-PT",
         educationalLevel: "Primary",
       }),
     }],
   }),
   component: MatematicaPage,
+  errorComponent: RouteError,
 });
 
 const TOPICS = [
@@ -37,12 +41,12 @@ const TOPICS = [
 
 function MatematicaPage() {
   return (
-    <main className="bg-sky-island min-h-[100dvh]">
+    <main id="main-content" className="bg-sky-island min-h-[100dvh]">
       <article className="mx-auto max-w-3xl px-5 py-10">
         <Link to="/" className="text-sm text-muted-foreground hover:text-foreground">← Início</Link>
         <h1 className="mt-3 font-display text-4xl sm:text-5xl">Matemática que sabe a aventura</h1>
         <p className="mt-3 text-base text-foreground/80">
-          Aprender <strong>Matemática no 1.º ciclo</strong> com o Alegria é resolver pequenos desafios
+          Aprender <strong>Matemática no 1.º ciclo</strong> com o Kidoz é resolver pequenos desafios
           ao lado das mascotes. Cada conceito é introduzido com manipulativos visuais e progressão
           adaptativa: se a criança erra, o exercício seguinte é mais fácil; se acerta, sobe de nível.
         </p>

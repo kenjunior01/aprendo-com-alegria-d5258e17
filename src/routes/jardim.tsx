@@ -10,21 +10,25 @@ import { loadMissions, claimMission, dailyMissionStats, type DailyMissionsState 
 import { ArrowLeft, Sparkles, Lock, Gift, CheckCircle2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import confetti from "canvas-confetti";
+import { RouteError } from "@/components/RouteError";
 
 export const Route = createFileRoute("/jardim")({
   head: () => ({
     meta: [
-      { title: "O meu Jardim Mágico — Alegria" },
+      { title: "O meu Jardim Mágico — Kidoz" },
       { name: "description", content: "O teu jardim cresce a cada missão completada. Vê o que conseguiste desbloquear!" },
-      { property: "og:title", content: 'O meu Jardim Mágico — Alegria' },
+      { property: "og:title", content: 'O meu Jardim Mágico — Kidoz' },
       { property: "og:description", content: 'O teu jardim cresce a cada missão completada.' },
-      { property: "og:url", content: "https://alegria.online/jardim" },
+      { property: "og:url", content: "https://kidoz.online/jardim" },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/acc7c5c1-6f57-466a-a906-520c14783216" },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/acc7c5c1-6f57-466a-a906-520c14783216" },
     ],
     links: [
-      { rel: "canonical", href: "https://alegria.online/jardim" },
+      { rel: "canonical", href: "https://kidoz.online/jardim" },
     ],
   }),
   component: GardenPage,
+  errorComponent: RouteError,
 });
 
 function GardenPage() {
@@ -51,7 +55,11 @@ function GardenPage() {
     setTimeout(() => setJustClaimed(null), 2000);
   };
 
-  if (!profile || !missions) return null;
+  if (!profile || !missions) return (
+    <main id="main-content" className="flex min-h-[60dvh] items-center justify-center">
+      <p className="animate-pulse font-display text-lg text-muted-foreground" role="status" aria-live="polite">A carregar…</p>
+    </main>
+  );
   const garden = gardenState(profile);
   const nextProgress = garden.next ? progressToNext(profile, garden.next) : null;
   const stats = dailyMissionStats(missions);
@@ -59,7 +67,7 @@ function GardenPage() {
   return (
     <div className="min-h-[100dvh] bg-background pb-24 md:pb-12">
       <TopBar profile={profile} />
-      <main className="mx-auto max-w-3xl px-4 py-5">
+      <main id="main-content" className="mx-auto max-w-3xl px-4 py-5">
         <Link to="/app" className="mb-3 inline-flex items-center gap-1 text-sm font-display text-muted-foreground hover:text-foreground">
           <ArrowLeft className="h-4 w-4" /> Aventura
         </Link>
@@ -104,7 +112,7 @@ function GardenPage() {
               transition={{ duration: 0.6 }}
             />
           </div>
-          <div className="mt-4 grid gap-2 sm:grid-cols-2">
+          <div role="list" className="mt-4 grid gap-2 sm:grid-cols-2">
             <AnimatePresence>
               {missions.missions.map((m) => {
                 const prog = missions.progress[m.id] ?? 0;
@@ -117,6 +125,7 @@ function GardenPage() {
                     layout
                     initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
+                    role="listitem"
                     className={cn(
                       "rounded-2xl border-2 p-3 transition-colors",
                       claimed ? "border-success/40 bg-success/5"

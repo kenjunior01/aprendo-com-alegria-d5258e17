@@ -33,7 +33,7 @@ export function GamePinta({ onDone }: { onDone?: () => void }) {
             className={`h-10 w-10 rounded-full shadow-md ${color === c ? "ring-4 ring-foreground/30" : ""}`} />
         ))}
       </div>
-      <svg viewBox="0 0 100 100" className="mx-auto h-64 w-full max-w-sm rounded-3xl bg-sky-100">
+      <svg viewBox="0 0 100 100" className="mx-auto h-64 w-full max-w-sm rounded-3xl bg-sky-100" aria-hidden="true">
         {PAINT_ZONES.map((z) => (
           <circle key={z.id} cx={z.x} cy={z.y} r={z.r}
             fill={filled[z.id] ?? "#ffffff"}

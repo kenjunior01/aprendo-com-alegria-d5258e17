@@ -1,7 +1,7 @@
 {
-  "name": "Alegria — Aprender a brincar",
-  "short_name": "Alegria",
-  "description": "App educativa estilo Duolingo para crianças do 1.º ciclo em Portugal.",
+  "name": "Kidoz — Aprender a brincar",
+  "short_name": "Kidoz",
+  "description": "App educativa estilo Duolingo para crianças do 1.º ciclo em Portugal. Português, Matemática e Estudo do Meio com mascotes divertidas.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
@@ -9,6 +9,9 @@
   "background_color": "#fdf8ee",
   "theme_color": "#ff8c42",
   "lang": "pt-PT",
+  "dir": "ltr",
+  "categories": ["education", "kids"],
+  "prefer_related_applications": false,
   "icons": [
     {
       "src": "/icon-192.png",
@@ -21,6 +24,15 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Ecrã principal da Kidoz"
     }
   ]
 }

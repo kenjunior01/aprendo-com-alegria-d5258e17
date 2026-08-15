@@ -51,13 +51,13 @@ export function JuniorParentReport() {
   }
 
   return (
-    <div className="space-y-4">
+    <div role="list" className="space-y-4">
       {items.map(({ child, progress, stickers }) => {
         const stats = gardenProgressFor(progress);
         const last = progress.lastPlayedAt ? new Date(progress.lastPlayedAt) : null;
         const lastStr = last ? last.toLocaleString("pt-PT", { dateStyle: "short", timeStyle: "short" }) : "Ainda não brincou";
         return (
-          <article key={child.id} className="card-chunky rounded-3xl border-2 border-border bg-card p-4 sm:p-5">
+          <article key={child.id} role="listitem" className="card-chunky rounded-3xl border-2 border-border bg-card p-4 sm:p-5">
             <header className="flex items-center gap-3">
               <Mascot id={child.mascot} size="md" />
               <div className="flex-1">

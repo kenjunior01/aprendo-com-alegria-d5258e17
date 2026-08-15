@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger,
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogTrigger,
 } from "@/components/ui/dialog";
 import { Sparkles, Swords, Trophy, UserPlus, Check, X, Send, History as HistoryIcon, MapPin, Zap, Flame } from "lucide-react";
 import { loadProfile, pullProfileFromCloud, type Profile } from "@/lib/storage";
@@ -29,15 +29,19 @@ import {
 import { toast } from "sonner";
 import { LigasPanel } from "@/components/LigasPanel";
 import { cn } from "@/lib/utils";
+import { RouteError } from "@/components/RouteError";
 
 export const Route = createFileRoute("/desafios")({
   head: () => ({
     meta: [
-      { title: "Arena de Desafios — Alegria" },
+      { title: "Arena de Desafios — Kidoz" },
       { name: "description", content: "Desafios diários da IA, batalhas épicas com amigos e ligas nacionais." },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/acc7c5c1-6f57-466a-a906-520c14783216" },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/acc7c5c1-6f57-466a-a906-520c14783216" },
     ],
   }),
   component: DesafiosPage,
+  errorComponent: RouteError,
 });
 
 function DesafiosPage() {
@@ -94,39 +98,17 @@ function DesafiosPage() {
     })();
   }, [fnList, fnAi, fnRank, fnFriends]);
 
-  if (!profile) {
-    return (
-      <div className="min-h-[100dvh] flex flex-col items-center justify-center bg-gradient-to-b from-amber-50 to-sky-50 px-4 text-center">
-        <Swords className="h-16 w-16 text-amber-400 mb-4" />
-        <h1 className="font-display text-3xl font-bold text-amber-800">Arena de Desafios</h1>
-        <p className="mt-3 text-amber-600 max-w-sm">Cria um perfil para entrar na Arena e desafiar amigos, competir em ligas e ganhar medalhas!</p>
-        <div className="mt-6 flex flex-col gap-3 w-full max-w-xs">
-          <Link to="/comecar">
-            <Button className="w-full rounded-2xl text-base font-display bg-amber-500 hover:bg-amber-600 text-white">
-              Começar a aventura
-            </Button>
-          </Link>
-          <Link to="/auth">
-            <Button variant="outline" className="w-full rounded-2xl text-base font-display border-amber-300 text-amber-700">
-              Já tenho conta
-            </Button>
-          </Link>
-          <Link to="/junior">
-            <Button variant="ghost" className="w-full rounded-2xl text-sm text-amber-500">
-              Explorar o Júnior primeiro
-            </Button>
-          </Link>
-        </div>
-        <p className="mt-8 text-xs text-amber-400/60">A Arena de Desafios requer um perfil para guardar o teu progresso.</p>
-      </div>
-    );
-  }
+  if (!profile) return (
+    <main id="main-content" className="flex min-h-[60dvh] items-center justify-center">
+      <p className="animate-pulse font-display text-lg text-muted-foreground" role="status" aria-live="polite">A carregar…</p>
+    </main>
+  );
 
   return (
     <div className="min-h-[100dvh] bg-slate-50 pb-28 md:pb-12">
       <TopBar profile={profile} />
 
-      <main className="mx-auto max-w-3xl px-4 py-6">
+      <main id="main-content" className="mx-auto max-w-3xl px-4 py-6">
         {/* Spectacular Arena Hero */}
         <motion.section
           initial={{ opacity: 0, scale: 0.95 }}
@@ -240,7 +222,7 @@ function DesafiosPage() {
                         <Zap className="h-8 w-8 fill-current" />
                       </div>
                       <div>
-                        <h3 className="font-display text-2xl font-bold">Missão Diária</h3>
+                        <h2 className="font-display text-2xl font-bold">Missão Diária</h2>
                         <p className="text-sm text-muted-foreground">Especialmente para ti</p>
                       </div>
                     </div>
@@ -305,16 +287,16 @@ function DesafiosPage() {
                 }}
               />
 
-              <h3 className="mb-4 mt-8 font-display text-2xl flex items-center gap-2">
+              <h2 className="mb-4 mt-8 font-display text-2xl flex items-center gap-2">
                 <Swords className="h-6 w-6 text-purple-600" /> Batalhas Ativas
-              </h3>
+              </h2>
 
               {challenges.filter((c) => c.kind === "pvp").length === 0 ? (
-                <div className="rounded-3xl border-2 border-dashed border-slate-300 p-12 text-center text-slate-400">
+                <div className="rounded-3xl border-2 border-dashed border-slate-300 p-12 text-center text-slate-500">
                   Sem batalhas de momento. Convida os teus amigos!
                 </div>
               ) : (
-                <div className="grid gap-4 sm:grid-cols-2">
+                <div role="list" className="grid gap-4 sm:grid-cols-2">
                   {challenges.filter((c) => c.kind === "pvp").map((c) => {
                     const myScore = c.creator_id === myUserId ? c.creator_score : c.opponent_score;
                     const oppScore = c.creator_id === myUserId ? c.opponent_score : c.creator_score;
@@ -328,6 +310,7 @@ function DesafiosPage() {
                       <motion.div
                         key={c.id}
                         whileHover={{ y: -4 }}
+                        role="listitem"
                         className="relative overflow-hidden rounded-[2rem] border-2 border-purple-200 bg-white p-5 shadow-lg"
                       >
                         <div className="mb-3 flex justify-between items-center">
@@ -335,18 +318,18 @@ function DesafiosPage() {
                              "px-3 py-1",
                              result.includes("VITÓRIA") ? "bg-success" : "bg-purple-600"
                            )}>{result}</Badge>
-                           <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">{c.subject_id}</span>
+                           <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">{c.subject_id}</span>
                         </div>
 
                         <div className="flex items-center justify-between gap-4 py-4">
                            <div className="text-center flex-1">
                              <p className="text-2xl font-black text-slate-800">{myScore ?? "?"}</p>
-                             <p className="text-[10px] font-bold text-slate-400 uppercase">Tu</p>
+                             <p className="text-[10px] font-bold text-slate-500 uppercase">Tu</p>
                            </div>
                            <div className="text-purple-300 font-display text-xl font-black italic">VS</div>
                            <div className="text-center flex-1">
                              <p className="text-2xl font-black text-slate-800">{oppScore ?? "?"}</p>
-                             <p className="text-[10px] font-bold text-slate-400 uppercase">Adversário</p>
+                             <p className="text-[10px] font-bold text-slate-500 uppercase">Adversário</p>
                            </div>
                         </div>
 
@@ -396,10 +379,10 @@ function RankingView({ ranking }: { ranking: Awaited<ReturnType<typeof getWeekly
     >
       <div className="bg-gradient-to-r from-blue-600 to-indigo-700 p-6 text-white flex justify-between items-center">
         <div>
-          <h3 className="font-display text-2xl font-bold flex items-center gap-2">
+          <h2 className="font-display text-2xl font-bold flex items-center gap-2">
             <Trophy className="h-6 w-6 text-yellow-300" /> Melhores da Semana
-          </h3>
-          <p className="text-sm text-white/70">Top 10 aventureiros do Alegria</p>
+          </h2>
+          <p className="text-sm text-white/70">Top 10 aventureiros do Kidoz</p>
         </div>
         {ranking.me?.rank && (
           <div className="text-center bg-white/20 px-4 py-2 rounded-2xl backdrop-blur-md border border-white/30">
@@ -411,9 +394,9 @@ function RankingView({ ranking }: { ranking: Awaited<ReturnType<typeof getWeekly
 
       <div className="p-4">
         {ranking.ranking.length === 0 ? (
-          <p className="text-center py-12 text-slate-400">Joga uma lição para apareceres aqui!</p>
+          <p className="text-center py-12 text-slate-500">Joga uma lição para apareceres aqui!</p>
         ) : (
-          <div className="space-y-2">
+          <div role="list" aria-live="polite" className="space-y-2">
             {ranking.ranking.map((r, i) => {
                const isTop3 = i < 3;
                const medal = i === 0 ? "🥇" : i === 1 ? "🥈" : "🥉";
@@ -424,6 +407,7 @@ function RankingView({ ranking }: { ranking: Awaited<ReturnType<typeof getWeekly
                   initial={{ x: -20, opacity: 0 }}
                   animate={{ x: 0, opacity: 1 }}
                   transition={{ delay: i * 0.05 }}
+                  role="listitem"
                   className={cn(
                     "flex items-center gap-4 rounded-2xl border-b border-slate-100 p-4 transition-colors hover:bg-slate-50",
                     isTop3 && "bg-blue-50/30"
@@ -445,7 +429,7 @@ function RankingView({ ranking }: { ranking: Awaited<ReturnType<typeof getWeekly
                   </div>
                   <div className="text-right">
                     <p className="text-lg font-black text-slate-800 leading-none">{r.xp}</p>
-                    <p className="text-[10px] font-bold text-slate-400 uppercase">XP Total</p>
+                    <p className="text-[10px] font-bold text-slate-500 uppercase">XP Total</p>
                   </div>
                 </motion.div>
               );
@@ -479,7 +463,7 @@ function FriendsBlock({
           <UserPlus className="h-40 w-40" />
         </div>
         <div className="relative z-10">
-          <h4 className="font-display text-lg font-bold mb-1">Convida os teus Amigos</h4>
+          <h2 className="font-display text-lg font-bold mb-1">Convida os teus Amigos</h2>
           <p className="text-indigo-200 text-sm mb-4">Partilha o teu código único para batalharem.</p>
           <div className="flex items-center gap-2">
             <code className="flex-1 rounded-xl bg-white/10 border border-white/20 p-3 text-center font-mono text-base font-bold tracking-widest uppercase">
@@ -519,18 +503,19 @@ function FriendsBlock({
       {incoming.length > 0 && (
         <div className="pt-4">
           <p className="mb-3 font-display text-sm font-bold text-slate-500 uppercase tracking-widest px-2">Pedidos Pendentes</p>
-          <div className="grid gap-2">
+          <div role="list" className="grid gap-2">
             {incoming.map((f) => (
               <motion.div
                 layout
                 key={f.friendshipId}
+                role="listitem"
                 className="flex items-center gap-3 rounded-2xl bg-white border border-slate-100 p-3 shadow-sm"
               >
                 <Mascot id={f.mascot as MascotId} size="sm" />
                 <span className="flex-1 font-display text-sm font-bold text-slate-700">{f.name}</span>
                 <div className="flex gap-1">
-                  <Button size="icon" variant="ghost" className="h-9 w-9 text-success hover:bg-success/10" onClick={() => onRespond(f.friendshipId, true)}><Check className="h-5 w-5" /></Button>
-                  <Button size="icon" variant="ghost" className="h-9 w-9 text-destructive hover:bg-destructive/10" onClick={() => onRespond(f.friendshipId, false)}><X className="h-5 w-5" /></Button>
+                  <Button size="icon" variant="ghost" className="h-9 w-9 text-success hover:bg-success/10" onClick={() => onRespond(f.friendshipId, true)} aria-label="Aceitar"><Check className="h-5 w-5" /></Button>
+                  <Button size="icon" variant="ghost" className="h-9 w-9 text-destructive hover:bg-destructive/10" onClick={() => onRespond(f.friendshipId, false)} aria-label="Rejeitar"><X className="h-5 w-5" /></Button>
                 </div>
               </motion.div>
             ))}
@@ -541,11 +526,12 @@ function FriendsBlock({
       {accepted.length > 0 && (
         <div className="pt-4">
           <p className="mb-3 font-display text-sm font-bold text-slate-500 uppercase tracking-widest px-2">Lista de Amigos</p>
-          <div className="grid grid-cols-2 gap-3">
+          <div role="list" className="grid grid-cols-2 gap-3">
             {accepted.map((f) => (
               <motion.div
                 whileHover={{ scale: 1.02 }}
                 key={f.friendshipId}
+                role="listitem"
                 className="flex flex-col items-center gap-3 rounded-[2rem] bg-white border border-slate-100 p-4 text-center shadow-md relative"
               >
                 <div className="absolute top-2 right-2">
@@ -569,7 +555,7 @@ function FriendsBlock({
 
 function CopyIcon({ className }: { className?: string }) {
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
   );
 }
 
@@ -604,10 +590,11 @@ function ChallengeFriendDialog({
       <DialogContent className="max-w-md rounded-[2rem]">
         <DialogHeader>
           <DialogTitle className="font-display text-2xl">Desafiar {friendName}</DialogTitle>
+          <DialogDescription className="text-sm text-muted-foreground">Inicia um desafio PvP contra este amigo.</DialogDescription>
         </DialogHeader>
         <div className="space-y-6 pt-4">
           <div>
-            <label className="mb-3 block text-xs font-black uppercase tracking-widest text-slate-400">Escolhe a Disciplina</label>
+            <label className="mb-3 block text-xs font-black uppercase tracking-widest text-slate-500">Escolhe a Disciplina</label>
             <div className="grid grid-cols-3 gap-2">
               {SUBJECTS.map((s) => (
                 <button
@@ -628,7 +615,7 @@ function ChallengeFriendDialog({
             </div>
           </div>
           <div>
-            <label className="mb-2 block text-xs font-black uppercase tracking-widest text-slate-400">Qual a Lição?</label>
+            <label className="mb-2 block text-xs font-black uppercase tracking-widest text-slate-500">Qual a Lição?</label>
             <select
               value={lessonId}
               onChange={(e) => setLessonId(e.target.value)}
@@ -685,7 +672,7 @@ function ChallengeHistory({
       <div className="rounded-[2.5rem] bg-white p-12 text-center shadow-lg border-2 border-slate-50">
         <HistoryIcon className="mx-auto mb-4 h-12 w-12 text-slate-200" />
         <p className="font-display text-lg text-slate-500">Ainda sem histórico...</p>
-        <p className="text-sm text-slate-400 mt-1">Joga o desafio do dia para começar!</p>
+        <p className="text-sm text-slate-500 mt-1">Joga o desafio do dia para começar!</p>
       </div>
     );
   }
@@ -710,8 +697,8 @@ function Section({
   if (items.length === 0) return null;
   return (
     <div>
-      <h4 className="mb-4 font-display text-sm font-black uppercase tracking-[0.2em] text-slate-400 px-2">{title}</h4>
-      <div className="grid gap-3 sm:grid-cols-2">
+      <h3 className="mb-4 font-display text-sm font-black uppercase tracking-[0.2em] text-slate-500 px-2">{title}</h3>
+      <div role="list" className="grid gap-3 sm:grid-cols-2">
         {items.map((c) => {
           const myScore = c.creator_id === myUserId ? c.creator_score : c.opponent_score;
           const oppScore = c.creator_id === myUserId ? c.opponent_score : c.creator_score;
@@ -726,18 +713,19 @@ function Section({
             <motion.div
               key={c.id}
               whileHover={{ scale: 1.01 }}
+              role="listitem"
               className="rounded-3xl border border-slate-100 bg-white p-4 shadow-sm"
             >
               <div className="mb-2 flex items-center justify-between">
                 <span className="font-display text-sm font-bold capitalize text-slate-800">{c.subject_id.replace("-", " ")}</span>
                 <span className={cn(
                   "text-[10px] font-black px-2 py-0.5 rounded-full border",
-                  won ? "border-success text-success bg-success/5" : "border-slate-200 text-slate-400"
+                  won ? "border-success text-success bg-success/5" : "border-slate-300 text-slate-500"
                 )}>{resultText}</span>
               </div>
               <div className="flex items-end justify-between">
                 <div>
-                   <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">{fmtDate(c.created_at)}</p>
+                   <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">{fmtDate(c.created_at)}</p>
                    <p className="text-sm font-black text-slate-700">Tu: {myScore ?? "?"} · Adv: {oppScore ?? "?"}</p>
                 </div>
                 {action === "play" && (
@@ -759,4 +747,3 @@ function Section({
     </div>
   );
 }
-

@@ -5,6 +5,7 @@ import { TopBar } from "@/components/TopBar";
 import { BottomNav } from "@/components/BottomNav";
 import { ChunkyButton } from "@/components/ChunkyButton";
 import { loadProfile, type Profile } from "@/lib/storage";
+import { RouteError } from "@/components/RouteError";
 import {
   fetchAchievements,
   fetchUnlocked,
@@ -19,17 +20,20 @@ import {
 export const Route = createFileRoute("/conquistas")({
   head: () => ({
     meta: [
-      { title: "Conquistas — Alegria" },
+      { title: "Conquistas — Kidoz" },
       { name: "description", content: "Vê as tuas medalhas desbloqueadas e as próximas a conquistar." },
-      { property: "og:title", content: 'As minhas conquistas — Alegria' },
+      { property: "og:title", content: 'As minhas conquistas — Kidoz' },
       { property: "og:description", content: 'Vê as tuas medalhas desbloqueadas e as próximas a conquistar.' },
-      { property: "og:url", content: "https://alegria.online/conquistas" },
+      { property: "og:url", content: "https://kidoz.online/conquistas" },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/acc7c5c1-6f57-466a-a906-520c14783216" },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/acc7c5c1-6f57-466a-a906-520c14783216" },
     ],
     links: [
-      { rel: "canonical", href: "https://alegria.online/conquistas" },
+      { rel: "canonical", href: "https://kidoz.online/conquistas" },
     ],
   }),
   component: AchievementsPage,
+  errorComponent: RouteError,
 });
 
 const ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -101,7 +105,7 @@ function AchievementsPage() {
   return (
     <div className="min-h-[100dvh] bg-background pb-24 md:pb-12">
       {profile && <TopBar profile={profile} />}
-      <main className="mx-auto max-w-2xl px-4 py-6 sm:py-8">
+      <main id="main-content" className="mx-auto max-w-2xl px-4 py-6 sm:py-8">
         <header className="mb-6 text-center">
           <div className="inline-flex h-16 w-16 items-center justify-center rounded-full bg-primary/15">
             <Trophy className="h-8 w-8 text-primary" />
@@ -140,7 +144,7 @@ function AchievementsPage() {
         {!loading && profile && Object.entries(grouped).map(([cat, items]) => (
           <section key={cat} className="mb-6">
             <h2 className="mb-3 font-display text-lg sm:text-xl">{CATEGORY_LABEL[cat] ?? cat}</h2>
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <div role="list" className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               {items.map((a) => {
                 const isUnlocked = unlocked.has(a.code);
                 const Icon = ICONS[a.icon] ?? Trophy;
@@ -148,6 +152,7 @@ function AchievementsPage() {
                 return (
                   <div
                     key={a.code}
+                    role="listitem"
                     className={`card-chunky rounded-2xl border-2 p-4 transition-transform ${
                       isUnlocked
                         ? "border-primary bg-card"

@@ -3,7 +3,7 @@ import { useEffect, useState, Suspense } from "react";
 import { motion } from "framer-motion";
 import { BottomNav } from "@/components/BottomNav";
 import { ChunkyButton } from "@/components/ChunkyButton";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { ArrowLeft, Sparkles } from "lucide-react";
 import {
   GARDENS, GAMES, getGardenGames, gardenProgressFor, currentLevel,
@@ -23,21 +23,25 @@ import { JuniorMascotStage } from "@/components/junior/JuniorMascotStage";
 import { Mascot } from "@/components/Mascot";
 import { Lock } from "lucide-react";
 import { useContentSettings } from "@/hooks/useContentSettings";
+import { RouteError } from "@/components/RouteError";
 
 export const Route = createFileRoute("/junior")({
   head: () => ({
     meta: [
-      { title: "Alegria Júnior — Jogos para crianças 2-5 anos" },
+      { title: "Kidoz Júnior — Jogos para crianças 2-5 anos" },
       { name: "description", content: "Jogos seguros e divertidos para crianças dos 2 aos 5 anos: cores, animais, rotinas e histórias mágicas." },
-      { property: "og:title", content: 'Alegria Júnior — Jogos para crianças 2-5 anos' },
+      { property: "og:title", content: 'Kidoz Júnior — Jogos para crianças 2-5 anos' },
       { property: "og:description", content: 'Jogos seguros e divertidos para crianças dos 2 aos 5 anos: cores, animais, rotinas e histórias mágicas.' },
-      { property: "og:url", content: "https://alegria.online/junior" },
+      { property: "og:url", content: "https://kidoz.online/junior" },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/acc7c5c1-6f57-466a-a906-520c14783216" },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/acc7c5c1-6f57-466a-a906-520c14783216" },
     ],
     links: [
-      { rel: "canonical", href: "https://alegria.online/junior" },
+      { rel: "canonical", href: "https://kidoz.online/junior" },
     ],
   }),
   component: JuniorPage,
+  errorComponent: RouteError,
 });
 
 function JuniorPage() {
@@ -83,11 +87,11 @@ function JuniorPage() {
           <ArrowLeft className="h-4 w-4" /> Início
         </Link>
         <div className="flex items-center gap-2 rounded-full bg-card px-3 py-1 font-display text-xs">
-          <Sparkles className="h-3 w-3 text-primary" /> Alegria Júnior · 2-5 anos
+          <Sparkles className="h-3 w-3 text-primary" /> Kidoz Júnior · 2-5 anos
         </div>
       </header>
 
-      <main className="mx-auto max-w-5xl px-4 sm:px-6">
+      <main id="main-content" className="mx-auto max-w-5xl px-4 sm:px-6">
         <motion.section initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="text-center">
           {activeChild && (
             <div className="mb-2 flex justify-center"><Mascot id={activeChild.mascot} size="md" /></div>
@@ -235,12 +239,13 @@ function JuniorPage() {
       </main>
 
       <Dialog open={!!active} onOpenChange={(o) => !o && setActive(null)}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="font-display text-2xl flex items-center justify-between gap-3 flex-wrap">
               <span>{active?.emoji} {active?.title}</span>
               {active && <ParentModePanel gameId={active.id} title={active.title} />}
             </DialogTitle>
+            <DialogDescription className="text-sm text-muted-foreground">Jogo selecionado — joga e depois carrega em Terminei.</DialogDescription>
           </DialogHeader>
           <div className="py-2">
             {active && (() => {

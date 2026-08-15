@@ -75,11 +75,12 @@ export function QuickChildSignup({ onCreated, onClose }: Props) {
 
       <div className="mt-3">
         <span className="font-display text-sm">Mascote</span>
-        <div className="mt-2 grid grid-cols-4 gap-2">
+        <div role="list" className="mt-2 grid grid-cols-4 gap-2">
           {MASCOTS.map((m) => (
             <button
               key={m.id}
               onClick={() => setMascot(m.id)}
+              role="listitem"
               className={`flex flex-col items-center gap-1 rounded-2xl border-2 p-2 transition-colors ${
                 mascot === m.id ? "border-primary bg-primary/10" : "border-border bg-card hover:bg-muted"
               }`}

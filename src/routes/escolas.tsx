@@ -6,9 +6,10 @@ import { BottomNav } from "@/components/BottomNav";
 import { ChunkyButton } from "@/components/ChunkyButton";
 import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
 import { StripeEmbeddedCheckout } from "@/components/StripeEmbeddedCheckout";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { loadProfile, type Profile } from "@/lib/storage";
 import { useAuth } from "@/hooks/useAuth";
+import { RouteError } from "@/components/RouteError";
 import {
   ArrowLeft,
   Check,
@@ -24,21 +25,24 @@ import {
 export const Route = createFileRoute("/escolas")({
   head: () => ({
     meta: [
-      { title: "Plano Escolas Alegria — 0,99€ por aluno/mês" },
+      { title: "Plano Escolas Kidoz — 0,99€ por aluno/mês" },
       {
         name: "description",
         content:
           "Plano dedicado para escolas e instituições: 0,99€ por aluno/mês, mínimo 20 alunos. Painel de turmas, relatórios de progresso e suporte dedicado.",
       },
-      { property: "og:title", content: 'Plano Escolas Alegria — 0,99€/aluno/mês' },
+      { property: "og:title", content: 'Plano Escolas Kidoz — 0,99€/aluno/mês' },
       { property: "og:description", content: 'Plano dedicado para escolas e instituições, painel de turmas e relatórios de progresso.' },
-      { property: "og:url", content: "https://alegria.online/escolas" },
+      { property: "og:url", content: "https://kidoz.online/escolas" },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/acc7c5c1-6f57-466a-a906-520c14783216" },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/acc7c5c1-6f57-466a-a906-520c14783216" },
     ],
     links: [
-      { rel: "canonical", href: "https://alegria.online/escolas" },
+      { rel: "canonical", href: "https://kidoz.online/escolas" },
     ],
   }),
   component: EscolasPage,
+  errorComponent: RouteError,
 });
 
 const MIN_STUDENTS = 20;
@@ -106,7 +110,7 @@ function EscolasPage() {
       <PaymentTestModeBanner />
       {profile && <TopBar profile={profile} />}
 
-      <main className="mx-auto max-w-5xl px-5 py-6 sm:py-10">
+      <main id="main-content" className="mx-auto max-w-5xl px-5 py-6 sm:py-10">
         <Link
           to="/"
           className="mb-4 inline-flex items-center gap-1 text-sm font-display text-muted-foreground hover:text-foreground"
@@ -124,7 +128,7 @@ function EscolasPage() {
             <SchoolIcon className="h-7 w-7" />
           </div>
           <h1 className="mt-3 font-display text-3xl sm:text-4xl">
-            Alegria para Escolas
+            Kidoz para Escolas
           </h1>
           <p className="mx-auto mt-3 max-w-2xl text-base text-muted-foreground sm:text-lg">
             Uma plataforma de aprendizagem lúdica para a tua escola, adaptada à
@@ -151,7 +155,7 @@ function EscolasPage() {
                 <div className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-primary/15 text-primary">
                   <Icon className="h-6 w-6" />
                 </div>
-                <h3 className="mt-3 font-display text-lg">{f.title}</h3>
+                <h2 className="mt-3 font-display text-lg">{f.title}</h2>
                 <p className="mt-1 text-sm text-muted-foreground">{f.desc}</p>
               </div>
             );
@@ -242,7 +246,7 @@ function EscolasPage() {
               Subscrever {students} alunos
             </ChunkyButton>
             <a
-              href="mailto:escolas@alegria.online?subject=Pedido%20de%20demonstra%C3%A7%C3%A3o%20Alegria%20Escolas"
+              href="mailto:escolas@kidoz.online?subject=Pedido%20de%20demonstra%C3%A7%C3%A3o%20Kidoz%20Escolas"
               className="inline-flex min-h-[56px] flex-1 items-center justify-center rounded-2xl border-2 border-border bg-card px-5 font-display text-base hover:bg-muted"
             >
               Falar com vendas
@@ -272,6 +276,7 @@ function EscolasPage() {
             <DialogTitle>
               Subscrição Escolas — {students} alunos
             </DialogTitle>
+            <DialogDescription className="text-sm text-muted-foreground">Checkout seguro para a subscrição do plano Escolas.</DialogDescription>
           </DialogHeader>
           {user && (
             <StripeEmbeddedCheckout

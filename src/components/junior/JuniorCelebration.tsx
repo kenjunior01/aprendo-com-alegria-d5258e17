@@ -33,6 +33,9 @@ export function JuniorCelebration({ open, sticker, mascot, isNew, onClose }: Pro
           exit={{ opacity: 0 }}
           className="fixed inset-0 z-[60] flex items-center justify-center bg-gradient-to-br from-primary/40 via-accent/40 to-secondary/40 backdrop-blur-sm p-4"
           onClick={onClose}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Celebração"
         >
           {/* confetti */}
           {Array.from({ length: 18 }).map((_, i) => (

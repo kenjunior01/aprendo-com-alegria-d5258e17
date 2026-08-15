@@ -4,5 +4,11 @@ Disallow: /admin
 Disallow: /api/
 Disallow: /lovable/
 Disallow: /checkout.return
+Disallow: /app
+Disallow: /pais
+Disallow: /perfil
+Disallow: /loja
+Disallow: /tutor
+Disallow: /amigo
 
 Sitemap: https://alegria.online/sitemap.xml

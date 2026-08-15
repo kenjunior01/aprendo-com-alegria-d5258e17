@@ -66,7 +66,7 @@ export function RegionInterestsPanel({ profile, onChange, compact }: Props) {
 
       <div className="mb-4">
         <p className="mb-2 text-xs font-display uppercase tracking-wide text-muted-foreground">País / currículo</p>
-        <div className="grid grid-cols-3 gap-2 sm:grid-cols-6">
+        <div role="list" className="grid grid-cols-3 gap-2 sm:grid-cols-6">
           {REGION_SELECT.map((code) => {
             const r = REGIONS[code];
             const active = region === code;
@@ -74,6 +74,7 @@ export function RegionInterestsPanel({ profile, onChange, compact }: Props) {
               <button
                 key={code}
                 onClick={() => pickRegion(code)}
+                role="listitem"
                 className={cn(
                   "flex flex-col items-center gap-0.5 rounded-2xl border-2 px-2 py-2 text-center transition-transform active:scale-95",
                   active ? "border-primary bg-primary/10" : "border-border bg-background",
@@ -93,13 +94,14 @@ export function RegionInterestsPanel({ profile, onChange, compact }: Props) {
         <p className="mb-2 flex items-center gap-1 text-xs font-display uppercase tracking-wide text-muted-foreground">
           <Sparkles className="h-3 w-3" /> Interesses (escolhe vários)
         </p>
-        <div className="flex flex-wrap gap-1.5">
+        <div role="list" className="flex flex-wrap gap-1.5">
           {INTERESTS.map((it) => {
             const on = interests.includes(it.id);
             return (
               <button
                 key={it.id}
                 onClick={() => toggleInterest(it.id)}
+                role="listitem"
                 className={cn(
                   "inline-flex items-center gap-1 rounded-full border-2 px-3 py-1 font-display text-xs transition-transform active:scale-95",
                   on ? "border-primary bg-primary text-primary-foreground" : "border-border bg-background",

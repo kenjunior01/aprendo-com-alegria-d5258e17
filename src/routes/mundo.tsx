@@ -25,21 +25,25 @@ import {
 } from "@/lib/world";
 import { livingOrnaments, ecosystemSummary } from "@/lib/ecosystem";
 import { toast } from "sonner";
+import { RouteError } from "@/components/RouteError";
 
 export const Route = createFileRoute("/mundo")({
   head: () => ({
     meta: [
-      { title: "O Meu Mundo — Alegria" },
+      { title: "O Meu Mundo — Kidoz" },
       { name: "description", content: "Decora o teu quarto virtual com Abracadinhos. Adiciona móveis, plantas e fundos divertidos." },
-      { property: "og:title", content: 'O Meu Mundo — Alegria' },
+      { property: "og:title", content: 'O Meu Mundo — Kidoz' },
       { property: "og:description", content: 'Decora o teu quarto virtual com Abracadinhos.' },
-      { property: "og:url", content: "https://alegria.online/mundo" },
+      { property: "og:url", content: "https://kidoz.online/mundo" },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/acc7c5c1-6f57-466a-a906-520c14783216" },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/acc7c5c1-6f57-466a-a906-520c14783216" },
     ],
     links: [
-      { rel: "canonical", href: "https://alegria.online/mundo" },
+      { rel: "canonical", href: "https://kidoz.online/mundo" },
     ],
   }),
   component: MundoPage,
+  errorComponent: RouteError,
 });
 
 const CATEGORY_LABELS: Record<WorldCategory, string> = {
@@ -129,7 +133,7 @@ function MundoPage() {
   const filteredCatalog = WORLD_CATALOG.filter((i) => i.category === activeCat);
 
   return (
-    <div className="min-h-[100dvh] pb-24 sm:pb-6">
+    <div className="min-h-[100dvh] pb-24 sm:pb-6" id="main-content">
       <TopBar profile={profile} />
 
       <div className="mx-auto max-w-3xl px-3 py-4 sm:px-4">

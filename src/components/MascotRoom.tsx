@@ -198,11 +198,11 @@ export function MascotRoom({ profile }: Props) {
 
   const ActiveGame = selectedGame ? miniGames.find(g => g.id === selectedGame)?.component : null;
   const stats = [
-    { id: "hunger", icon: Utensils, value: profile.hunger, color: profile.hunger < 25 ? "bg-red-500" : "bg-orange-400", room: "kitchen" as RoomType },
-    { id: "energy", icon: Zap, value: profile.energy, color: profile.energy < 25 ? "bg-red-500" : "bg-yellow-400", room: "bedroom" as RoomType },
-    { id: "fun", icon: Gamepad2, value: profile.fun, color: profile.fun < 25 ? "bg-red-500" : "bg-pink-400", room: "living" as RoomType },
-    { id: "knowledge", icon: GraduationCap, value: profile.knowledge, color: profile.knowledge < 30 ? "bg-red-600 animate-pulse" : "bg-blue-400", room: "classroom" as RoomType },
-    { id: "talk", icon: Mic, value: 100, color: "bg-indigo-400", room: "talk" as RoomType },
+    { id: "hunger", icon: Utensils, value: profile.hunger, color: profile.hunger < 25 ? "bg-red-500" : "bg-orange-400", label: profile.hunger < 25 ? "Fome baixa" : "Fome", room: "kitchen" as RoomType },
+    { id: "energy", icon: Zap, value: profile.energy, color: profile.energy < 25 ? "bg-red-500" : "bg-yellow-400", label: profile.energy < 25 ? "Energia baixa" : "Energia", room: "bedroom" as RoomType },
+    { id: "fun", icon: Gamepad2, value: profile.fun, color: profile.fun < 25 ? "bg-red-500" : "bg-pink-400", label: profile.fun < 25 ? "Diversão baixa" : "Diversão", room: "living" as RoomType },
+    { id: "knowledge", icon: GraduationCap, value: profile.knowledge, color: profile.knowledge < 30 ? "bg-red-600 animate-pulse" : "bg-blue-400", label: profile.knowledge < 30 ? "Conhecimento baixo" : "Conhecimento", room: "classroom" as RoomType },
+    { id: "talk", icon: Mic, value: 100, color: "bg-indigo-400", label: "Conversar", room: "talk" as RoomType },
   ];
 
   const growthProgress = useMemo(() => {
@@ -324,12 +324,13 @@ export function MascotRoom({ profile }: Props) {
           <motion.button whileTap={{ scale: 0.9 }} onClick={() => navigate({ to: "/loja" })} className="flex items-center gap-2 rounded-2xl border border-xp/30 bg-xp/20 px-4 py-2 font-display text-sm font-bold text-xp shadow-lg backdrop-blur-xl transition-all hover:bg-xp/30">
             <ShoppingBag className="h-4 w-4" /> {t("Loja")}
           </motion.button>
-          <motion.button whileTap={{ scale: 0.9 }} onClick={takePhoto} className="flex items-center gap-2 rounded-2xl border border-white/40 bg-white/20 px-4 py-2 font-display text-sm font-bold text-slate-700 shadow-lg backdrop-blur-xl transition-all hover:bg-white/30">
+          <motion.button whileTap={{ scale: 0.9 }} onClick={takePhoto} aria-label="Tirar foto" className="flex items-center gap-2 rounded-2xl border border-white/40 bg-white/20 px-4 py-2 font-display text-sm font-bold text-slate-700 shadow-lg backdrop-blur-xl transition-all hover:bg-white/30">
             <Camera className="h-4 w-4" />
           </motion.button>
           <motion.button
             whileTap={{ scale: 0.9 }}
             onClick={() => setAlbumOpen(true)}
+            aria-label="Álbum"
             className="flex items-center gap-2 rounded-2xl border border-indigo-400/40 bg-indigo-400/20 px-4 py-2 font-display text-sm font-bold text-indigo-700 shadow-lg backdrop-blur-xl transition-all hover:bg-indigo-400/30"
           >
             <BookOpen className="h-4 w-4" />
@@ -413,7 +414,7 @@ export function MascotRoom({ profile }: Props) {
 
             <button
               onClick={() => setCurrentTrivia(null)}
-              className="mt-6 w-full text-center text-xs font-bold text-slate-400 hover:text-slate-600"
+              className="mt-6 w-full text-center text-xs font-bold text-slate-500 hover:text-slate-600"
             >
               Agora não
             </button>
@@ -490,7 +491,14 @@ export function MascotRoom({ profile }: Props) {
                 <MascotVoiceTutor mascotId={profile.mascot} equippedItemId={profile.equippedItem} growthScale={growth.scale} />
               </div>
             ) : (
-              <div onClick={handleMascotClick} className="relative cursor-pointer transition-transform active:scale-95 scale-110 md:scale-125">
+              <div
+                onClick={handleMascotClick}
+                onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); handleMascotClick(); } }}
+                role="button"
+                tabIndex={0}
+                aria-label="Interagir com mascote"
+                className="relative cursor-pointer transition-transform active:scale-95 scale-110 md:scale-125"
+              >
                 {growth.stage === "mestre" && <motion.div animate={{ rotate: 360 }} transition={{ duration: 10, repeat: Infinity, ease: "linear" }} className="pointer-events-none absolute -inset-10 z-0 rounded-full border-2 border-dashed border-amber-400/30" />}
                 <MascotExpression mascotId={profile.mascot} size="xl" mood={mood} bubble={bubble} equippedItemId={profile.equippedItem} growthScale={growth.scale} />
               </div>
@@ -503,7 +511,7 @@ export function MascotRoom({ profile }: Props) {
         <div className="mx-auto flex max-w-lg justify-between gap-2 rounded-[2.5rem] border border-white/40 bg-white/40 p-4 shadow-[0_20px_50px_rgba(0,0,0,0.1)] backdrop-blur-2xl">
           {stats.map((stat) => (
             <div key={stat.id} className="flex flex-col items-center gap-2">
-              <motion.button whileHover={{ y: -5 }} whileTap={{ scale: 0.85 }} onClick={() => { setRoom(stat.room); handleStatAction(stat.id); }} className={cn("relative flex h-16 w-16 items-center justify-center rounded-3xl border-4 border-white shadow-xl transition-all", room === stat.room ? stat.color : "bg-white/90")}>
+              <motion.button whileHover={{ y: -5 }} whileTap={{ scale: 0.85 }} onClick={() => { setRoom(stat.room); handleStatAction(stat.id); }} aria-label={`${stat.label}: ${Math.round(stat.value)}%`} className={cn("relative flex h-16 w-16 items-center justify-center rounded-3xl border-4 border-white shadow-xl transition-all", room === stat.room ? stat.color : "bg-white/90")}>
                 <stat.icon className={cn("h-7 w-7", room === stat.room ? "text-white" : "text-slate-600")} />
 
                 {/* Visual cue for knowledge "feeding" */}
@@ -516,7 +524,7 @@ export function MascotRoom({ profile }: Props) {
                 )}
               </motion.button>
               {stat.id !== "talk" && (
-                <div className="h-2 w-12 overflow-hidden rounded-full bg-slate-200/50">
+                <div className="h-2 w-12 overflow-hidden rounded-full bg-slate-200/50" role="progressbar" aria-valuenow={Math.round(stat.value)} aria-valuemin={0} aria-valuemax={100} aria-label={stat.label}>
                   <motion.div initial={{ width: 0 }} animate={{ width: `${stat.value}%` }} className={cn("h-full transition-all duration-1000 ease-out", stat.color)} />
                 </div>
               )}

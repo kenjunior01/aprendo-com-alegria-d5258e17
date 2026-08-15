@@ -11,7 +11,7 @@ import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger,
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogTrigger,
 } from "@/components/ui/dialog";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
@@ -41,15 +41,19 @@ import {
   Tooltip as RTooltip, CartesianGrid, Legend,
 } from "recharts";
 import { ContentSettingsTab } from "@/components/admin/ContentSettingsTab";
+import { RouteError } from "@/components/RouteError";
 
 export const Route = createFileRoute("/admin")({
   head: () => ({
     meta: [
       { title: "Admin — Alegria" },
       { name: "robots", content: "noindex" },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/acc7c5c1-6f57-466a-a906-520c14783216" },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/acc7c5c1-6f57-466a-a906-520c14783216" },
     ],
   }),
   component: AdminPage,
+  errorComponent: RouteError,
 });
 
 type Profile = {
@@ -149,7 +153,7 @@ function AdminDashboard() {
           </div>
         </header>
 
-        <main className="container mx-auto px-4 py-6 space-y-6">
+        <main id="main-content" className="container mx-auto px-4 py-6 space-y-6">
           <Tabs value={tab} onValueChange={setTab}>
             <TabsList className="flex flex-wrap h-auto gap-1">
               <TabsTrigger value="overview"><BarChart3 className="h-4 w-4 mr-1" />Visão geral</TabsTrigger>
@@ -868,7 +872,7 @@ function ContentDialog({ open, onOpenChange, value, onSaved }: {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader><DialogTitle>{draft.id ? "Editar conteúdo" : "Novo conteúdo"}</DialogTitle></DialogHeader>
+        <DialogHeader><DialogTitle>{draft.id ? "Editar conteúdo" : "Novo conteúdo"}</DialogTitle><DialogDescription className="text-sm text-muted-foreground">Formulário para criar ou editar conteúdo educativo.</DialogDescription></DialogHeader>
         <div className="space-y-3">
           <div className="grid grid-cols-2 gap-2">
             <label className="text-sm">Tipo
@@ -1083,7 +1087,7 @@ function ShopDialog({ open, onOpenChange, value, onSaved }: {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
-        <DialogHeader><DialogTitle>{isNew ? "Novo item da loja" : "Editar item"}</DialogTitle></DialogHeader>
+        <DialogHeader><DialogTitle>{isNew ? "Novo item da loja" : "Editar item"}</DialogTitle><DialogDescription className="text-sm text-muted-foreground">Formulário para criar ou editar um item da loja.</DialogDescription></DialogHeader>
         {showPreview ? (
           <Card className="p-6 bg-gradient-to-br from-primary/5 to-accent/5">
             <div className="text-center space-y-2">
@@ -1588,6 +1592,7 @@ function AuditTab() {
         <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Detalhe do registo</DialogTitle>
+            <DialogDescription className="text-sm text-muted-foreground">Informação detalhada de um registo de auditoria.</DialogDescription>
           </DialogHeader>
           {detail && (
             <div className="space-y-3 text-sm">

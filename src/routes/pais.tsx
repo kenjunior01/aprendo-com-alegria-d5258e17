@@ -20,10 +20,11 @@ import { ParentRealtimeFeed } from "@/components/ParentRealtimeFeed";
 import { FamilyChallengePanel } from "@/components/FamilyChallengePanel";
 import { ChildChallengesPanel } from "@/components/ChildChallengesPanel";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { RouteError } from "@/components/RouteError";
 
-const GATE_KEY = "alegria-parent-gate-ts";
+const GATE_KEY = "kidoz-parent-gate-ts";
 const GATE_TTL_MIN = 30;
-const SEEN_KEY = "alegria-parent-tab-seen";
+const SEEN_KEY = "kidoz-parent-tab-seen";
 type TabId = "resumo" | "controlos" | "desafios" | "junior" | "atividade" | "compras";
 type SeenMap = Partial<Record<TabId, number>>;
 
@@ -39,17 +40,20 @@ function saveSeen(m: SeenMap) {
 export const Route = createFileRoute("/pais")({
   head: () => ({
     meta: [
-      { title: "Painel de Pais — Alegria" },
+      { title: "Painel de Pais — Kidoz" },
       { name: "description", content: "Acompanha o progresso dos teus filhos: tempo de estudo, áreas fortes e fracas, recomendações." },
-      { property: "og:title", content: 'Painel de Pais — Alegria' },
+      { property: "og:title", content: 'Painel de Pais — Kidoz' },
       { property: "og:description", content: 'Acompanha o progresso dos teus filhos: tempo de estudo, áreas fortes e fracas.' },
-      { property: "og:url", content: "https://alegria.online/pais" },
+      { property: "og:url", content: "https://kidoz.online/pais" },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/acc7c5c1-6f57-466a-a906-520c14783216" },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/acc7c5c1-6f57-466a-a906-520c14783216" },
     ],
     links: [
-      { rel: "canonical", href: "https://alegria.online/pais" },
+      { rel: "canonical", href: "https://kidoz.online/pais" },
     ],
   }),
   component: ParentDashboard,
+  errorComponent: RouteError,
 });
 
 interface ChildSummary { id: string; name: string; mascot: string; grade: number; xp: number; streak: number }
@@ -187,7 +191,11 @@ function ParentDashboard() {
     });
   }, [children, searchQuery, gradeFilter]);
 
-  if (!user || !profile) return null;
+  if (!user || !profile) return (
+    <main id="main-content" className="flex min-h-[60dvh] items-center justify-center">
+      <p className="animate-pulse font-display text-lg text-muted-foreground" role="status" aria-live="polite">A carregar…</p>
+    </main>
+  );
 
   const generateInvite = async () => {
     try {
@@ -282,7 +290,7 @@ function ParentDashboard() {
         )}
       </header>
 
-      <main className="mx-auto max-w-6xl px-3 py-4 sm:px-5 sm:py-6">
+      <main id="main-content" className="mx-auto max-w-6xl px-3 py-4 sm:px-5 sm:py-6">
         {children.length === 0 ? (
           <motion.section initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="card-chunky rounded-3xl border border-border bg-card p-5 sm:p-8">
             <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center">
@@ -341,7 +349,7 @@ function ParentDashboard() {
 
             {/* Children chips (filtered) */}
             <div className="-mx-3 mb-3 overflow-x-auto px-3 sm:mx-0 sm:px-0">
-              <div className="flex w-max min-w-full items-center gap-2 pb-1 sm:flex-wrap">
+              <div role="list" aria-live="polite" className="flex w-max min-w-full items-center gap-2 pb-1 sm:flex-wrap">
                 {filteredChildren.length === 0 && (
                   <p className="px-2 py-3 text-sm text-muted-foreground">Nenhuma criança corresponde aos filtros.</p>
                 )}
@@ -351,6 +359,7 @@ function ParentDashboard() {
                     <button
                       key={c.id}
                       onClick={() => setSelectedChild(c.id)}
+                      role="listitem"
                       className={`flex shrink-0 items-center gap-2 rounded-2xl border-2 px-3 py-2 font-display text-sm transition-all ${
                         active ? "scale-[1.02] border-primary bg-primary text-primary-foreground shadow-md" : "border-border bg-card hover:border-primary/40"
                       }`}
@@ -465,7 +474,7 @@ function ParentDashboard() {
                   <div className="space-y-5">
                     <JuniorParentPanel />
                     <section>
-                      <h3 className="mb-3 font-display text-xl">🧸 Atividade Alegria Júnior (2-5 anos)</h3>
+                      <h2 className="mb-3 font-display text-xl">🧸 Atividade Kidoz Júnior (2-5 anos)</h2>
                       <JuniorParentReport />
                     </section>
                   </div>

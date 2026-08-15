@@ -1,6 +1,8 @@
 import { Outlet, Link, createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { UsageGuard } from "@/components/UsageGuard";
+import { CookieConsent } from "@/components/CookieConsent";
+import { InstallPrompt } from "@/components/InstallPrompt";
 import { installServerFnAuthInterceptor } from "@/integrations/supabase/serverFnAuth";
 import { registerServiceWorker } from "@/lib/registerSW";
 import { loadHapticsPref } from "@/lib/haptics";
@@ -85,6 +87,28 @@ export const Route = createRootRoute({
               inLanguage: "pt-PT",
               publisher: { "@id": "https://alegria.online/#organization" },
             },
+            {
+              "@type": "WebApplication",
+              "@id": "https://kidoz.online/#webapp",
+              name: "Kidoz",
+              url: "https://kidoz.online",
+              applicationCategory: "EducationalApplication",
+              operatingSystem: "Web",
+              offers: {
+                "@type": "Offer",
+                price: "0",
+                priceCurrency: "EUR",
+              },
+              educationalLevel: "1.º ciclo do ensino básico",
+              educationalFramework: "Programa de Português, Matemática e Estudo do Meio — ME",
+              audience: {
+                "@type": "PeopleAudience",
+                suggestedMinAge: "6",
+                suggestedMaxAge: "10",
+              },
+              inLanguage: "pt-PT",
+              publisher: { "@id": "https://kidoz.online/#organization" },
+            },
           ],
         }),
       },
@@ -118,8 +142,16 @@ function RootComponent() {
   }, []);
   return (
     <>
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-primary focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-primary-foreground focus:shadow-lg"
+      >
+        Saltar para o conteúdo
+      </a>
       <Outlet />
       <UsageGuard />
+      <CookieConsent />
+      <InstallPrompt />
     </>
   );
 }

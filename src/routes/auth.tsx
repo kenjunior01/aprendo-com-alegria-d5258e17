@@ -3,26 +3,30 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Mascot } from "@/components/Mascot";
 import { ChunkyButton } from "@/components/ChunkyButton";
-import { AlegriaLogo } from "@/components/AlegriaLogo";
+import { KidozLogo } from "@/components/KidozLogo";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { pullProfileFromCloud, pushFullProfile } from "@/lib/storage";
 import { Mail, Lock, AlertCircle } from "lucide-react";
+import { RouteError } from "@/components/RouteError";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
-      { title: "Entrar — Alegria" },
+      { title: "Entrar — Kidoz" },
       { name: "description", content: "Entra na tua conta para guardar o teu progresso em todos os dispositivos." },
-      { property: "og:title", content: 'Entrar — Alegria' },
+      { property: "og:title", content: 'Entrar — Kidoz' },
       { property: "og:description", content: 'Entra na tua conta para guardar o teu progresso em todos os dispositivos.' },
-      { property: "og:url", content: "https://alegria.online/auth" },
+      { property: "og:url", content: "https://kidoz.online/auth" },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/acc7c5c1-6f57-466a-a906-520c14783216" },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/acc7c5c1-6f57-466a-a906-520c14783216" },
     ],
     links: [
-      { rel: "canonical", href: "https://alegria.online/auth" },
+      { rel: "canonical", href: "https://kidoz.online/auth" },
     ],
   }),
   component: AuthPage,
+  errorComponent: RouteError,
 });
 
 function AuthPage() {
@@ -95,9 +99,9 @@ function AuthPage() {
   };
 
   return (
-    <main className="bg-paper relative min-h-[100dvh] overflow-hidden px-4 py-8">
+    <main id="main-content" className="bg-paper relative min-h-[100dvh] overflow-hidden px-4 py-8">
       <div className="mx-auto flex w-full max-w-md flex-col items-center">
-        <AlegriaLogo priority className="mb-2 h-14 w-auto" />
+        <KidozLogo priority className="mb-2 h-14 w-auto" />
         <motion.div
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
@@ -170,8 +174,12 @@ function AuthPage() {
             />
 
             {error && (
-              <div className="flex items-start gap-2 rounded-2xl bg-destructive/10 px-3 py-2 text-sm text-destructive">
-                <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+              <div
+                role="alert"
+                aria-live="assertive"
+                className="flex items-start gap-2 rounded-2xl bg-destructive/10 px-3 py-2 text-sm text-destructive"
+              >
+                <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
                 <span>{error}</span>
               </div>
             )}
@@ -209,28 +217,39 @@ type FieldProps = {
   icon?: React.ReactNode;
   value: string;
   onChange: (v: string) => void;
+  error?: string | null;
 } & Omit<React.InputHTMLAttributes<HTMLInputElement>, "value" | "onChange">;
 
-function Field({ label, icon, value, onChange, ...rest }: FieldProps) {
+function Field({ label, icon, value, onChange, error, id, ...rest }: FieldProps) {
+  const fieldId = id ?? `field-${label.toLowerCase().replace(/\s+/g, "-")}`;
+  const errorId = `${fieldId}-error`;
   return (
-    <label className="block">
+    <label htmlFor={fieldId} className="block">
       <span className="mb-1 block font-display text-sm font-semibold">{label}</span>
-      <div className="flex items-center gap-2 rounded-2xl border-2 border-border bg-card px-4 py-3 focus-within:border-primary">
-        {icon && <span className="text-muted-foreground">{icon}</span>}
+      <div className="flex items-center gap-2 rounded-2xl border-2 border-border bg-card px-4 py-3 focus-within:border-primary has-[:invalid]:border-destructive">
+        {icon && <span className="text-muted-foreground" aria-hidden="true">{icon}</span>}
         <input
+          id={fieldId}
           {...rest}
           value={value}
           onChange={(e) => onChange(e.target.value)}
+          aria-invalid={error ? "true" : undefined}
+          aria-errormessage={error ? errorId : undefined}
           className="flex-1 bg-transparent text-base outline-none placeholder:text-muted-foreground/60"
         />
       </div>
+      {error && (
+        <p id={errorId} role="alert" className="mt-1 text-xs text-destructive">
+          {error}
+        </p>
+      )}
     </label>
   );
 }
 
 function GoogleIcon() {
   return (
-    <svg width="20" height="20" viewBox="0 0 24 24">
+    <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true">
       <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
       <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
       <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />

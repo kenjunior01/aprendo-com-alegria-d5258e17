@@ -17,7 +17,7 @@ export function ChunkyButton({ tone = "primary", className, children, ...props }
     <motion.button
       whileTap={{ scale: 0.97 }}
       className={cn(
-        "btn-chunky inline-flex items-center justify-center gap-2 rounded-2xl px-6 py-3 font-display text-base font-semibold uppercase tracking-wide disabled:opacity-50 disabled:pointer-events-none transition-shadow hover:shadow-glow",
+        "btn-chunky inline-flex items-center justify-center gap-2 rounded-2xl px-6 py-3 font-display text-base font-semibold uppercase tracking-wide disabled:opacity-50 disabled:pointer-events-none min-h-[48px] min-w-[48px] transition-shadow hover:shadow-glow",
         tones[tone],
         className,
       )}

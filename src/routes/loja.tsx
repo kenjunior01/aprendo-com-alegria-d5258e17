@@ -10,21 +10,25 @@ import { buyItem, equipItem, loadProfile, pullProfileFromCloud, type Profile } f
 import { Coins, Lock, Check, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { playCorrect, playWrong } from "@/lib/audio";
+import { RouteError } from "@/components/RouteError";
 
 export const Route = createFileRoute("/loja")({
   head: () => ({
     meta: [
-      { title: "Loja — Alegria" },
+      { title: "Loja — Kidoz" },
       { name: "description", content: "Personaliza a tua mascote com chapéus, fatos e cenários ganhos com Abracadinhos." },
-      { property: "og:title", content: 'Loja Alegria — personaliza a tua mascote' },
+      { property: "og:title", content: 'Loja Kidoz — personaliza a tua mascote' },
       { property: "og:description", content: 'Chapéus, fatos e cenários para a tua mascote, ganhos com Abracadinhos.' },
-      { property: "og:url", content: "https://alegria.online/loja" },
+      { property: "og:url", content: "https://kidoz.online/loja" },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/acc7c5c1-6f57-466a-a906-520c14783216" },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/acc7c5c1-6f57-466a-a906-520c14783216" },
     ],
     links: [
-      { rel: "canonical", href: "https://alegria.online/loja" },
+      { rel: "canonical", href: "https://kidoz.online/loja" },
     ],
   }),
   component: ShopPage,
+  errorComponent: RouteError,
 });
 
 const TYPES: ItemType[] = ["hat", "outfit", "scene", "badge"];
@@ -51,7 +55,11 @@ function ShopPage() {
     return () => { cancelled = true; };
   }, [navigate]);
 
-  if (!profile) return null;
+  if (!profile) return (
+    <main id="main-content" className="flex min-h-[60dvh] items-center justify-center">
+      <p className="animate-pulse font-display text-lg text-muted-foreground" role="status" aria-live="polite">A carregar…</p>
+    </main>
+  );
 
   const items = SHOP_FALLBACK.filter((i) => i.type === activeType);
 
@@ -88,7 +96,7 @@ function ShopPage() {
     <div className="min-h-[100dvh] bg-background pb-24 md:pb-12">
       <TopBar profile={profile} />
 
-      <main className="mx-auto max-w-3xl px-3 py-4 sm:px-4 sm:py-6">
+      <main id="main-content" className="mx-auto max-w-3xl px-3 py-4 sm:px-4 sm:py-6">
         {/* Hero */}
         <motion.section
           initial={{ opacity: 0, y: 10 }}
@@ -112,6 +120,7 @@ function ShopPage() {
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
+            role="status"
             className={cn(
               "mt-4 rounded-2xl px-4 py-3 text-center font-display text-sm",
               feedback.type === "ok" ? "bg-success/15 text-success" : "bg-destructive/10 text-destructive",
@@ -138,7 +147,7 @@ function ShopPage() {
         </div>
 
         {/* Grid */}
-        <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
+        <div role="list" aria-live="polite" className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
           {items.map((item) => {
             const owned = profile.ownedItems.includes(item.id);
             const equipped = profile.equippedItem === item.id;
@@ -149,6 +158,7 @@ function ShopPage() {
               <motion.div
                 key={item.id}
                 whileHover={{ y: -3 }}
+                role="listitem"
                 className={cn(
                   "card-chunky relative flex flex-col items-center gap-2 rounded-3xl border-2 bg-card p-3 text-center sm:p-4",
                   equipped && "border-primary ring-4 ring-primary/30",

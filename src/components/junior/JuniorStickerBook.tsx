@@ -22,12 +22,13 @@ export function JuniorStickerBook({ childId, refreshKey }: Props) {
         </span>
       </div>
       <p className="text-xs text-muted-foreground">Ganha um autocolante sempre que terminas um jogo.</p>
-      <div className="mt-3 grid grid-cols-6 gap-2 sm:grid-cols-8">
+      <div role="list" className="mt-3 grid grid-cols-6 gap-2 sm:grid-cols-8">
         {all.map((s) => {
           const has = ownedSet.has(s.id);
           return (
             <div
               key={s.id}
+              role="listitem"
               title={has ? s.label : "Por desbloquear"}
               className={`flex aspect-square items-center justify-center rounded-2xl border-2 text-2xl transition-all ${
                 has

@@ -41,7 +41,7 @@ export function StickerAlbum({ profile, onClose }: Props) {
             </p>
           </div>
         </div>
-        <button onClick={onClose} className="rounded-full bg-white/20 p-2 hover:bg-white/30">
+        <button onClick={onClose} className="rounded-full bg-white/20 p-2 hover:bg-white/30" aria-label="Fechar">
           <X className="h-6 w-6" />
         </button>
       </header>
@@ -64,13 +64,14 @@ export function StickerAlbum({ profile, onClose }: Props) {
       </div>
 
       <div className="flex-1 overflow-y-auto p-6 scrollbar-none">
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
+        <div role="list" aria-live="polite" className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
           {filteredStickers.map(s => {
             const isUnlocked = unlocked.has(s.id);
             return (
               <motion.div
                 key={s.id}
                 whileHover={isUnlocked ? { y: -5, rotate: 2 } : {}}
+                role="listitem"
                 className={cn(
                   "relative aspect-[3/4] rounded-2xl border-2 p-4 flex flex-col items-center justify-center text-center transition-all",
                   isUnlocked

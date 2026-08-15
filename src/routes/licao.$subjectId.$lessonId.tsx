@@ -22,6 +22,7 @@ import { useVoiceMatch, isVoiceAvailable } from "@/lib/voice";
 import { Check, Heart, Mic, Sparkles, Volume2, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { haptic } from "@/lib/haptics";
+import { RouteError } from "@/components/RouteError";
 
 
 export const Route = createFileRoute("/licao/$subjectId/$lessonId")({
@@ -45,11 +46,14 @@ export const Route = createFileRoute("/licao/$subjectId/$lessonId")({
         { property: "og:url", content: url },
         { property: "og:type", content: "article" },
         { name: "robots", content: "noindex" },
+        { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/acc7c5c1-6f57-466a-a906-520c14783216" },
+        { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/acc7c5c1-6f57-466a-a906-520c14783216" },
       ],
       links: [{ rel: "canonical", href: url }],
     };
   },
   component: LessonPage,
+  errorComponent: RouteError,
 });
 
 function LessonPage() {
@@ -130,10 +134,14 @@ function LessonPage() {
     }
   }, [voice.matchedIndex, revealed]);
 
-  if (!profile) return null;
+  if (!profile) return (
+    <main id="main-content" className="flex min-h-[60dvh] items-center justify-center">
+      <p className="animate-pulse font-display text-lg text-muted-foreground" role="status" aria-live="polite">A carregar…</p>
+    </main>
+  );
   if (!subject || !lesson || !q) {
     return (
-      <main className="flex min-h-[100dvh] items-center justify-center p-6 text-center">
+      <main id="main-content" className="flex min-h-[100dvh] items-center justify-center p-6 text-center">
         <div>
           <p className="font-display text-2xl">Lição não encontrada</p>
           <Link to="/app" className="mt-4 inline-block text-primary underline">Voltar</Link>

@@ -6,29 +6,33 @@ import { BottomNav } from "@/components/BottomNav";
 import { ChunkyButton } from "@/components/ChunkyButton";
 import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
 import { StripeEmbeddedCheckout } from "@/components/StripeEmbeddedCheckout";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { loadProfile, type Profile } from "@/lib/storage";
 import { useAuth } from "@/hooks/useAuth";
 import { ArrowLeft, Check, Sparkles, Building2, GraduationCap, Crown } from "lucide-react";
+import { RouteError } from "@/components/RouteError";
 
 export const Route = createFileRoute("/creches")({
   head: () => ({
     meta: [
-      { title: "Alegria para Creches e Jardins de Infância (2-5 anos)" },
+      { title: "Kidoz para Creches e Jardins de Infância (2-5 anos)" },
       {
         name: "description",
         content:
-          "Alegria Júnior para creches e jardins de infância. Planos Básico, Premium e Institucional com gestão de turmas, portefólios digitais e Alegria Pro.",
+          "Kidoz Júnior para creches e jardins de infância. Planos Básico, Premium e Institucional com gestão de turmas, portefólios digitais e Kidoz Pro.",
       },
-      { property: "og:title", content: 'Alegria para Creches e Jardins de Infância (2-5 anos)' },
-      { property: "og:description", content: 'Alegria Júnior para creches e jardins de infância. Planos Básico, Premium e Institucional com gestão de turmas, portefólios digitais e Alegria Pro.' },
-      { property: "og:url", content: "https://alegria.online/creches" },
+      { property: "og:title", content: 'Kidoz para Creches e Jardins de Infância (2-5 anos)' },
+      { property: "og:description", content: 'Kidoz Júnior para creches e jardins de infância. Planos Básico, Premium e Institucional com gestão de turmas, portefólios digitais e Kidoz Pro.' },
+      { property: "og:url", content: "https://kidoz.online/creches" },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/acc7c5c1-6f57-466a-a906-520c14783216" },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/acc7c5c1-6f57-466a-a906-520c14783216" },
     ],
     links: [
-      { rel: "canonical", href: "https://alegria.online/creches" },
+      { rel: "canonical", href: "https://kidoz.online/creches" },
     ],
   }),
   component: CrechesPage,
+  errorComponent: RouteError,
 });
 
 interface Tier {
@@ -51,7 +55,7 @@ const TIERS: Tier[] = [
     audience: "Pequenas creches (até 30 alunos)",
     icon: Building2,
     features: [
-      "Acesso completo à Alegria Júnior (2-5 anos)",
+      "Acesso completo à Kidoz Júnior (2-5 anos)",
       "Gestão básica de turmas",
       "Relatórios simples de progresso",
       "Suporte por email",
@@ -70,7 +74,7 @@ const TIERS: Tier[] = [
       "Portefólios digitais (fotos, vídeos, observações)",
       "Comunicação direta com pais",
       "Planos de aula e biblioteca pedagógica",
-      "Painel Alegria Pro completo",
+      "Painel Kidoz Pro completo",
     ],
   },
   {
@@ -108,7 +112,7 @@ function CrechesPage() {
       <PaymentTestModeBanner />
       {profile && <TopBar profile={profile} />}
 
-      <main className="mx-auto max-w-6xl px-5 py-6 sm:py-10">
+      <main id="main-content" className="mx-auto max-w-6xl px-5 py-6 sm:py-10">
         <Link to="/" className="mb-4 inline-flex items-center gap-1 text-sm font-display text-muted-foreground hover:text-foreground">
           <ArrowLeft className="h-4 w-4" /> Início
         </Link>
@@ -121,9 +125,9 @@ function CrechesPage() {
           <div className="mx-auto inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-secondary text-secondary-foreground">
             <Sparkles className="h-7 w-7" />
           </div>
-          <h1 className="mt-3 font-display text-3xl sm:text-4xl">Alegria para Creches</h1>
+          <h1 className="mt-3 font-display text-3xl sm:text-4xl">Kidoz para Creches</h1>
           <p className="mx-auto mt-3 max-w-2xl text-base text-muted-foreground sm:text-lg">
-            Alegria Júnior (2-5 anos) integrado no teu jardim de infância, com painel Alegria Pro
+            Kidoz Júnior (2-5 anos) integrado no teu jardim de infância, com painel Kidoz Pro
             para educadores e portal seguro de comunicação com as famílias.
           </p>
           <div className="mt-4 flex flex-wrap items-center justify-center gap-2 text-xs">
@@ -178,8 +182,8 @@ function CrechesPage() {
 
         <section className="mt-10 rounded-2xl border border-dashed border-border bg-muted/40 p-5 text-center text-sm">
           Precisas de uma proposta personalizada para uma rede de jardins?{" "}
-          <a href="mailto:creches@alegria.online" className="font-display text-primary underline">
-            creches@alegria.online
+          <a href="mailto:creches@kidoz.online" className="font-display text-primary underline">
+            creches@kidoz.online
           </a>
         </section>
 
@@ -196,7 +200,8 @@ function CrechesPage() {
       <Dialog open={!!checkoutTier} onOpenChange={(o) => !o && setCheckoutTier(null)}>
         <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Subscrição Alegria Creches — {checkoutTier?.name}</DialogTitle>
+            <DialogTitle>Subscrição Kidoz Creches — {checkoutTier?.name}</DialogTitle>
+            <DialogDescription className="text-sm text-muted-foreground">Checkout seguro para a subscrição do plano Creches.</DialogDescription>
           </DialogHeader>
           {user && checkoutTier && (
             <StripeEmbeddedCheckout

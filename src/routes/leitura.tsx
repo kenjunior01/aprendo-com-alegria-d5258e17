@@ -10,21 +10,25 @@ import { loadProfile, type Profile } from "@/lib/storage";
 import { ArrowLeft, Sparkles } from "lucide-react";
 import { getAdaptiveRecommendation } from "@/lib/ai.functions";
 import { detectRegion } from "@/lib/region";
+import { RouteError } from "@/components/RouteError";
 
 export const Route = createFileRoute("/leitura")({
   head: () => ({
     meta: [
-      { title: "Leitura em voz alta — Alegria" },
+      { title: "Leitura em voz alta — Kidoz" },
       { name: "description", content: "Pratica a leitura com reconhecimento de voz adaptado a crianças." },
-      { property: "og:title", content: 'Leitura em voz alta — Alegria' },
+      { property: "og:title", content: 'Leitura em voz alta — Kidoz' },
       { property: "og:description", content: 'Pratica a leitura com reconhecimento de voz adaptado a crianças.' },
-      { property: "og:url", content: "https://alegria.online/leitura" },
+      { property: "og:url", content: "https://kidoz.online/leitura" },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/acc7c5c1-6f57-466a-a906-520c14783216" },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/acc7c5c1-6f57-466a-a906-520c14783216" },
     ],
     links: [
-      { rel: "canonical", href: "https://alegria.online/leitura" },
+      { rel: "canonical", href: "https://kidoz.online/leitura" },
     ],
   }),
   component: ReadingPage,
+  errorComponent: RouteError,
 });
 
 const PHRASES_PT_PT: Record<number, string[]> = {
@@ -72,7 +76,11 @@ function ReadingPage() {
       .catch(() => setTip(null));
   }, [navigate]);
 
-  if (!profile) return null;
+  if (!profile) return (
+    <main id="main-content" className="flex min-h-[60dvh] items-center justify-center">
+      <p className="animate-pulse font-display text-lg text-muted-foreground" role="status" aria-live="polite">A carregar…</p>
+    </main>
+  );
 
   const phrasesMap = phrasesForRegion();
   const phrases = phrasesMap[profile.grade] ?? phrasesMap[1];
@@ -92,7 +100,7 @@ function ReadingPage() {
   return (
     <div className="min-h-[100dvh] bg-background pb-24 md:pb-12">
       <TopBar profile={profile} />
-      <main className="mx-auto max-w-2xl px-4 py-6">
+      <main id="main-content" className="mx-auto max-w-2xl px-4 py-6">
         <Link to="/app" className="mb-3 inline-flex items-center gap-1 text-sm font-display text-muted-foreground hover:text-foreground">
           <ArrowLeft className="h-4 w-4" /> Aventura
         </Link>

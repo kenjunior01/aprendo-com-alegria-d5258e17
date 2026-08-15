@@ -10,8 +10,10 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TutorRouteImport } from './routes/tutor'
+import { Route as TermosRouteImport } from './routes/termos'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as RaRouteImport } from './routes/ra'
+import { Route as PrivacidadeRouteImport } from './routes/privacidade'
 import { Route as PremiumRouteImport } from './routes/premium'
 import { Route as PerfilRouteImport } from './routes/perfil'
 import { Route as PaisRouteImport } from './routes/pais'
@@ -51,6 +53,11 @@ const TutorRoute = TutorRouteImport.update({
   path: '/tutor',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TermosRoute = TermosRouteImport.update({
+  id: '/termos',
+  path: '/termos',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
@@ -59,6 +66,11 @@ const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
 const RaRoute = RaRouteImport.update({
   id: '/ra',
   path: '/ra',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacidadeRoute = PrivacidadeRouteImport.update({
+  id: '/privacidade',
+  path: '/privacidade',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PremiumRoute = PremiumRouteImport.update({
@@ -251,8 +263,10 @@ export interface FileRoutesByFullPath {
   '/pais': typeof PaisRoute
   '/perfil': typeof PerfilRoute
   '/premium': typeof PremiumRoute
+  '/privacidade': typeof PrivacidadeRoute
   '/ra': typeof RaRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/termos': typeof TermosRoute
   '/tutor': typeof TutorRoute
   '/aprender/estudo-do-meio': typeof AprenderEstudoDoMeioRoute
   '/aprender/matematica': typeof AprenderMatematicaRoute
@@ -289,8 +303,10 @@ export interface FileRoutesByTo {
   '/pais': typeof PaisRoute
   '/perfil': typeof PerfilRoute
   '/premium': typeof PremiumRoute
+  '/privacidade': typeof PrivacidadeRoute
   '/ra': typeof RaRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/termos': typeof TermosRoute
   '/tutor': typeof TutorRoute
   '/aprender/estudo-do-meio': typeof AprenderEstudoDoMeioRoute
   '/aprender/matematica': typeof AprenderMatematicaRoute
@@ -328,8 +344,10 @@ export interface FileRoutesById {
   '/pais': typeof PaisRoute
   '/perfil': typeof PerfilRoute
   '/premium': typeof PremiumRoute
+  '/privacidade': typeof PrivacidadeRoute
   '/ra': typeof RaRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/termos': typeof TermosRoute
   '/tutor': typeof TutorRoute
   '/aprender/estudo-do-meio': typeof AprenderEstudoDoMeioRoute
   '/aprender/matematica': typeof AprenderMatematicaRoute
@@ -368,8 +386,10 @@ export interface FileRouteTypes {
     | '/pais'
     | '/perfil'
     | '/premium'
+    | '/privacidade'
     | '/ra'
     | '/sitemap.xml'
+    | '/termos'
     | '/tutor'
     | '/aprender/estudo-do-meio'
     | '/aprender/matematica'
@@ -406,8 +426,10 @@ export interface FileRouteTypes {
     | '/pais'
     | '/perfil'
     | '/premium'
+    | '/privacidade'
     | '/ra'
     | '/sitemap.xml'
+    | '/termos'
     | '/tutor'
     | '/aprender/estudo-do-meio'
     | '/aprender/matematica'
@@ -444,8 +466,10 @@ export interface FileRouteTypes {
     | '/pais'
     | '/perfil'
     | '/premium'
+    | '/privacidade'
     | '/ra'
     | '/sitemap.xml'
+    | '/termos'
     | '/tutor'
     | '/aprender/estudo-do-meio'
     | '/aprender/matematica'
@@ -483,8 +507,10 @@ export interface RootRouteChildren {
   PaisRoute: typeof PaisRoute
   PerfilRoute: typeof PerfilRoute
   PremiumRoute: typeof PremiumRoute
+  PrivacidadeRoute: typeof PrivacidadeRoute
   RaRoute: typeof RaRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  TermosRoute: typeof TermosRoute
   TutorRoute: typeof TutorRoute
   AprenderEstudoDoMeioRoute: typeof AprenderEstudoDoMeioRoute
   AprenderMatematicaRoute: typeof AprenderMatematicaRoute
@@ -508,6 +534,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TutorRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/termos': {
+      id: '/termos'
+      path: '/termos'
+      fullPath: '/termos'
+      preLoaderRoute: typeof TermosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/sitemap.xml': {
       id: '/sitemap.xml'
       path: '/sitemap.xml'
@@ -520,6 +553,13 @@ declare module '@tanstack/react-router' {
       path: '/ra'
       fullPath: '/ra'
       preLoaderRoute: typeof RaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacidade': {
+      id: '/privacidade'
+      path: '/privacidade'
+      fullPath: '/privacidade'
+      preLoaderRoute: typeof PrivacidadeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/premium': {
@@ -790,8 +830,10 @@ const rootRouteChildren: RootRouteChildren = {
   PaisRoute: PaisRoute,
   PerfilRoute: PerfilRoute,
   PremiumRoute: PremiumRoute,
+  PrivacidadeRoute: PrivacidadeRoute,
   RaRoute: RaRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  TermosRoute: TermosRoute,
   TutorRoute: TutorRoute,
   AprenderEstudoDoMeioRoute: AprenderEstudoDoMeioRoute,
   AprenderMatematicaRoute: AprenderMatematicaRoute,

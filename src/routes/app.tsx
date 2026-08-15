@@ -1,72 +1,43 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { TopBar } from "@/components/TopBar";
 import { BottomNav } from "@/components/BottomNav";
 import { Mascot } from "@/components/Mascot";
-import { DuolingoBar, StreakCelebration, HeartRefillNotification } from "@/components/DuolingoBar";
+import { MascotVoiceTutor } from "@/components/MascotVoiceTutor";
 import { CHAPTERS, type Chapter, type Mission } from "@/lib/chapters";
 import { loadProfile, pullProfileFromCloud, type Profile } from "@/lib/storage";
 import { getMascot } from "@/lib/mascots";
 import { AdaptiveTip } from "@/components/AdaptiveTip";
 import { MissionOfTheDay } from "@/components/MissionOfTheDay";
 import { SeasonalBanner } from "@/components/SeasonalBanner";
-import { DailyChallengeCard } from "@/components/DailyChallengeCard";
-import { LeagueLeaderboard } from "@/components/LeagueLeaderboard";
-import { LearningPath } from "@/components/LearningPath";
-import { MascotBubble, getRandomEncouragement } from "@/components/MascotBubble";
-import { PathProgressIndicator } from "@/components/PathProgressIndicator";
-import { ThemeToggle } from "@/components/ThemeToggle";
-import { Lock, Star, CheckCircle2, Crown, Play, Sparkles, ChevronRight, Flame, Zap, TreePine } from "lucide-react";
+import { Lock, Star, CheckCircle2, Crown, Play, Gamepad2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { haptic } from "@/lib/haptics";
+import { RouteError } from "@/components/RouteError";
 
 export const Route = createFileRoute("/app")({
   head: () => ({
     meta: [
-      { title: "A minha aventura — Alegria" },
+      { title: "A minha aventura — Kidoz" },
       { name: "description", content: "Caminho de aprendizagem visual: Português, Matemática e Estudo do Meio." },
-      { property: "og:title", content: 'A minha aventura — Alegria' },
+      { property: "og:title", content: 'A minha aventura — Kidoz' },
       { property: "og:description", content: 'Caminho de aprendizagem visual para Português, Matemática e Estudo do Meio do 1.º ciclo.' },
-      { property: "og:url", content: "https://alegria.online/app" },
+      { property: "og:url", content: "https://kidoz.online/app" },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/acc7c5c1-6f57-466a-a906-520c14783216" },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/acc7c5c1-6f57-466a-a906-520c14783216" },
     ],
     links: [
-      { rel: "canonical", href: "https://alegria.online/app" },
+      { rel: "canonical", href: "https://kidoz.online/app" },
     ],
   }),
   component: AppHome,
+  errorComponent: RouteError,
 });
-
-// ─── Animation Variants ───
-const staggerContainer = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: { staggerChildren: 0.06, delayChildren: 0.1 },
-  },
-};
-
-const fadeUp = {
-  hidden: { opacity: 0, y: 16 },
-  visible: {
-    opacity: 1, y: 0,
-    transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] },
-  },
-};
-
-const scaleIn = {
-  hidden: { opacity: 0, scale: 0.92 },
-  visible: {
-    opacity: 1, scale: 1,
-    transition: { duration: 0.4, ease: [0.34, 1.56, 0.64, 1] as [number, number, number, number] },
-  },
-};
 
 function AppHome() {
   const navigate = useNavigate();
   const [profile, setProfile] = useState<Profile | null>(null);
-  const [showStreakCelebration, setShowStreakCelebration] = useState(false);
-  const [showHeartWarning, setShowHeartWarning] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -83,247 +54,148 @@ function AppHome() {
         return;
       }
       setProfile(p);
-      // Check streak milestones
-      const milestones = [3, 7, 14, 30, 60, 100];
-      if (milestones.includes(p.streak)) {
-        setShowStreakCelebration(true);
-      }
-      // Show heart warning if low
-      if (p.hearts <= 1) {
-        setShowHeartWarning(true);
-      }
     };
     init();
     return () => { cancelled = true; };
   }, [navigate]);
 
-  if (!profile) return null;
+  if (!profile) return (
+    <main id="main-content" className="flex min-h-[60dvh] items-center justify-center">
+      <p className="animate-pulse font-display text-lg text-muted-foreground" role="status" aria-live="polite">A carregar…</p>
+    </main>
+  );
   const mascot = getMascot(profile.mascot);
 
   const visibleChapters = CHAPTERS.filter((c) => c.grade <= Math.min(4, profile.grade + 1));
 
   return (
-    <div className="min-h-[100dvh] bg-alegria-app pb-28 md:pb-12">
+    <div className="min-h-[100dvh] bg-background pb-28 md:pb-12">
       <TopBar profile={profile} />
-      <DuolingoBar profile={profile} />
 
-      <main className="mx-auto max-w-2xl px-4 py-4 sm:py-6 scrollbar-thin">
-        <h1 className="sr-only">A minha aventura no Alegria — caminho de aprendizagem de {profile.name}</h1>
-
-        {/* ── 1. Hero greeting — premium, branded, warm ── */}
+      <main id="main-content" className="mx-auto max-w-2xl px-4 py-4 sm:py-6">
+        <h1 className="sr-only">A minha aventura no Kidoz — caminho de aprendizagem de {profile.name}</h1>
+        {/* Hero greeting */}
         <motion.section
-          variants={staggerContainer}
-          initial="hidden"
-          animate="visible"
-          className="card-premium relative mb-5 overflow-hidden rounded-3xl bg-gradient-to-br from-card via-card to-accent/20 p-5 sm:p-6"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="card-chunky relative mb-5 overflow-hidden rounded-3xl border-2 border-border bg-gradient-to-br from-card to-accent/30 p-4 sm:p-5"
         >
-          {/* Decorative glow */}
-          <div className="pointer-events-none absolute -right-8 -top-8 h-32 w-32 rounded-full bg-primary/8 blur-3xl" />
-          <div className="pointer-events-none absolute -bottom-4 -left-4 h-24 w-24 rounded-full bg-secondary/8 blur-2xl" />
-
-          <div className="relative flex items-center gap-4 sm:gap-5">
-            <motion.div variants={scaleIn} className="relative">
-              <Mascot id={profile.mascot} size="md" bouncing equippedItemId={profile.equippedItem} />
-              {/* Streak badge on mascot */}
-              {profile.streak > 0 && (
-                <div className="absolute -bottom-1 -right-1 flex items-center gap-0.5 rounded-full bg-streak px-2 py-0.5 shadow-lg">
-                  <Flame className="h-3 w-3 text-white" />
-                  <span className="font-display text-[10px] font-bold text-white">{profile.streak}</span>
-                </div>
-              )}
-            </motion.div>
-
-            <motion.div variants={fadeUp} className="min-w-0 flex-1">
-              <p className="font-display text-xs font-semibold uppercase tracking-widest text-primary/70">
-                {mascot.encourage}
-              </p>
-              <h2 className="mt-0.5 truncate font-display text-2xl font-bold sm:text-3xl">
-                Olá, {profile.name}! ☀️
-              </h2>
-              <p className="mt-1 text-sm text-muted-foreground">
+          <div className="flex items-center gap-3 sm:gap-4">
+            <Mascot id={profile.mascot} size="md" bouncing equippedItemId={profile.equippedItem} />
+            <div className="min-w-0 flex-1">
+              <h2 className="truncate font-display text-xl sm:text-2xl">Olá, {profile.name}! ☀️</h2>
+              <p className="text-sm text-muted-foreground">
                 {profile.streak > 0
-                  ? `${profile.streak} ${profile.streak === 1 ? "dia seguido" : "dias seguidos"} de aprendizagem!`
-                  : "Vamos começar a tua aventura?"
-                }
+                  ? `🔥 ${profile.streak} ${profile.streak === 1 ? "dia seguido" : "dias seguidos"}!`
+                  : mascot.encourage}
               </p>
-            </motion.div>
+            </div>
           </div>
-
-          {/* Quick stats row */}
-          <motion.div
-            variants={fadeUp}
-            className="mt-4 flex items-center gap-2 overflow-x-auto rounded-2xl bg-muted/50 p-2 scrollbar-thin"
-          >
-            <MiniStat icon={<Zap className="h-3.5 w-3.5" />} label="XP" value={profile.xp} color="text-xp" />
-            <div className="h-4 w-px bg-border" />
-            <MiniStat icon={<Flame className="h-3.5 w-3.5" />} label="Streak" value={profile.streak} color="text-streak" />
-            <div className="h-4 w-px bg-border" />
-            <span className="flex items-center gap-1 whitespace-nowrap rounded-lg bg-xp/10 px-2 py-1 font-display text-xs font-bold text-xp">
-              <Star className="h-3 w-3 fill-current" />
-              {profile.completedLessons.length} lições
-            </span>
-          </motion.div>
         </motion.section>
 
-        {/* ── 2. Ação principal: Desafio Diário + Missão do Dia ── */}
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="mb-5 space-y-4"
-        >
-          <DailyChallengeCard profile={profile} />
-          <MissionOfTheDay completedLessons={profile.completedLessons} grade={profile.grade} />
-        </motion.div>
-
-        {/* ── 3. Quick links — acções rápidas com design premium ── */}
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="mb-6 grid grid-cols-4 gap-2 sm:gap-3"
-        >
-          <QuickLink to="/amigo" emoji="🐾" title="Mascote" subtitle="Brincar" colorVar="--primary" />
-          <QuickLink to="/mundo" emoji="🏠" title="Meu Mundo" subtitle="Decorar" colorVar="--secondary" />
-          <QuickLink to="/leitura" emoji="🎤" title="Ler" subtitle="Em voz alta" colorVar="--pt-portuguese" />
-          <QuickLink to="/jardim" emoji="🌱" title="Jardim" subtitle="Que cresce" colorVar="--success" />
-        </motion.div>
-
-        {/* ── 4. Caminho de aprendizagem — o coração visual ── */}
+        {/* Mascot Room Hero - Entry to Talking Tom Mode */}
         <motion.section
-          initial={{ opacity: 0, y: 16 }}
+          initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
+          transition={{ delay: 0.1 }}
+          className="relative mb-5 overflow-hidden rounded-[2.5rem] border border-white/40 bg-gradient-to-br from-primary/20 via-card to-accent/20 p-6 shadow-xl backdrop-blur-xl"
+          aria-label="Área de interação com a mascote"
         >
-          <div className="mb-4 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary/10">
-                <TreePine className="h-4 w-4 text-primary" />
+          <div className="flex flex-col items-center text-center">
+            <p className="mb-1 font-display text-[10px] font-bold uppercase tracking-[0.2em] text-primary/70">
+              O Teu Melhor Amigo
+            </p>
+            <h2 className="mb-4 font-display text-2xl leading-tight">Vem brincar com o {mascot.name}! ✨</h2>
+
+            <Link
+              to="/amigo"
+              className="group relative flex flex-col items-center gap-4 transition-transform active:scale-95"
+            >
+              <div className="relative">
+                <Mascot id={profile.mascot} size="lg" bouncing equippedItemId={profile.equippedItem} />
+                <motion.div
+                  animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.6, 0.3] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                  className="absolute inset-0 -z-10 rounded-full bg-primary/30 blur-2xl"
+                />
               </div>
-              <h2 className="font-display text-lg font-bold">O Meu Caminho</h2>
-            </div>
-            <div className="flex items-center gap-2">
-              <ThemeToggle />
-              <span className="rounded-full bg-muted px-3 py-1 text-xs font-display font-semibold text-muted-foreground">
-                {profile.completedLessons.length} completas
-              </span>
-            </div>
+
+              <div className="btn-chunky flex items-center gap-2 rounded-full bg-primary px-8 py-3 text-white shadow-lg">
+                <Gamepad2 className="h-5 w-5" />
+                <span>Entrar no Quarto</span>
+              </div>
+            </Link>
           </div>
-
-          {/* Mascot encouragement bubble */}
-          <MascotBubble
-            id={profile.mascot}
-            message={getRandomEncouragement(profile.mascot)}
-            position="left"
-            size="sm"
-            autoHideMs={6000}
-            className="mb-4"
-          />
-
-          {/* Progress indicator */}
-          <PathProgressIndicator
-            mascotId={profile.mascot}
-            completedCount={profile.completedLessons.length}
-            totalCount={28}
-            xp={profile.xp}
-            streak={profile.streak}
-            level={Math.floor(profile.xp / 100) + 1}
-            className="mb-4"
-          />
-
-          <LearningPath completedLessons={profile.completedLessons} grade={profile.grade} />
         </motion.section>
 
-        {/* ── 5. Elementos secundários ── */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.6 }}
-          className="mt-8 space-y-4"
-        >
-          <SeasonalBanner region={profile.region ?? null} />
-          <AdaptiveTip />
-          <LeagueLeaderboard profile={profile} />
-        </motion.div>
+        <SeasonalBanner region={profile.region ?? null} />
+
+        <MissionOfTheDay completedLessons={profile.completedLessons} grade={profile.grade} />
+
+        <AdaptiveTip />
+
+        {/* Quick links */}
+        <div className="mb-6 grid grid-cols-3 gap-2 sm:gap-3">
+          <QuickLink to="/mundo" emoji="🏠" title="Meu Mundo" subtitle="Decorar" tone="primary" />
+          <QuickLink to="/leitura" emoji="🎤" title="Ler" subtitle="Em voz alta" tone="primary" />
+          <QuickLink to="/jardim" emoji="🌱" title="Jardim" subtitle="Que cresce" tone="success" />
+        </div>
+
+        {/* Chapter paths — Duolingo-style winding journey */}
+        <div className="space-y-8">
+          {visibleChapters.map((chapter) => (
+            <ChapterPath key={chapter.id} chapter={chapter} completedLessons={profile.completedLessons} />
+          ))}
+        </div>
 
         <p className="mt-10 text-center text-sm text-muted-foreground">
-          Mais aventuras vão chegando à medida que avanças
+          ✨ Mais aventuras vão chegando à medida que avanças
         </p>
       </main>
 
       <BottomNav />
-
-      <AnimatePresence>
-        {showStreakCelebration && profile && (
-          <StreakCelebration streak={profile.streak} onDismiss={() => setShowStreakCelebration(false)} />
-        )}
-      </AnimatePresence>
-
-      <AnimatePresence>
-        {showHeartWarning && profile && (
-          <HeartRefillNotification hearts={profile.hearts} onDismiss={() => setShowHeartWarning(false)} />
-        )}
-      </AnimatePresence>
     </div>
   );
 }
 
-// ─── Mini Stat ───
-function MiniStat({ icon, label, value, color }: { icon: React.ReactNode; label: string; value: number; color: string }) {
-  return (
-    <span className={cn("flex items-center gap-1 whitespace-nowrap rounded-lg px-2 py-1 font-display text-xs font-bold", color)}>
-      {icon}
-      {value}
-      <span className="text-[10px] font-normal text-muted-foreground">{label}</span>
-    </span>
-  );
-}
-
-// ─── Quick Link — premium redesign ───
-function QuickLink({ to, emoji, title, subtitle, colorVar }: {
-  to: "/leitura" | "/jardim" | "/mundo" | "/amigo";
-  emoji: string;
-  title: string;
-  subtitle: string;
-  colorVar: string;
-}) {
+function QuickLink({ to, emoji, title, subtitle, tone }: { to: "/leitura" | "/jardim" | "/mundo"; emoji: string; title: string; subtitle: string; tone: "primary" | "success" }) {
+  const ring = tone === "primary" ? "from-primary/20" : "from-success/20";
   return (
     <Link
       to={to}
-      className="group flex flex-col items-center gap-1.5 rounded-3xl border border-border bg-card p-3 text-center transition-all active:scale-95 hover:shadow-glow"
+      className={cn(
+        "card-chunky group flex min-h-[88px] items-center gap-3 rounded-3xl border-2 border-border bg-gradient-to-br to-card p-3 transition-transform active:scale-[0.97]",
+        ring,
+      )}
     >
-      <div
-        className="flex h-12 w-12 items-center justify-center rounded-2xl text-2xl transition-transform group-hover:scale-110"
-        style={{ backgroundColor: `color-mix(in oklab, var(${colorVar}) 14%, var(--card))` }}
-      >
-        {emoji}
+      <span className="text-3xl">{emoji}</span>
+      <div className="min-w-0">
+        <p className="truncate font-display text-base leading-tight">{title}</p>
+        <p className="truncate text-xs text-muted-foreground">{subtitle}</p>
       </div>
-      <p className="font-display text-xs font-bold leading-tight">{title}</p>
-      <p className="text-[10px] text-muted-foreground leading-tight">{subtitle}</p>
     </Link>
   );
 }
 
-// ─── Chapter Path — premium redesign ───
 function ChapterPath({ chapter, completedLessons }: { chapter: Chapter; completedLessons: string[] }) {
   const completed = useMemo(() => new Set(completedLessons), [completedLessons]);
   const missions = chapter.missions;
   const doneCount = missions.filter((m) => completed.has(m.lessonId)).length;
+  // First mission whose previous chain is complete is the active one.
   const firstUnfinishedIdx = missions.findIndex((m) => !completed.has(m.lessonId));
   const activeIdx = firstUnfinishedIdx === -1 ? missions.length : firstUnfinishedIdx;
-  const isComplete = doneCount === missions.length;
 
   return (
     <section aria-label={chapter.title}>
-      {/* Chapter banner — premium card */}
+      {/* Chapter banner */}
       <div
-        className="card-premium mb-4 overflow-hidden rounded-3xl p-4 sm:p-5"
-        style={{ backgroundColor: `color-mix(in oklab, var(${chapter.themeColorVar}) 8%, var(--card))` }}
+        className="card-chunky mb-4 overflow-hidden rounded-3xl border-2 border-border p-4 sm:p-5"
+        style={{ backgroundColor: `color-mix(in oklab, var(${chapter.themeColorVar}) 14%, var(--card))` }}
       >
         <div className="flex items-center gap-3">
           <div
             className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl text-3xl shadow-sm"
-            style={{ backgroundColor: `color-mix(in oklab, var(${chapter.themeColorVar}) 20%, var(--card))` }}
+            style={{ backgroundColor: `color-mix(in oklab, var(${chapter.themeColorVar}) 28%, var(--card))` }}
           >
             {chapter.emoji}
           </div>
@@ -331,25 +203,20 @@ function ChapterPath({ chapter, completedLessons }: { chapter: Chapter; complete
             <p className="font-display text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
               Capítulo {chapter.number}
             </p>
-            <h3 className="font-display text-xl leading-tight" style={{ color: `var(${chapter.themeColorVar})` }}>
+            <h2 className="font-display text-xl leading-tight" style={{ color: `var(${chapter.themeColorVar})` }}>
               {chapter.title}
-            </h3>
+            </h2>
             <p className="text-xs text-muted-foreground">{chapter.subtitle}</p>
           </div>
-          {isComplete && (
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-success/15">
-              <CheckCircle2 className="h-5 w-5 text-success" />
-            </div>
-          )}
         </div>
 
-        {/* Progress bar — premium with glow */}
+        {/* Stars + colored progress bar (substitui 0/3) */}
         <div className="mt-3 flex items-center gap-2">
           <div className="flex gap-0.5" aria-label={`${doneCount} de ${missions.length} estrelas`}>
             {missions.map((m, i) => (
               <Star
                 key={m.lessonId}
-                className={cn("h-4 w-4 transition-all", i < doneCount ? "fill-current text-xp scale-110" : "text-muted-foreground/30")}
+                className={cn("h-4 w-4", i < doneCount ? "fill-current text-xp" : "text-muted-foreground/40")}
               />
             ))}
           </div>
@@ -357,16 +224,16 @@ function ChapterPath({ chapter, completedLessons }: { chapter: Chapter; complete
             <motion.div
               initial={{ width: 0 }}
               animate={{ width: `${(doneCount / missions.length) * 100}%` }}
-              transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-              className={cn("h-full rounded-full progress-glow", isComplete && "bg-success")}
-              style={!isComplete ? { backgroundColor: `var(${chapter.themeColorVar})` } : undefined}
+              transition={{ duration: 0.6, ease: "easeOut" }}
+              className="h-full rounded-full"
+              style={{ backgroundColor: `var(${chapter.themeColorVar})` }}
             />
           </div>
           <span className="font-display text-xs font-bold tabular-nums">{doneCount}/{missions.length}</span>
         </div>
       </div>
 
-      {/* Path of nodes — winding path */}
+      {/* Path of nodes */}
       <ol className="relative mx-auto max-w-sm">
         {missions.map((mission, idx) => {
           const isDone = completed.has(mission.lessonId);
@@ -387,26 +254,23 @@ function ChapterPath({ chapter, completedLessons }: { chapter: Chapter; complete
           );
         })}
 
-        {/* End trophy — premium glow */}
+        {/* End trophy */}
         <li className="relative flex justify-center pt-2">
-          <motion.div
-            animate={isComplete ? { scale: [1, 1.1, 1] } : undefined}
-            transition={{ duration: 2, repeat: Infinity }}
+          <div
             className={cn(
               "flex h-16 w-16 items-center justify-center rounded-3xl border-2 border-border",
-              isComplete ? "bg-xp/20 shadow-glow" : "bg-muted",
+              doneCount === missions.length ? "bg-xp/30" : "bg-muted",
             )}
-            aria-label={isComplete ? "Capítulo completo" : "Troféu por desbloquear"}
+            aria-label={doneCount === missions.length ? "Capítulo completo" : "Troféu por desbloquear"}
           >
-            <Crown className={cn("h-7 w-7", isComplete ? "text-xp" : "text-muted-foreground")} />
-          </motion.div>
+            <Crown className={cn("h-7 w-7", doneCount === missions.length ? "text-xp" : "text-muted-foreground")} />
+          </div>
         </li>
       </ol>
     </section>
   );
 }
 
-// ─── Path Node — premium redesign ───
 function PathNode({
   mission,
   chapter,
@@ -421,15 +285,15 @@ function PathNode({
     <motion.div
       whileTap={state !== "locked" ? { scale: 0.92 } : undefined}
       className={cn(
-        "relative flex h-[88px] w-[88px] flex-col items-center justify-center rounded-full border-[3px] text-3xl select-none transition-all",
+        "relative flex h-[88px] w-[88px] flex-col items-center justify-center rounded-full border-[3px] text-3xl select-none",
         state === "done" && "border-success bg-success/15 text-success-foreground",
-        state === "active" && "border-card text-card-foreground animate-glow-pulse",
+        state === "active" && "border-card text-card animate-bounce-soft",
         state === "available" && "border-border bg-card",
         state === "locked" && "border-border bg-muted text-muted-foreground opacity-70",
       )}
       style={
         state === "active"
-          ? { backgroundColor: color, boxShadow: `0 6px 0 0 color-mix(in oklab, ${color} 60%, black), 0 0 20px 4px color-mix(in oklab, ${color} 25%, transparent)` }
+          ? { backgroundColor: color, boxShadow: `0 6px 0 0 color-mix(in oklab, ${color} 60%, black)` }
           : state === "available"
             ? { boxShadow: `0 5px 0 0 color-mix(in oklab, ${color} 25%, var(--border))` }
             : undefined
@@ -437,18 +301,18 @@ function PathNode({
     >
       <span aria-hidden>{mission.emoji}</span>
       {state === "done" && (
-        <CheckCircle2 className="absolute -right-1 -top-1 h-7 w-7 rounded-full bg-card text-success shadow-sm" />
+        <CheckCircle2 className="absolute -right-1 -top-1 h-7 w-7 rounded-full bg-card text-success" />
       )}
       {state === "active" && (
-        <span className="absolute -bottom-2 rounded-full border-2 border-card bg-foreground px-2.5 py-0.5 text-[10px] font-display font-bold text-background shadow-sm">
+        <span className="absolute -bottom-2 rounded-full border-2 border-card bg-foreground px-2 py-0.5 text-[10px] font-display font-bold text-background">
           <Play className="inline h-3 w-3" /> AGORA
         </span>
       )}
       {state === "locked" && (
-        <Lock className="absolute -right-1 -bottom-1 h-6 w-6 rounded-full bg-card p-1 text-muted-foreground shadow-sm" />
+        <Lock className="absolute -right-1 -bottom-1 h-6 w-6 rounded-full bg-card p-1 text-muted-foreground" />
       )}
       {state === "available" && (
-        <Star className="absolute -right-1 -top-1 h-6 w-6 rounded-full bg-card p-1 text-xp shadow-sm" />
+        <Star className="absolute -right-1 -top-1 h-6 w-6 rounded-full bg-card p-1 text-xp" />
       )}
     </motion.div>
   );

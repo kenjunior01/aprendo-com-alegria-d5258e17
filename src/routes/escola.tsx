@@ -35,21 +35,25 @@ import {
 } from "@/lib/school.functions";
 import type { MascotId } from "@/lib/mascots";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend } from "recharts";
+import { RouteError } from "@/components/RouteError";
 
 export const Route = createFileRoute("/escola")({
   head: () => ({
     meta: [
-      { title: "Painel da Escola — Alegria" },
+      { title: "Painel da Escola — Kidoz" },
       { name: "description", content: "Painel para professores: turmas, métricas dos alunos e exportação CSV." },
-      { property: "og:title", content: 'Painel da Escola — Alegria' },
+      { property: "og:title", content: 'Painel da Escola — Kidoz' },
       { property: "og:description", content: 'Painel para professores: turmas, métricas dos alunos e exportação CSV.' },
-      { property: "og:url", content: "https://alegria.online/escola" },
+      { property: "og:url", content: "https://kidoz.online/escola" },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/acc7c5c1-6f57-466a-a906-520c14783216" },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/acc7c5c1-6f57-466a-a906-520c14783216" },
     ],
     links: [
-      { rel: "canonical", href: "https://alegria.online/escola" },
+      { rel: "canonical", href: "https://kidoz.online/escola" },
     ],
   }),
   component: EscolaPage,
+  errorComponent: RouteError,
 });
 
 const SUBJECT_LABELS: Record<string, string> = {
@@ -196,7 +200,11 @@ function EscolaPage() {
     return { totalMin, totalSess, avgAcc, active };
   }, [students]);
 
-  if (!profile) return null;
+  if (!profile) return (
+    <main id="main-content" className="flex min-h-[60dvh] items-center justify-center">
+      <p className="animate-pulse font-display text-lg text-muted-foreground" role="status" aria-live="polite">A carregar…</p>
+    </main>
+  );
   if (loading) {
     return (
       <div className="min-h-[100dvh] bg-background">
@@ -211,7 +219,7 @@ function EscolaPage() {
   return (
     <div className="min-h-[100dvh] bg-background pb-12">
       <TopBar profile={profile} />
-      <main className="mx-auto max-w-5xl px-4 py-6">
+      <main id="main-content" className="mx-auto max-w-5xl px-4 py-6">
         <header className="mb-6 flex items-center gap-3">
           <School className="h-7 w-7 text-primary" />
           <div>

@@ -9,6 +9,7 @@ import { appendMessages, getHistory } from "@/lib/tutorHistory";
 import { getMascot, type MascotId } from "@/lib/mascots";
 import { ArrowLeft, Send, Sparkles, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { RouteError } from "@/components/RouteError";
 
 // @ts-ignore TanStack Router file-route type resolution
 export const Route = createFileRoute("/tutor")({
@@ -17,17 +18,20 @@ export const Route = createFileRoute("/tutor")({
   }),
   head: () => ({
     meta: [
-      { title: "Mocha, o teu tutor — Alegria" },
+      { title: "Mocha, o teu tutor — Kidoz" },
       { name: "description", content: "Conversa com o Mocha, o teu tutor IA. Faz perguntas, aprende e diverte-te." },
-      { property: "og:title", content: 'Mocha, o teu tutor — Alegria' },
+      { property: "og:title", content: 'Mocha, o teu tutor — Kidoz' },
       { property: "og:description", content: 'Conversa com o Mocha, o teu tutor IA. Faz perguntas, aprende e diverte-te.' },
-      { property: "og:url", content: "https://alegria.online/tutor" },
+      { property: "og:url", content: "https://kidoz.online/tutor" },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/acc7c5c1-6f57-466a-a906-520c14783216" },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/acc7c5c1-6f57-466a-a906-520c14783216" },
     ],
     links: [
-      { rel: "canonical", href: "https://alegria.online/tutor" },
+      { rel: "canonical", href: "https://kidoz.online/tutor" },
     ],
   }),
   component: TutorChat,
+  errorComponent: RouteError,
 });
 
 interface Msg { role: "user" | "assistant"; content: string }
@@ -165,12 +169,16 @@ function TutorChat() {
     }
   };
 
-  if (!profile) return null;
+  if (!profile) return (
+    <main id="main-content" className="flex min-h-[60dvh] items-center justify-center">
+      <p className="animate-pulse font-display text-lg text-muted-foreground" role="status" aria-live="polite">A carregar…</p>
+    </main>
+  );
 
   return (
     <div className="min-h-[100dvh] bg-sky-island pb-24 md:pb-12">
       <TopBar profile={profile} />
-      <main className="mx-auto flex max-w-2xl flex-col px-4 py-4" style={{ minHeight: "calc(100dvh - 4rem)" }}>
+      <main id="main-content" className="mx-auto flex max-w-2xl flex-col px-4 py-4" style={{ minHeight: "calc(100dvh - 4rem)" }}>
         <Link to="/app" className="mb-2 inline-flex items-center gap-1 text-sm font-display text-muted-foreground hover:text-foreground">
           <ArrowLeft className="h-4 w-4" /> Aventura
         </Link>

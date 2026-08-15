@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { ShieldCheck } from "lucide-react";
 import { ChunkyButton } from "./ChunkyButton";
@@ -7,6 +7,8 @@ import { ChunkyButton } from "./ChunkyButton";
  * Parent-only gate. Verifies via PIN if set, otherwise via a math challenge
  * (multiplication that a young child wouldn't solve quickly), as recommended
  * by the design proposal.
+ *
+ * Accessibility: role="dialog", aria-modal, focus trap, Escape to cancel.
  */
 export function ParentGate({
   expectedPin,
@@ -19,6 +21,7 @@ export function ParentGate({
 }) {
   const [pin, setPin] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const overlayRef = useRef<HTMLDivElement>(null);
 
   // Stable math challenge per mount: 2-digit × 1-digit
   const challenge = useMemo(() => {
@@ -43,8 +46,69 @@ export function ParentGate({
     else setError("Resposta incorreta.");
   };
 
+  // Escape key closes the dialog
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === "Escape" && onCancel) {
+        onCancel();
+      }
+    },
+    [onCancel]
+  );
+
+  // Focus trap: keep Tab cycling within the dialog
+  useEffect(() => {
+    const overlay = overlayRef.current;
+    if (!overlay) return;
+
+    const handleTab = (e: KeyboardEvent) => {
+      if (e.key !== "Tab") return;
+      const focusable = overlay.querySelectorAll<HTMLElement>(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      );
+      if (focusable.length === 0) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+
+      if (e.shiftKey) {
+        if (document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        }
+      } else {
+        if (document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    };
+
+    overlay.addEventListener("keydown", handleTab);
+    return () => overlay.removeEventListener("keydown", handleTab);
+  }, []);
+
+  // Auto-focus the input when the dialog mounts
+  useEffect(() => {
+    const t = setTimeout(() => {
+      const input = overlayRef.current?.querySelector<HTMLInputElement>("input");
+      input?.focus();
+    }, 100);
+    return () => clearTimeout(t);
+  }, []);
+
+  const errorId = "parent-gate-error";
+  const pinInputId = "parent-gate-pin";
+  const mathInputId = "parent-gate-math";
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm p-4">
+    <div
+      ref={overlayRef}
+      role="dialog"
+      aria-modal="true"
+      aria-label="Área dos pais"
+      onKeyDown={handleKeyDown}
+      className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm p-4"
+    >
       <motion.div
         initial={{ opacity: 0, y: 12, scale: 0.96 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -52,7 +116,7 @@ export function ParentGate({
       >
         <div className="flex items-center gap-3">
           <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/15 text-primary">
-            <ShieldCheck className="h-6 w-6" />
+            <ShieldCheck className="h-6 w-6" aria-hidden="true" />
           </div>
           <div>
             <h2 className="font-display text-xl">Área dos pais</h2>
@@ -62,36 +126,48 @@ export function ParentGate({
 
         {expectedPin && expectedPin.length >= 4 ? (
           <div className="mt-6">
-            <label className="font-display text-sm">Introduz o PIN de 4 dígitos</label>
+            <label htmlFor={pinInputId} className="font-display text-sm">
+              Introduz o PIN de 4 dígitos
+            </label>
             <input
+              id={pinInputId}
               type="password"
               inputMode="numeric"
-              autoFocus
               maxLength={4}
               value={pin}
               onChange={(e) => setPin(e.target.value.replace(/\D/g, ""))}
               onKeyDown={(e) => e.key === "Enter" && verify()}
+              aria-invalid={error ? "true" : undefined}
+              aria-errormessage={error ? errorId : undefined}
               className="mt-2 w-full rounded-2xl border-2 border-border bg-background px-4 py-4 text-center font-mono text-3xl tracking-[0.6em] outline-none focus:border-primary"
               placeholder="••••"
             />
           </div>
         ) : (
           <div className="mt-6">
-            <p className="font-display text-sm">Quanto é {challenge.a} × {challenge.b}?</p>
+            <label htmlFor={mathInputId} className="font-display text-sm">
+              Quanto é {challenge.a} × {challenge.b}?
+            </label>
             <input
+              id={mathInputId}
               type="number"
               inputMode="numeric"
-              autoFocus
               value={mathInput}
               onChange={(e) => setMathInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && verify()}
+              aria-invalid={error ? "true" : undefined}
+              aria-errormessage={error ? errorId : undefined}
               className="mt-2 w-full rounded-2xl border-2 border-border bg-background px-4 py-4 text-center font-display text-2xl outline-none focus:border-primary"
               placeholder="?"
             />
           </div>
         )}
 
-        {error && <p className="mt-3 text-center text-sm text-destructive">{error}</p>}
+        {error && (
+          <p id={errorId} role="alert" aria-live="assertive" className="mt-3 text-center text-sm text-destructive">
+            {error}
+          </p>
+        )}
 
         <div className="mt-5 flex gap-2">
           {onCancel && (

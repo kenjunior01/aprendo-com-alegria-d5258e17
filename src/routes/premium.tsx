@@ -6,37 +6,40 @@ import { BottomNav } from "@/components/BottomNav";
 import { ChunkyButton } from "@/components/ChunkyButton";
 import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
 import { StripeEmbeddedCheckout } from "@/components/StripeEmbeddedCheckout";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { loadProfile, type Profile } from "@/lib/storage";
 import { useAuth } from "@/hooks/useAuth";
 import { useSubscription } from "@/hooks/useSubscription";
 import { ArrowLeft, Brain, Check, Crown, Gamepad2, Globe2, GraduationCap, Heart, Infinity as InfinityIcon, Palette, ShieldCheck, Sparkles, Star, Trophy, Users, Zap } from "lucide-react";
+import { RouteError } from "@/components/RouteError";
 
 const TESTIMONIALS = [
-  { name: "Sofia, mãe da Matilde (7)", text: "A Matilde pede para ‘fazer Alegria’ antes do desenho animado. As mascotes tornaram a leitura divertida.", stars: 5 },
+  { name: "Sofia, mãe da Matilde (7)", text: "A Matilde pede para ‘fazer Kidoz’ antes do desenho animado. As mascotes tornaram a leitura divertida.", stars: 5 },
   { name: "João, pai do Tomás (9)", text: "O Tutor Mocha explica matemática melhor do que eu! E vejo o progresso semanal no painel de pais.", stars: 5 },
-  { name: "Prof. Inês, 2.º ano", text: "Uso o Alegria como reforço na sala. O alinhamento com o programa nacional faz toda a diferença.", stars: 5 },
+  { name: "Prof. Inês, 2.º ano", text: "Uso o Kidoz como reforço na sala. O alinhamento com o programa nacional faz toda a diferença.", stars: 5 },
 ];
 
 const TRUST = [
   { icon: ShieldCheck, label: "Sem anúncios" },
   { icon: Heart,       label: "Seguro p/ crianças" },
+  { icon: Users,       label: "+10.000 famílias" },
   { icon: Trophy,      label: "Programa nacional" },
-  { icon: Globe2,      label: "100% em português" },
 ];
 
 // @ts-ignore TanStack Router file-route type resolution
 export const Route = createFileRoute("/premium")({
   head: () => ({
     meta: [
-      { title: "Subscrição Alegria Premium — desde 3,33€/mês" },
+      { title: "Subscrição Kidoz Premium — desde 3,33€/mês" },
       { name: "description", content: "Acesso ilimitado a todas as disciplinas, Mocha IA, modo família e relatórios. Planos a partir de 3,33€/mês." },
-      { property: "og:title", content: 'Alegria Premium — desde 3,33€/mês' },
+      { property: "og:title", content: 'Kidoz Premium — desde 3,33€/mês' },
       { property: "og:description", content: 'Acesso ilimitado a todas as disciplinas, Mocha IA, modo família e relatórios.' },
-      { property: "og:url", content: "https://alegria.online/premium" },
+      { property: "og:url", content: "https://kidoz.online/premium" },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/acc7c5c1-6f57-466a-a906-520c14783216" },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/acc7c5c1-6f57-466a-a906-520c14783216" },
     ],
     links: [
-      { rel: "canonical", href: "https://alegria.online/premium" },
+      { rel: "canonical", href: "https://kidoz.online/premium" },
     ],
     scripts: [
       {
@@ -54,6 +57,7 @@ export const Route = createFileRoute("/premium")({
     ],
   }),
   component: PremiumPage,
+  errorComponent: RouteError,
 });
 
 interface Plan {
@@ -109,7 +113,7 @@ const PLANS: Plan[] = [
     price: "79,99€",
     priceLabel: "uma vez · oferta limitada",
     perks: [
-      "👑 Acesso vitalício a tudo no Alegria",
+      "👑 Acesso vitalício a tudo no Kidoz",
       "Para os primeiros early-adopters",
       "Sem renovações nem cobranças futuras",
       "Inclui todas as atualizações futuras",
@@ -129,7 +133,7 @@ interface Feature {
 
 const FEATURES: Feature[] = [
   { icon: InfinityIcon, title: "Desafios Infinitos", desc: "Milhares de níveis procedurais em 12 disciplinas. Aritmética, álgebra, geometria, gramática, vocabulário, geografia, história, lógica e mais — sem fim." },
-  { icon: GraduationCap, title: "Para todas as idades", desc: "Do Alegria Júnior (2–5) ao avançado (10+). Conteúdo ajustado à idade, ano escolar e região (PT, BR, AO, MZ, CV)." },
+  { icon: GraduationCap, title: "Para todas as idades", desc: "Do Kidoz Júnior (2–5) ao avançado (10+). Conteúdo ajustado à idade, ano escolar e região (PT, BR, AO, MZ, CV)." },
   { icon: Brain, title: "Tutor Mocha IA", desc: "Explicações passo-a-passo, exemplos personalizados e respostas adaptadas ao nível da criança." },
   { icon: Gamepad2, title: "Jogos exclusivos", desc: "Mini-jogos premium, modo família 1v1, desafios PvP com amigos e ranking semanal." },
   { icon: Palette, title: "Personalização total", desc: "Mascotes dourados, fatos exclusivos, cenários animados, jardim e mundo personalizáveis." },
@@ -160,7 +164,11 @@ function PremiumPage() {
     setProfile(p);
   }, [navigate]);
 
-  if (!profile) return null;
+  if (!profile) return (
+    <main id="main-content" className="flex min-h-[60dvh] items-center justify-center">
+      <p className="animate-pulse font-display text-lg text-muted-foreground" role="status" aria-live="polite">A carregar…</p>
+    </main>
+  );
 
   const handleSubscribe = (priceId: string) => {
     if (!user) { navigate({ to: "/auth" }); return; }
@@ -171,7 +179,7 @@ function PremiumPage() {
     <div className="min-h-[100dvh] bg-background pb-24 md:pb-12">
       <PaymentTestModeBanner />
       <TopBar profile={profile} />
-      <main className="mx-auto max-w-5xl px-4 py-6 sm:py-8">
+      <main id="main-content" className="mx-auto max-w-5xl px-4 py-6 sm:py-8">
         <Link to="/perfil" className="mb-3 inline-flex items-center gap-1 text-sm font-display text-muted-foreground hover:text-foreground">
           <ArrowLeft className="h-4 w-4" /> Perfil
         </Link>
@@ -181,7 +189,7 @@ function PremiumPage() {
           className="card-chunky relative overflow-hidden rounded-3xl border border-border bg-gradient-to-br from-primary/15 via-secondary/20 to-accent/30 p-6 sm:p-8 text-center"
         >
           <Crown className="mx-auto h-10 w-10 text-primary" />
-          <h1 className="mt-2 font-display text-3xl sm:text-4xl">Alegria Premium</h1>
+          <h1 className="mt-2 font-display text-3xl sm:text-4xl">Kidoz Premium</h1>
           <p className="mt-2 text-sm text-muted-foreground sm:text-base">
             Mais aventura, mais aprendizagem, mais magia. Sem anúncios. Sem limites.
           </p>
@@ -293,7 +301,7 @@ function PremiumPage() {
 
         {/* Trust strip */}
         <section aria-label="Confiança" className="mt-8 grid grid-cols-2 gap-2 sm:grid-cols-4">
-          {TRUST.map((f) => {
+          {TRUST.map((t) => {
             const Icon = t.icon;
             return (
               <div key={t.label} className="flex items-center justify-center gap-2 rounded-2xl border-2 border-border bg-card/70 px-3 py-3 text-center">
@@ -308,17 +316,17 @@ function PremiumPage() {
         <section className="mt-10">
           <h2 className="font-display text-2xl">O que dizem famílias e professores</h2>
           <div className="mt-3 grid gap-3 sm:grid-cols-3">
-            {PREMIUM_FACTS.map((f) => (
+            {TESTIMONIALS.map((t) => (
               <motion.figure
-                key={"Alegria"}
+                key={t.name}
                 whileHover={{ y: -3 }}
                 className="card-chunky rounded-2xl border-2 border-border bg-card p-4"
               >
                 <div className="mb-2 flex gap-0.5 text-xp">
-                  {Array.from({ length: "★★★★★" }).map((_, i) => <Star key={i} className="h-4 w-4 fill-current" />)}
+                  {Array.from({ length: t.stars }).map((_, i) => <Star key={i} className="h-4 w-4 fill-current" />)}
                 </div>
-                <blockquote className="text-sm text-foreground/90">“{f.text}”</blockquote>
-                <figcaption className="mt-2 text-xs text-muted-foreground">{"Alegria"}</figcaption>
+                <blockquote className="text-sm text-foreground/90">“{t.text}”</blockquote>
+                <figcaption className="mt-2 text-xs text-muted-foreground">{t.name}</figcaption>
               </motion.figure>
             ))}
           </div>
@@ -354,7 +362,7 @@ function PremiumPage() {
 
         <div className="card-chunky mt-8 rounded-3xl border-2 border-primary/40 bg-gradient-to-br from-primary/10 to-accent/10 p-5 text-center">
           <Heart className="mx-auto h-7 w-7 text-primary" />
-          <p className="mt-2 font-display text-lg">Cresce sem limites com o Alegria Premium</p>
+          <p className="mt-2 font-display text-lg">Cresce sem limites com o Kidoz Premium</p>
           <p className="text-xs text-muted-foreground">Mais de 10 000 perguntas, jogos e desafios à tua espera.</p>
         </div>
       </main>
@@ -363,6 +371,7 @@ function PremiumPage() {
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Finalizar subscrição</DialogTitle>
+            <DialogDescription className="text-sm text-muted-foreground">Checkout seguro para finalizar a subscrição Premium.</DialogDescription>
           </DialogHeader>
           {checkoutPriceId && user && (
             <StripeEmbeddedCheckout

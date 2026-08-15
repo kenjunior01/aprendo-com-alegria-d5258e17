@@ -14,21 +14,25 @@ import { PremiumStatusPanel } from "@/components/PremiumStatusPanel";
 import { RegionInterestsPanel } from "@/components/RegionInterestsPanel";
 import { CertificateButton } from "@/components/CertificateButton";
 import { Cloud, CloudOff, LogOut } from "lucide-react";
+import { RouteError } from "@/components/RouteError";
 
 export const Route = createFileRoute("/perfil")({
   head: () => ({
     meta: [
-      { title: "Perfil — Alegria" },
+      { title: "Perfil — Kidoz" },
       { name: "description", content: "Vê o teu progresso e troca de mascote." },
-      { property: "og:title", content: 'Perfil — Alegria' },
+      { property: "og:title", content: 'Perfil — Kidoz' },
       { property: "og:description", content: 'Vê o teu progresso e troca de mascote.' },
-      { property: "og:url", content: "https://alegria.online/perfil" },
+      { property: "og:url", content: "https://kidoz.online/perfil" },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/acc7c5c1-6f57-466a-a906-520c14783216" },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/acc7c5c1-6f57-466a-a906-520c14783216" },
     ],
     links: [
-      { rel: "canonical", href: "https://alegria.online/perfil" },
+      { rel: "canonical", href: "https://kidoz.online/perfil" },
     ],
   }),
   component: ProfilePage,
+  errorComponent: RouteError,
 });
 
 function ProfilePage() {
@@ -52,7 +56,11 @@ function ProfilePage() {
     return () => { cancelled = true; };
   }, [navigate]);
 
-  if (!profile) return null;
+  if (!profile) return (
+    <main id="main-content" className="flex min-h-[60dvh] items-center justify-center">
+      <p className="animate-pulse font-display text-lg text-muted-foreground" role="status" aria-live="polite">A carregar…</p>
+    </main>
+  );
 
   const total = totalMissions();
   const completed = profile.completedLessons.length;
@@ -81,7 +89,7 @@ function ProfilePage() {
   return (
     <div className="min-h-[100dvh] bg-background pb-24 md:pb-12">
       <TopBar profile={profile} />
-      <main className="mx-auto max-w-2xl px-4 py-6 sm:py-8">
+      <main id="main-content" className="mx-auto max-w-2xl px-4 py-6 sm:py-8">
         <div className="card-chunky rounded-3xl border border-border bg-card p-5 text-center sm:p-6">
           <Mascot id={profile.mascot} size="xl" bouncing equippedItemId={profile.equippedItem} />
           <h1 className="mt-2 font-display text-2xl sm:text-3xl">{profile.name}</h1>
@@ -140,11 +148,12 @@ function ProfilePage() {
 
         <section className="mt-6 sm:mt-8">
           <h2 className="mb-3 font-display text-xl sm:text-2xl">Mudar de mascote</h2>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <div role="list" className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             {MASCOTS.map((m) => (
               <button
                 key={m.id}
                 onClick={() => changeMascot(m.id)}
+                role="listitem"
                 className={`card-chunky rounded-2xl border-2 bg-card p-2 transition-transform active:scale-95 ${
                   profile.mascot === m.id ? "border-primary ring-4 ring-primary/30" : "border-border"
                 }`}
