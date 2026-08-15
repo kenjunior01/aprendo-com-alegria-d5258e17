@@ -2,7 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { Mascot } from "@/components/Mascot";
 import { ChunkyButton } from "@/components/ChunkyButton";
-import { KidozLogo } from "@/components/KidozLogo";
+import { AlegriaLogo } from "@/components/AlegriaLogo";
 import { MASCOTS } from "@/lib/mascots";
 import { loadProfile, pullProfileFromCloud } from "@/lib/storage";
 import { useEffect, useState } from "react";
@@ -61,7 +61,7 @@ function Landing() {
           transition={{ type: "spring", stiffness: 200, damping: 15 }}
           className="mb-3"
         >
-          <KidozLogo priority className="h-20 w-auto sm:h-24 md:h-28" alt="Kidoz — Aprender a brincar" />
+          <AlegriaLogo priority className="h-20 w-auto sm:h-24 md:h-28" alt="Kidoz — Aprender a brincar" />
         </motion.div>
 
         <motion.div

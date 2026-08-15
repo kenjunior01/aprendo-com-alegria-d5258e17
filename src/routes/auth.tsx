@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Mascot } from "@/components/Mascot";
 import { ChunkyButton } from "@/components/ChunkyButton";
-import { KidozLogo } from "@/components/KidozLogo";
+import { AlegriaLogo } from "@/components/AlegriaLogo";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { pullProfileFromCloud, pushFullProfile } from "@/lib/storage";
@@ -101,7 +101,7 @@ function AuthPage() {
   return (
     <main id="main-content" className="bg-paper relative min-h-[100dvh] overflow-hidden px-4 py-8">
       <div className="mx-auto flex w-full max-w-md flex-col items-center">
-        <KidozLogo priority className="mb-2 h-14 w-auto" />
+        <AlegriaLogo priority className="mb-2 h-14 w-auto" />
         <motion.div
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}

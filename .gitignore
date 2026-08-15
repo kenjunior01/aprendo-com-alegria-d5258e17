@@ -30,3 +30,13 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Lock files (keep only package-lock.json)
+bun.lockb
+
+# Electron build output
+build-electron/
+
+# Capacitor
+android/
+ios/

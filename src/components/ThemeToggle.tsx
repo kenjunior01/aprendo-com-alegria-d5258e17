@@ -32,12 +32,12 @@ export function ThemeToggle({ className }: { className?: string }) {
       aria-label={isDark ? "Mudar para modo claro" : "Mudar para modo escuro"}
       title={isDark ? "Modo claro" : "Modo escuro"}
     >
-      <motionIcon isDark={isDark} />
+      <MotionIcon isDark={isDark} />
     </button>
   );
 }
 
-function motionIcon({ isDark }: { isDark: boolean }) {
+function MotionIcon({ isDark }: { isDark: boolean }) {
   return isDark ? (
     <Sun className="h-4 w-4 text-xp" />
   ) : (

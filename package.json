@@ -11,9 +11,7 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "cap:sync": "npm run build && npx cap sync",
-    "cap:android": "npx cap open android",
-    "electron:start": "npm run build && electron .",
-    "electron:build": "npm run build && electron-builder"
+    "cap:android": "npx cap open android"
   },
   "dependencies": {
     "@cloudflare/vite-plugin": "^1.25.5",
@@ -87,8 +85,7 @@
     "zod": "^3.24.2",
     "@capacitor/core": "^6.0.0",
     "@capacitor/android": "^6.0.0",
-    "@capacitor/push-notifications": "^6.0.0",
-    "electron-is-dev": "^2.0.0"
+    "@capacitor/push-notifications": "^6.0.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.32.0",
@@ -108,29 +105,15 @@
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.56.1",
     "vite": "^7.3.1",
-    "@capacitor/cli": "^6.0.0",
-    "electron": "^30.0.0",
-    "electron-builder": "^24.13.3"
+    "@capacitor/cli": "^6.0.0"
   },
   "pnpm": {
     "overrides": {
       "entities": "4.5.0"
     }
   },
-  "main": "main.cjs",
   "build": {
     "appId": "com.aprendo.alegria",
-    "productName": "Aprendo com Alegria",
-    "directories": {
-      "output": "build-electron"
-    },
-    "files": [
-      "dist/**/*",
-      "main.cjs",
-      "preload.cjs"
-    ],
-    "win": {
-      "target": "nsis"
-    }
+    "productName": "Aprendo com Alegria"
   }
 }
