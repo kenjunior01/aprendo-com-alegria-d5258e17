@@ -151,7 +151,7 @@ function Landing() {
         {/* Prova social */}
         <Testimonials />
 
-        <div className="mt-8 flex w-full max-w-sm flex-col items-stretch gap-3 sm:max-w-none sm:flex-row sm:justify-center">
+        <div className="mt-6 flex w-full max-w-sm flex-col items-stretch gap-3 sm:mt-8 sm:max-w-none sm:flex-row sm:justify-center">
           <Link to="/junior" className="flex-1 sm:flex-none">
             <ChunkyButton tone="secondary" className="w-full">🌱 Kidoz Júnior — 2 a 5 anos</ChunkyButton>
           </Link>
@@ -163,7 +163,7 @@ function Landing() {
           </Link>
         </div>
 
-        <footer className="mt-16 w-full border-t border-border pt-6 pb-4 text-center text-xs text-muted-foreground">
+        <footer className="mt-10 w-full border-t border-border pt-5 pb-4 text-center text-xs text-muted-foreground sm:mt-16">
           <nav aria-label="Links legais" className="flex flex-wrap justify-center gap-x-4 gap-y-2">
             <Link to="/privacidade" className="hover:text-primary hover:underline min-h-[44px] inline-flex items-center">Privacidade</Link>
             <Link to="/termos" className="hover:text-primary hover:underline min-h-[44px] inline-flex items-center">Termos</Link>
@@ -183,9 +183,9 @@ function HowItWorks() {
     { n: "3", emoji: "🏆", title: "Sobe de nível", text: "Ganha estrelas, medalhas e mantém a streak 🔥" },
   ];
   return (
-    <section className="mt-12 w-full sm:mt-16">
+    <section className="mt-8 w-full sm:mt-12">
       <h2 className="mb-1 text-center font-display text-2xl sm:text-3xl">Como funciona</h2>
-      <p className="mb-5 text-center text-sm text-muted-foreground">Aprender pouco e muitas vezes — como o Duolingo, mas para o programa português.</p>
+      <p className="mb-4 text-center text-sm text-muted-foreground">Aprender pouco e muitas vezes — como o Duolingo, mas para o programa português.</p>
       <ol className="grid gap-3 sm:gap-4 md:grid-cols-3">
         {steps.map((s) => (
           <motion.li
@@ -215,9 +215,9 @@ function LessonPathPreview() {
     { e: "🌍", t: "Mundo", tone: "bg-xp text-foreground" },
   ];
   return (
-    <section className="mt-12 w-full sm:mt-16">
+    <section className="mt-8 w-full sm:mt-12">
       <h2 className="mb-1 text-center font-display text-2xl sm:text-3xl">O caminho da aprendizagem</h2>
-      <p className="mb-6 text-center text-sm text-muted-foreground">Cada nó é uma mini-lição, com sons, animações e mascotes.</p>
+      <p className="mb-4 text-center text-sm text-muted-foreground">Cada nó é uma mini-lição, com sons, animações e mascotes.</p>
       <div className="relative mx-auto max-w-md">
         {nodes.map((n, i) => (
           <motion.div
@@ -261,7 +261,7 @@ const TESTIMONIALS = [
 
 function Testimonials() {
   return (
-    <section className="mt-12 w-full sm:mt-16">
+    <section className="mt-8 w-full sm:mt-12">
       <h2 className="mb-1 font-display text-2xl sm:text-3xl">O que dizem pais e professores</h2>
       <p className="mb-5 text-sm text-muted-foreground">Famílias reais a aprender com a Kidoz em Portugal e países PALOP.</p>
       <div className="grid gap-3 sm:gap-4 md:grid-cols-3">

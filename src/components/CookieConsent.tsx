@@ -31,8 +31,8 @@ export function CookieConsent() {
       setChoice(stored);
       applyConsent(stored);
     } else {
-      // Delay appearance slightly so it doesn't flash on every navigation
-      const t = setTimeout(() => setVisible(true), 2500);
+      // Delay appearance so it doesn't block the hero on first load
+      const t = setTimeout(() => setVisible(true), 4500);
       return () => clearTimeout(t);
     }
   }, []);
