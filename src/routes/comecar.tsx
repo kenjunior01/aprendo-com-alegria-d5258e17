@@ -75,8 +75,8 @@ function Onboarding() {
   };
 
   return (
-    <main id="main-content" className="bg-paper min-h-[100dvh] px-4 py-8 sm:py-10">
-      <div className="mx-auto max-w-3xl">
+    <main id="main-content" className="bg-paper min-h-[100dvh] px-4 py-6 sm:py-10">
+      <div className="mx-auto max-w-lg">
         <div className="mb-4 flex justify-center">
           <AlegriaLogo priority className="h-12 w-auto sm:h-14" />
         </div>
@@ -95,7 +95,7 @@ function Onboarding() {
               <Mascot id="owl" size="lg" bouncing />
               <h1 className="font-display text-3xl sm:text-4xl">Quem está a chegar?</h1>
               <p className="text-muted-foreground">Conta-nos para te darmos a melhor experiência.</p>
-              <div className="grid w-full max-w-3xl grid-cols-1 gap-3 sm:grid-cols-3">
+              <div className="grid w-full grid-cols-1 gap-3 sm:grid-cols-3">
                 <button
                   onClick={() => setTrack("junior")}
                   className={cn(

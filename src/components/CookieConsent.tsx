@@ -51,36 +51,40 @@ export function CookieConsent() {
 
   return visible ? (
     <div
-      className="fixed bottom-0 left-0 right-0 z-40 border-t border-border/50 bg-card/95 p-3 shadow-lg backdrop-blur-sm sm:p-3.5"
+      className="fixed inset-x-0 bottom-0 z-40 border-t border-border/50 bg-card/95 backdrop-blur-md sm:backdrop-blur-lg"
       role="dialog"
       aria-modal="false"
       aria-label="Consentimento de cookies"
     >
-      <div className="mx-auto flex max-w-3xl items-center gap-3">
-        <Cookie className="h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
-        <p className="flex-1 text-xs text-foreground/80">
-          Usamos cookies para melhorar a experiência.{" "}
-          <a
-            href="/privacidade"
-            className="font-semibold text-primary underline underline-offset-2 hover:text-primary/80"
-          >
-            Saber mais
-          </a>
-        </p>
-        <div className="flex shrink-0 gap-2">
-          <ChunkyButton
-            tone="ghost"
-            onClick={() => handleChoice("essential")}
-            className="text-xs px-3 py-1.5"
-          >
-            Essenciais
-          </ChunkyButton>
-          <ChunkyButton
-            onClick={() => handleChoice("all")}
-            className="text-xs px-3 py-1.5"
-          >
-            Aceitar
-          </ChunkyButton>
+      <div className="mx-auto max-w-3xl px-4 py-3 sm:px-5 sm:py-3.5">
+        <div className="flex flex-col gap-2.5 sm:flex-row sm:items-center sm:gap-3">
+          <div className="flex items-start gap-2 sm:items-center">
+            <Cookie className="h-4 w-4 shrink-0 text-primary mt-0.5 sm:mt-0" aria-hidden="true" />
+            <p className="text-xs text-foreground/80 leading-relaxed">
+              Usamos cookies para melhorar a experiência.{" "}
+              <a
+                href="/privacidade"
+                className="font-semibold text-primary underline underline-offset-2 hover:text-primary/80"
+              >
+                Saber mais
+              </a>
+            </p>
+          </div>
+          <div className="flex shrink-0 gap-2 self-end sm:self-auto">
+            <ChunkyButton
+              tone="ghost"
+              onClick={() => handleChoice("essential")}
+              className="text-xs px-3 py-1.5"
+            >
+              Essenciais
+            </ChunkyButton>
+            <ChunkyButton
+              onClick={() => handleChoice("all")}
+              className="text-xs px-3 py-1.5"
+            >
+              Aceitar
+            </ChunkyButton>
+          </div>
         </div>
       </div>
     </div>

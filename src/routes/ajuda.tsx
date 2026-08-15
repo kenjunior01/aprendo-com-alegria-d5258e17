@@ -109,7 +109,7 @@ function FAQAccordion() {
 function AjudaPage() {
   return (
     <main id="main-content" className="min-h-[100dvh] bg-background pb-12 pt-6">
-      <div className="mx-auto max-w-3xl px-4 sm:px-6">
+      <div className="mx-auto max-w-4xl px-4 sm:px-6">
         <h1 className="font-display text-3xl sm:text-4xl">Ajuda</h1>
         <p className="mt-2 text-sm text-muted-foreground">
           Encontre aqui as respostas às perguntas mais frequentes sobre o Kidoz.

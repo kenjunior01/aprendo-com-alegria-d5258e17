@@ -10,7 +10,7 @@ export function TopBar({ profile }: { profile: Profile }) {
       className="glass-premium sticky top-0 z-30 border-b border-border/50"
       style={{ paddingTop: "env(safe-area-inset-top)" }}
     >
-      <div className="mx-auto flex max-w-3xl items-center justify-between gap-2 px-3 py-2.5 sm:px-4 sm:py-3">
+      <div className="mx-auto flex max-w-4xl items-center justify-between gap-2 px-3 py-2.5 sm:px-4 sm:py-3">
         <Link to="/app" className="group flex items-center gap-2.5">
           <div className="relative">
             <Mascot id={profile.mascot} size="sm" equippedItemId={profile.equippedItem} />

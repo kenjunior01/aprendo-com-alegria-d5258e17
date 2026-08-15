@@ -54,7 +54,7 @@ function Landing() {
       {/* floating shapes */}
       <FloatingDecor />
 
-      <div className="relative mx-auto flex min-h-[100dvh] max-w-5xl flex-col items-center justify-center px-5 py-10 text-center sm:px-6 sm:py-12">
+      <div className="relative mx-auto flex min-h-[100dvh] max-w-6xl flex-col items-center justify-center px-4 py-8 text-center sm:px-6 sm:py-12">
         <motion.div
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
@@ -82,17 +82,26 @@ function Landing() {
           Aprender é <span className="text-primary">brincar</span>!
         </motion.h1>
 
+        <motion.div
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.15 }}
+          className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 font-display text-xs font-semibold text-primary sm:text-sm"
+        >
+          🎯 1.º ciclo do ensino básico · Portugal
+        </motion.div>
+
         <motion.p
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.2 }}
-          className="mt-3 max-w-xl text-base text-foreground/80 sm:mt-4 sm:text-lg md:text-xl"
+          className="mt-3 max-w-lg text-base text-foreground/80 sm:mt-4 sm:max-w-xl sm:text-lg md:text-xl"
         >
           Português, Matemática e Estudo do Meio com mascotes divertidas, lições curtas e muitas estrelinhas. ✨
         </motion.p>
 
         {/* mascot row */}
-        <div className="my-8 flex flex-wrap items-end justify-center gap-2 sm:my-10 sm:gap-4">
+        <div className="my-6 flex flex-wrap items-end justify-center gap-3 sm:my-10 sm:gap-5">
           {MASCOTS.map((m, i) => (
             <motion.div
               key={m.id}
@@ -112,7 +121,7 @@ function Landing() {
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.7 }}
-          className="flex w-full max-w-xs flex-col items-stretch gap-3 sm:max-w-none sm:flex-row"
+          className="flex w-full max-w-sm flex-col items-stretch gap-3 sm:max-w-none sm:flex-row"
         >
           <Link to="/comecar" className="flex-1 sm:flex-none">
             <ChunkyButton tone="primary" className="w-full text-base sm:text-lg">
@@ -127,7 +136,7 @@ function Landing() {
           </Link>
         </motion.div>
 
-        <div className="mt-12 grid w-full gap-3 sm:mt-16 sm:gap-4 md:grid-cols-3">
+        <div className="mt-10 grid w-full gap-3 sm:mt-16 sm:gap-4 md:grid-cols-3">
           <FeatureCard emoji="📚" title="Português" text="Vogais, sílabas, gramática, plurais" />
           <FeatureCard emoji="➕" title="Matemática" text="Tabuada, divisões, frações" />
           <FeatureCard emoji="🌍" title="Estudo do Meio" text="Portugal, história, ambiente" />
@@ -142,7 +151,7 @@ function Landing() {
         {/* Prova social */}
         <Testimonials />
 
-        <div className="mt-8 flex w-full max-w-xs flex-col items-stretch gap-3 sm:max-w-none sm:flex-row sm:justify-center">
+        <div className="mt-8 flex w-full max-w-sm flex-col items-stretch gap-3 sm:max-w-none sm:flex-row sm:justify-center">
           <Link to="/junior" className="flex-1 sm:flex-none">
             <ChunkyButton tone="secondary" className="w-full">🌱 Kidoz Júnior — 2 a 5 anos</ChunkyButton>
           </Link>
@@ -154,11 +163,11 @@ function Landing() {
           </Link>
         </div>
 
-        <footer className="mt-16 w-full border-t border-border pt-6 text-center text-xs text-muted-foreground">
-          <nav aria-label="Links legais" className="flex flex-wrap justify-center gap-x-4 gap-y-1">
-            <Link to="/privacidade" className="hover:text-primary hover:underline">Privacidade</Link>
-            <Link to="/termos" className="hover:text-primary hover:underline">Termos</Link>
-            <Link to="/ajuda" className="hover:text-primary hover:underline">Ajuda</Link>
+        <footer className="mt-16 w-full border-t border-border pt-6 pb-4 text-center text-xs text-muted-foreground">
+          <nav aria-label="Links legais" className="flex flex-wrap justify-center gap-x-4 gap-y-2">
+            <Link to="/privacidade" className="hover:text-primary hover:underline min-h-[44px] inline-flex items-center">Privacidade</Link>
+            <Link to="/termos" className="hover:text-primary hover:underline min-h-[44px] inline-flex items-center">Termos</Link>
+            <Link to="/ajuda" className="hover:text-primary hover:underline min-h-[44px] inline-flex items-center">Ajuda</Link>
           </nav>
           <p className="mt-2">&copy; {new Date().getFullYear()} Kidoz — Aprender a brincar</p>
         </footer>

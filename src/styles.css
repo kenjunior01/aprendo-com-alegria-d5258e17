@@ -106,7 +106,7 @@
   --secondary-foreground: oklch(0.15 0.04 260);
 
   --muted: oklch(0.965 0.01 80);
-  --muted-foreground: oklch(0.48 0.03 260);
+  --muted-foreground: oklch(0.52 0.03 260);
 
   /* Accent: Warm gold — celebration, achievement */
   --accent: oklch(0.88 0.1 85);
@@ -260,20 +260,20 @@
 
   /* ─── 3D Chunky Button — playful kid-friendly press effect ─── */
   .btn-chunky {
-    box-shadow: 0 5px 0 0 color-mix(in oklab, currentColor 25%, black),
-                0 8px 16px -4px color-mix(in oklab, currentColor 15%, transparent);
+    box-shadow: 0 4px 0 0 color-mix(in oklab, currentColor 20%, black),
+                0 6px 12px -3px color-mix(in oklab, currentColor 12%, transparent);
     transition: transform 0.08s ease, box-shadow 0.08s ease;
   }
   .btn-chunky:active {
-    transform: translateY(4px);
-    box-shadow: 0 1px 0 0 color-mix(in oklab, currentColor 25%, black),
-                0 2px 4px -2px color-mix(in oklab, currentColor 10%, transparent);
+    transform: translateY(3px);
+    box-shadow: 0 1px 0 0 color-mix(in oklab, currentColor 20%, black),
+                0 1px 3px -1px color-mix(in oklab, currentColor 8%, transparent);
   }
 
   /* ─── 3D Chunky Card — premium depth ─── */
   .card-chunky {
-    box-shadow: 0 6px 0 0 var(--color-border),
-                0 10px 24px -6px color-mix(in oklab, var(--color-foreground) 8%, transparent);
+    box-shadow: 0 4px 0 0 var(--color-border),
+                0 8px 20px -5px color-mix(in oklab, var(--color-foreground) 6%, transparent);
   }
 
   /* ─── Premium Card — elevated with subtle glow ─── */
