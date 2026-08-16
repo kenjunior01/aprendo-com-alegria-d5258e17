@@ -28,6 +28,14 @@ export const Route = createFileRoute("/")({
   errorComponent: RouteError,
 });
 
+const stagger = {
+  container: { animate: { transition: { staggerChildren: 0.08 } } },
+  item: {
+    initial: { opacity: 0, y: 16 },
+    animate: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" } },
+  },
+};
+
 function Landing() {
   const navigate = useNavigate();
   const [region, setRegion] = useState<RegionInfo | null>(null);
@@ -51,63 +59,57 @@ function Landing() {
 
   return (
     <main id="main-content" className="bg-sky-island relative min-h-[100dvh] overflow-hidden">
-      {/* floating shapes */}
       <FloatingDecor />
 
-      <div className="relative mx-auto flex min-h-[100dvh] max-w-6xl flex-col items-center justify-center px-4 py-8 text-center sm:px-6 sm:py-12">
+      <div className="relative mx-auto flex min-h-[100dvh] max-w-6xl flex-col items-center justify-center px-5 py-8 text-center sm:px-6 sm:py-12">
+        {/* Logo */}
         <motion.div
-          initial={{ scale: 0.8, opacity: 0 }}
+          initial={{ scale: 0.85, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
-          transition={{ type: "spring", stiffness: 200, damping: 15 }}
-          className="mb-3"
+          transition={{ type: "spring", stiffness: 180, damping: 14 }}
+          className="mb-4"
         >
           <AlegriaLogo priority className="h-20 w-auto sm:h-24 md:h-28" alt="Kidoz — Aprender a brincar" />
         </motion.div>
 
+        {/* Region badge */}
         <motion.div
-          initial={{ y: -20, opacity: 0 }}
+          initial={{ y: -10, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.5 }}
-          className="mb-2 inline-flex items-center gap-2 rounded-full bg-card px-4 py-1.5 font-display text-xs font-semibold text-primary shadow-sm sm:text-sm"
+          transition={{ duration: 0.4, delay: 0.1 }}
+          className="mb-3 inline-flex items-center gap-2 rounded-full bg-card px-4 py-1.5 font-display text-xs font-semibold text-primary shadow-sm sm:text-sm"
         >
-          {region ? regionBadgeText(region) : "🌍 A detetar a tua região…"}
+          {region ? regionBadgeText(region) : "🇵🇹 Feito para o 1.º ciclo em Portugal"}
         </motion.div>
 
+        {/* Hero heading */}
         <motion.h1
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.1 }}
+          transition={{ delay: 0.15, duration: 0.5 }}
           className="font-display text-4xl font-bold leading-tight sm:text-5xl md:text-7xl"
         >
           Aprender é <span className="text-primary">brincar</span>!
         </motion.h1>
 
-        <motion.div
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.15 }}
-          className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 font-display text-xs font-semibold text-primary sm:text-sm"
-        >
-          🎯 1.º ciclo do ensino básico · Portugal
-        </motion.div>
-
+        {/* Subtitle */}
         <motion.p
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.2 }}
-          className="mt-3 max-w-lg text-base text-foreground/80 sm:mt-4 sm:max-w-xl sm:text-lg md:text-xl"
+          transition={{ delay: 0.2, duration: 0.5 }}
+          className="mt-3 max-w-xl text-base text-foreground/80 sm:mt-4 sm:text-lg md:text-xl"
         >
           Português, Matemática e Estudo do Meio com mascotes divertidas, lições curtas e muitas estrelinhas. ✨
         </motion.p>
 
-        {/* mascot row */}
-        <div className="my-6 flex flex-wrap items-end justify-center gap-3 sm:my-10 sm:gap-5">
+        {/* Mascot row */}
+        <div className="my-8 flex flex-wrap items-end justify-center gap-2 sm:my-10 sm:gap-4">
           {MASCOTS.map((m, i) => (
             <motion.div
               key={m.id}
-              initial={{ y: 30, opacity: 0 }}
+              initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.3 + i * 0.1, type: "spring" }}
+              transition={{ delay: 0.3 + i * 0.08, type: "spring", stiffness: 200 }}
               className="text-center"
             >
               <Mascot id={m.id} size="md" bouncing={i === 1} className="sm:hidden" />
@@ -117,10 +119,11 @@ function Landing() {
           ))}
         </div>
 
+        {/* CTA buttons */}
         <motion.div
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.7 }}
+          transition={{ delay: 0.55 }}
           className="flex w-full max-w-sm flex-col items-stretch gap-3 sm:max-w-none sm:flex-row"
         >
           <Link to="/comecar" className="flex-1 sm:flex-none">
@@ -136,24 +139,42 @@ function Landing() {
           </Link>
         </motion.div>
 
-        <div className="mt-10 grid w-full gap-3 sm:mt-16 sm:gap-4 md:grid-cols-3">
-          <FeatureCard emoji="📚" title="Português" text="Vogais, sílabas, gramática, plurais" />
-          <FeatureCard emoji="➕" title="Matemática" text="Tabuada, divisões, frações" />
-          <FeatureCard emoji="🌍" title="Estudo do Meio" text="Portugal, história, ambiente" />
-        </div>
+        {/* Subject cards */}
+        <motion.div
+          variants={stagger.container}
+          initial="initial"
+          animate="animate"
+          className="mt-12 grid w-full gap-3 sm:mt-16 sm:gap-4 md:grid-cols-3"
+        >
+          <motion.div variants={stagger.item}>
+            <FeatureCard emoji="📚" title="Português" text="Vogais, sílabas, gramática, plurais" />
+          </motion.div>
+          <motion.div variants={stagger.item}>
+            <FeatureCard emoji="➕" title="Matemática" text="Tabuada, divisões, frações" />
+          </motion.div>
+          <motion.div variants={stagger.item}>
+            <FeatureCard emoji="🌍" title="Estudo do Meio" text="Portugal, história, ambiente" />
+          </motion.div>
+        </motion.div>
 
-        {/* Como funciona — estilo Duolingo ABC */}
+        {/* How it works */}
         <HowItWorks />
 
-        {/* Mini caminho de lições, mobile-first */}
+        {/* Learning path */}
         <LessonPathPreview />
 
-        {/* Prova social */}
+        {/* Testimonials */}
         <Testimonials />
 
-        <div className="mt-6 flex w-full max-w-sm flex-col items-stretch gap-3 sm:mt-8 sm:max-w-none sm:flex-row sm:justify-center">
+        {/* Bottom CTAs */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          className="mt-8 flex w-full max-w-md flex-col items-stretch gap-3 sm:mt-12 sm:max-w-none sm:flex-row sm:justify-center"
+        >
           <Link to="/junior" className="flex-1 sm:flex-none">
-            <ChunkyButton tone="secondary" className="w-full">🌱 Kidoz Júnior — 2 a 5 anos</ChunkyButton>
+            <ChunkyButton tone="secondary" className="w-full">🌱 Júnior — 2 a 5 anos</ChunkyButton>
           </Link>
           <Link to="/escolas" className="flex-1 sm:flex-none">
             <ChunkyButton tone="ghost" className="w-full">🏫 Escolas — 0,99€/aluno</ChunkyButton>
@@ -161,9 +182,10 @@ function Landing() {
           <Link to="/creches" className="flex-1 sm:flex-none">
             <ChunkyButton tone="ghost" className="w-full">🏡 Creches — planos B2B</ChunkyButton>
           </Link>
-        </div>
+        </motion.div>
 
-        <footer className="mt-10 w-full border-t border-border pt-5 pb-4 text-center text-xs text-muted-foreground sm:mt-16">
+        {/* Footer */}
+        <footer className="mt-12 w-full border-t border-border pt-5 pb-6 text-center text-xs text-muted-foreground sm:mt-16">
           <nav aria-label="Links legais" className="flex flex-wrap justify-center gap-x-4 gap-y-2">
             <Link to="/privacidade" className="hover:text-primary hover:underline min-h-[44px] inline-flex items-center">Privacidade</Link>
             <Link to="/termos" className="hover:text-primary hover:underline min-h-[44px] inline-flex items-center">Termos</Link>
@@ -183,16 +205,17 @@ function HowItWorks() {
     { n: "3", emoji: "🏆", title: "Sobe de nível", text: "Ganha estrelas, medalhas e mantém a streak 🔥" },
   ];
   return (
-    <section className="mt-8 w-full sm:mt-12">
-      <h2 className="mb-1 text-center font-display text-2xl sm:text-3xl">Como funciona</h2>
-      <p className="mb-4 text-center text-sm text-muted-foreground">Aprender pouco e muitas vezes — como o Duolingo, mas para o programa português.</p>
+    <section className="mt-12 w-full sm:mt-16">
+      <h2 className="mb-2 text-center font-display text-2xl sm:text-3xl">Como funciona</h2>
+      <p className="mb-5 text-center text-sm text-muted-foreground">Aprender pouco e muitas vezes — como o Duolingo, mas para o programa português.</p>
       <ol className="grid gap-3 sm:gap-4 md:grid-cols-3">
-        {steps.map((s) => (
+        {steps.map((s, i) => (
           <motion.li
             key={s.n}
-            initial={{ opacity: 0, y: 12 }}
+            initial={{ opacity: 0, y: 16 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
+            transition={{ delay: i * 0.1 }}
             className="card-chunky relative overflow-hidden rounded-3xl border border-border bg-card p-5 text-left"
           >
             <span className="absolute -right-3 -top-3 text-7xl opacity-10">{s.n}</span>
@@ -215,21 +238,21 @@ function LessonPathPreview() {
     { e: "🌍", t: "Mundo", tone: "bg-xp text-foreground" },
   ];
   return (
-    <section className="mt-8 w-full sm:mt-12">
-      <h2 className="mb-1 text-center font-display text-2xl sm:text-3xl">O caminho da aprendizagem</h2>
-      <p className="mb-4 text-center text-sm text-muted-foreground">Cada nó é uma mini-lição, com sons, animações e mascotes.</p>
+    <section className="mt-12 w-full sm:mt-16">
+      <h2 className="mb-2 text-center font-display text-2xl sm:text-3xl">O caminho da aprendizagem</h2>
+      <p className="mb-5 text-center text-sm text-muted-foreground">Cada nó é uma mini-lição, com sons, animações e mascotes.</p>
       <div className="relative mx-auto max-w-md">
         {nodes.map((n, i) => (
           <motion.div
             key={n.t}
-            initial={{ opacity: 0, x: i % 2 === 0 ? -20 : 20 }}
+            initial={{ opacity: 0, x: i % 2 === 0 ? -16 : 16 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
-            transition={{ delay: i * 0.08 }}
+            transition={{ delay: i * 0.06 }}
             className={`relative mb-4 flex items-center gap-3 ${i % 2 === 0 ? "ml-0 mr-auto" : "ml-auto mr-0"}`}
             style={{ width: "min(85%, 22rem)" }}
           >
-            <div className={`grid h-16 w-16 shrink-0 place-items-center rounded-full text-3xl shadow-md ring-4 ring-card ${n.tone}`}>
+            <div className={`grid h-14 w-14 shrink-0 place-items-center rounded-full text-2xl shadow-md ring-4 ring-card ${n.tone}`}>
               {n.e}
             </div>
             <div className="card-chunky flex-1 rounded-2xl border border-border bg-card px-4 py-3">
@@ -261,8 +284,8 @@ const TESTIMONIALS = [
 
 function Testimonials() {
   return (
-    <section className="mt-8 w-full sm:mt-12">
-      <h2 className="mb-1 font-display text-2xl sm:text-3xl">O que dizem pais e professores</h2>
+    <section className="mt-12 w-full sm:mt-16">
+      <h2 className="mb-2 font-display text-2xl sm:text-3xl">O que dizem pais e professores</h2>
       <p className="mb-5 text-sm text-muted-foreground">Famílias reais a aprender com a Kidoz em Portugal e países PALOP.</p>
       <div className="grid gap-3 sm:gap-4 md:grid-cols-3">
         {TESTIMONIALS.map((t, i) => (
@@ -275,7 +298,7 @@ function Testimonials() {
             className="card-chunky rounded-3xl border border-border bg-card p-4 text-left sm:p-5"
           >
             <div className="mb-2 flex gap-0.5 text-xp text-sm">★★★★★</div>
-            <blockquote className="text-sm leading-snug">“{t.text}”</blockquote>
+            <blockquote className="text-sm leading-snug">"{t.text}"</blockquote>
             <figcaption className="mt-3 flex items-center gap-2 text-xs">
               <span className="text-2xl">{t.emoji}</span>
               <div>
@@ -297,13 +320,13 @@ function FloatingDecor() {
       {items.map((e, i) => (
         <motion.span
           key={i}
-          className="absolute text-2xl opacity-60 sm:text-3xl sm:opacity-70"
+          className="absolute text-xl opacity-40 sm:text-2xl sm:opacity-50"
           style={{
             left: `${(i * 17 + 8) % 95}%`,
             top: `${(i * 23 + 10) % 80}%`,
           }}
-          animate={{ y: [0, -15, 0], rotate: [0, 8, -8, 0] }}
-          transition={{ duration: 4 + i, repeat: Infinity, delay: i * 0.3 }}
+          animate={{ y: [0, -8, 0], rotate: [0, 4, -4, 0] }}
+          transition={{ duration: 5 + i, repeat: Infinity, delay: i * 0.7 }}
         >
           {e}
         </motion.span>

@@ -47,14 +47,19 @@ const DEFAULT: RegionInfo = REGIONS.PT;
 export function detectRegion(): RegionInfo {
   if (typeof navigator === "undefined") return DEFAULT;
   const langs = [navigator.language, ...(navigator.languages ?? [])];
+
+  // 1) Check browser language for an exact Portuguese-locale country match
   for (const l of langs) {
     if (!l) continue;
     const m = l.match(/[-_]([A-Za-z]{2})/);
     if (m) {
       const cc = m[1].toUpperCase() as RegionCode;
-      if (REGIONS[cc]) return REGIONS[cc];
+      // Only match Portuguese-speaking or known app regions
+      if (REGIONS[cc] && REGIONS[cc].language === "pt") return REGIONS[cc];
     }
   }
+
+  // 2) Try timezone-based detection (works for PT, BR, MZ, AO, CV, ZA, GB)
   try {
     const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
     const cc = TZ_TO_COUNTRY[tz];
@@ -65,7 +70,18 @@ export function detectRegion(): RegionInfo {
   } catch {
     /* noop */
   }
-  if (langs.some((l) => l?.toLowerCase().startsWith("en"))) return REGIONS.US;
+
+  // 3) If browser explicitly sets en-XX for a known EN region, use it
+  for (const l of langs) {
+    if (!l) continue;
+    const m = l.match(/[-_]([A-Za-z]{2})/);
+    if (m) {
+      const cc = m[1].toUpperCase() as RegionCode;
+      if (REGIONS[cc] && REGIONS[cc].language === "en") return REGIONS[cc];
+    }
+  }
+
+  // 4) Default to Portugal — this is a Portuguese-education app
   return DEFAULT;
 }
 
