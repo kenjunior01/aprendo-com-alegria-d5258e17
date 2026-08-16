@@ -10,16 +10,12 @@
   --font-sans: "Nunito", ui-sans-serif, system-ui;
   --font-display: "Fredoka", "Nunito", system-ui;
 
-  /* ─── Spacing Scale (4px base) ─── */
-  --spacing-2xs: 2px;
-  --spacing-xs: 4px;
-  --spacing-sm: 8px;
-  --spacing-md: 12px;
-  --spacing-lg: 16px;
-  --spacing-xl: 24px;
-  --spacing-2xl: 32px;
-  --spacing-3xl: 48px;
-  --spacing-4xl: 64px;
+  /* ─── Spacing Scale ───
+   * NOTE: Removed named --spacing-* variables (xs, sm, md, lg, xl, etc.)
+   * because they collided with --container-* names and broke max-w-* utilities.
+   * Tailwind v4's default --spacing: 0.25rem (4px) base provides the numeric
+   * scale: p-1=4px, p-2=8px, p-3=12px, p-4=16px, p-6=24px, p-8=32px, etc.
+   */
 
   /* ─── Container Widths (max-w-*) ─── */
   --container-3xs: 16rem;
