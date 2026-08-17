@@ -275,7 +275,7 @@ function ParentDashboard() {
         </div>
         {menuOpen && (
           <div className="border-t border-border bg-card/95 px-3 py-2 md:hidden">
-            <div className="mx-auto grid max-w-md grid-cols-3 gap-2">
+            <div className="mx-auto grid max-w-[28rem] grid-cols-3 gap-2">
               <Link to="/escola" onClick={() => setMenuOpen(false)} className="flex flex-col items-center gap-1 rounded-2xl border border-border bg-background px-2 py-2.5 text-xs font-display">
                 <School className="h-4 w-4" /> Escola
               </Link>

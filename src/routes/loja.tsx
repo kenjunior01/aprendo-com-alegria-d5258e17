@@ -96,7 +96,7 @@ function ShopPage() {
     <div className="min-h-[100dvh] bg-background pb-24 md:pb-12">
       <TopBar profile={profile} />
 
-      <main id="main-content" className="mx-auto max-w-3xl px-3 py-4 sm:px-4 sm:py-6">
+      <main id="main-content" className="mx-auto max-w-[48rem] px-3 py-4 sm:px-4 sm:py-6">
         {/* Hero */}
         <motion.section
           initial={{ opacity: 0, y: 10 }}

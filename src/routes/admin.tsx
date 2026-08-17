@@ -110,7 +110,7 @@ function BootstrapOrDeny({ userId }: { userId: string }) {
   };
   return (
     <div className="min-h-screen grid place-items-center bg-background p-6">
-      <Card className="max-w-md p-8 text-center space-y-4">
+      <Card className="max-w-[28rem] p-8 text-center space-y-4">
         <Shield className="h-10 w-10 mx-auto text-primary" />
         <h1 className="text-2xl font-bold">Acesso restrito</h1>
         <p className="text-muted-foreground">
@@ -871,7 +871,7 @@ function ContentDialog({ open, onOpenChange, value, onSaved }: {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-[48rem] max-h-[90vh] overflow-y-auto">
         <DialogHeader><DialogTitle>{draft.id ? "Editar conteúdo" : "Novo conteúdo"}</DialogTitle><DialogDescription className="text-sm text-muted-foreground">Formulário para criar ou editar conteúdo educativo.</DialogDescription></DialogHeader>
         <div className="space-y-3">
           <div className="grid grid-cols-2 gap-2">
@@ -1086,7 +1086,7 @@ function ShopDialog({ open, onOpenChange, value, onSaved }: {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-[32rem] max-h-[90vh] overflow-y-auto">
         <DialogHeader><DialogTitle>{isNew ? "Novo item da loja" : "Editar item"}</DialogTitle><DialogDescription className="text-sm text-muted-foreground">Formulário para criar ou editar um item da loja.</DialogDescription></DialogHeader>
         {showPreview ? (
           <Card className="p-6 bg-gradient-to-br from-primary/5 to-accent/5">
@@ -1525,7 +1525,7 @@ function AuditTab() {
         placeholder="Procurar por entidade, ID, admin ou valor alterado..."
         value={search}
         onChange={(e) => setSearch(e.target.value)}
-        className="max-w-md"
+        className="max-w-[28rem]"
       />
       {loading ? (
         <Loader2 className="h-5 w-5 animate-spin" />
@@ -1589,7 +1589,7 @@ function AuditTab() {
       )}
 
       <Dialog open={!!detail} onOpenChange={(o) => { if (!o) setDetail(null); }}>
-        <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
+        <DialogContent className="max-w-[48rem] max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Detalhe do registo</DialogTitle>
             <DialogDescription className="text-sm text-muted-foreground">Informação detalhada de um registo de auditoria.</DialogDescription>

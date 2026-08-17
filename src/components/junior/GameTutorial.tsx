@@ -72,7 +72,7 @@ export function GameTutorial({ gameId, title, steps, onStart, forceShow, parentN
         exit={{ opacity: 0 }}
         className="absolute inset-0 z-20 flex items-center justify-center rounded-3xl bg-background/95 p-4 backdrop-blur-sm"
       >
-        <div className="card-chunky w-full max-w-md rounded-3xl border-2 border-border bg-card p-5 text-center shadow-xl">
+        <div className="card-chunky w-full max-w-[28rem] rounded-3xl border-2 border-border bg-card p-5 text-center shadow-xl">
           <p className="font-display text-lg text-muted-foreground">Como jogar — {title}</p>
           <motion.div
             key={idx}

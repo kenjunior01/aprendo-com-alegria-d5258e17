@@ -139,7 +139,7 @@ export function LessonCompleteScreen({
         <div className="absolute left-1/2 top-1/3 h-48 w-48 -translate-x-1/2 rounded-full bg-xp/5 blur-3xl" />
       </div>
 
-      <div className="relative z-10 flex w-full max-w-md flex-col items-center">
+      <div className="relative z-10 flex w-full max-w-[28rem] flex-col items-center">
         {/* ── 1. Mascot celebration ── */}
         <motion.div
           initial={{ scale: 0, y: 30 }}

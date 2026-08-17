@@ -251,7 +251,7 @@ export function GameTriviaJr({ onDone }: { onDone?: () => void }) {
       <motion.div key={idx} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="text-lg font-semibold px-2">
         {q.prompt}
       </motion.div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-w-md mx-auto">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-w-[28rem] mx-auto">
         {q.options.map((o, i) => {
           const isCorrect = picked !== null && i === q.answerIndex;
           const isWrong = picked === i && i !== q.answerIndex;

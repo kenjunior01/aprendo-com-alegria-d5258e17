@@ -13,7 +13,7 @@ function CheckoutReturn() {
   const { session_id } = Route.useSearch();
   return (
     <div className="min-h-[100dvh] bg-background flex items-center justify-center p-6" id="main-content">
-      <div className="card-chunky max-w-md rounded-3xl border border-border bg-card p-8 text-center">
+      <div className="card-chunky max-w-[28rem] rounded-3xl border border-border bg-card p-8 text-center">
         {session_id ? (
           <>
             <h1 className="font-display text-3xl">🎉 Bem-vindo ao Premium!</h1>

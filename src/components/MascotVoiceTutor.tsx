@@ -220,7 +220,7 @@ export function MascotVoiceTutor({ mascotId, equippedItemId, className, profile,
       </div>
 
       {energy && (
-        <div className="w-full max-w-xs">
+        <div className="w-full max-w-[20rem]">
           <div className="mb-1 flex items-center justify-between text-xs">
             <span className="inline-flex items-center gap-1 font-medium">
               <Zap className="h-3.5 w-3.5 text-xp" />

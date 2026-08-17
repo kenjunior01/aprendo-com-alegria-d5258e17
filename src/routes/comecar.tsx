@@ -76,7 +76,7 @@ function Onboarding() {
 
   return (
     <main id="main-content" className="bg-paper min-h-[100dvh] px-4 py-6 sm:py-10">
-      <div className="mx-auto max-w-lg">
+      <div className="mx-auto max-w-[32rem]">
         <div className="mb-4 flex justify-center">
           <AlegriaLogo priority className="h-12 w-auto sm:h-14" />
         </div>
@@ -154,7 +154,7 @@ function Onboarding() {
                 onChange={(e) => setName(e.target.value)}
                 maxLength={20}
                 placeholder={role === "parent" ? "O teu nome" : "O teu nome"}
-                className="w-full max-w-sm rounded-2xl border-2 border-border bg-card px-5 py-4 text-center font-display text-xl outline-none focus:border-primary"
+                className="w-full max-w-[24rem] rounded-2xl border-2 border-border bg-card px-5 py-4 text-center font-display text-xl outline-none focus:border-primary"
                 autoFocus
               />
               <div className="flex w-full flex-col gap-3 sm:flex-row">

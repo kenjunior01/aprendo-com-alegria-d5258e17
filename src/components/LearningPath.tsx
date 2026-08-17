@@ -183,7 +183,7 @@ function PathChapter({
       </motion.div>
 
       {/* ── Winding Path ── */}
-      <div className="relative mx-auto max-w-md">
+      <div className="relative mx-auto max-w-[28rem]">
         {/* SVG connecting path */}
         <svg
           className="pointer-events-none absolute inset-0 h-full w-full"

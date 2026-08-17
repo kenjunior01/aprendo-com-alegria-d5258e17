@@ -239,7 +239,7 @@ function JuniorPage() {
       </main>
 
       <Dialog open={!!active} onOpenChange={(o) => !o && setActive(null)}>
-        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-[48rem] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="font-display text-2xl flex items-center justify-between gap-3 flex-wrap">
               <span>{active?.emoji} {active?.title}</span>

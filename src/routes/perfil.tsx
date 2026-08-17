@@ -89,7 +89,7 @@ function ProfilePage() {
   return (
     <div className="min-h-[100dvh] bg-background pb-24 md:pb-12">
       <TopBar profile={profile} />
-      <main id="main-content" className="mx-auto max-w-3xl px-4 py-6 sm:py-8">
+      <main id="main-content" className="mx-auto max-w-[48rem] px-4 py-6 sm:py-8">
         <div className="card-chunky rounded-3xl border border-border bg-card p-5 text-center sm:p-6">
           <Mascot id={profile.mascot} size="xl" bouncing equippedItemId={profile.equippedItem} />
           <h1 className="mt-2 font-display text-2xl sm:text-3xl">{profile.name}</h1>

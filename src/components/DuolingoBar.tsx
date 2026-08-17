@@ -275,7 +275,7 @@ export function StreakCelebration({ streak, onDismiss }: { streak: number; onDis
         animate={{ scale: 1, y: 0 }}
         exit={{ scale: 0.5, y: 50 }}
         transition={{ type: "spring", damping: 15 }}
-        className="card-premium mx-4 max-w-sm rounded-3xl bg-card p-8 text-center"
+        className="card-premium mx-4 max-w-[24rem] rounded-3xl bg-card p-8 text-center"
         onClick={(e) => e.stopPropagation()}
       >
         <motion.div
@@ -309,7 +309,7 @@ export function HeartRefillNotification({ hearts, onDismiss }: { hearts: number;
       initial={{ y: -100, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       exit={{ y: -100, opacity: 0 }}
-      className="fixed left-4 right-4 top-4 z-40 mx-auto max-w-sm rounded-2xl border border-red-200 bg-red-50 p-4 shadow-lg dark:border-red-800 dark:bg-red-950/50"
+      className="fixed left-4 right-4 top-4 z-40 mx-auto max-w-[24rem] rounded-2xl border border-red-200 bg-red-50 p-4 shadow-lg dark:border-red-800 dark:bg-red-950/50"
     >
       <div className="flex items-center gap-3">
         <div className="flex h-10 w-10 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/40">

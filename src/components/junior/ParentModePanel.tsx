@@ -48,7 +48,7 @@ export function ParentModePanel({ gameId, title }: { gameId: string; title: stri
               animate={{ y: 0, opacity: 1 }}
               exit={{ y: 20, opacity: 0 }}
               onClick={(e) => e.stopPropagation()}
-              className="w-full max-w-lg space-y-3 rounded-3xl border-2 border-border bg-card p-5 shadow-xl"
+              className="w-full max-w-[32rem] space-y-3 rounded-3xl border-2 border-border bg-card p-5 shadow-xl"
             >
               <header className="flex items-center justify-between">
                 <p className="font-display text-lg">👨‍👩‍👧 Modo Pais — {title}</p>

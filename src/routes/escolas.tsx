@@ -130,7 +130,7 @@ function EscolasPage() {
           <h1 className="mt-3 font-display text-3xl sm:text-4xl">
             Kidoz para Escolas
           </h1>
-          <p className="mx-auto mt-3 max-w-3xl text-base text-muted-foreground sm:text-lg">
+          <p className="mx-auto mt-3 max-w-[48rem] text-base text-muted-foreground sm:text-lg">
             Uma plataforma de aprendizagem lúdica para a tua escola, adaptada à
             realidade dos países lusófonos. Paga apenas pelos alunos que usam.
           </p>
@@ -271,7 +271,7 @@ function EscolasPage() {
       </main>
 
       <Dialog open={checkoutOpen} onOpenChange={setCheckoutOpen}>
-        <DialogContent className="max-h-[90vh] max-w-3xl overflow-y-auto">
+        <DialogContent className="max-h-[90vh] max-w-[48rem] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
               Subscrição Escolas — {students} alunos

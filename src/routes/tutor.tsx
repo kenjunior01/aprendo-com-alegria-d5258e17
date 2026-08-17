@@ -178,7 +178,7 @@ function TutorChat() {
   return (
     <div className="min-h-[100dvh] bg-sky-island pb-24 md:pb-12">
       <TopBar profile={profile} />
-      <main id="main-content" className="mx-auto flex max-w-3xl flex-col px-4 py-4" style={{ minHeight: "calc(100dvh - 4rem)" }}>
+      <main id="main-content" className="mx-auto flex max-w-[48rem] flex-col px-4 py-4" style={{ minHeight: "calc(100dvh - 4rem)" }}>
         <Link to="/app" className="mb-2 inline-flex items-center gap-1 text-sm font-display text-muted-foreground hover:text-foreground">
           <ArrowLeft className="h-4 w-4" /> Aventura
         </Link>

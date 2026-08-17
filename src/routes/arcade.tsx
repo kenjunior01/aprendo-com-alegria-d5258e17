@@ -111,7 +111,7 @@ function ArcadePage() {
         </div>
       </header>
 
-      <main id="main-content" className="mx-auto max-w-3xl px-4">
+      <main id="main-content" className="mx-auto max-w-[48rem] px-4">
         {!run && (
           <motion.section initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="text-center">
             <h1 className="font-display text-4xl sm:text-5xl">🕹️ Modo Arcade</h1>

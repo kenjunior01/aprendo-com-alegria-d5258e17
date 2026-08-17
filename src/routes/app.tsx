@@ -72,7 +72,7 @@ function AppHome() {
     <div className="min-h-[100dvh] bg-background pb-28 md:pb-12">
       <TopBar profile={profile} />
 
-      <main id="main-content" className="mx-auto max-w-4xl px-4 py-4 sm:py-6">
+      <main id="main-content" className="mx-auto max-w-[56rem] px-4 py-4 sm:py-6">
         <h1 className="sr-only">A minha aventura no Kidoz — caminho de aprendizagem de {profile.name}</h1>
         {/* Hero greeting */}
         <motion.section
@@ -234,7 +234,7 @@ function ChapterPath({ chapter, completedLessons }: { chapter: Chapter; complete
       </div>
 
       {/* Path of nodes */}
-      <ol className="relative mx-auto max-w-md">
+      <ol className="relative mx-auto max-w-[28rem]">
         {missions.map((mission, idx) => {
           const isDone = completed.has(mission.lessonId);
           const isActive = idx === activeIdx;

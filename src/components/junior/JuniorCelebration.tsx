@@ -57,7 +57,7 @@ export function JuniorCelebration({ open, sticker, mascot, isNew, onClose }: Pro
             exit={{ scale: 0.8, opacity: 0 }}
             transition={{ type: "spring", stiffness: 220, damping: 18 }}
             onClick={(e) => e.stopPropagation()}
-            className="card-chunky relative z-10 w-full max-w-sm rounded-3xl border-4 border-primary bg-card p-6 text-center"
+            className="card-chunky relative z-10 w-full max-w-[24rem] rounded-3xl border-4 border-primary bg-card p-6 text-center"
           >
             <div className="flex justify-center">
               <Mascot id={mascot} size="xl" bouncing />

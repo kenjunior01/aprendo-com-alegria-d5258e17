@@ -23,7 +23,7 @@ export const Route = createFileRoute("/privacidade")({
 function PrivacidadePage() {
   return (
     <main id="main-content" className="min-h-[100dvh] bg-background pb-12 pt-6">
-      <div className="mx-auto max-w-4xl px-4 sm:px-6">
+      <div className="mx-auto max-w-[56rem] px-4 sm:px-6">
         <h1 className="font-display text-3xl sm:text-4xl">Política de Privacidade</h1>
         <p className="mt-2 text-sm text-muted-foreground">
           Última atualização: 4 de março de 2025

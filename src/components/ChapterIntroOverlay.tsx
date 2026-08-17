@@ -38,7 +38,7 @@ export function ChapterIntroOverlay({ open, variant, story, mascotId, childName,
             exit={{ y: 30, scale: 0.94, opacity: 0 }}
             transition={{ type: "spring", stiffness: 220, damping: 22 }}
             onClick={(e) => e.stopPropagation()}
-            className="card-chunky relative w-full max-w-md overflow-hidden rounded-3xl border-2 border-border bg-card p-5 sm:p-6"
+            className="card-chunky relative w-full max-w-[28rem] overflow-hidden rounded-3xl border-2 border-border bg-card p-5 sm:p-6"
           >
             <button
               type="button"

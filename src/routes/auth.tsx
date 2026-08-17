@@ -100,7 +100,7 @@ function AuthPage() {
 
   return (
     <main id="main-content" className="bg-paper relative min-h-[100dvh] overflow-hidden px-4 py-8">
-      <div className="mx-auto flex w-full max-w-md flex-col items-center">
+      <div className="mx-auto flex w-full max-w-[28rem] flex-col items-center">
         <AlegriaLogo priority className="mb-2 h-14 w-auto" />
         <motion.div
           initial={{ scale: 0.8, opacity: 0 }}

@@ -108,7 +108,7 @@ function DesafiosPage() {
     <div className="min-h-[100dvh] bg-slate-50 pb-28 md:pb-12">
       <TopBar profile={profile} />
 
-      <main id="main-content" className="mx-auto max-w-3xl px-4 py-6">
+      <main id="main-content" className="mx-auto max-w-[48rem] px-4 py-6">
         {/* Spectacular Arena Hero */}
         <motion.section
           initial={{ opacity: 0, scale: 0.95 }}
@@ -587,7 +587,7 @@ function ChallengeFriendDialog({
           <Swords className="mr-1 h-4 w-4" />DESAFIAR
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-md rounded-[2rem]">
+      <DialogContent className="max-w-[28rem] rounded-[2rem]">
         <DialogHeader>
           <DialogTitle className="font-display text-2xl">Desafiar {friendName}</DialogTitle>
           <DialogDescription className="text-sm text-muted-foreground">Inicia um desafio PvP contra este amigo.</DialogDescription>

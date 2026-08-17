@@ -126,7 +126,7 @@ function CrechesPage() {
             <Sparkles className="h-7 w-7" />
           </div>
           <h1 className="mt-3 font-display text-3xl sm:text-4xl">Kidoz para Creches</h1>
-          <p className="mx-auto mt-3 max-w-3xl text-base text-muted-foreground sm:text-lg">
+          <p className="mx-auto mt-3 max-w-[48rem] text-base text-muted-foreground sm:text-lg">
             Kidoz Júnior (2-5 anos) integrado no teu jardim de infância, com painel Kidoz Pro
             para educadores e portal seguro de comunicação com as famílias.
           </p>
@@ -198,7 +198,7 @@ function CrechesPage() {
       </main>
 
       <Dialog open={!!checkoutTier} onOpenChange={(o) => !o && setCheckoutTier(null)}>
-        <DialogContent className="max-h-[90vh] max-w-3xl overflow-y-auto">
+        <DialogContent className="max-h-[90vh] max-w-[48rem] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Subscrição Kidoz Creches — {checkoutTier?.name}</DialogTitle>
             <DialogDescription className="text-sm text-muted-foreground">Checkout seguro para a subscrição do plano Creches.</DialogDescription>

@@ -136,7 +136,7 @@ function MundoPage() {
     <div className="min-h-[100dvh] pb-24 sm:pb-6" id="main-content">
       <TopBar profile={profile} />
 
-      <div className="mx-auto max-w-3xl px-3 py-4 sm:px-4">
+      <div className="mx-auto max-w-[48rem] px-3 py-4 sm:px-4">
         <div className="mb-3 flex items-center justify-between gap-2">
           <Link to="/app" className="inline-flex items-center gap-1 text-sm font-display text-muted-foreground">
             <ArrowLeft className="h-4 w-4" /> Voltar

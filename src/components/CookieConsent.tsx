@@ -56,7 +56,7 @@ export function CookieConsent() {
       aria-modal="false"
       aria-label="Consentimento de cookies"
     >
-      <div className="mx-auto max-w-2xl px-4 py-3 sm:px-5 sm:py-3.5">
+      <div className="mx-auto max-w-[42rem] px-4 py-3 sm:px-5 sm:py-3.5">
         <div className="flex flex-col gap-2.5 sm:flex-row sm:items-center sm:gap-3">
           <div className="flex items-start gap-2 sm:items-center">
             <Cookie className="h-4 w-4 shrink-0 text-primary mt-0.5 sm:mt-0" aria-hidden="true" />

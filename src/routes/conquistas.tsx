@@ -105,7 +105,7 @@ function AchievementsPage() {
   return (
     <div className="min-h-[100dvh] bg-background pb-24 md:pb-12">
       {profile && <TopBar profile={profile} />}
-      <main id="main-content" className="mx-auto max-w-3xl px-4 py-6 sm:py-8">
+      <main id="main-content" className="mx-auto max-w-[48rem] px-4 py-6 sm:py-8">
         <header className="mb-6 text-center">
           <div className="inline-flex h-16 w-16 items-center justify-center rounded-full bg-primary/15">
             <Trophy className="h-8 w-8 text-primary" />

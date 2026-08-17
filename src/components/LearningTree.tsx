@@ -117,7 +117,7 @@ function TreeBranch({
       </div>
 
       {/* Tree path — winding nodes with connecting lines */}
-      <div className="relative mx-auto max-w-sm">
+      <div className="relative mx-auto max-w-[24rem]">
         {/* Vertical connecting line */}
         <div
           className="absolute left-1/2 top-0 h-full w-1 -translate-x-1/2 rounded-full bg-muted/50"

@@ -112,7 +112,7 @@ export function ParentGate({
       <motion.div
         initial={{ opacity: 0, y: 12, scale: 0.96 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
-        className="card-chunky w-full max-w-md rounded-3xl border-2 border-border bg-card p-6"
+        className="card-chunky w-full max-w-[28rem] rounded-3xl border-2 border-border bg-card p-6"
       >
         <div className="flex items-center gap-3">
           <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/15 text-primary">

@@ -97,7 +97,7 @@ function Landing() {
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.2, duration: 0.5 }}
-          className="mt-3 max-w-xl text-base text-foreground/80 sm:mt-4 sm:text-lg md:text-xl"
+          className="mt-3 max-w-[36rem] text-base text-foreground/80 sm:mt-4 sm:text-lg md:text-xl"
         >
           Português, Matemática e Estudo do Meio com mascotes divertidas, lições curtas e muitas estrelinhas. ✨
         </motion.p>
@@ -124,7 +124,7 @@ function Landing() {
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.55 }}
-          className="flex w-full max-w-sm flex-col items-stretch gap-3 sm:max-w-none sm:flex-row"
+          className="flex w-full max-w-[24rem] flex-col items-stretch gap-3 sm:max-w-none sm:flex-row"
         >
           <Link to="/comecar" className="flex-1 sm:flex-none">
             <ChunkyButton tone="primary" className="w-full text-base sm:text-lg">
@@ -171,7 +171,7 @@ function Landing() {
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
-          className="mt-8 flex w-full max-w-md flex-col items-stretch gap-3 sm:mt-12 sm:max-w-none sm:flex-row sm:justify-center"
+          className="mt-8 flex w-full max-w-[28rem] flex-col items-stretch gap-3 sm:mt-12 sm:max-w-none sm:flex-row sm:justify-center"
         >
           <Link to="/junior" className="flex-1 sm:flex-none">
             <ChunkyButton tone="secondary" className="w-full">🌱 Júnior — 2 a 5 anos</ChunkyButton>
@@ -241,7 +241,7 @@ function LessonPathPreview() {
     <section className="mt-12 w-full sm:mt-16">
       <h2 className="mb-2 text-center font-display text-2xl sm:text-3xl">O caminho da aprendizagem</h2>
       <p className="mb-5 text-center text-sm text-muted-foreground">Cada nó é uma mini-lição, com sons, animações e mascotes.</p>
-      <div className="relative mx-auto max-w-md">
+      <div className="relative mx-auto max-w-[28rem]">
         {nodes.map((n, i) => (
           <motion.div
             key={n.t}

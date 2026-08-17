@@ -74,7 +74,7 @@ function ChapterPage() {
     <div className="min-h-[100dvh] bg-background pb-24 md:pb-12">
       <TopBar profile={profile} />
 
-      <main className="mx-auto max-w-3xl px-3 py-4 sm:px-4 sm:py-6">
+      <main className="mx-auto max-w-[48rem] px-3 py-4 sm:px-4 sm:py-6">
         <Link to="/app" className="mb-3 inline-flex items-center gap-1 text-sm font-display text-muted-foreground hover:text-foreground">
           <ArrowLeft className="h-4 w-4" /> Aventura
         </Link>
@@ -95,7 +95,7 @@ function ChapterPage() {
           <h1 className="mt-1 font-display text-3xl leading-tight sm:text-4xl">
             {chapter.title}
           </h1>
-          <p className="mt-3 max-w-md text-sm leading-relaxed text-foreground/85 sm:text-base">
+          <p className="mt-3 max-w-[28rem] text-sm leading-relaxed text-foreground/85 sm:text-base">
             {chapter.story}
           </p>
 

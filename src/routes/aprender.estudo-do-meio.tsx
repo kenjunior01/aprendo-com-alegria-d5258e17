@@ -42,7 +42,7 @@ const TOPICS = [
 function EstudoDoMeioPage() {
   return (
     <main id="main-content" className="bg-sky-island min-h-[100dvh]">
-      <article className="mx-auto max-w-3xl px-5 py-10">
+      <article className="mx-auto max-w-[48rem] px-5 py-10">
         <Link to="/" className="text-sm text-muted-foreground hover:text-foreground">← Início</Link>
         <h1 className="mt-3 font-display text-4xl sm:text-5xl">Descobrir o Estudo do Meio</h1>
         <p className="mt-3 text-base text-foreground/80">

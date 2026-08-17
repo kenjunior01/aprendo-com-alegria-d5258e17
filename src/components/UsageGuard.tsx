@@ -72,7 +72,7 @@ export function UsageGuard() {
       aria-label={bed ? "Hora de descansar" : "Tempo de hoje terminou"}
       className="fixed inset-0 z-50 flex items-center justify-center bg-background/95 p-6 text-center backdrop-blur"
     >
-      <div className="card-chunky w-full max-w-sm rounded-3xl border-2 border-border bg-card p-6">
+      <div className="card-chunky w-full max-w-[24rem] rounded-3xl border-2 border-border bg-card p-6">
         <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/15 text-primary">
           {bed ? <Moon className="h-8 w-8" /> : <Hourglass className="h-8 w-8" />}
         </div>

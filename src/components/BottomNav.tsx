@@ -47,7 +47,7 @@ export function BottomNav() {
       className="glass-premium fixed inset-x-0 bottom-0 z-40 border-t border-border/50 md:hidden"
       style={{ paddingBottom: "max(0.35rem, env(safe-area-inset-bottom))" }}
     >
-      <ul className="mx-auto flex max-w-md items-stretch justify-around px-1 pt-1">
+      <ul className="mx-auto flex max-w-[28rem] items-stretch justify-around px-1 pt-1">
         {items.map((item) => {
           const active = item.match(path);
           const Icon = item.icon;

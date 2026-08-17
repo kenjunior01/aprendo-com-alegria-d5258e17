@@ -368,7 +368,7 @@ export function MascotRoom({ profile }: Props) {
           <motion.div
             initial={{ opacity: 0, scale: 0.8, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            className="z-50 w-full max-w-sm rounded-[2.5rem] border-4 border-white bg-white/90 p-8 shadow-2xl backdrop-blur-xl"
+            className="z-50 w-full max-w-[24rem] rounded-[2.5rem] border-4 border-white bg-white/90 p-8 shadow-2xl backdrop-blur-xl"
           >
             <div className="mb-6 text-center">
               <span className="inline-block rounded-full bg-blue-100 px-4 py-1 text-[10px] font-black uppercase tracking-widest text-blue-600">
@@ -420,7 +420,7 @@ export function MascotRoom({ profile }: Props) {
             </button>
           </motion.div>
         ) : room === "games" ? (
-          <div className="w-full max-w-md px-6 h-full overflow-y-auto pt-10 pb-20 scrollbar-none">
+          <div className="w-full max-w-[28rem] px-6 h-full overflow-y-auto pt-10 pb-20 scrollbar-none">
             {!selectedGame ? (
               <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="grid grid-cols-2 gap-4 pb-10">
                 {miniGames.map((game) => (
@@ -508,7 +508,7 @@ export function MascotRoom({ profile }: Props) {
       </div>
 
       <div className="relative z-10 p-6 pb-12">
-        <div className="mx-auto flex max-w-lg justify-between gap-2 rounded-[2.5rem] border border-white/40 bg-white/40 p-4 shadow-[0_20px_50px_rgba(0,0,0,0.1)] backdrop-blur-2xl">
+        <div className="mx-auto flex max-w-[32rem] justify-between gap-2 rounded-[2.5rem] border border-white/40 bg-white/40 p-4 shadow-[0_20px_50px_rgba(0,0,0,0.1)] backdrop-blur-2xl">
           {stats.map((stat) => (
             <div key={stat.id} className="flex flex-col items-center gap-2">
               <motion.button whileHover={{ y: -5 }} whileTap={{ scale: 0.85 }} onClick={() => { setRoom(stat.room); handleStatAction(stat.id); }} aria-label={`${stat.label}: ${Math.round(stat.value)}%`} className={cn("relative flex h-16 w-16 items-center justify-center rounded-3xl border-4 border-white shadow-xl transition-all", room === stat.room ? stat.color : "bg-white/90")}>
