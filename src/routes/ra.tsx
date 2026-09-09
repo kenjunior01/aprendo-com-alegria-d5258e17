@@ -10,48 +10,73 @@ import { MASCOTS, type MascotId } from "@/lib/mascots";
 import { loadProfile, updateProfile, type Profile } from "@/lib/storage";
 import { isPremium } from "@/lib/premium";
 import { LAB_MISSIONS, checkAnswer, type LabMission } from "@/lib/labMissions";
-import { ArrowLeft, Camera, Sparkles, Lock, FlaskConical, Target, RotateCcw, Trophy } from "lucide-react";
+import {
+  ArrowLeft,
+  Camera,
+  Sparkles,
+  Lock,
+  FlaskConical,
+  Target,
+  RotateCcw,
+  Trophy,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { RouteError } from "@/components/RouteError";
+import { KidLoader } from "@/components/KidLoader";
 
 type LabModelId = "astronaut" | "robot" | "horse" | "helmet" | "duck" | "fox-3d";
 
 const LAB_MODELS: { id: LabModelId; src: string; label: string; fact: string }[] = [
-  { id: "astronaut", src: "https://modelviewer.dev/shared-assets/models/Astronaut.glb",
+  {
+    id: "astronaut",
+    src: "https://modelviewer.dev/shared-assets/models/Astronaut.glb",
     label: "🚀 Astronauta no Espaço",
-    fact: "Os astronautas flutuam porque na Estação Espacial estão em queda livre à volta da Terra." },
-  { id: "robot", src: "https://modelviewer.dev/shared-assets/models/RobotExpressive.glb",
+    fact: "Os astronautas flutuam porque na Estação Espacial estão em queda livre à volta da Terra.",
+  },
+  {
+    id: "robot",
+    src: "https://modelviewer.dev/shared-assets/models/RobotExpressive.glb",
     label: "🤖 Robot Expressivo",
-    fact: "Os robots seguem instruções (programas). Tu também podes aprender a programar!" },
-  { id: "horse", src: "https://modelviewer.dev/shared-assets/models/Horse.glb",
+    fact: "Os robots seguem instruções (programas). Tu também podes aprender a programar!",
+  },
+  {
+    id: "horse",
+    src: "https://modelviewer.dev/shared-assets/models/Horse.glb",
     label: "🐎 Cavalo a Galopar",
-    fact: "Um cavalo pode correr até 70 km/h — quase tão rápido como um carro na cidade!" },
-  { id: "helmet", src: "https://modelviewer.dev/shared-assets/models/DamagedHelmet/glTF/DamagedHelmet.gltf",
+    fact: "Um cavalo pode correr até 70 km/h — quase tão rápido como um carro na cidade!",
+  },
+  {
+    id: "helmet",
+    src: "https://modelviewer.dev/shared-assets/models/DamagedHelmet/glTF/DamagedHelmet.gltf",
     label: "🪖 Capacete Antigo",
-    fact: "Capacetes protegem a cabeça. Usa sempre quando andas de bicicleta!" },
-  { id: "duck", src: "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/Duck/glTF-Binary/Duck.glb",
+    fact: "Capacetes protegem a cabeça. Usa sempre quando andas de bicicleta!",
+  },
+  {
+    id: "duck",
+    src: "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/Duck/glTF-Binary/Duck.glb",
     label: "🦆 Pato Amigo",
-    fact: "Os patos têm penas impermeáveis — a água escorre sem os molhar." },
-  { id: "fox-3d", src: "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/Fox/glTF-Binary/Fox.glb",
+    fact: "Os patos têm penas impermeáveis — a água escorre sem os molhar.",
+  },
+  {
+    id: "fox-3d",
+    src: "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/Fox/glTF-Binary/Fox.glb",
     label: "🦊 Raposa Curiosa",
-    fact: "As raposas comunicam com mais de 40 sons diferentes!" },
+    fact: "As raposas comunicam com mais de 40 sons diferentes!",
+  },
 ];
 
-// @ts-ignore TanStack Router file-route type resolution
 export const Route = createFileRoute("/ra")({
   head: () => ({
     meta: [
       { title: "Realidade Aumentada — Kidoz" },
       { name: "description", content: "Vê os mascotes do Kidoz no teu mundo real, em 3D!" },
-      { property: "og:title", content: 'Realidade Aumentada — Kidoz' },
-      { property: "og:description", content: 'Vê os mascotes do Kidoz no teu mundo real, em 3D.' },
+      { property: "og:title", content: "Realidade Aumentada — Kidoz" },
+      { property: "og:description", content: "Vê os mascotes do Kidoz no teu mundo real, em 3D." },
       { property: "og:url", content: "https://kidoz.online/ra" },
       { property: "og:image", content: "https://kidoz.online/og-image.jpg" },
       { name: "twitter:image", content: "https://kidoz.online/og-image.jpg" },
     ],
-    links: [
-      { rel: "canonical", href: "https://kidoz.online/ra" },
-    ],
+    links: [{ rel: "canonical", href: "https://kidoz.online/ra" }],
   }),
   component: ARPage,
   errorComponent: RouteError,
@@ -105,11 +130,7 @@ function ARPage() {
     }
   }, [navigate]);
 
-  if (!profile) return (
-    <main id="main-content" className="flex min-h-[60dvh] items-center justify-center">
-      <p className="animate-pulse font-display text-lg text-muted-foreground" role="status" aria-live="polite">A carregar…</p>
-    </main>
-  );
+  if (!profile) return <KidLoader />;
   const premium = isPremium(profile);
   const mascotModel = MODELS[selected];
   const labModel = LAB_MODELS.find((m) => m.id === labSelected)!;
@@ -126,7 +147,10 @@ function ARPage() {
     <div className="min-h-[100dvh] bg-background pb-24 md:pb-12">
       <TopBar profile={profile} />
       <main id="main-content" className="mx-auto max-w-[48rem] px-4 py-6">
-        <Link to="/app" className="mb-3 inline-flex items-center gap-1 text-sm font-display text-muted-foreground hover:text-foreground">
+        <Link
+          to="/app"
+          className="mb-3 inline-flex items-center gap-1 text-sm font-display text-muted-foreground hover:text-foreground"
+        >
           <ArrowLeft className="h-4 w-4" /> Aventura
         </Link>
 
@@ -139,12 +163,17 @@ function ARPage() {
             <Camera className="h-7 w-7 text-primary" />
             <div>
               <h1 className="font-display text-2xl">Mascote no teu mundo 🥽</h1>
-              <p className="text-sm text-muted-foreground">Aponta a câmara para o chão e vê o mascote em 3D!</p>
+              <p className="text-sm text-muted-foreground">
+                Aponta a câmara para o chão e vê o mascote em 3D!
+              </p>
             </div>
           </div>
           {!premium && (
             <div className="mt-3 inline-flex items-center gap-2 rounded-2xl bg-card px-3 py-1.5 text-xs">
-              <Lock className="h-3 w-3" /> Versão de demonstração — <Link to="/premium" className="font-bold text-primary underline">desbloqueia tudo</Link>
+              <Lock className="h-3 w-3" /> Versão de demonstração —{" "}
+              <Link to="/premium" className="font-bold text-primary underline">
+                desbloqueia tudo
+              </Link>
             </div>
           )}
         </motion.section>
@@ -177,84 +206,101 @@ function ARPage() {
           </div>
         ) : (
           <>
-        {/* Picker */}
-        <div className="mt-3 flex flex-wrap gap-2">
-          {tab === "mascot"
-            ? MASCOTS.map((m) => (
-                <button
-                  key={m.id}
-                  onClick={() => setSelected(m.id)}
-                  className={`flex items-center gap-2 rounded-full px-3 py-1.5 font-display text-sm transition-colors ${
-                    selected === m.id ? "bg-primary text-primary-foreground" : "bg-card border border-border"
-                  }`}
-                >
-                  <Mascot id={m.id} size="sm" />
-                  {m.name}
-                </button>
-              ))
-            : LAB_MODELS.map((m) => (
-                <button
-                  key={m.id}
-                  onClick={() => setLabSelected(m.id)}
-                  className={`rounded-full px-3 py-1.5 font-display text-sm transition-colors ${
-                    labSelected === m.id ? "bg-primary text-primary-foreground" : "bg-card border border-border"
-                  }`}
-                >
-                  {m.label}
-                </button>
-              ))}
-        </div>
-
-        {/* Model viewer */}
-        <div className="mt-4 overflow-hidden rounded-3xl border-2 border-border bg-gradient-to-b from-sky-200 to-sky-50 dark:from-slate-800 dark:to-slate-900" style={{ height: "55vh", minHeight: 360 }}>
-          {loaded ? (
-            <model-viewer
-              key={activeKey}
-              src={activeSrc}
-              alt={activeLabel}
-              ar
-              ar-modes="webxr scene-viewer quick-look"
-              camera-controls
-              touch-action="pan-y"
-              auto-rotate
-              shadow-intensity="1"
-              style={{ width: "100%", height: "100%", background: "transparent" }}
-            >
-              <button slot="ar-button" className="btn-chunky absolute bottom-4 left-1/2 -translate-x-1/2 rounded-full bg-primary px-5 py-3 font-display text-white">
-                <Sparkles className="mr-1 inline h-4 w-4" /> Ver no meu mundo
-              </button>
-            </model-viewer>
-          ) : (
-            <div className="flex h-full items-center justify-center">
-              <p className="font-display text-sm text-muted-foreground">A carregar 3D…</p>
+            {/* Picker */}
+            <div className="mt-3 flex flex-wrap gap-2">
+              {tab === "mascot"
+                ? MASCOTS.map((m) => (
+                    <button
+                      key={m.id}
+                      onClick={() => setSelected(m.id)}
+                      className={`flex items-center gap-2 rounded-full px-3 py-1.5 font-display text-sm transition-colors ${
+                        selected === m.id
+                          ? "bg-primary text-primary-foreground"
+                          : "bg-card border border-border"
+                      }`}
+                    >
+                      <Mascot id={m.id} size="sm" />
+                      {m.name}
+                    </button>
+                  ))
+                : LAB_MODELS.map((m) => (
+                    <button
+                      key={m.id}
+                      onClick={() => setLabSelected(m.id)}
+                      className={`rounded-full px-3 py-1.5 font-display text-sm transition-colors ${
+                        labSelected === m.id
+                          ? "bg-primary text-primary-foreground"
+                          : "bg-card border border-border"
+                      }`}
+                    >
+                      {m.label}
+                    </button>
+                  ))}
             </div>
-          )}
-        </div>
 
-        {tab === "lab" && (
-          <motion.div
-            key={labSelected}
-            initial={{ opacity: 0, y: 6 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mt-3 rounded-2xl bg-accent/30 px-4 py-3 text-sm"
-          >
-            <p className="font-display text-xs uppercase tracking-wide text-muted-foreground">💡 Sabias que…</p>
-            <p className="mt-1">{labModel.fact}</p>
-          </motion.div>
-        )}
+            {/* Model viewer */}
+            <div
+              className="mt-4 overflow-hidden rounded-3xl border-2 border-border bg-gradient-to-b from-sky-200 to-sky-50 dark:from-slate-800 dark:to-slate-900"
+              style={{ height: "55vh", minHeight: 360 }}
+            >
+              {loaded ? (
+                <model-viewer
+                  key={activeKey}
+                  src={activeSrc}
+                  alt={activeLabel}
+                  ar
+                  ar-modes="webxr scene-viewer quick-look"
+                  camera-controls
+                  touch-action="pan-y"
+                  auto-rotate
+                  shadow-intensity="1"
+                  style={{ width: "100%", height: "100%", background: "transparent" }}
+                >
+                  <button
+                    slot="ar-button"
+                    className="btn-chunky absolute bottom-4 left-1/2 -translate-x-1/2 rounded-full bg-primary px-5 py-3 font-display text-white"
+                  >
+                    <Sparkles className="mr-1 inline h-4 w-4" /> Ver no meu mundo
+                  </button>
+                </model-viewer>
+              ) : (
+                <div className="flex h-full items-center justify-center">
+                  <p className="font-display text-sm text-muted-foreground">A carregar 3D…</p>
+                </div>
+              )}
+            </div>
 
-        <p className="mt-3 text-center text-xs text-muted-foreground">
-          {activeLabel} · Toca no botão para colocar no teu mundo (precisa de telemóvel com câmara)
-        </p>
+            {tab === "lab" && (
+              <motion.div
+                key={labSelected}
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mt-3 rounded-2xl bg-accent/30 px-4 py-3 text-sm"
+              >
+                <p className="font-display text-xs uppercase tracking-wide text-muted-foreground">
+                  💡 Sabias que…
+                </p>
+                <p className="mt-1">{labModel.fact}</p>
+              </motion.div>
+            )}
+
+            <p className="mt-3 text-center text-xs text-muted-foreground">
+              {activeLabel} · Toca no botão para colocar no teu mundo (precisa de telemóvel com
+              câmara)
+            </p>
           </>
         )}
 
         <div className="mt-6 grid gap-3 sm:grid-cols-2">
           <Link to="/app">
-            <ChunkyButton tone="ghost" className="w-full">← Aventura</ChunkyButton>
+            <ChunkyButton tone="ghost" className="w-full">
+              ← Aventura
+            </ChunkyButton>
           </Link>
           <Link to="/leitura">
-            <ChunkyButton tone="primary" className="w-full">🎤 Praticar leitura</ChunkyButton>
+            <ChunkyButton tone="primary" className="w-full">
+              🎤 Praticar leitura
+            </ChunkyButton>
           </Link>
         </div>
       </main>
@@ -309,10 +355,13 @@ function LabMissionsPanel({ onReward }: { onReward: (xp: number, coins: number) 
                   <p className="font-display text-sm">{m.title}</p>
                   <p className="mt-0.5 text-[11px] text-muted-foreground">{m.intro}</p>
                   <div className="mt-1.5 flex items-center justify-between">
-                    <span className="font-display text-[10px] text-muted-foreground">🪙 {m.rewardCoins} · ⭐ {m.rewardXp}</span>
+                    <span className="font-display text-[10px] text-muted-foreground">
+                      🪙 {m.rewardCoins} · ⭐ {m.rewardXp}
+                    </span>
                     {score !== undefined && (
                       <span className="font-display text-[10px] text-secondary-foreground">
-                        {"⭐".repeat(stars)}{"☆".repeat(3 - stars)}
+                        {"⭐".repeat(stars)}
+                        {"☆".repeat(3 - stars)}
                       </span>
                     )}
                   </div>
@@ -326,17 +375,28 @@ function LabMissionsPanel({ onReward }: { onReward: (xp: number, coins: number) 
   );
 }
 
-function MissionPlayer({ mission, onClose, onComplete }: { mission: LabMission; onClose: () => void; onComplete: (scorePct: number) => void }) {
+function MissionPlayer({
+  mission,
+  onClose,
+  onComplete,
+}: {
+  mission: LabMission;
+  onClose: () => void;
+  onComplete: (scorePct: number) => void;
+}) {
   const [orderState, setOrderState] = useState<string[]>([]);
   const [matchState, setMatchState] = useState<string[]>(() => mission.parts.map(() => ""));
   const [identifyChoice, setIdentifyChoice] = useState<string | null>(null);
-  const [feedback, setFeedback] = useState<{ correct: boolean; message: string; partials?: number } | null>(null);
+  const [feedback, setFeedback] = useState<{
+    correct: boolean;
+    message: string;
+    partials?: number;
+  } | null>(null);
   const [done, setDone] = useState(false);
 
   // Match: pool de "funções" baralhadas (valores do answer map)
-  const matchOptions = mission.kind === "match"
-    ? Object.values(mission.answer as Record<string, string>)
-    : [];
+  const matchOptions =
+    mission.kind === "match" ? Object.values(mission.answer as Record<string, string>) : [];
 
   const reset = () => {
     setOrderState([]);
@@ -360,8 +420,16 @@ function MissionPlayer({ mission, onClose, onComplete }: { mission: LabMission; 
       confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 } });
       onComplete(pct);
     } else {
-      const pct = r.partials !== undefined ? Math.round((r.partials / mission.parts.length) * 100) : 0;
-      setFeedback({ correct: false, message: r.partials !== undefined ? `Quase! Acertaste ${r.partials}/${mission.parts.length}. Tenta de novo!` : "Não é essa. Tenta outra vez!", partials: r.partials });
+      const pct =
+        r.partials !== undefined ? Math.round((r.partials / mission.parts.length) * 100) : 0;
+      setFeedback({
+        correct: false,
+        message:
+          r.partials !== undefined
+            ? `Quase! Acertaste ${r.partials}/${mission.parts.length}. Tenta de novo!`
+            : "Não é essa. Tenta outra vez!",
+        partials: r.partials,
+      });
       if (pct >= 70) onComplete(pct);
     }
   };
@@ -376,7 +444,13 @@ function MissionPlayer({ mission, onClose, onComplete }: { mission: LabMission; 
             <p className="text-[11px] text-muted-foreground">{mission.intro}</p>
           </div>
         </div>
-        <button onClick={onClose} className="text-xs text-muted-foreground hover:text-foreground" aria-label="Fechar">✕</button>
+        <button
+          onClick={onClose}
+          className="text-xs text-muted-foreground hover:text-foreground"
+          aria-label="Fechar"
+        >
+          ✕
+        </button>
       </div>
 
       {/* Order kind */}
@@ -389,13 +463,21 @@ function MissionPlayer({ mission, onClose, onComplete }: { mission: LabMission; 
               return (
                 <button
                   key={p.id}
-                  onClick={() => setOrderState((s) => s.includes(p.id) ? s.filter((x) => x !== p.id) : [...s, p.id])}
+                  onClick={() =>
+                    setOrderState((s) =>
+                      s.includes(p.id) ? s.filter((x) => x !== p.id) : [...s, p.id],
+                    )
+                  }
                   className={cn(
                     "rounded-2xl border-2 px-3 py-2 font-display text-sm transition-all",
                     idx >= 0 ? "border-primary bg-primary/10" : "border-border bg-muted/40",
                   )}
                 >
-                  {idx >= 0 && <span className="mr-1 inline-flex h-5 w-5 items-center justify-center rounded-full bg-primary font-bold text-[10px] text-primary-foreground">{idx + 1}</span>}
+                  {idx >= 0 && (
+                    <span className="mr-1 inline-flex h-5 w-5 items-center justify-center rounded-full bg-primary font-bold text-[10px] text-primary-foreground">
+                      {idx + 1}
+                    </span>
+                  )}
                   <span className="text-lg">{p.emoji}</span> {p.label}
                 </button>
               );
@@ -415,7 +497,9 @@ function MissionPlayer({ mission, onClose, onComplete }: { mission: LabMission; 
                 onClick={() => setIdentifyChoice(p.id)}
                 className={cn(
                   "rounded-2xl border-2 p-3 text-center transition-all",
-                  identifyChoice === p.id ? "border-primary bg-primary/10" : "border-border bg-muted/40",
+                  identifyChoice === p.id
+                    ? "border-primary bg-primary/10"
+                    : "border-border bg-muted/40",
                 )}
               >
                 <div className="text-3xl">{p.emoji}</div>
@@ -429,19 +513,32 @@ function MissionPlayer({ mission, onClose, onComplete }: { mission: LabMission; 
       {/* Match kind */}
       {mission.kind === "match" && (
         <div className="mt-4 space-y-2">
-          <p className="font-display text-xs text-muted-foreground">Para cada parte, escolhe a função certa:</p>
+          <p className="font-display text-xs text-muted-foreground">
+            Para cada parte, escolhe a função certa:
+          </p>
           {mission.parts.map((p, i) => (
-            <div key={p.id} className="flex items-center gap-2 rounded-2xl border border-border bg-muted/30 p-2">
+            <div
+              key={p.id}
+              className="flex items-center gap-2 rounded-2xl border border-border bg-muted/30 p-2"
+            >
               <span className="text-2xl">{p.emoji}</span>
               <span className="w-24 font-display text-sm">{p.label}</span>
               <select
                 value={matchState[i]}
-                onChange={(e) => setMatchState((s) => { const n = [...s]; n[i] = e.target.value; return n; })}
+                onChange={(e) =>
+                  setMatchState((s) => {
+                    const n = [...s];
+                    n[i] = e.target.value;
+                    return n;
+                  })
+                }
                 className="flex-1 rounded-xl border border-border bg-card px-2 py-1.5 text-sm"
               >
                 <option value="">Escolhe…</option>
                 {matchOptions.map((opt) => (
-                  <option key={opt} value={opt}>{opt}</option>
+                  <option key={opt} value={opt}>
+                    {opt}
+                  </option>
                 ))}
               </select>
             </div>
@@ -458,14 +555,19 @@ function MissionPlayer({ mission, onClose, onComplete }: { mission: LabMission; 
             exit={{ opacity: 0 }}
             className={cn(
               "mt-4 rounded-2xl px-4 py-3",
-              feedback.correct ? "bg-success/10 text-success" : "bg-destructive/10 text-destructive",
+              feedback.correct
+                ? "bg-success/10 text-success"
+                : "bg-destructive/10 text-destructive",
             )}
           >
             <p className="font-display text-sm">{feedback.message}</p>
             {feedback.correct && (
               <div className="mt-2 space-y-1 text-xs text-foreground">
                 {mission.parts.map((p) => (
-                  <p key={p.id}><span className="text-base">{p.emoji}</span> <strong>{p.label}:</strong> {p.fact}</p>
+                  <p key={p.id}>
+                    <span className="text-base">{p.emoji}</span> <strong>{p.label}:</strong>{" "}
+                    {p.fact}
+                  </p>
                 ))}
               </div>
             )}
@@ -474,14 +576,22 @@ function MissionPlayer({ mission, onClose, onComplete }: { mission: LabMission; 
       </AnimatePresence>
 
       <div className="mt-4 flex items-center justify-between gap-2">
-        <button onClick={reset} className="inline-flex items-center gap-1 text-xs font-display text-muted-foreground hover:text-foreground">
+        <button
+          onClick={reset}
+          className="inline-flex items-center gap-1 text-xs font-display text-muted-foreground hover:text-foreground"
+        >
           <RotateCcw className="h-3 w-3" /> Recomeçar
         </button>
         {done ? (
           <div className="flex items-center gap-2">
             <Trophy className="h-4 w-4 text-secondary-foreground" />
-            <span className="font-display text-xs">+{mission.rewardXp} ⭐ · +{mission.rewardCoins} 🪙</span>
-            <button onClick={onClose} className="btn-chunky rounded-full bg-primary px-4 py-1.5 font-display text-sm text-primary-foreground">
+            <span className="font-display text-xs">
+              +{mission.rewardXp} ⭐ · +{mission.rewardCoins} 🪙
+            </span>
+            <button
+              onClick={onClose}
+              className="btn-chunky rounded-full bg-primary px-4 py-1.5 font-display text-sm text-primary-foreground"
+            >
               Concluir
             </button>
           </div>
@@ -499,6 +609,7 @@ function MissionPlayer({ mission, onClose, onComplete }: { mission: LabMission; 
 }
 
 declare module "react" {
+  // eslint-disable-next-line @typescript-eslint/no-namespace -- augmentação de tipos para <model-viewer> (web component do Google)
   namespace JSX {
     interface IntrinsicElements {
       "model-viewer": React.DetailedHTMLProps<

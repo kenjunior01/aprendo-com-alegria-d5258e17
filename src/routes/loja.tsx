@@ -11,21 +11,26 @@ import { Coins, Lock, Check, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { playCorrect, playWrong } from "@/lib/audio";
 import { RouteError } from "@/components/RouteError";
+import { KidLoader } from "@/components/KidLoader";
 
 export const Route = createFileRoute("/loja")({
   head: () => ({
     meta: [
       { title: "Loja — Kidoz" },
-      { name: "description", content: "Personaliza a tua mascote com chapéus, fatos e cenários ganhos com Abracadinhos." },
-      { property: "og:title", content: 'Loja Kidoz — personaliza a tua mascote' },
-      { property: "og:description", content: 'Chapéus, fatos e cenários para a tua mascote, ganhos com Abracadinhos.' },
+      {
+        name: "description",
+        content: "Personaliza a tua mascote com chapéus, fatos e cenários ganhos com Abracadinhos.",
+      },
+      { property: "og:title", content: "Loja Kidoz — personaliza a tua mascote" },
+      {
+        property: "og:description",
+        content: "Chapéus, fatos e cenários para a tua mascote, ganhos com Abracadinhos.",
+      },
       { property: "og:url", content: "https://kidoz.online/loja" },
       { property: "og:image", content: "https://kidoz.online/og-image.jpg" },
       { name: "twitter:image", content: "https://kidoz.online/og-image.jpg" },
     ],
-    links: [
-      { rel: "canonical", href: "https://kidoz.online/loja" },
-    ],
+    links: [{ rel: "canonical", href: "https://kidoz.online/loja" }],
   }),
   component: ShopPage,
   errorComponent: RouteError,
@@ -52,14 +57,12 @@ function ShopPage() {
       setProfile(p);
     };
     init();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [navigate]);
 
-  if (!profile) return (
-    <main id="main-content" className="flex min-h-[60dvh] items-center justify-center">
-      <p className="animate-pulse font-display text-lg text-muted-foreground" role="status" aria-live="polite">A carregar…</p>
-    </main>
-  );
+  if (!profile) return <KidLoader />;
 
   const items = SHOP_FALLBACK.filter((i) => i.type === activeType);
 
@@ -123,7 +126,9 @@ function ShopPage() {
             role="status"
             className={cn(
               "mt-4 rounded-2xl px-4 py-3 text-center font-display text-sm",
-              feedback.type === "ok" ? "bg-success/15 text-success" : "bg-destructive/10 text-destructive",
+              feedback.type === "ok"
+                ? "bg-success/15 text-success"
+                : "bg-destructive/10 text-destructive",
             )}
           >
             {feedback.msg}
@@ -138,7 +143,9 @@ function ShopPage() {
               onClick={() => setActiveType(t)}
               className={cn(
                 "shrink-0 rounded-full px-4 py-2 font-display text-sm font-semibold transition-colors",
-                activeType === t ? "bg-primary text-primary-foreground" : "bg-card text-muted-foreground",
+                activeType === t
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-card text-muted-foreground",
               )}
             >
               {TYPE_LABEL[t]}
@@ -147,7 +154,11 @@ function ShopPage() {
         </div>
 
         {/* Grid */}
-        <div role="list" aria-live="polite" className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
+        <div
+          role="list"
+          aria-live="polite"
+          className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4"
+        >
           {items.map((item) => {
             const owned = profile.ownedItems.includes(item.id);
             const equipped = profile.equippedItem === item.id;
@@ -178,15 +189,24 @@ function ShopPage() {
                     onClick={() => onEquip(item)}
                     className={cn(
                       "btn-chunky w-full rounded-2xl px-3 py-1.5 font-display text-xs font-semibold sm:text-sm",
-                      equipped ? "bg-primary text-primary-foreground" : "bg-success text-success-foreground",
+                      equipped
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-success text-success-foreground",
                     )}
                   >
-                    {equipped ? <span className="inline-flex items-center gap-1"><Check className="h-3.5 w-3.5" /> Equipado</span> : "Equipar"}
+                    {equipped ? (
+                      <span className="inline-flex items-center gap-1">
+                        <Check className="h-3.5 w-3.5" /> Equipado
+                      </span>
+                    ) : (
+                      "Equipar"
+                    )}
                   </button>
                 ) : lockedPremium ? (
                   <Link to="/premium" className="w-full">
                     <button className="btn-chunky w-full rounded-2xl bg-gradient-to-r from-primary to-secondary px-3 py-1.5 font-display text-xs font-semibold text-primary-foreground sm:text-sm">
-                      <Lock className="mr-1 inline h-3 w-3" aria-hidden="true" />Premium — precisa de conta Premium
+                      <Lock className="mr-1 inline h-3 w-3" aria-hidden="true" />
+                      Premium — precisa de conta Premium
                     </button>
                   </Link>
                 ) : canAfford ? (
@@ -208,7 +228,8 @@ function ShopPage() {
                       {item.price}
                     </button>
                     <p className="mt-1 text-[10px] text-muted-foreground font-semibold">
-                      Faltam {item.price - profile.coins} Abracadinhos — completa missões para ganhar mais!
+                      Faltam {item.price - profile.coins} Abracadinhos — completa missões para
+                      ganhar mais!
                     </p>
                   </div>
                 )}
@@ -220,7 +241,8 @@ function ShopPage() {
         <div className="mt-8 rounded-3xl bg-accent/40 p-5 text-center sm:p-6">
           <p className="font-display text-base sm:text-lg">💡 Como ganhar Abracadinhos?</p>
           <p className="mt-1 text-sm text-muted-foreground">
-            Completa missões! Cada resposta certa dá-te 3 Abracadinhos, e missões 100% certas dão 10 bónus.
+            Completa missões! Cada resposta certa dá-te 3 Abracadinhos, e missões 100% certas dão 10
+            bónus.
           </p>
           <Link to="/app" className="mt-3 inline-block">
             <ChunkyButton tone="primary">Voltar à aventura</ChunkyButton>

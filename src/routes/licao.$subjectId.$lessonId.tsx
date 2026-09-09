@@ -23,6 +23,7 @@ import { Check, Heart, Mic, Sparkles, Volume2, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { haptic } from "@/lib/haptics";
 import { RouteError } from "@/components/RouteError";
+import { KidLoader } from "@/components/KidLoader";
 
 export const Route = createFileRoute("/licao/$subjectId/$lessonId")({
   validateSearch: (search: Record<string, unknown>): { challenge?: string } => {
@@ -49,13 +50,11 @@ export const Route = createFileRoute("/licao/$subjectId/$lessonId")({
         { name: "robots", content: "noindex" },
         {
           property: "og:image",
-          content:
-            "https://kidoz.online/og-image.jpg",
+          content: "https://kidoz.online/og-image.jpg",
         },
         {
           name: "twitter:image",
-          content:
-            "https://kidoz.online/og-image.jpg",
+          content: "https://kidoz.online/og-image.jpg",
         },
       ],
       links: [{ rel: "canonical", href: url }],
@@ -141,30 +140,31 @@ function LessonPage() {
     }
   }, [voice.matchedIndex, revealed]);
 
-  if (!profile)
-    return (
-      <main id="main-content" className="flex min-h-[60dvh] items-center justify-center">
-        <p
-          className="animate-pulse font-display text-lg text-muted-foreground"
-          role="status"
-          aria-live="polite"
-        >
-          A carregar…
-        </p>
-      </main>
-    );
+  if (!profile) return <KidLoader />;
   if (!subject || !lesson || !q) {
+    const fallbackMascot = getMascot(profile?.mascot);
     return (
       <main
         id="main-content"
-        className="flex min-h-[100dvh] items-center justify-center p-6 text-center"
+        className="bg-sky-island flex min-h-[100dvh] flex-col items-center justify-center gap-3 p-6 text-center"
       >
-        <div>
-          <p className="font-display text-2xl">Lição não encontrada</p>
-          <Link to="/app" className="mt-4 inline-block text-primary underline">
-            Voltar
-          </Link>
-        </div>
+        <img
+          src={fallbackMascot.image}
+          alt=""
+          aria-hidden
+          className="animate-bounce-soft h-24 w-24 rounded-3xl"
+        />
+        <h1 className="font-display text-2xl sm:text-3xl">Esta lição fugiu! ✨</h1>
+        <p className="max-w-sm text-muted-foreground">
+          Não encontrámos esta lição — mas há muitas outras à tua espera na aventura.
+        </p>
+        <ChunkyButton
+          onClick={() => navigate({ to: "/app" })}
+          className="mt-2"
+          aria-label="Voltar à aventura"
+        >
+          Voltar à aventura
+        </ChunkyButton>
       </main>
     );
   }
@@ -327,7 +327,7 @@ function LessonPage() {
   return (
     <LessonScene subject={subject.id}>
       <main
-        className="min-h-[100dvh] pb-32"
+        className="flex min-h-[100dvh] flex-col pb-32"
         style={{ paddingBottom: "calc(8rem + env(safe-area-inset-bottom))" }}
       >
         <header
@@ -357,7 +357,7 @@ function LessonPage() {
         {/* Combo popup overlay */}
         <ComboPopup combo={combo} show={showComboPopup} onDone={() => setShowComboPopup(false)} />
 
-        <div className="mx-auto max-w-[48rem] px-4 pt-6 sm:pt-8">
+        <div className="mx-auto flex w-full max-w-[48rem] flex-1 flex-col justify-center px-4 pt-4 sm:pt-6 md:pt-0">
           <motion.div
             key={qIndex}
             initial={{ opacity: 0, x: 30 }}

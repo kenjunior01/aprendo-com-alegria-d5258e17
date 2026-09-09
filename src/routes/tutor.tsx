@@ -12,8 +12,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { ArrowLeft, Send, Sparkles, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { RouteError } from "@/components/RouteError";
+import { KidLoader } from "@/components/KidLoader";
 
-// @ts-ignore TanStack Router file-route type resolution
 export const Route = createFileRoute("/tutor")({
   validateSearch: (search: Record<string, unknown>): { mascotId?: MascotId } => {
     const m = search.mascotId as MascotId | undefined;
@@ -91,11 +91,11 @@ function TutorChat() {
       setMessages([
         {
           role: "assistant",
-          content: `Olá, ${p.name}! 👋 Sou o ${mascot.name}, o teu tutor. Podes perguntar-me o que quiseres — sobre matemática, leitura, animais, planetas… ou pede uma adivinha!`,
+          content: `Olá, ${p.name}! 👋 Sou ${mascot.article} ${mascot.name}, o teu tutor. Podes perguntar-me o que quiseres — sobre matemática, leitura, animais, planetas… ou pede uma adivinha!`,
         },
       ]);
     }
-  }, [navigate, effectiveMascotId]);
+  }, [navigate, effectiveMascotId, mascot.article, mascot.name]);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
@@ -217,18 +217,7 @@ function TutorChat() {
     }
   };
 
-  if (!profile)
-    return (
-      <main id="main-content" className="flex min-h-[60dvh] items-center justify-center">
-        <p
-          className="animate-pulse font-display text-lg text-muted-foreground"
-          role="status"
-          aria-live="polite"
-        >
-          A carregar…
-        </p>
-      </main>
-    );
+  if (!profile) return <KidLoader />;
 
   return (
     <div className="min-h-[100dvh] bg-sky-island pb-28 md:pb-12">

@@ -13,16 +13,20 @@ export const Route = createFileRoute("/comecar")({
   head: () => ({
     meta: [
       { title: "Começar — Kidoz" },
-      { name: "description", content: "Cria o teu perfil e escolhe a tua mascote para começar a aventura." },
-      { property: "og:title", content: 'Começar no Kidoz' },
-      { property: "og:description", content: 'Cria o teu perfil e escolhe a tua mascote para começar a aventura.' },
+      {
+        name: "description",
+        content: "Cria o teu perfil e escolhe a tua mascote para começar a aventura.",
+      },
+      { property: "og:title", content: "Começar no Kidoz" },
+      {
+        property: "og:description",
+        content: "Cria o teu perfil e escolhe a tua mascote para começar a aventura.",
+      },
       { property: "og:url", content: "https://kidoz.online/comecar" },
       { property: "og:image", content: "https://kidoz.online/og-image.jpg" },
       { name: "twitter:image", content: "https://kidoz.online/og-image.jpg" },
     ],
-    links: [
-      { rel: "canonical", href: "https://kidoz.online/comecar" },
-    ],
+    links: [{ rel: "canonical", href: "https://kidoz.online/comecar" }],
   }),
   component: Onboarding,
   errorComponent: RouteError,
@@ -84,7 +88,10 @@ function Onboarding() {
           {Array.from({ length: STEPS_TOTAL }).map((_, i) => (
             <span
               key={i}
-              className={cn("h-2 w-10 rounded-full transition-colors", i <= step ? "bg-primary" : "bg-border")}
+              className={cn(
+                "h-2 w-10 rounded-full transition-colors",
+                i <= step ? "bg-primary" : "bg-border",
+              )}
             />
           ))}
         </div>
@@ -94,7 +101,9 @@ function Onboarding() {
             <Step key="0">
               <Mascot id="owl" size="lg" bouncing />
               <h1 className="font-display text-3xl sm:text-4xl">Quem está a chegar?</h1>
-              <p className="text-muted-foreground">Conta-nos para te darmos a melhor experiência.</p>
+              <p className="text-muted-foreground">
+                Conta-nos para te darmos a melhor experiência.
+              </p>
               <div className="grid w-full grid-cols-1 gap-3 sm:grid-cols-3">
                 <button
                   onClick={() => setTrack("junior")}
@@ -125,7 +134,7 @@ function Onboarding() {
                     track === "parent" && "border-primary ring-4 ring-primary/25",
                   )}
                 >
-                  <div className="text-4xl">👨‍👩‍👧</div>
+                  <div className="text-4xl">👪</div>
                   <p className="mt-2 font-display text-lg">Sou adulto</p>
                   <p className="text-xs text-muted-foreground">Acompanhar uma criança</p>
                 </button>
@@ -143,9 +152,13 @@ function Onboarding() {
                 {role === "parent" ? "Como te chamas?" : "Como te chamas?"}
               </h1>
               <p className="text-muted-foreground">
-                {role === "parent" ? "Para personalizar o teu painel." : "Vamos criar a tua aventura."}
+                {role === "parent"
+                  ? "Para personalizar o teu painel."
+                  : "Vamos criar a tua aventura."}
               </p>
-              <label htmlFor="comecar-name" className="sr-only">O teu nome</label>
+              <label htmlFor="comecar-name" className="sr-only">
+                O teu nome
+              </label>
               <input
                 id="comecar-name"
                 name="name"
@@ -158,7 +171,9 @@ function Onboarding() {
                 autoFocus
               />
               <div className="flex w-full flex-col gap-3 sm:flex-row">
-                <ChunkyButton tone="ghost" onClick={() => setStep(0)} className="sm:flex-1">← Voltar</ChunkyButton>
+                <ChunkyButton tone="ghost" onClick={() => setStep(0)} className="sm:flex-1">
+                  ← Voltar
+                </ChunkyButton>
                 <ChunkyButton onClick={goNext} disabled={!name.trim()} className="sm:flex-1">
                   {role === "parent" ? "Entrar 🎉" : "Continuar →"}
                 </ChunkyButton>
@@ -184,8 +199,12 @@ function Onboarding() {
                 ))}
               </div>
               <div className="flex w-full flex-col gap-3 sm:flex-row">
-                <ChunkyButton tone="ghost" onClick={() => setStep(1)} className="sm:flex-1">← Voltar</ChunkyButton>
-                <ChunkyButton onClick={() => setStep(3)} className="sm:flex-1">Continuar →</ChunkyButton>
+                <ChunkyButton tone="ghost" onClick={() => setStep(1)} className="sm:flex-1">
+                  ← Voltar
+                </ChunkyButton>
+                <ChunkyButton onClick={() => setStep(3)} className="sm:flex-1">
+                  Continuar →
+                </ChunkyButton>
               </div>
             </Step>
           )}
@@ -209,8 +228,12 @@ function Onboarding() {
                 ))}
               </div>
               <div className="flex w-full flex-col gap-3 sm:flex-row">
-                <ChunkyButton tone="ghost" onClick={() => setStep(2)} className="sm:flex-1">← Voltar</ChunkyButton>
-                <ChunkyButton onClick={() => setStep(4)} className="sm:flex-1">Continuar →</ChunkyButton>
+                <ChunkyButton tone="ghost" onClick={() => setStep(2)} className="sm:flex-1">
+                  ← Voltar
+                </ChunkyButton>
+                <ChunkyButton onClick={() => setStep(4)} className="sm:flex-1">
+                  Continuar →
+                </ChunkyButton>
               </div>
             </Step>
           )}
@@ -238,8 +261,12 @@ function Onboarding() {
                 💬 “{MASCOTS.find((m) => m.id === mascot)?.greeting}”
               </p>
               <div className="flex w-full flex-col gap-3 sm:flex-row">
-                <ChunkyButton tone="ghost" onClick={() => setStep(3)} className="sm:flex-1">← Voltar</ChunkyButton>
-                <ChunkyButton tone="success" onClick={finish} className="sm:flex-1">Vamos começar! 🎉</ChunkyButton>
+                <ChunkyButton tone="ghost" onClick={() => setStep(3)} className="sm:flex-1">
+                  ← Voltar
+                </ChunkyButton>
+                <ChunkyButton tone="success" onClick={finish} className="sm:flex-1">
+                  Vamos começar! 🎉
+                </ChunkyButton>
               </div>
             </Step>
           )}

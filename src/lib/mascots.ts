@@ -8,6 +8,8 @@ export type MascotId = "fox" | "owl" | "bunny" | "turtle";
 export interface Mascot {
   id: MascotId;
   name: string;
+  /** Artigo definido correto para o nome ("a Faísca", "o Tito"). */
+  article: "a" | "o";
   image: string;
   greeting: string;
   encourage: string;
@@ -19,38 +21,46 @@ export const MASCOTS: Mascot[] = [
   {
     id: "fox",
     name: "Faísca",
+    article: "a",
     image: fox,
     greeting: "Olá! Sou a Faísca. Vamos brincar a aprender?",
     encourage: "Tu consegues! Mais um desafio!",
     color: "bg-[oklch(0.92_0.1_50)]",
-    persona: "És a Faísca, uma raposa super veloz e cheia de energia. Adoras matemática e lógica. Falas de forma entusiasmada e usas expressões como 'À velocidade da luz!' ou 'Fizeste isto num piscar de olhos!'."
+    persona:
+      "És a Faísca, uma raposa super veloz e cheia de energia. Adoras matemática e lógica. Falas de forma entusiasmada e usas expressões como 'À velocidade da luz!' ou 'Fizeste isto num piscar de olhos!'.",
   },
   {
     id: "owl",
     name: "Mocha",
+    article: "a",
     image: owl,
     greeting: "Piu-piu! Sou a Mocha, a coruja sabichona.",
     encourage: "Sábio é quem nunca desiste!",
     color: "bg-[oklch(0.9_0.08_310)]",
-    persona: "És a Mocha, uma coruja sábia e calma. Sabes tudo sobre a história de Moçambique, o Rio Zambeze e as nossas tradições. Falas com paciência e adoras ensinar factos curiosos sobre o mundo."
+    persona:
+      "És a Mocha, uma coruja sábia e calma. Sabes tudo sobre a história e as tradições de Portugal e do mundo — dos descobrimentos às invenções incríveis. Falas com paciência e adoras ensinar factos curiosos.",
   },
   {
     id: "bunny",
     name: "Pipoca",
+    article: "a",
     image: bunny,
     greeting: "Olá! Sou a Pipoca, vamos saltar para a aventura!",
     encourage: "Mais um saltinho e estás lá!",
     color: "bg-[oklch(0.94_0.05_15)]",
-    persona: "És a Pipoca, uma coelhinha rítmica e alegre. Adoras ler, escrever e música. Falas de forma doce e rítmica, incentivando a criança a ler em voz alta e a descobrir o prazer das palavras."
+    persona:
+      "És a Pipoca, uma coelhinha rítmica e alegre. Adoras ler, escrever e música. Falas de forma doce e rítmica, incentivando a criança a ler em voz alta e a descobrir o prazer das palavras.",
   },
   {
     id: "turtle",
     name: "Tito",
+    article: "o",
     image: turtle,
     greeting: "Olá! Sou o Tito. Devagar e sempre, chegamos longe.",
     encourage: "Boa! Passinho a passinho.",
     color: "bg-[oklch(0.92_0.1_145)]",
-    persona: "És o Tito, uma tartaruga paciente e metódica. Adoras o meio ambiente, a ciência e os animais. Falas de forma estruturada e lembras sempre que o importante é aprender bem, não é ir depressa."
+    persona:
+      "És o Tito, uma tartaruga paciente e metódica. Adoras o meio ambiente, a ciência e os animais. Falas de forma estruturada e lembras sempre que o importante é aprender bem, não é ir depressa.",
   },
 ];
 
@@ -59,7 +69,10 @@ export const getMascot = (id: MascotId | null | undefined): Mascot =>
 
 export type GrowthStage = "bebé" | "júnior" | "aventureiro" | "mestre";
 
-export function getGrowthStage(grade: number, xp: number): { stage: GrowthStage; scale: number; label: string } {
+export function getGrowthStage(
+  grade: number,
+  xp: number,
+): { stage: GrowthStage; scale: number; label: string } {
   // Crescimento baseado em XP (conhecimento acumulado) e "Idade" (Progresso acadêmico)
   if (grade >= 4 || xp > 5000) return { stage: "mestre", scale: 1.25, label: "Mestre do Saber" };
   if (grade >= 3 || xp > 2000) return { stage: "aventureiro", scale: 1.1, label: "Explorador" };

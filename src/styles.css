@@ -904,3 +904,36 @@ main a:not([class]) {
     transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   }
 }
+
+/* ════════════════════════════════════════════════════════════════
+   DE-BRANDING DA HOSPEDAGEM — a plataforma injeta o selo
+   "Edit with Lovable" no HTML servido; não faz parte do produto.
+   ════════════════════════════════════════════════════════════════ */
+[aria-label="Edit with Lovable"],
+#lovable-badge-cta,
+iframe[src*="lovable.dev/badge"] {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+/* Skeleton shimmer — placeholder para carregamentos de conteúdo */
+.skeleton {
+  border-radius: 0.75rem;
+  background: linear-gradient(
+    90deg,
+    color-mix(in oklab, var(--color-foreground) 6%, transparent) 25%,
+    color-mix(in oklab, var(--color-foreground) 12%, transparent) 50%,
+    color-mix(in oklab, var(--color-foreground) 6%, transparent) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.6s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton {
+    animation: none;
+    background: color-mix(in oklab, var(--color-foreground) 8%, transparent);
+  }
+}

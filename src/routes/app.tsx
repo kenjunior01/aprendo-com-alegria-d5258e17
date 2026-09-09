@@ -15,21 +15,27 @@ import { Lock, Star, CheckCircle2, Crown, Play, Gamepad2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { haptic } from "@/lib/haptics";
 import { RouteError } from "@/components/RouteError";
+import { KidLoader } from "@/components/KidLoader";
 
 export const Route = createFileRoute("/app")({
   head: () => ({
     meta: [
       { title: "A minha aventura — Kidoz" },
-      { name: "description", content: "Caminho de aprendizagem visual: Português, Matemática e Estudo do Meio." },
-      { property: "og:title", content: 'A minha aventura — Kidoz' },
-      { property: "og:description", content: 'Caminho de aprendizagem visual para Português, Matemática e Estudo do Meio do 1.º ciclo.' },
+      {
+        name: "description",
+        content: "Caminho de aprendizagem visual: Português, Matemática e Estudo do Meio.",
+      },
+      { property: "og:title", content: "A minha aventura — Kidoz" },
+      {
+        property: "og:description",
+        content:
+          "Caminho de aprendizagem visual para Português, Matemática e Estudo do Meio do 1.º ciclo.",
+      },
       { property: "og:url", content: "https://kidoz.online/app" },
       { property: "og:image", content: "https://kidoz.online/og-image.jpg" },
       { name: "twitter:image", content: "https://kidoz.online/og-image.jpg" },
     ],
-    links: [
-      { rel: "canonical", href: "https://kidoz.online/app" },
-    ],
+    links: [{ rel: "canonical", href: "https://kidoz.online/app" }],
   }),
   component: AppHome,
   errorComponent: RouteError,
@@ -56,14 +62,12 @@ function AppHome() {
       setProfile(p);
     };
     init();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [navigate]);
 
-  if (!profile) return (
-    <main id="main-content" className="flex min-h-[60dvh] items-center justify-center">
-      <p className="animate-pulse font-display text-lg text-muted-foreground" role="status" aria-live="polite">A carregar…</p>
-    </main>
-  );
+  if (!profile) return <KidLoader />;
   const mascot = getMascot(profile.mascot);
 
   const visibleChapters = CHAPTERS.filter((c) => c.grade <= Math.min(4, profile.grade + 1));
@@ -73,7 +77,9 @@ function AppHome() {
       <TopBar profile={profile} />
 
       <main id="main-content" className="mx-auto max-w-[56rem] px-4 py-4 sm:py-6">
-        <h1 className="sr-only">A minha aventura no Kidoz — caminho de aprendizagem de {profile.name}</h1>
+        <h1 className="sr-only">
+          A minha aventura no Kidoz — caminho de aprendizagem de {profile.name}
+        </h1>
         {/* Hero greeting */}
         <motion.section
           initial={{ opacity: 0, y: 10 }}
@@ -105,14 +111,21 @@ function AppHome() {
             <p className="mb-1 font-display text-[10px] font-bold uppercase tracking-[0.2em] text-primary/70">
               O Teu Melhor Amigo
             </p>
-            <h2 className="mb-4 font-display text-2xl leading-tight">Vem brincar com o {mascot.name}! ✨</h2>
+            <h2 className="mb-4 font-display text-2xl leading-tight">
+              Vem brincar com {mascot.article} {mascot.name}! ✨
+            </h2>
 
             <Link
               to="/amigo"
               className="group relative flex flex-col items-center gap-4 transition-transform active:scale-95"
             >
               <div className="relative">
-                <Mascot id={profile.mascot} size="lg" bouncing equippedItemId={profile.equippedItem} />
+                <Mascot
+                  id={profile.mascot}
+                  size="lg"
+                  bouncing
+                  equippedItemId={profile.equippedItem}
+                />
                 <motion.div
                   animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.6, 0.3] }}
                   transition={{ duration: 2, repeat: Infinity }}
@@ -144,7 +157,11 @@ function AppHome() {
         {/* Chapter paths — Duolingo-style winding journey */}
         <div className="space-y-8">
           {visibleChapters.map((chapter) => (
-            <ChapterPath key={chapter.id} chapter={chapter} completedLessons={profile.completedLessons} />
+            <ChapterPath
+              key={chapter.id}
+              chapter={chapter}
+              completedLessons={profile.completedLessons}
+            />
           ))}
         </div>
 
@@ -158,7 +175,19 @@ function AppHome() {
   );
 }
 
-function QuickLink({ to, emoji, title, subtitle, tone }: { to: "/leitura" | "/jardim" | "/mundo"; emoji: string; title: string; subtitle: string; tone: "primary" | "success" }) {
+function QuickLink({
+  to,
+  emoji,
+  title,
+  subtitle,
+  tone,
+}: {
+  to: "/leitura" | "/jardim" | "/mundo";
+  emoji: string;
+  title: string;
+  subtitle: string;
+  tone: "primary" | "success";
+}) {
   const ring = tone === "primary" ? "from-primary/20" : "from-success/20";
   return (
     <Link
@@ -177,7 +206,13 @@ function QuickLink({ to, emoji, title, subtitle, tone }: { to: "/leitura" | "/ja
   );
 }
 
-function ChapterPath({ chapter, completedLessons }: { chapter: Chapter; completedLessons: string[] }) {
+function ChapterPath({
+  chapter,
+  completedLessons,
+}: {
+  chapter: Chapter;
+  completedLessons: string[];
+}) {
   const completed = useMemo(() => new Set(completedLessons), [completedLessons]);
   const missions = chapter.missions;
   const doneCount = missions.filter((m) => completed.has(m.lessonId)).length;
@@ -190,12 +225,16 @@ function ChapterPath({ chapter, completedLessons }: { chapter: Chapter; complete
       {/* Chapter banner */}
       <div
         className="card-chunky mb-4 overflow-hidden rounded-3xl border-2 border-border p-4 sm:p-5"
-        style={{ backgroundColor: `color-mix(in oklab, var(${chapter.themeColorVar}) 14%, var(--card))` }}
+        style={{
+          backgroundColor: `color-mix(in oklab, var(${chapter.themeColorVar}) 14%, var(--card))`,
+        }}
       >
         <div className="flex items-center gap-3">
           <div
             className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl text-3xl shadow-sm"
-            style={{ backgroundColor: `color-mix(in oklab, var(${chapter.themeColorVar}) 28%, var(--card))` }}
+            style={{
+              backgroundColor: `color-mix(in oklab, var(${chapter.themeColorVar}) 28%, var(--card))`,
+            }}
           >
             {chapter.emoji}
           </div>
@@ -203,7 +242,10 @@ function ChapterPath({ chapter, completedLessons }: { chapter: Chapter; complete
             <p className="font-display text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
               Capítulo {chapter.number}
             </p>
-            <h2 className="font-display text-xl leading-tight" style={{ color: `var(${chapter.themeColorVar})` }}>
+            <h2
+              className="font-display text-xl leading-tight"
+              style={{ color: `var(${chapter.themeColorVar})` }}
+            >
               {chapter.title}
             </h2>
             <p className="text-xs text-muted-foreground">{chapter.subtitle}</p>
@@ -216,7 +258,10 @@ function ChapterPath({ chapter, completedLessons }: { chapter: Chapter; complete
             {missions.map((m, i) => (
               <Star
                 key={m.lessonId}
-                className={cn("h-4 w-4", i < doneCount ? "fill-current text-xp" : "text-muted-foreground/40")}
+                className={cn(
+                  "h-4 w-4",
+                  i < doneCount ? "fill-current text-xp" : "text-muted-foreground/40",
+                )}
               />
             ))}
           </div>
@@ -229,7 +274,9 @@ function ChapterPath({ chapter, completedLessons }: { chapter: Chapter; complete
               style={{ backgroundColor: `var(${chapter.themeColorVar})` }}
             />
           </div>
-          <span className="font-display text-xs font-bold tabular-nums">{doneCount}/{missions.length}</span>
+          <span className="font-display text-xs font-bold tabular-nums">
+            {doneCount}/{missions.length}
+          </span>
         </div>
       </div>
 
@@ -240,7 +287,9 @@ function ChapterPath({ chapter, completedLessons }: { chapter: Chapter; complete
           const isActive = idx === activeIdx;
           const isLocked = idx > activeIdx;
           // Winding: alternate left / center / right
-          const offset = ["-translate-x-12", "translate-x-0", "translate-x-12", "translate-x-0"][idx % 4];
+          const offset = ["-translate-x-12", "translate-x-0", "translate-x-12", "translate-x-0"][
+            idx % 4
+          ];
           return (
             <li key={mission.lessonId} className="relative flex justify-center py-3">
               <div className={cn("transition-transform", offset)}>
@@ -261,9 +310,16 @@ function ChapterPath({ chapter, completedLessons }: { chapter: Chapter; complete
               "flex h-16 w-16 items-center justify-center rounded-3xl border-2 border-border",
               doneCount === missions.length ? "bg-xp/30" : "bg-muted",
             )}
-            aria-label={doneCount === missions.length ? "Capítulo completo" : "Troféu por desbloquear"}
+            aria-label={
+              doneCount === missions.length ? "Capítulo completo" : "Troféu por desbloquear"
+            }
           >
-            <Crown className={cn("h-7 w-7", doneCount === missions.length ? "text-xp" : "text-muted-foreground")} />
+            <Crown
+              className={cn(
+                "h-7 w-7",
+                doneCount === missions.length ? "text-xp" : "text-muted-foreground",
+              )}
+            />
           </div>
         </li>
       </ol>
@@ -293,7 +349,10 @@ function PathNode({
       )}
       style={
         state === "active"
-          ? { backgroundColor: color, boxShadow: `0 6px 0 0 color-mix(in oklab, ${color} 60%, black)` }
+          ? {
+              backgroundColor: color,
+              boxShadow: `0 6px 0 0 color-mix(in oklab, ${color} 60%, black)`,
+            }
           : state === "available"
             ? { boxShadow: `0 5px 0 0 color-mix(in oklab, ${color} 25%, var(--border))` }
             : undefined
@@ -319,7 +378,10 @@ function PathNode({
 
   if (state === "locked") {
     return (
-      <div className="flex flex-col items-center gap-1.5" aria-label={`${mission.title} (bloqueado)`}>
+      <div
+        className="flex flex-col items-center gap-1.5"
+        aria-label={`${mission.title} (bloqueado)`}
+      >
         {node}
         <p className="max-w-[140px] text-center font-display text-[11px] text-muted-foreground">
           {mission.title}

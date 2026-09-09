@@ -6,6 +6,7 @@ import { BottomNav } from "@/components/BottomNav";
 import { ChunkyButton } from "@/components/ChunkyButton";
 import { loadProfile, type Profile } from "@/lib/storage";
 import { RouteError } from "@/components/RouteError";
+import { KidLoader } from "@/components/KidLoader";
 import {
   fetchAchievements,
   fetchUnlocked,
@@ -13,24 +14,38 @@ import {
   type Achievement,
 } from "@/lib/achievements";
 import {
-  Sparkles, BookOpen, GraduationCap, Crown, Flame, Zap, Star,
-  Trophy, Coins, ShoppingBag, Target, Lock,
+  Sparkles,
+  BookOpen,
+  GraduationCap,
+  Crown,
+  Flame,
+  Zap,
+  Star,
+  Trophy,
+  Coins,
+  ShoppingBag,
+  Target,
+  Lock,
 } from "lucide-react";
 
 export const Route = createFileRoute("/conquistas")({
   head: () => ({
     meta: [
       { title: "Conquistas — Kidoz" },
-      { name: "description", content: "Vê as tuas medalhas desbloqueadas e as próximas a conquistar." },
-      { property: "og:title", content: 'As minhas conquistas — Kidoz' },
-      { property: "og:description", content: 'Vê as tuas medalhas desbloqueadas e as próximas a conquistar.' },
+      {
+        name: "description",
+        content: "Vê as tuas medalhas desbloqueadas e as próximas a conquistar.",
+      },
+      { property: "og:title", content: "As minhas conquistas — Kidoz" },
+      {
+        property: "og:description",
+        content: "Vê as tuas medalhas desbloqueadas e as próximas a conquistar.",
+      },
       { property: "og:url", content: "https://kidoz.online/conquistas" },
       { property: "og:image", content: "https://kidoz.online/og-image.jpg" },
       { name: "twitter:image", content: "https://kidoz.online/og-image.jpg" },
     ],
-    links: [
-      { rel: "canonical", href: "https://kidoz.online/conquistas" },
-    ],
+    links: [{ rel: "canonical", href: "https://kidoz.online/conquistas" }],
   }),
   component: AchievementsPage,
   errorComponent: RouteError,
@@ -62,12 +77,24 @@ const CATEGORY_LABEL: Record<string, string> = {
 function progressFor(a: Achievement, p: Profile, perfectLessons: number): number {
   let current = 0;
   switch (a.requirement_type) {
-    case "lessons_completed": current = p.completedLessons.length; break;
-    case "streak": current = p.streak; break;
-    case "xp": current = p.xp; break;
-    case "coins_total": current = p.coins; break;
-    case "items_owned": current = p.ownedItems.length; break;
-    case "perfect_lessons": current = perfectLessons; break;
+    case "lessons_completed":
+      current = p.completedLessons.length;
+      break;
+    case "streak":
+      current = p.streak;
+      break;
+    case "xp":
+      current = p.xp;
+      break;
+    case "coins_total":
+      current = p.coins;
+      break;
+    case "items_owned":
+      current = p.ownedItems.length;
+      break;
+    case "perfect_lessons":
+      current = perfectLessons;
+      break;
   }
   return Math.min(1, current / a.requirement_value);
 }
@@ -90,7 +117,9 @@ function AchievementsPage() {
       setLoading(false);
     };
     load();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const perfectLessons = getPerfectLessons();
@@ -122,7 +151,7 @@ function AchievementsPage() {
           </div>
         </header>
 
-        {loading && <p className="text-center text-muted-foreground">A carregar…</p>}
+        {loading && <KidLoader compact />}
 
         {!loading && unlockedCount === 0 && (
           <motion.div
@@ -133,7 +162,8 @@ function AchievementsPage() {
             <div className="text-5xl mb-3">🏆</div>
             <h2 className="font-display text-xl">Sem conquistas ainda</h2>
             <p className="text-sm text-muted-foreground mt-2">
-              Começa a aprender para ganhar conquistas! 🏆 Cada missão que completas te dá medalhas e Abracadinhos.
+              Começa a aprender para ganhar conquistas! 🏆 Cada missão que completas te dá medalhas
+              e Abracadinhos.
             </p>
             <Link to="/app" className="mt-4 inline-block">
               <ChunkyButton tone="primary">Começar aventura</ChunkyButton>
@@ -141,54 +171,58 @@ function AchievementsPage() {
           </motion.div>
         )}
 
-        {!loading && profile && Object.entries(grouped).map(([cat, items]) => (
-          <section key={cat} className="mb-6">
-            <h2 className="mb-3 font-display text-lg sm:text-xl">{CATEGORY_LABEL[cat] ?? cat}</h2>
-            <div role="list" className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              {items.map((a) => {
-                const isUnlocked = unlocked.has(a.code);
-                const Icon = ICONS[a.icon] ?? Trophy;
-                const pct = progressFor(a, profile, perfectLessons);
-                return (
-                  <div
-                    key={a.code}
-                    role="listitem"
-                    className={`card-chunky rounded-2xl border-2 p-4 transition-transform ${
-                      isUnlocked
-                        ? "border-primary bg-card"
-                        : "border-border bg-muted/40 opacity-90"
-                    }`}
-                  >
-                    <div className="flex items-start gap-3">
-                      <div
-                        className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl ${
-                          isUnlocked ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
-                        }`}
-                      >
-                        {isUnlocked ? <Icon className="h-6 w-6" /> : <Lock className="h-5 w-5" />}
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <h3 className="truncate font-display text-base">{a.title}</h3>
-                        <p className="text-xs text-muted-foreground">{a.description}</p>
-                        {!isUnlocked && (
-                          <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-muted">
-                            <div
-                              className="h-full bg-primary/70"
-                              style={{ width: `${pct * 100}%` }}
-                            />
-                          </div>
-                        )}
-                        <p className="mt-1 text-[11px] font-semibold text-secondary">
-                          + {a.coin_reward} 🪙{a.xp_reward > 0 ? `  · + ${a.xp_reward} ⭐` : ""}
-                        </p>
+        {!loading &&
+          profile &&
+          Object.entries(grouped).map(([cat, items]) => (
+            <section key={cat} className="mb-6">
+              <h2 className="mb-3 font-display text-lg sm:text-xl">{CATEGORY_LABEL[cat] ?? cat}</h2>
+              <div role="list" className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                {items.map((a) => {
+                  const isUnlocked = unlocked.has(a.code);
+                  const Icon = ICONS[a.icon] ?? Trophy;
+                  const pct = progressFor(a, profile, perfectLessons);
+                  return (
+                    <div
+                      key={a.code}
+                      role="listitem"
+                      className={`card-chunky rounded-2xl border-2 p-4 transition-transform ${
+                        isUnlocked
+                          ? "border-primary bg-card"
+                          : "border-border bg-muted/40 opacity-90"
+                      }`}
+                    >
+                      <div className="flex items-start gap-3">
+                        <div
+                          className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl ${
+                            isUnlocked
+                              ? "bg-primary text-primary-foreground"
+                              : "bg-muted text-muted-foreground"
+                          }`}
+                        >
+                          {isUnlocked ? <Icon className="h-6 w-6" /> : <Lock className="h-5 w-5" />}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <h3 className="truncate font-display text-base">{a.title}</h3>
+                          <p className="text-xs text-muted-foreground">{a.description}</p>
+                          {!isUnlocked && (
+                            <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-muted">
+                              <div
+                                className="h-full bg-primary/70"
+                                style={{ width: `${pct * 100}%` }}
+                              />
+                            </div>
+                          )}
+                          <p className="mt-1 text-[11px] font-semibold text-secondary">
+                            + {a.coin_reward} 🪙{a.xp_reward > 0 ? `  · + ${a.xp_reward} ⭐` : ""}
+                          </p>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                );
-              })}
-            </div>
-          </section>
-        ))}
+                  );
+                })}
+              </div>
+            </section>
+          ))}
 
         <div className="mt-6">
           <Link to="/app">

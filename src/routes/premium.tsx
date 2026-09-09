@@ -35,6 +35,7 @@ import {
   Zap,
 } from "lucide-react";
 import { RouteError } from "@/components/RouteError";
+import { KidLoader } from "@/components/KidLoader";
 
 const TESTIMONIALS = [
   {
@@ -61,7 +62,6 @@ const TRUST = [
   { icon: Trophy, label: "Programa nacional" },
 ];
 
-// @ts-ignore TanStack Router file-route type resolution
 export const Route = createFileRoute("/premium")({
   head: () => ({
     meta: [
@@ -79,13 +79,11 @@ export const Route = createFileRoute("/premium")({
       { property: "og:url", content: "https://kidoz.online/premium" },
       {
         property: "og:image",
-        content:
-          "https://kidoz.online/og-image.jpg",
+        content: "https://kidoz.online/og-image.jpg",
       },
       {
         name: "twitter:image",
-        content:
-          "https://kidoz.online/og-image.jpg",
+        content: "https://kidoz.online/og-image.jpg",
       },
     ],
     links: [{ rel: "canonical", href: "https://kidoz.online/premium" }],
@@ -262,18 +260,7 @@ function PremiumPage() {
     setProfile(p);
   }, [navigate]);
 
-  if (!profile)
-    return (
-      <main id="main-content" className="flex min-h-[60dvh] items-center justify-center">
-        <p
-          className="animate-pulse font-display text-lg text-muted-foreground"
-          role="status"
-          aria-live="polite"
-        >
-          A carregar…
-        </p>
-      </main>
-    );
+  if (!profile) return <KidLoader />;
 
   const handleSubscribe = (priceId: string) => {
     if (!user) {

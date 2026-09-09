@@ -11,21 +11,26 @@ import { ArrowLeft, Sparkles } from "lucide-react";
 import { getAdaptiveRecommendation } from "@/lib/ai.functions";
 import { detectRegion } from "@/lib/region";
 import { RouteError } from "@/components/RouteError";
+import { KidLoader } from "@/components/KidLoader";
 
 export const Route = createFileRoute("/leitura")({
   head: () => ({
     meta: [
       { title: "Leitura em voz alta — Kidoz" },
-      { name: "description", content: "Pratica a leitura com reconhecimento de voz adaptado a crianças." },
-      { property: "og:title", content: 'Leitura em voz alta — Kidoz' },
-      { property: "og:description", content: 'Pratica a leitura com reconhecimento de voz adaptado a crianças.' },
+      {
+        name: "description",
+        content: "Pratica a leitura com reconhecimento de voz adaptado a crianças.",
+      },
+      { property: "og:title", content: "Leitura em voz alta — Kidoz" },
+      {
+        property: "og:description",
+        content: "Pratica a leitura com reconhecimento de voz adaptado a crianças.",
+      },
       { property: "og:url", content: "https://kidoz.online/leitura" },
       { property: "og:image", content: "https://kidoz.online/og-image.jpg" },
       { name: "twitter:image", content: "https://kidoz.online/og-image.jpg" },
     ],
-    links: [
-      { rel: "canonical", href: "https://kidoz.online/leitura" },
-    ],
+    links: [{ rel: "canonical", href: "https://kidoz.online/leitura" }],
   }),
   component: ReadingPage,
   errorComponent: RouteError,
@@ -33,21 +38,57 @@ export const Route = createFileRoute("/leitura")({
 
 const PHRASES_PT_PT: Record<number, string[]> = {
   1: ["O sol brilha no céu.", "A bola é vermelha.", "O gato bebe leite.", "A Mocha é uma coruja."],
-  2: ["A borboleta voa pelo jardim colorido.", "Os meninos jogam à bola no parque.", "A galinha põe ovos no galinheiro."],
-  3: ["O coelho saltou para dentro da floresta sombria.", "Lisboa fica junto ao rio Tejo, em Portugal.", "As estrelas brilham na noite de verão."],
-  4: ["Os exploradores portugueses descobriram novos caminhos pelo mar.", "A reciclagem ajuda a proteger o nosso planeta azul.", "As frações representam partes iguais de um todo."],
+  2: [
+    "A borboleta voa pelo jardim colorido.",
+    "Os meninos jogam à bola no parque.",
+    "A galinha põe ovos no galinheiro.",
+  ],
+  3: [
+    "O coelho saltou para dentro da floresta sombria.",
+    "Lisboa fica junto ao rio Tejo, em Portugal.",
+    "As estrelas brilham na noite de verão.",
+  ],
+  4: [
+    "Os exploradores portugueses descobriram novos caminhos pelo mar.",
+    "A reciclagem ajuda a proteger o nosso planeta azul.",
+    "As frações representam partes iguais de um todo.",
+  ],
 };
 const PHRASES_PT_BR: Record<number, string[]> = {
   1: ["O sol brilha no céu.", "A bola é vermelha.", "O gato toma leite.", "O sapo pula na lagoa."],
-  2: ["A borboleta voa pelo jardim colorido.", "As crianças brincam de pique-esconde.", "A galinha bota ovos no galinheiro."],
-  3: ["O coelho pulou para dentro da floresta escura.", "O Rio de Janeiro fica junto ao mar.", "As estrelas brilham na noite de verão."],
-  4: ["Os bandeirantes exploraram o interior do Brasil.", "A reciclagem ajuda a proteger nosso planeta azul.", "As frações representam partes iguais de um todo."],
+  2: [
+    "A borboleta voa pelo jardim colorido.",
+    "As crianças brincam de pique-esconde.",
+    "A galinha bota ovos no galinheiro.",
+  ],
+  3: [
+    "O coelho pulou para dentro da floresta escura.",
+    "O Rio de Janeiro fica junto ao mar.",
+    "As estrelas brilham na noite de verão.",
+  ],
+  4: [
+    "Os bandeirantes exploraram o interior do Brasil.",
+    "A reciclagem ajuda a proteger nosso planeta azul.",
+    "As frações representam partes iguais de um todo.",
+  ],
 };
 const PHRASES_EN: Record<number, string[]> = {
   1: ["The sun shines in the sky.", "The ball is red.", "The cat drinks milk.", "The owl is wise."],
-  2: ["The butterfly flies through the garden.", "Children play in the park.", "The hen lays eggs in the coop."],
-  3: ["The rabbit hopped into the dark forest.", "The stars shine bright at night.", "We learn something new every day."],
-  4: ["Explorers discovered new paths across the seas.", "Recycling helps protect our blue planet.", "Fractions represent equal parts of a whole."],
+  2: [
+    "The butterfly flies through the garden.",
+    "Children play in the park.",
+    "The hen lays eggs in the coop.",
+  ],
+  3: [
+    "The rabbit hopped into the dark forest.",
+    "The stars shine bright at night.",
+    "We learn something new every day.",
+  ],
+  4: [
+    "Explorers discovered new paths across the seas.",
+    "Recycling helps protect our blue planet.",
+    "Fractions represent equal parts of a whole.",
+  ],
 };
 function phrasesForRegion(): Record<number, string[]> {
   const r = detectRegion();
@@ -76,11 +117,7 @@ function ReadingPage() {
       .catch(() => setTip(null));
   }, [navigate]);
 
-  if (!profile) return (
-    <main id="main-content" className="flex min-h-[60dvh] items-center justify-center">
-      <p className="animate-pulse font-display text-lg text-muted-foreground" role="status" aria-live="polite">A carregar…</p>
-    </main>
-  );
+  if (!profile) return <KidLoader />;
 
   const phrasesMap = phrasesForRegion();
   const phrases = phrasesMap[profile.grade] ?? phrasesMap[1];
@@ -101,7 +138,10 @@ function ReadingPage() {
     <div className="min-h-[100dvh] bg-background pb-24 md:pb-12">
       <TopBar profile={profile} />
       <main id="main-content" className="mx-auto max-w-[48rem] px-4 py-6">
-        <Link to="/app" className="mb-3 inline-flex items-center gap-1 text-sm font-display text-muted-foreground hover:text-foreground">
+        <Link
+          to="/app"
+          className="mb-3 inline-flex items-center gap-1 text-sm font-display text-muted-foreground hover:text-foreground"
+        >
           <ArrowLeft className="h-4 w-4" /> Aventura
         </Link>
 
@@ -129,9 +169,13 @@ function ReadingPage() {
         </div>
 
         <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-          <ChunkyButton tone="ghost" onClick={next} className="flex-1">Outra frase →</ChunkyButton>
+          <ChunkyButton tone="ghost" onClick={next} className="flex-1">
+            Outra frase →
+          </ChunkyButton>
           <Link to="/app" className="flex-1">
-            <ChunkyButton tone="primary" className="w-full">Voltar à aventura</ChunkyButton>
+            <ChunkyButton tone="primary" className="w-full">
+              Voltar à aventura
+            </ChunkyButton>
           </Link>
         </div>
 

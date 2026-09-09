@@ -10,6 +10,7 @@ import { loadProfile, type Profile } from "@/lib/storage";
 import { ArrowLeft, Check, Lock, Play } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { RouteError } from "@/components/RouteError";
+import { KidLoader } from "@/components/KidLoader";
 
 export const Route = createFileRoute("/capitulo/$chapterId")({
   head: ({ params }) => {
@@ -29,13 +30,11 @@ export const Route = createFileRoute("/capitulo/$chapterId")({
         { property: "og:type", content: "article" },
         {
           property: "og:image",
-          content:
-            "https://kidoz.online/og-image.jpg",
+          content: "https://kidoz.online/og-image.jpg",
         },
         {
           name: "twitter:image",
-          content:
-            "https://kidoz.online/og-image.jpg",
+          content: "https://kidoz.online/og-image.jpg",
         },
       ],
       links: [{ rel: "canonical", href: url }],
@@ -60,18 +59,7 @@ function ChapterPage() {
     setProfile(p);
   }, [navigate]);
 
-  if (!profile)
-    return (
-      <main id="main-content" className="flex min-h-[60dvh] items-center justify-center">
-        <p
-          className="animate-pulse font-display text-lg text-muted-foreground"
-          role="status"
-          aria-live="polite"
-        >
-          A carregar…
-        </p>
-      </main>
-    );
+  if (!profile) return <KidLoader />;
   if (!chapter) {
     return (
       <main

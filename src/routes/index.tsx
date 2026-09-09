@@ -223,7 +223,7 @@ function Landing() {
             "🔒 Seguro para crianças",
             "🚫 Sem anúncios",
             "🇵🇹 Programa nacional",
-            "👨‍👩‍👧 Painel de pais",
+            "👪 Painel de pais",
           ].map((t) => (
             <li
               key={t}
@@ -357,7 +357,12 @@ function HowItWorks() {
             transition={{ delay: i * 0.1 }}
             className="card-chunky relative overflow-hidden rounded-3xl border border-border bg-card p-5 text-left"
           >
-            <span className="absolute -right-3 -top-3 text-7xl opacity-10">{s.n}</span>
+            <span
+              aria-hidden
+              className="pointer-events-none absolute -right-2 -top-4 select-none font-display text-[5.5rem] font-black leading-none opacity-[0.07]"
+            >
+              {s.n}
+            </span>
             <div className="text-3xl">{s.emoji}</div>
             <h3 className="mt-2 font-display text-lg sm:text-xl">{s.title}</h3>
             <p className="text-sm text-muted-foreground">{s.text}</p>
@@ -414,9 +419,14 @@ function LessonPathPreview() {
 function FeatureCard({ emoji, title, text }: { emoji: string; title: string; text: string }) {
   return (
     <div className="card-chunky rounded-3xl border border-border bg-card p-4 text-left sm:p-5">
-      <div className="text-2xl sm:text-3xl">{emoji}</div>
-      <h2 className="mt-2 font-display text-lg sm:text-xl">{title}</h2>
-      <p className="text-sm text-muted-foreground">{text}</p>
+      <div
+        aria-hidden
+        className="grid h-12 w-12 place-items-center rounded-2xl bg-muted text-2xl sm:text-3xl"
+      >
+        {emoji}
+      </div>
+      <h2 className="mt-3 font-display text-lg sm:text-xl">{title}</h2>
+      <p className="mt-1 text-sm text-muted-foreground">{text}</p>
     </div>
   );
 }

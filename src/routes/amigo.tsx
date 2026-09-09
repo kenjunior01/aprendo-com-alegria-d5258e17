@@ -5,6 +5,7 @@ import { loadProfile, pullProfileFromCloud, type Profile } from "@/lib/storage";
 import { ArrowLeft } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { RouteError } from "@/components/RouteError";
+import { KidLoader } from "@/components/KidLoader";
 
 export const Route = createFileRoute("/amigo")({
   head: () => ({
@@ -35,14 +36,12 @@ function AmigoMode() {
       setProfile(p);
     };
     init();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [navigate]);
 
-  if (!profile) return (
-    <main id="main-content" className="flex min-h-[60dvh] items-center justify-center">
-      <p className="animate-pulse font-display text-lg text-muted-foreground" role="status" aria-live="polite">A carregar…</p>
-    </main>
-  );
+  if (!profile) return <KidLoader />;
 
   return (
     <div className="fixed inset-0 z-50 flex h-[100dvh] w-screen flex-col overflow-hidden bg-background touch-none select-none">

@@ -19,11 +19,18 @@ export function MissionOfTheDay({ completedLessons, grade }: Props) {
   }, []);
 
   const set = new Set(completedLessons);
-  const visible = CHAPTERS.filter((c) => c.grade <= Math.min(4, grade + 1));
-  // Today's seed picks a chapter
+  // Prioridade: primeiro esgotar as missões do ano da criança; só depois
+  // usar capítulos do ano seguinte como "stretch". Assim a seed diária nunca
+  // recomenda conteúdo de um ano acima quando ainda há missões do próprio ano.
   const day = new Date().getDate();
-  const ordered = [...visible].sort((a, b) => ((a.number + day) % 7) - ((b.number + day) % 7));
-  const chapter = ordered.find((c) => c.missions.some((m) => !set.has(m.lessonId))) ?? visible[0];
+  const seed = (c: (typeof CHAPTERS)[number]) => (c.number + day) % 7;
+  const inGrade = CHAPTERS.filter((c) => c.grade === grade).sort((a, b) => seed(a) - seed(b));
+  const stretchGrade = Math.min(4, grade + 1);
+  const stretch = CHAPTERS.filter((c) => c.grade === stretchGrade).sort(
+    (a, b) => seed(a) - seed(b),
+  );
+  const ordered = [...inGrade, ...stretch];
+  const chapter = ordered.find((c) => c.missions.some((m) => !set.has(m.lessonId)));
   if (!chapter) return null;
   const mission = chapter.missions.find((m) => !set.has(m.lessonId)) ?? chapter.missions[0];
   const color = `var(${chapter.themeColorVar})`;

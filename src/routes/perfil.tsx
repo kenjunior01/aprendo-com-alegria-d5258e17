@@ -5,7 +5,13 @@ import { BottomNav } from "@/components/BottomNav";
 import { Mascot } from "@/components/Mascot";
 import { ChunkyButton } from "@/components/ChunkyButton";
 import { MASCOTS, type MascotId } from "@/lib/mascots";
-import { loadProfile, pullProfileFromCloud, resetProfile, updateProfile, type Profile } from "@/lib/storage";
+import {
+  loadProfile,
+  pullProfileFromCloud,
+  resetProfile,
+  updateProfile,
+  type Profile,
+} from "@/lib/storage";
 import { totalMissions } from "@/lib/chapters";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -15,21 +21,20 @@ import { RegionInterestsPanel } from "@/components/RegionInterestsPanel";
 import { CertificateButton } from "@/components/CertificateButton";
 import { Cloud, CloudOff, LogOut } from "lucide-react";
 import { RouteError } from "@/components/RouteError";
+import { KidLoader } from "@/components/KidLoader";
 
 export const Route = createFileRoute("/perfil")({
   head: () => ({
     meta: [
       { title: "Perfil — Kidoz" },
       { name: "description", content: "Vê o teu progresso e troca de mascote." },
-      { property: "og:title", content: 'Perfil — Kidoz' },
-      { property: "og:description", content: 'Vê o teu progresso e troca de mascote.' },
+      { property: "og:title", content: "Perfil — Kidoz" },
+      { property: "og:description", content: "Vê o teu progresso e troca de mascote." },
       { property: "og:url", content: "https://kidoz.online/perfil" },
       { property: "og:image", content: "https://kidoz.online/og-image.jpg" },
       { name: "twitter:image", content: "https://kidoz.online/og-image.jpg" },
     ],
-    links: [
-      { rel: "canonical", href: "https://kidoz.online/perfil" },
-    ],
+    links: [{ rel: "canonical", href: "https://kidoz.online/perfil" }],
   }),
   component: ProfilePage,
   errorComponent: RouteError,
@@ -53,14 +58,12 @@ function ProfilePage() {
       setProfile(p);
     };
     init();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [navigate]);
 
-  if (!profile) return (
-    <main id="main-content" className="flex min-h-[60dvh] items-center justify-center">
-      <p className="animate-pulse font-display text-lg text-muted-foreground" role="status" aria-live="polite">A carregar…</p>
-    </main>
-  );
+  if (!profile) return <KidLoader />;
 
   const total = totalMissions();
   const completed = profile.completedLessons.length;
@@ -74,7 +77,11 @@ function ProfilePage() {
   };
 
   const reset = () => {
-    if (confirm("Tens a certeza que queres recomeçar? Perdes todo o progresso (apenas neste dispositivo).")) {
+    if (
+      confirm(
+        "Tens a certeza que queres recomeçar? Perdes todo o progresso (apenas neste dispositivo).",
+      )
+    ) {
       resetProfile();
       navigate({ to: "/" });
     }
@@ -98,7 +105,9 @@ function ProfilePage() {
               💎 PREMIUM
             </span>
           )}
-          <p className="text-muted-foreground">{profile.age} anos · {profile.grade}.º ano</p>
+          <p className="text-muted-foreground">
+            {profile.age} anos · {profile.grade}.º ano
+          </p>
 
           <div className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-4 sm:gap-3">
             <Box label="🔥 Sequência" value={`${profile.streak}d`} />
@@ -123,7 +132,9 @@ function ProfilePage() {
 
           {!user && (
             <Link to="/auth" className="mt-3 inline-block">
-              <ChunkyButton tone="secondary" className="text-sm">☁️ Guardar na cloud</ChunkyButton>
+              <ChunkyButton tone="secondary" className="text-sm">
+                ☁️ Guardar na cloud
+              </ChunkyButton>
             </Link>
           )}
         </div>
@@ -137,7 +148,9 @@ function ProfilePage() {
                 key={g}
                 onClick={() => changeGrade(g)}
                 className={`card-chunky rounded-2xl border-2 bg-card py-3 font-display text-sm transition-transform active:scale-95 ${
-                  profile.grade === g ? "border-primary bg-accent text-accent-foreground" : "border-border"
+                  profile.grade === g
+                    ? "border-primary bg-accent text-accent-foreground"
+                    : "border-border"
                 }`}
               >
                 {g}.º ano
@@ -155,10 +168,16 @@ function ProfilePage() {
                 onClick={() => changeMascot(m.id)}
                 role="listitem"
                 className={`card-chunky rounded-2xl border-2 bg-card p-2 transition-transform active:scale-95 ${
-                  profile.mascot === m.id ? "border-primary ring-4 ring-primary/30" : "border-border"
+                  profile.mascot === m.id
+                    ? "border-primary ring-4 ring-primary/30"
+                    : "border-border"
                 }`}
               >
-                <Mascot id={m.id} size="sm" equippedItemId={profile.mascot === m.id ? profile.equippedItem : null} />
+                <Mascot
+                  id={m.id}
+                  size="sm"
+                  equippedItemId={profile.mascot === m.id ? profile.equippedItem : null}
+                />
                 <p className="mt-1 text-center font-display text-xs sm:text-sm">{m.name}</p>
               </button>
             ))}
@@ -184,29 +203,45 @@ function ProfilePage() {
             <ChunkyButton className="w-full">← Voltar à aventura</ChunkyButton>
           </Link>
           <Link to="/leitura">
-            <ChunkyButton tone="secondary" className="w-full">🎤 Praticar leitura em voz</ChunkyButton>
+            <ChunkyButton tone="secondary" className="w-full">
+              🎤 Praticar leitura em voz
+            </ChunkyButton>
           </Link>
           <Link to="/ra">
-            <ChunkyButton tone="secondary" className="w-full">🥽 Mascote em Realidade Aumentada</ChunkyButton>
+            <ChunkyButton tone="secondary" className="w-full">
+              🥽 Mascote em Realidade Aumentada
+            </ChunkyButton>
           </Link>
           <Link to="/conquistas">
-            <ChunkyButton tone="secondary" className="w-full">🏆 Ver conquistas</ChunkyButton>
+            <ChunkyButton tone="secondary" className="w-full">
+              🏆 Ver conquistas
+            </ChunkyButton>
           </Link>
           <Link to="/loja">
-            <ChunkyButton tone="secondary" className="w-full">🛍️ Ir à loja</ChunkyButton>
+            <ChunkyButton tone="secondary" className="w-full">
+              🛍️ Ir à loja
+            </ChunkyButton>
           </Link>
           <Link to="/premium">
-            <ChunkyButton tone="primary" className="w-full">{profile.isPremium ? "💎 Gerir Premium" : "💎 Conhecer o Premium"}</ChunkyButton>
+            <ChunkyButton tone="primary" className="w-full">
+              {profile.isPremium ? "💎 Gerir Premium" : "💎 Conhecer o Premium"}
+            </ChunkyButton>
           </Link>
           {completed >= total && total > 0 && user && (
-            <CertificateButton childName={profile.name} grade={profile.grade} mascot={profile.mascot} />
+            <CertificateButton
+              childName={profile.name}
+              grade={profile.grade}
+              mascot={profile.mascot}
+            />
           )}
           {user && (
             <ChunkyButton tone="ghost" onClick={signOut} className="w-full">
               <LogOut className="mr-1 h-4 w-4" /> Sair da conta
             </ChunkyButton>
           )}
-          <ChunkyButton tone="danger" onClick={reset} className="w-full">Recomeçar progresso</ChunkyButton>
+          <ChunkyButton tone="danger" onClick={reset} className="w-full">
+            Recomeçar progresso
+          </ChunkyButton>
         </section>
       </main>
       <BottomNav />
@@ -217,7 +252,9 @@ function ProfilePage() {
 function Box({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-2xl bg-muted px-2 py-3 sm:px-3">
-      <p className="text-[10px] uppercase tracking-wide text-muted-foreground sm:text-xs">{label}</p>
+      <p className="text-[10px] uppercase tracking-wide text-muted-foreground sm:text-xs">
+        {label}
+      </p>
       <p className="mt-0.5 font-display text-lg sm:text-2xl">{value}</p>
     </div>
   );

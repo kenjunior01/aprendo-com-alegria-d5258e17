@@ -60,6 +60,7 @@ import { FamilyChallengePanel } from "@/components/FamilyChallengePanel";
 import { ChildChallengesPanel } from "@/components/ChildChallengesPanel";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { RouteError } from "@/components/RouteError";
+import { KidLoader } from "@/components/KidLoader";
 
 const GATE_KEY = "kidoz-parent-gate-ts";
 const GATE_TTL_MIN = 30;
@@ -97,13 +98,11 @@ export const Route = createFileRoute("/pais")({
       { property: "og:url", content: "https://kidoz.online/pais" },
       {
         property: "og:image",
-        content:
-          "https://kidoz.online/og-image.jpg",
+        content: "https://kidoz.online/og-image.jpg",
       },
       {
         name: "twitter:image",
-        content:
-          "https://kidoz.online/og-image.jpg",
+        content: "https://kidoz.online/og-image.jpg",
       },
     ],
     links: [{ rel: "canonical", href: "https://kidoz.online/pais" }],
@@ -278,18 +277,7 @@ function ParentDashboard() {
     });
   }, [children, searchQuery, gradeFilter]);
 
-  if (!user || !profile)
-    return (
-      <main id="main-content" className="flex min-h-[60dvh] items-center justify-center">
-        <p
-          className="animate-pulse font-display text-lg text-muted-foreground"
-          role="status"
-          aria-live="polite"
-        >
-          A carregar…
-        </p>
-      </main>
-    );
+  if (!user || !profile) return <KidLoader />;
 
   const generateInvite = async () => {
     try {

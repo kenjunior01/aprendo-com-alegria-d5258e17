@@ -16,6 +16,7 @@ import { ArrowLeft, Sparkles, Lock, Gift, CheckCircle2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import confetti from "canvas-confetti";
 import { RouteError } from "@/components/RouteError";
+import { KidLoader } from "@/components/KidLoader";
 
 export const Route = createFileRoute("/jardim")({
   head: () => ({
@@ -30,13 +31,11 @@ export const Route = createFileRoute("/jardim")({
       { property: "og:url", content: "https://kidoz.online/jardim" },
       {
         property: "og:image",
-        content:
-          "https://kidoz.online/og-image.jpg",
+        content: "https://kidoz.online/og-image.jpg",
       },
       {
         name: "twitter:image",
-        content:
-          "https://kidoz.online/og-image.jpg",
+        content: "https://kidoz.online/og-image.jpg",
       },
     ],
     links: [{ rel: "canonical", href: "https://kidoz.online/jardim" }],
@@ -80,18 +79,7 @@ function GardenPage() {
     setTimeout(() => setJustClaimed(null), 2000);
   };
 
-  if (!profile || !missions)
-    return (
-      <main id="main-content" className="flex min-h-[60dvh] items-center justify-center">
-        <p
-          className="animate-pulse font-display text-lg text-muted-foreground"
-          role="status"
-          aria-live="polite"
-        >
-          A carregar…
-        </p>
-      </main>
-    );
+  if (!profile || !missions) return <KidLoader />;
   const garden = gardenState(profile);
   const nextProgress = garden.next ? progressToNext(profile, garden.next) : null;
   const stats = dailyMissionStats(missions);
