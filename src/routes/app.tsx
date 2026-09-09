@@ -332,6 +332,7 @@ function PathNode({
     <Link
       to="/licao/$subjectId/$lessonId"
       params={{ subjectId: mission.subjectId, lessonId: mission.lessonId }}
+      search={{}}
       onClick={() => haptic(state === "active" ? "celebrate" : "tap")}
       className="flex flex-col items-center gap-1.5"
       aria-label={`Iniciar missão: ${mission.title}`}

@@ -259,6 +259,15 @@
     html { scroll-behavior: smooth; }
   }
 
+  /* Reduced motion global: respeitar utilizadores sensíveis a movimento */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
   /* Selection color */
   ::selection {
     background-color: color-mix(in oklab, var(--color-primary) 20%, var(--color-background));

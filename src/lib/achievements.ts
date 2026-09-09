@@ -1,5 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 import { loadProfile, updateProfile, type Profile } from "./storage";
+import { lsGet, lsSet } from "./localStore";
 
 export interface Achievement {
   code: string;
@@ -28,10 +29,12 @@ export async function fetchAchievements(): Promise<Achievement[]> {
 }
 
 export async function fetchUnlocked(): Promise<UnlockedAchievement[]> {
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) {
     // local fallback
-    const raw = typeof window !== "undefined" ? localStorage.getItem("lusis-achievements") : null;
+    const raw = lsGet("kidoz-achievements");
     return raw ? (JSON.parse(raw) as UnlockedAchievement[]) : [];
   }
   const { data } = await supabase
@@ -60,22 +63,24 @@ function meetsRequirement(a: Achievement, p: Profile, perfectLessons: number): b
   }
 }
 
-const PERFECT_KEY = "lusis-perfect-lessons";
+const PERFECT_KEY = "kidoz-perfect-lessons";
 export function incrementPerfectLessons(): number {
   if (typeof window === "undefined") return 0;
-  const n = Number(localStorage.getItem(PERFECT_KEY) ?? "0") + 1;
-  localStorage.setItem(PERFECT_KEY, String(n));
+  const n = Number(lsGet(PERFECT_KEY) ?? "0") + 1;
+  lsSet(PERFECT_KEY, String(n));
   return n;
 }
 export function getPerfectLessons(): number {
   if (typeof window === "undefined") return 0;
-  return Number(localStorage.getItem(PERFECT_KEY) ?? "0");
+  return Number(lsGet(PERFECT_KEY) ?? "0");
 }
 
 /**
  * Verifica conquistas após uma lição. Devolve as recém-desbloqueadas.
  */
-export async function checkAndUnlockAchievements(opts?: { wasPerfect?: boolean }): Promise<Achievement[]> {
+export async function checkAndUnlockAchievements(opts?: {
+  wasPerfect?: boolean;
+}): Promise<Achievement[]> {
   const profile = loadProfile();
   if (!profile) return [];
 
@@ -106,16 +111,18 @@ export async function checkAndUnlockAchievements(opts?: { wasPerfect?: boolean }
     ...newly.map((a) => ({ achievement_code: a.code, unlocked_at: new Date().toISOString() })),
   ];
   if (typeof window !== "undefined") {
-    localStorage.setItem("lusis-achievements", JSON.stringify(merged));
+    lsSet("kidoz-achievements", JSON.stringify(merged));
   }
 
   // Push to cloud if signed in
   try {
-    const { data: { user } } = await supabase.auth.getUser();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
     if (user) {
-      await supabase.from("user_achievements").insert(
-        newly.map((a) => ({ user_id: user.id, achievement_code: a.code })),
-      );
+      await supabase
+        .from("user_achievements")
+        .insert(newly.map((a) => ({ user_id: user.id, achievement_code: a.code })));
     }
   } catch {
     // offline — ignora

@@ -8,20 +8,20 @@ import type { Profile } from "@/lib/storage";
 
 // ─── XP Level System ───
 export const XP_LEVELS = [
-  { level: 1,  name: "Iniciante",     minXP: 0,    icon: "🌱" },
-  { level: 2,  name: "Explorador",     minXP: 100,  icon: "🧭" },
-  { level: 3,  name: "Aprendiz",       minXP: 300,  icon: "📖" },
-  { level: 4,  name: "Descobridor",    minXP: 600,  icon: "🔍" },
-  { level: 5,  name: "Construtor",     minXP: 1000, icon: "🏗️" },
-  { level: 6,  name: "Cientista",      minXP: 1600, icon: "🔬" },
-  { level: 7,  name: "Mestre",         minXP: 2500, icon: "🎓" },
-  { level: 8,  name: "Sábio",          minXP: 3800, icon: "🦉" },
-  { level: 9,  name: "Lenda",          minXP: 5500, icon: "⚡" },
-  { level: 10, name: "Supremo",        minXP: 8000, icon: "👑" },
+  { level: 1, name: "Iniciante", minXP: 0, icon: "🌱" },
+  { level: 2, name: "Explorador", minXP: 100, icon: "🧭" },
+  { level: 3, name: "Aprendiz", minXP: 300, icon: "📖" },
+  { level: 4, name: "Descobridor", minXP: 600, icon: "🔍" },
+  { level: 5, name: "Construtor", minXP: 1000, icon: "🏗️" },
+  { level: 6, name: "Cientista", minXP: 1600, icon: "🔬" },
+  { level: 7, name: "Mestre", minXP: 2500, icon: "🎓" },
+  { level: 8, name: "Sábio", minXP: 3800, icon: "🦉" },
+  { level: 9, name: "Lenda", minXP: 5500, icon: "⚡" },
+  { level: 10, name: "Supremo", minXP: 8000, icon: "👑" },
 ] as const;
 
-export function getXPLevel(xp: number) {
-  let lvl = XP_LEVELS[0];
+export function getXPLevel(xp: number): (typeof XP_LEVELS)[number] {
+  let lvl: (typeof XP_LEVELS)[number] = XP_LEVELS[0];
   for (const l of XP_LEVELS) {
     if (xp >= l.minXP) lvl = l;
     else break;
@@ -46,17 +46,23 @@ export function getXPProgress(xp: number) {
 
 // ─── League Badges ───
 export const LEAGUES = [
-  { tier: "bronze",  name: "Liga Bronze",  minXP: 0,    colorVar: "--leagues-bronze",  icon: Shield },
-  { tier: "prata",   name: "Liga Prata",   minXP: 300,  colorVar: "--leagues-prata",   icon: Medal },
-  { tier: "ouro",    name: "Liga Ouro",    minXP: 1000, colorVar: "--leagues-ouro",    icon: Award },
-  { tier: "diamante", name: "Liga Diamante", minXP: 2500, colorVar: "--leagues-diamante", icon: Crown },
-  { tier: "lenda",   name: "Liga Lenda",   minXP: 5500, colorVar: "--leagues-lenda",   icon: Trophy },
+  { tier: "bronze", name: "Liga Bronze", minXP: 0, colorVar: "--leagues-bronze", icon: Shield },
+  { tier: "prata", name: "Liga Prata", minXP: 300, colorVar: "--leagues-prata", icon: Medal },
+  { tier: "ouro", name: "Liga Ouro", minXP: 1000, colorVar: "--leagues-ouro", icon: Award },
+  {
+    tier: "diamante",
+    name: "Liga Diamante",
+    minXP: 2500,
+    colorVar: "--leagues-diamante",
+    icon: Crown,
+  },
+  { tier: "lenda", name: "Liga Lenda", minXP: 5500, colorVar: "--leagues-lenda", icon: Trophy },
 ] as const;
 
 export type LeagueTier = (typeof LEAGUES)[number]["tier"];
 
-export function getLeague(xp: number) {
-  let league = LEAGUES[0];
+export function getLeague(xp: number): (typeof LEAGUES)[number] {
+  let league: (typeof LEAGUES)[number] = LEAGUES[0];
   for (const l of LEAGUES) {
     if (xp >= l.minXP) league = l;
     else break;
@@ -127,7 +133,12 @@ export function DuolingoBar({ profile, compact = false, className }: DuolingoBar
   // ─── Compact Mode ───
   if (compact) {
     return (
-      <div className={cn("flex items-center gap-2.5 rounded-full bg-card/80 px-3 py-1.5 shadow-sm backdrop-blur-sm", className)}>
+      <div
+        className={cn(
+          "flex items-center gap-2.5 rounded-full bg-card/80 px-3 py-1.5 shadow-sm backdrop-blur-sm",
+          className,
+        )}
+      >
         <div className="flex items-center gap-1" title={league.name}>
           <LeagueIcon className="h-3.5 w-3.5" style={{ color: `var(${league.colorVar})` }} />
           <span className="text-[10px] font-bold">{xpLevel.icon}</span>
@@ -138,12 +149,22 @@ export function DuolingoBar({ profile, compact = false, className }: DuolingoBar
         </div>
         {profile.streak > 0 && (
           <div className="flex items-center gap-0.5">
-            <Flame className={cn("h-3 w-3", profile.streak >= 7 ? "text-streak" : "text-muted-foreground")} />
+            <Flame
+              className={cn(
+                "h-3 w-3",
+                profile.streak >= 7 ? "text-streak" : "text-muted-foreground",
+              )}
+            />
             <span className="text-[10px] font-bold tabular-nums">{profile.streak}</span>
           </div>
         )}
         <div className="flex items-center gap-0.5">
-          <Heart className={cn("h-3 w-3", currentHearts > 0 ? "text-hearts fill-hearts" : "text-muted-foreground")} />
+          <Heart
+            className={cn(
+              "h-3 w-3",
+              currentHearts > 0 ? "text-hearts fill-hearts" : "text-muted-foreground",
+            )}
+          />
           <span className="text-[10px] font-bold tabular-nums">{currentHearts}</span>
         </div>
         <div className="flex items-center gap-0.5">
@@ -156,11 +177,13 @@ export function DuolingoBar({ profile, compact = false, className }: DuolingoBar
 
   // ─── Full Mode — Premium Design ───
   return (
-    <div className={cn(
-      "relative overflow-hidden rounded-2xl border border-border/60 bg-card/80 p-3 backdrop-blur-sm",
-      "shadow-[0_2px_12px_-4px_color-mix(in_oklab,var(--color-primary)_12%,transparent)]",
-      className
-    )}>
+    <div
+      className={cn(
+        "relative overflow-hidden rounded-2xl border border-border/60 bg-card/80 p-3 backdrop-blur-sm",
+        "shadow-[0_2px_12px_-4px_color-mix(in_oklab,var(--color-primary)_12%,transparent)]",
+        className,
+      )}
+    >
       {/* Decorative gradient accent */}
       <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
 
@@ -168,7 +191,9 @@ export function DuolingoBar({ profile, compact = false, className }: DuolingoBar
         {/* League badge — premium */}
         <div
           className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl shadow-sm"
-          style={{ backgroundColor: `color-mix(in oklab, var(${league.colorVar}) 14%, var(--card))` }}
+          style={{
+            backgroundColor: `color-mix(in oklab, var(${league.colorVar}) 14%, var(--card))`,
+          }}
           title={league.name}
         >
           <LeagueIcon className="h-5 w-5" style={{ color: `var(${league.colorVar})` }} />
@@ -200,7 +225,8 @@ export function DuolingoBar({ profile, compact = false, className }: DuolingoBar
           </div>
           {nextLevel && (
             <p className="mt-0.5 text-[10px] text-muted-foreground">
-              Faltam <span className="font-bold text-xp">{nextLevel.minXP - profile.xp}</span> XP para {nextLevel.icon} {nextLevel.name}
+              Faltam <span className="font-bold text-xp">{nextLevel.minXP - profile.xp}</span> XP
+              para {nextLevel.icon} {nextLevel.name}
             </p>
           )}
         </div>
@@ -211,7 +237,16 @@ export function DuolingoBar({ profile, compact = false, className }: DuolingoBar
             animate={profile.streak >= 7 ? { scale: [1, 1.15, 1] } : undefined}
             transition={{ duration: 1.5, repeat: Infinity }}
           >
-            <Flame className={cn("h-6 w-6", profile.streak >= 7 ? "text-streak" : profile.streak > 0 ? "text-streak" : "text-muted-foreground")} />
+            <Flame
+              className={cn(
+                "h-6 w-6",
+                profile.streak >= 7
+                  ? "text-streak"
+                  : profile.streak > 0
+                    ? "text-streak"
+                    : "text-muted-foreground",
+              )}
+            />
           </motion.div>
           <span className="font-display text-[10px] font-bold tabular-nums">{profile.streak}d</span>
         </div>
@@ -224,7 +259,7 @@ export function DuolingoBar({ profile, compact = false, className }: DuolingoBar
                 key={i}
                 className={cn(
                   "h-4 w-4 transition-all",
-                  i < currentHearts ? "text-hearts fill-hearts" : "text-muted-foreground/30"
+                  i < currentHearts ? "text-hearts fill-hearts" : "text-muted-foreground/30",
                 )}
               />
             ))}
@@ -249,7 +284,13 @@ export function DuolingoBar({ profile, compact = false, className }: DuolingoBar
 // ─── Streak Celebration Overlay — Premium ───
 const STREAK_MILESTONES = [3, 7, 14, 30, 60, 100];
 
-export function StreakCelebration({ streak, onDismiss }: { streak: number; onDismiss: () => void }) {
+export function StreakCelebration({
+  streak,
+  onDismiss,
+}: {
+  streak: number;
+  onDismiss: () => void;
+}) {
   const milestone = STREAK_MILESTONES.includes(streak) ? streak : null;
   if (!milestone) return null;
 
@@ -301,7 +342,13 @@ export function StreakCelebration({ streak, onDismiss }: { streak: number; onDis
 }
 
 // ─── Heart Refill Notification — Premium ───
-export function HeartRefillNotification({ hearts, onDismiss }: { hearts: number; onDismiss: () => void }) {
+export function HeartRefillNotification({
+  hearts,
+  onDismiss,
+}: {
+  hearts: number;
+  onDismiss: () => void;
+}) {
   if (hearts > 1) return null;
 
   return (

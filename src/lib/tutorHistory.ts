@@ -12,13 +12,15 @@ export interface TutorHistory {
   messages: TutorChatMsg[];
 }
 
-const KEY = "lusis-tutor-history-v1";
+import { lsGetJSON, lsSetJSON } from "./localStore";
+
+const KEY = "kidoz-tutor-history-v1";
 const MAX_MSGS = 200;
 
 function load(): Record<string, TutorHistory> {
   if (typeof window === "undefined") return {};
   try {
-    return JSON.parse(localStorage.getItem(KEY) ?? "{}");
+    return lsGetJSON<Record<string, TutorHistory>>(KEY, {});
   } catch {
     return {};
   }
@@ -26,7 +28,7 @@ function load(): Record<string, TutorHistory> {
 
 function save(all: Record<string, TutorHistory>) {
   if (typeof window === "undefined") return;
-  localStorage.setItem(KEY, JSON.stringify(all));
+  lsSetJSON(KEY, all);
 }
 
 export function childKey(name: string, grade: number) {

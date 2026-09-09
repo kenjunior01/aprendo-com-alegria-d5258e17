@@ -27,8 +27,16 @@ export const Route = createFileRoute("/capitulo/$chapterId")({
         { property: "og:description", content: description },
         { property: "og:url", content: url },
         { property: "og:type", content: "article" },
-        { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/acc7c5c1-6f57-466a-a906-520c14783216" },
-        { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/acc7c5c1-6f57-466a-a906-520c14783216" },
+        {
+          property: "og:image",
+          content:
+            "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/acc7c5c1-6f57-466a-a906-520c14783216",
+        },
+        {
+          name: "twitter:image",
+          content:
+            "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/acc7c5c1-6f57-466a-a906-520c14783216",
+        },
       ],
       links: [{ rel: "canonical", href: url }],
     };
@@ -52,17 +60,29 @@ function ChapterPage() {
     setProfile(p);
   }, [navigate]);
 
-  if (!profile) return (
-    <main id="main-content" className="flex min-h-[60dvh] items-center justify-center">
-      <p className="animate-pulse font-display text-lg text-muted-foreground" role="status" aria-live="polite">A carregar…</p>
-    </main>
-  );
+  if (!profile)
+    return (
+      <main id="main-content" className="flex min-h-[60dvh] items-center justify-center">
+        <p
+          className="animate-pulse font-display text-lg text-muted-foreground"
+          role="status"
+          aria-live="polite"
+        >
+          A carregar…
+        </p>
+      </main>
+    );
   if (!chapter) {
     return (
-      <main id="main-content" className="flex min-h-[100dvh] items-center justify-center p-6 text-center">
+      <main
+        id="main-content"
+        className="flex min-h-[100dvh] items-center justify-center p-6 text-center"
+      >
         <div>
           <p className="font-display text-2xl">Capítulo não encontrado</p>
-          <Link to="/app" className="mt-4 inline-block text-primary underline">Voltar à aventura</Link>
+          <Link to="/app" className="mt-4 inline-block text-primary underline">
+            Voltar à aventura
+          </Link>
         </div>
       </main>
     );
@@ -75,7 +95,10 @@ function ChapterPage() {
       <TopBar profile={profile} />
 
       <main className="mx-auto max-w-[48rem] px-3 py-4 sm:px-4 sm:py-6">
-        <Link to="/app" className="mb-3 inline-flex items-center gap-1 text-sm font-display text-muted-foreground hover:text-foreground">
+        <Link
+          to="/app"
+          className="mb-3 inline-flex items-center gap-1 text-sm font-display text-muted-foreground hover:text-foreground"
+        >
           <ArrowLeft className="h-4 w-4" /> Aventura
         </Link>
 
@@ -88,13 +111,13 @@ function ChapterPage() {
             `bg-gradient-to-br ${chapter.bgGradient}`,
           )}
         >
-          <div className="absolute -right-6 -top-6 text-7xl opacity-30 sm:text-9xl">{chapter.emoji}</div>
+          <div className="absolute -right-6 -top-6 text-7xl opacity-30 sm:text-9xl">
+            {chapter.emoji}
+          </div>
           <p className="font-display text-xs font-semibold uppercase tracking-wide text-foreground/70">
             Capítulo {chapter.number} · {chapter.subtitle}
           </p>
-          <h1 className="mt-1 font-display text-3xl leading-tight sm:text-4xl">
-            {chapter.title}
-          </h1>
+          <h1 className="mt-1 font-display text-3xl leading-tight sm:text-4xl">{chapter.title}</h1>
           <p className="mt-3 max-w-[28rem] text-sm leading-relaxed text-foreground/85 sm:text-base">
             {chapter.story}
           </p>
@@ -124,15 +147,21 @@ function ChapterPage() {
               const prev = i === 0 ? null : chapter.missions[i - 1];
               const prevDone = !prev || profile.completedLessons.includes(prev.lessonId);
               const locked = !prevDone && !done;
-              const offset = i % 2 === 0 ? "-translate-x-10 sm:-translate-x-16" : "translate-x-10 sm:translate-x-16";
+              const offset =
+                i % 2 === 0
+                  ? "-translate-x-10 sm:-translate-x-16"
+                  : "translate-x-10 sm:translate-x-16";
 
               return (
                 <Link
                   key={mission.lessonId}
                   to="/licao/$subjectId/$lessonId"
                   params={{ subjectId: mission.subjectId, lessonId: mission.lessonId }}
+                  search={{}}
                   disabled={locked}
-                  onClick={(e) => { if (locked) e.preventDefault(); }}
+                  onClick={(e) => {
+                    if (locked) e.preventDefault();
+                  }}
                   className={cn("group relative", offset)}
                   aria-label={mission.title}
                 >
@@ -144,8 +173,8 @@ function ChapterPage() {
                       done
                         ? "border-success/40 bg-success text-success-foreground"
                         : locked
-                        ? "border-border bg-muted text-muted-foreground"
-                        : "border-white",
+                          ? "border-border bg-muted text-muted-foreground"
+                          : "border-white",
                     )}
                     style={
                       !done && !locked
@@ -175,7 +204,9 @@ function ChapterPage() {
             {progress.pct === 1 && (
               <div className="mt-3 rounded-2xl bg-success/15 px-4 py-3 text-center">
                 <p className="font-display text-success">🎉 Capítulo completo!</p>
-                <p className="text-xs text-muted-foreground">Continuas a aventura no próximo capítulo.</p>
+                <p className="text-xs text-muted-foreground">
+                  Continuas a aventura no próximo capítulo.
+                </p>
                 <Link to="/app" className="mt-2 inline-block">
                   <ChunkyButton tone="success">Próximo capítulo →</ChunkyButton>
                 </Link>

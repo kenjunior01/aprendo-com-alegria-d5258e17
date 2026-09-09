@@ -40,3 +40,8 @@ build-electron/
 # Capacitor
 android/
 ios/
+
+# Environment variables — nunca versionar (auditoria C4)
+.env
+.env.*
+!.env.example

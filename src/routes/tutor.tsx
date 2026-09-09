@@ -7,34 +7,53 @@ import { Mascot } from "@/components/Mascot";
 import { loadProfile, type Profile } from "@/lib/storage";
 import { appendMessages, getHistory } from "@/lib/tutorHistory";
 import { getMascot, type MascotId } from "@/lib/mascots";
+import { supabase } from "@/integrations/supabase/client";
 import { ArrowLeft, Send, Sparkles, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { RouteError } from "@/components/RouteError";
 
 // @ts-ignore TanStack Router file-route type resolution
 export const Route = createFileRoute("/tutor")({
-  validateSearch: (search: Record<string, unknown>) => ({
-    mascotId: (search.mascotId as MascotId) || undefined,
-  }),
+  validateSearch: (search: Record<string, unknown>): { mascotId?: MascotId } => {
+    const m = search.mascotId as MascotId | undefined;
+    const out: { mascotId?: MascotId } = {};
+    if (m) out.mascotId = m;
+    return out;
+  },
   head: () => ({
     meta: [
       { title: "Mocha, o teu tutor — Kidoz" },
-      { name: "description", content: "Conversa com o Mocha, o teu tutor IA. Faz perguntas, aprende e diverte-te." },
-      { property: "og:title", content: 'Mocha, o teu tutor — Kidoz' },
-      { property: "og:description", content: 'Conversa com o Mocha, o teu tutor IA. Faz perguntas, aprende e diverte-te.' },
+      {
+        name: "description",
+        content: "Conversa com o Mocha, o teu tutor IA. Faz perguntas, aprende e diverte-te.",
+      },
+      { property: "og:title", content: "Mocha, o teu tutor — Kidoz" },
+      {
+        property: "og:description",
+        content: "Conversa com o Mocha, o teu tutor IA. Faz perguntas, aprende e diverte-te.",
+      },
       { property: "og:url", content: "https://kidoz.online/tutor" },
-      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/acc7c5c1-6f57-466a-a906-520c14783216" },
-      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/acc7c5c1-6f57-466a-a906-520c14783216" },
+      {
+        property: "og:image",
+        content:
+          "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/acc7c5c1-6f57-466a-a906-520c14783216",
+      },
+      {
+        name: "twitter:image",
+        content:
+          "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/acc7c5c1-6f57-466a-a906-520c14783216",
+      },
     ],
-    links: [
-      { rel: "canonical", href: "https://kidoz.online/tutor" },
-    ],
+    links: [{ rel: "canonical", href: "https://kidoz.online/tutor" }],
   }),
   component: TutorChat,
   errorComponent: RouteError,
 });
 
-interface Msg { role: "user" | "assistant"; content: string }
+interface Msg {
+  role: "user" | "assistant";
+  content: string;
+}
 
 const SUGGESTIONS = [
   "Conta-me uma adivinha 🤔",
@@ -60,17 +79,22 @@ function TutorChat() {
 
   useEffect(() => {
     const p = loadProfile();
-    if (!p || !p.name) { navigate({ to: "/comecar" }); return; }
+    if (!p || !p.name) {
+      navigate({ to: "/comecar" });
+      return;
+    }
     setProfile(p);
     // Recupera histórico desta criança
     const hist = getHistory(p.name, p.grade);
     if (hist.messages.length > 0) {
       setMessages(hist.messages.map((m) => ({ role: m.role, content: m.content })));
     } else {
-      setMessages([{
-        role: "assistant",
-        content: `Olá, ${p.name}! 👋 Sou o ${mascot.name}, o teu tutor. Podes perguntar-me o que quiseres — sobre matemática, leitura, animais, planetas… ou pede uma adivinha!`,
-      }]);
+      setMessages([
+        {
+          role: "assistant",
+          content: `Olá, ${p.name}! 👋 Sou o ${mascot.name}, o teu tutor. Podes perguntar-me o que quiseres — sobre matemática, leitura, animais, planetas… ou pede uma adivinha!`,
+        },
+      ]);
     }
   }, [navigate, effectiveMascotId]);
 
@@ -81,12 +105,16 @@ function TutorChat() {
   const clearHistory = () => {
     if (!profile) return;
     if (!confirm("Apagar todo o histórico desta conversa?")) return;
-    setMessages([{
-      role: "assistant",
-      content: `Vamos começar uma nova conversa, ${profile.name}! 👋`,
-    }]);
+    setMessages([
+      {
+        role: "assistant",
+        content: `Vamos começar uma nova conversa, ${profile.name}! 👋`,
+      },
+    ]);
     // limpa também no storage
-    void import("@/lib/tutorHistory").then(({ clearHistory: clr }) => clr(profile.name, profile.grade));
+    void import("@/lib/tutorHistory").then(({ clearHistory: clr }) =>
+      clr(profile.name, profile.grade),
+    );
   };
 
   const send = async (text: string) => {
@@ -105,9 +133,19 @@ function TutorChat() {
     let assembled = "";
 
     try {
+      // Envia token Supabase se existir (limites de utilização mais generosos)
+      const headers: Record<string, string> = { "Content-Type": "application/json" };
+      try {
+        const { data } = await supabase.auth.getSession();
+        const token = data.session?.access_token;
+        if (token) headers.Authorization = `Bearer ${token}`;
+      } catch {
+        /* convidado sem conta — segue com limites anónimos */
+      }
+
       const resp = await fetch("/api/public/tutor-stream", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers,
         body: JSON.stringify({
           messages: next,
           childName: profile.name,
@@ -117,9 +155,18 @@ function TutorChat() {
         signal: ctrl.signal,
       });
 
-      if (resp.status === 429) { setError("Tantas perguntas! Espera um pouquinho. 🙏"); return; }
-      if (resp.status === 402) { setError("Sem créditos de IA disponíveis."); return; }
-      if (!resp.ok || !resp.body) { setError(`Erro ${resp.status}`); return; }
+      if (resp.status === 429) {
+        setError("Tantas perguntas! Espera um pouquinho. 🙏");
+        return;
+      }
+      if (resp.status === 402) {
+        setError("Sem créditos de IA disponíveis.");
+        return;
+      }
+      if (!resp.ok || !resp.body) {
+        setError(`Erro ${resp.status}`);
+        return;
+      }
 
       const reader = resp.body.getReader();
       const decoder = new TextDecoder();
@@ -142,7 +189,9 @@ function TutorChat() {
               setStreaming(assembled);
             }
             if (obj.error) setError(obj.error);
-          } catch { /* skip */ }
+          } catch {
+            /* skip */
+          }
         }
       }
 
@@ -169,17 +218,31 @@ function TutorChat() {
     }
   };
 
-  if (!profile) return (
-    <main id="main-content" className="flex min-h-[60dvh] items-center justify-center">
-      <p className="animate-pulse font-display text-lg text-muted-foreground" role="status" aria-live="polite">A carregar…</p>
-    </main>
-  );
+  if (!profile)
+    return (
+      <main id="main-content" className="flex min-h-[60dvh] items-center justify-center">
+        <p
+          className="animate-pulse font-display text-lg text-muted-foreground"
+          role="status"
+          aria-live="polite"
+        >
+          A carregar…
+        </p>
+      </main>
+    );
 
   return (
     <div className="min-h-[100dvh] bg-sky-island pb-24 md:pb-12">
       <TopBar profile={profile} />
-      <main id="main-content" className="mx-auto flex max-w-[48rem] flex-col px-4 py-4" style={{ minHeight: "calc(100dvh - 4rem)" }}>
-        <Link to="/app" className="mb-2 inline-flex items-center gap-1 text-sm font-display text-muted-foreground hover:text-foreground">
+      <main
+        id="main-content"
+        className="mx-auto flex max-w-[48rem] flex-col px-4 py-4"
+        style={{ minHeight: "calc(100dvh - 4rem)" }}
+      >
+        <Link
+          to="/app"
+          className="mb-2 inline-flex items-center gap-1 text-sm font-display text-muted-foreground hover:text-foreground"
+        >
           <ArrowLeft className="h-4 w-4" /> Aventura
         </Link>
 
@@ -187,7 +250,9 @@ function TutorChat() {
           <Mascot id={effectiveMascotId} size="md" bouncing />
           <div className="flex-1">
             <h1 className="font-display text-xl">{mascot.name}</h1>
-            <p className="text-xs text-muted-foreground">O teu tutor pessoal · {messages.length - 1} mensagens guardadas</p>
+            <p className="text-xs text-muted-foreground">
+              O teu tutor pessoal · {messages.length - 1} mensagens guardadas
+            </p>
           </div>
           <button
             onClick={clearHistory}
@@ -200,7 +265,11 @@ function TutorChat() {
           <Sparkles className="h-5 w-5 text-primary" />
         </div>
 
-        <div ref={scrollRef} className="card-chunky flex-1 overflow-y-auto rounded-3xl border border-border bg-card/95 p-4 backdrop-blur" style={{ maxHeight: "60vh", minHeight: 320 }}>
+        <div
+          ref={scrollRef}
+          className="card-chunky flex-1 overflow-y-auto rounded-3xl border border-border bg-card/95 p-4 backdrop-blur"
+          style={{ maxHeight: "60vh", minHeight: 320 }}
+        >
           <div className="space-y-3">
             <AnimatePresence initial={false}>
               {messages.map((m, i) => (
@@ -210,19 +279,25 @@ function TutorChat() {
                   animate={{ opacity: 1, y: 0 }}
                   className={cn("flex", m.role === "user" ? "justify-end" : "justify-start")}
                 >
-                  <div className={cn(
-                    "max-w-[85%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed sm:text-base",
-                    m.role === "user"
-                      ? "bg-primary text-primary-foreground rounded-br-sm"
-                      : "bg-muted text-foreground rounded-bl-sm",
-                  )}>
+                  <div
+                    className={cn(
+                      "max-w-[85%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed sm:text-base",
+                      m.role === "user"
+                        ? "bg-primary text-primary-foreground rounded-br-sm"
+                        : "bg-muted text-foreground rounded-bl-sm",
+                    )}
+                  >
                     {m.content}
                   </div>
                 </motion.div>
               ))}
             </AnimatePresence>
             {streaming && (
-              <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="flex justify-start">
+              <motion.div
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="flex justify-start"
+              >
                 <div className="max-w-[85%] rounded-2xl rounded-bl-sm bg-muted px-4 py-2.5 text-sm leading-relaxed sm:text-base">
                   {streaming}
                   <span className="ml-0.5 inline-block h-3 w-1.5 animate-pulse bg-foreground/60 align-middle" />
@@ -232,17 +307,30 @@ function TutorChat() {
             {loading && !streaming && (
               <div className="flex justify-start">
                 <div className="rounded-2xl bg-muted px-4 py-2.5 text-sm">
-                  <span className="mr-2 font-display text-xs text-muted-foreground">{mascot.name} está a pensar</span>
+                  <span className="mr-2 font-display text-xs text-muted-foreground">
+                    {mascot.name} está a pensar
+                  </span>
                   <span className="inline-flex gap-1 align-middle">
-                    <span className="h-2 w-2 animate-bounce rounded-full bg-foreground/40" style={{ animationDelay: "0ms" }} />
-                    <span className="h-2 w-2 animate-bounce rounded-full bg-foreground/40" style={{ animationDelay: "150ms" }} />
-                    <span className="h-2 w-2 animate-bounce rounded-full bg-foreground/40" style={{ animationDelay: "300ms" }} />
+                    <span
+                      className="h-2 w-2 animate-bounce rounded-full bg-foreground/40"
+                      style={{ animationDelay: "0ms" }}
+                    />
+                    <span
+                      className="h-2 w-2 animate-bounce rounded-full bg-foreground/40"
+                      style={{ animationDelay: "150ms" }}
+                    />
+                    <span
+                      className="h-2 w-2 animate-bounce rounded-full bg-foreground/40"
+                      style={{ animationDelay: "300ms" }}
+                    />
                   </span>
                 </div>
               </div>
             )}
             {error && (
-              <div className="rounded-xl bg-destructive/10 px-3 py-2 text-center text-xs text-destructive">{error}</div>
+              <div className="rounded-xl bg-destructive/10 px-3 py-2 text-center text-xs text-destructive">
+                {error}
+              </div>
             )}
           </div>
         </div>
@@ -262,7 +350,10 @@ function TutorChat() {
         )}
 
         <form
-          onSubmit={(e) => { e.preventDefault(); send(input); }}
+          onSubmit={(e) => {
+            e.preventDefault();
+            send(input);
+          }}
           className="mt-3 flex items-center gap-2 rounded-full border-2 border-border bg-card p-1.5 shadow-lg"
         >
           <input

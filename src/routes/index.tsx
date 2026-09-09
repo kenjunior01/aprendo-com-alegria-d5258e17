@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { motion } from "framer-motion";
+import { motion, type Variants } from "framer-motion";
 import { Mascot } from "@/components/Mascot";
 import { ChunkyButton } from "@/components/ChunkyButton";
 import { AlegriaLogo } from "@/components/AlegriaLogo";
@@ -13,22 +13,36 @@ export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       { title: "Kidoz — Aprender a brincar | App educativa para crianças" },
-      { name: "description", content: "App de aprendizagem infantil estilo Duolingo, para o 1.º ciclo em Portugal. Português, Matemática e Estudo do Meio com mascotes divertidas." },
-      { property: "og:title", content: 'Kidoz — Aprender a brincar | App educativa para crianças' },
-      { property: "og:description", content: 'App de aprendizagem infantil estilo Duolingo, para o 1.º ciclo em Portugal. Português, Matemática e Estudo do Meio com mascotes divertidas.' },
+      {
+        name: "description",
+        content:
+          "App de aprendizagem infantil estilo Duolingo, para o 1.º ciclo em Portugal. Português, Matemática e Estudo do Meio com mascotes divertidas.",
+      },
+      { property: "og:title", content: "Kidoz — Aprender a brincar | App educativa para crianças" },
+      {
+        property: "og:description",
+        content:
+          "App de aprendizagem infantil estilo Duolingo, para o 1.º ciclo em Portugal. Português, Matemática e Estudo do Meio com mascotes divertidas.",
+      },
       { property: "og:url", content: "https://kidoz.online/" },
-      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/acc7c5c1-6f57-466a-a906-520c14783216" },
-      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/acc7c5c1-6f57-466a-a906-520c14783216" },
+      {
+        property: "og:image",
+        content:
+          "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/acc7c5c1-6f57-466a-a906-520c14783216",
+      },
+      {
+        name: "twitter:image",
+        content:
+          "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/acc7c5c1-6f57-466a-a906-520c14783216",
+      },
     ],
-    links: [
-      { rel: "canonical", href: "https://kidoz.online/" },
-    ],
+    links: [{ rel: "canonical", href: "https://kidoz.online/" }],
   }),
   component: Landing,
   errorComponent: RouteError,
 });
 
-const stagger = {
+const stagger: { container: Variants; item: Variants } = {
   container: { animate: { transition: { staggerChildren: 0.08 } } },
   item: {
     initial: { opacity: 0, y: 16 },
@@ -69,7 +83,11 @@ function Landing() {
           transition={{ type: "spring", stiffness: 180, damping: 14 }}
           className="mb-4"
         >
-          <AlegriaLogo priority className="h-20 w-auto sm:h-24 md:h-28" alt="Kidoz — Aprender a brincar" />
+          <AlegriaLogo
+            priority
+            className="h-20 w-auto sm:h-24 md:h-28"
+            alt="Kidoz — Aprender a brincar"
+          />
         </motion.div>
 
         {/* Region badge */}
@@ -99,7 +117,8 @@ function Landing() {
           transition={{ delay: 0.2, duration: 0.5 }}
           className="mt-3 max-w-[36rem] text-base text-foreground/80 sm:mt-4 sm:text-lg md:text-xl"
         >
-          Português, Matemática e Estudo do Meio com mascotes divertidas, lições curtas e muitas estrelinhas. ✨
+          Português, Matemática e Estudo do Meio com mascotes divertidas, lições curtas e muitas
+          estrelinhas. ✨
         </motion.p>
 
         {/* Mascot row */}
@@ -132,10 +151,14 @@ function Landing() {
             </ChunkyButton>
           </Link>
           <Link to="/auth" className="flex-1 sm:flex-none">
-            <ChunkyButton tone="ghost" className="w-full">Já tenho conta</ChunkyButton>
+            <ChunkyButton tone="ghost" className="w-full">
+              Já tenho conta
+            </ChunkyButton>
           </Link>
           <Link to="/pais" className="flex-1 sm:flex-none">
-            <ChunkyButton tone="secondary" className="w-full">👨‍👩‍👧 Sou pai/mãe</ChunkyButton>
+            <ChunkyButton tone="secondary" className="w-full">
+              👨‍👩‍👧 Sou pai/mãe
+            </ChunkyButton>
           </Link>
         </motion.div>
 
@@ -174,22 +197,43 @@ function Landing() {
           className="mt-8 flex w-full max-w-[28rem] flex-col items-stretch gap-3 sm:mt-12 sm:max-w-none sm:flex-row sm:justify-center"
         >
           <Link to="/junior" className="flex-1 sm:flex-none">
-            <ChunkyButton tone="secondary" className="w-full">🌱 Júnior — 2 a 5 anos</ChunkyButton>
+            <ChunkyButton tone="secondary" className="w-full">
+              🌱 Júnior — 2 a 5 anos
+            </ChunkyButton>
           </Link>
           <Link to="/escolas" className="flex-1 sm:flex-none">
-            <ChunkyButton tone="ghost" className="w-full">🏫 Escolas — 0,99€/aluno</ChunkyButton>
+            <ChunkyButton tone="ghost" className="w-full">
+              🏫 Escolas — 0,99€/aluno
+            </ChunkyButton>
           </Link>
           <Link to="/creches" className="flex-1 sm:flex-none">
-            <ChunkyButton tone="ghost" className="w-full">🏡 Creches — planos B2B</ChunkyButton>
+            <ChunkyButton tone="ghost" className="w-full">
+              🏡 Creches — planos B2B
+            </ChunkyButton>
           </Link>
         </motion.div>
 
         {/* Footer */}
         <footer className="mt-12 w-full border-t border-border pt-5 pb-6 text-center text-xs text-muted-foreground sm:mt-16">
           <nav aria-label="Links legais" className="flex flex-wrap justify-center gap-x-4 gap-y-2">
-            <Link to="/privacidade" className="hover:text-primary hover:underline min-h-[44px] inline-flex items-center">Privacidade</Link>
-            <Link to="/termos" className="hover:text-primary hover:underline min-h-[44px] inline-flex items-center">Termos</Link>
-            <Link to="/ajuda" className="hover:text-primary hover:underline min-h-[44px] inline-flex items-center">Ajuda</Link>
+            <Link
+              to="/privacidade"
+              className="hover:text-primary hover:underline min-h-[44px] inline-flex items-center"
+            >
+              Privacidade
+            </Link>
+            <Link
+              to="/termos"
+              className="hover:text-primary hover:underline min-h-[44px] inline-flex items-center"
+            >
+              Termos
+            </Link>
+            <Link
+              to="/ajuda"
+              className="hover:text-primary hover:underline min-h-[44px] inline-flex items-center"
+            >
+              Ajuda
+            </Link>
           </nav>
           <p className="mt-2">&copy; {new Date().getFullYear()} Kidoz — Aprender a brincar</p>
         </footer>
@@ -200,14 +244,31 @@ function Landing() {
 
 function HowItWorks() {
   const steps = [
-    { n: "1", emoji: "👶", title: "Escolhe o teu mascote", text: "Cria um perfil divertido em segundos." },
-    { n: "2", emoji: "📚", title: "Lições curtinhas", text: "5 minutos por dia chega para evoluir." },
-    { n: "3", emoji: "🏆", title: "Sobe de nível", text: "Ganha estrelas, medalhas e mantém a streak 🔥" },
+    {
+      n: "1",
+      emoji: "👶",
+      title: "Escolhe o teu mascote",
+      text: "Cria um perfil divertido em segundos.",
+    },
+    {
+      n: "2",
+      emoji: "📚",
+      title: "Lições curtinhas",
+      text: "5 minutos por dia chega para evoluir.",
+    },
+    {
+      n: "3",
+      emoji: "🏆",
+      title: "Sobe de nível",
+      text: "Ganha estrelas, medalhas e mantém a streak 🔥",
+    },
   ];
   return (
     <section className="mt-12 w-full sm:mt-16">
       <h2 className="mb-2 text-center font-display text-2xl sm:text-3xl">Como funciona</h2>
-      <p className="mb-5 text-center text-sm text-muted-foreground">Aprender pouco e muitas vezes — como o Duolingo, mas para o programa português.</p>
+      <p className="mb-5 text-center text-sm text-muted-foreground">
+        Aprender pouco e muitas vezes — como o Duolingo, mas para o programa português.
+      </p>
       <ol className="grid gap-3 sm:gap-4 md:grid-cols-3">
         {steps.map((s, i) => (
           <motion.li
@@ -239,8 +300,12 @@ function LessonPathPreview() {
   ];
   return (
     <section className="mt-12 w-full sm:mt-16">
-      <h2 className="mb-2 text-center font-display text-2xl sm:text-3xl">O caminho da aprendizagem</h2>
-      <p className="mb-5 text-center text-sm text-muted-foreground">Cada nó é uma mini-lição, com sons, animações e mascotes.</p>
+      <h2 className="mb-2 text-center font-display text-2xl sm:text-3xl">
+        O caminho da aprendizagem
+      </h2>
+      <p className="mb-5 text-center text-sm text-muted-foreground">
+        Cada nó é uma mini-lição, com sons, animações e mascotes.
+      </p>
       <div className="relative mx-auto max-w-[28rem]">
         {nodes.map((n, i) => (
           <motion.div
@@ -252,7 +317,9 @@ function LessonPathPreview() {
             className={`relative mb-4 flex items-center gap-3 ${i % 2 === 0 ? "ml-0 mr-auto" : "ml-auto mr-0"}`}
             style={{ width: "min(85%, 22rem)" }}
           >
-            <div className={`grid h-14 w-14 shrink-0 place-items-center rounded-full text-2xl shadow-md ring-4 ring-card ${n.tone}`}>
+            <div
+              className={`grid h-14 w-14 shrink-0 place-items-center rounded-full text-2xl shadow-md ring-4 ring-card ${n.tone}`}
+            >
               {n.e}
             </div>
             <div className="card-chunky flex-1 rounded-2xl border border-border bg-card px-4 py-3">
@@ -277,16 +344,33 @@ function FeatureCard({ emoji, title, text }: { emoji: string; title: string; tex
 }
 
 const TESTIMONIALS = [
-  { name: "Sofia M.", role: "Mãe do Tomás (6)", text: "O meu filho pede para fazer 'mais uma' lição todos os dias. Aprende sem perceber!", emoji: "👩" },
-  { name: "Prof. Ana", role: "1.º ciclo · Lisboa", text: "Uso na sala de aula. Os miúdos adoram e o currículo está mesmo alinhado com o programa nacional.", emoji: "👩‍🏫" },
-  { name: "Ricardo P.", role: "Pai da Beatriz (8)", text: "O painel de pais ajuda-me a perceber onde ela tem mais dificuldade. Recomendo!", emoji: "👨" },
+  {
+    name: "Sofia M.",
+    role: "Mãe do Tomás (6)",
+    text: "O meu filho pede para fazer 'mais uma' lição todos os dias. Aprende sem perceber!",
+    emoji: "👩",
+  },
+  {
+    name: "Prof. Ana",
+    role: "1.º ciclo · Lisboa",
+    text: "Uso na sala de aula. Os miúdos adoram e o currículo está mesmo alinhado com o programa nacional.",
+    emoji: "👩‍🏫",
+  },
+  {
+    name: "Ricardo P.",
+    role: "Pai da Beatriz (8)",
+    text: "O painel de pais ajuda-me a perceber onde ela tem mais dificuldade. Recomendo!",
+    emoji: "👨",
+  },
 ];
 
 function Testimonials() {
   return (
     <section className="mt-12 w-full sm:mt-16">
       <h2 className="mb-2 font-display text-2xl sm:text-3xl">O que dizem pais e professores</h2>
-      <p className="mb-5 text-sm text-muted-foreground">Famílias reais a aprender com a Kidoz em Portugal e países PALOP.</p>
+      <p className="mb-5 text-sm text-muted-foreground">
+        Famílias reais a aprender com a Kidoz em Portugal e países PALOP.
+      </p>
       <div className="grid gap-3 sm:gap-4 md:grid-cols-3">
         {TESTIMONIALS.map((t, i) => (
           <motion.figure

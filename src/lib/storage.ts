@@ -35,7 +35,7 @@ export interface Profile {
   unlockedStickers: string[]; // IDs dos cromos colecionados
 }
 
-const KEY = "lusis-profile-v2";
+const KEY = "kidoz-profile-v2";
 
 export const defaultProfile = (): Profile => ({
   name: "",
@@ -70,9 +70,12 @@ export const defaultProfile = (): Profile => ({
 export const loadProfile = (): Profile | null => {
   if (typeof window === "undefined") return null;
   try {
-    // Migrate from v1 if needed
-    const v1 = localStorage.getItem("lusis-profile-v1");
-    const raw = localStorage.getItem(KEY) ?? v1;
+    // Retrocompatibilidade: migra de kidoz-profile-v1 / chaves legadas
+    const raw =
+      localStorage.getItem(KEY) ??
+      localStorage.getItem("kidoz-profile-v1") ??
+      localStorage.getItem("lusis-profile-v2") ??
+      localStorage.getItem("lusis-profile-v1");
     if (!raw) return null;
     const parsed = JSON.parse(raw);
     return { ...defaultProfile(), ...parsed } as Profile;
@@ -97,6 +100,8 @@ export const updateProfile = (patch: Partial<Profile>): Profile => {
 export const resetProfile = () => {
   if (typeof window === "undefined") return;
   localStorage.removeItem(KEY);
+  localStorage.removeItem("kidoz-profile-v1");
+  localStorage.removeItem("lusis-profile-v2");
   localStorage.removeItem("lusis-profile-v1");
 };
 
@@ -161,7 +166,10 @@ export const completeLesson = (result: LessonResult): Profile => {
 };
 
 // Buy a shop item
-export const buyItem = (itemId: string, price: number): { ok: boolean; profile: Profile; reason?: string } => {
+export const buyItem = (
+  itemId: string,
+  price: number,
+): { ok: boolean; profile: Profile; reason?: string } => {
   const current = loadProfile() ?? defaultProfile();
   if (current.ownedItems.includes(itemId)) {
     return { ok: false, profile: current, reason: "already_owned" };
@@ -191,8 +199,21 @@ export const equipItem = (itemId: string | null): Profile => {
 
 async function syncProfileToCloud(p: Profile) {
   try {
-    const { data: { user } } = await supabase.auth.getUser();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
     if (!user) return;
+    // Colunas recentes (hunger/energy/fun/knowledge/push_token/…) ainda não
+    // constam nos tipos gerados — objeto extra tipado de forma flexível.
+    const extra = {
+      hunger: p.hunger,
+      energy: p.energy,
+      fun: p.fun,
+      knowledge: p.knowledge,
+      push_token: p.pushToken ?? null,
+      last_daily_gift: p.lastDailyGift ?? null,
+      unlocked_stickers: p.unlockedStickers,
+    };
     await supabase.from("profiles").upsert({
       id: user.id,
       name: p.name,
@@ -215,13 +236,7 @@ async function syncProfileToCloud(p: Profile) {
       bedtime_hour: p.bedtimeHour ?? null,
       region: p.region ?? null,
       interests: p.interests ?? [],
-      hunger: p.hunger,
-      energy: p.energy,
-      fun: p.fun,
-      knowledge: p.knowledge,
-      push_token: p.pushToken ?? null,
-      last_daily_gift: p.lastDailyGift ?? null,
-      unlocked_stickers: p.unlockedStickers,
+      ...(extra as Record<string, unknown>),
     });
   } catch {
     // offline ou sem sessão — ignora
@@ -230,7 +245,9 @@ async function syncProfileToCloud(p: Profile) {
 
 async function recordSession(r: LessonResult, xp: number, coins: number) {
   try {
-    const { data: { user } } = await supabase.auth.getUser();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
     if (!user) return;
     await supabase.from("practice_sessions").insert({
       user_id: user.id,
@@ -250,7 +267,9 @@ async function recordSession(r: LessonResult, xp: number, coins: number) {
 
 export async function pullProfileFromCloud(): Promise<Profile | null> {
   try {
-    const { data: { user } } = await supabase.auth.getUser();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
     if (!user) return null;
     const { data, error } = await supabase
       .from("profiles")
@@ -278,12 +297,12 @@ export async function pullProfileFromCloud(): Promise<Profile | null> {
       parentPin: (data as { parent_pin?: string | null }).parent_pin ?? null,
       dailyLimitMin: (data as { daily_limit_min?: number | null }).daily_limit_min ?? null,
       bedtimeHour: (data as { bedtime_hour?: number | null }).bedtime_hour ?? null,
-      region: ((data as { region?: RegionCode | null }).region ?? null),
-      interests: ((data as { interests?: string[] }).interests ?? []),
-      hunger: data.hunger ?? 80,
-      energy: data.energy ?? 100,
-      fun: data.fun ?? 90,
-      knowledge: data.knowledge ?? 50,
+      region: (data as { region?: RegionCode | null }).region ?? null,
+      interests: (data as { interests?: string[] }).interests ?? [],
+      hunger: (data as { hunger?: number }).hunger ?? 80,
+      energy: (data as { energy?: number }).energy ?? 100,
+      fun: (data as { fun?: number }).fun ?? 90,
+      knowledge: (data as { knowledge?: number }).knowledge ?? 50,
       pushToken: (data as any).push_token ?? null,
       lastDailyGift: (data as any).last_daily_gift ?? null,
       unlockedStickers: (data as any).unlocked_stickers ?? [],
@@ -331,7 +350,9 @@ function mergeProfiles(local: Profile | null, cloud: Profile): Profile {
     fun: cloud.fun,
     knowledge: cloud.knowledge,
     pushToken: cloud.pushToken ?? local.pushToken ?? null,
-    unlockedStickers: Array.from(new Set([...(local.unlockedStickers ?? []), ...(cloud.unlockedStickers ?? [])])),
+    unlockedStickers: Array.from(
+      new Set([...(local.unlockedStickers ?? []), ...(cloud.unlockedStickers ?? [])]),
+    ),
   };
 }
 

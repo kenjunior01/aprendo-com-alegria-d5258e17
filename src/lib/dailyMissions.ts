@@ -26,17 +26,99 @@ export interface DailyMissionsState {
   claimed: string[];
 }
 
-const KEY = "lusis-daily-missions-v1";
+import { lsGet, lsSetJSON } from "./localStore";
+
+const KEY = "kidoz-daily-missions-v1";
 
 const POOL: DailyMission[] = [
-  { id: "pt-2-lessons", subject: "portugues", emoji: "📖", title: "Lê e responde", description: "Completa 2 missões de Português.", target: 2, metric: "lessons", rewardCoins: 25, rewardXp: 30 },
-  { id: "pt-10-correct", subject: "portugues", emoji: "✏️", title: "Mestre das palavras", description: "Acerta 10 perguntas de Português.", target: 10, metric: "correct", rewardCoins: 30, rewardXp: 40 },
-  { id: "mat-2-lessons", subject: "matematica", emoji: "🧮", title: "Calculista", description: "Completa 2 missões de Matemática.", target: 2, metric: "lessons", rewardCoins: 25, rewardXp: 30 },
-  { id: "mat-10-correct", subject: "matematica", emoji: "🔢", title: "Conta, conta!", description: "Acerta 10 contas de Matemática.", target: 10, metric: "correct", rewardCoins: 30, rewardXp: 40 },
-  { id: "edm-1-lesson", subject: "estudo-do-meio", emoji: "🌍", title: "Pequeno cientista", description: "Faz 1 missão de Estudo do Meio.", target: 1, metric: "lessons", rewardCoins: 20, rewardXp: 25 },
-  { id: "edm-5-correct", subject: "estudo-do-meio", emoji: "🔬", title: "Descobridor", description: "Acerta 5 perguntas de Estudo do Meio.", target: 5, metric: "correct", rewardCoins: 25, rewardXp: 30 },
-  { id: "read-1", subject: "leitura", emoji: "🎤", title: "Lê em voz alta", description: "Faz 1 prática de leitura com voz.", target: 1, metric: "reads", rewardCoins: 20, rewardXp: 25 },
-  { id: "time-10", subject: "portugues", emoji: "⏱️", title: "10 minutos focado", description: "Estuda durante 10 minutos no total.", target: 10, metric: "minutes", rewardCoins: 20, rewardXp: 25 },
+  {
+    id: "pt-2-lessons",
+    subject: "portugues",
+    emoji: "📖",
+    title: "Lê e responde",
+    description: "Completa 2 missões de Português.",
+    target: 2,
+    metric: "lessons",
+    rewardCoins: 25,
+    rewardXp: 30,
+  },
+  {
+    id: "pt-10-correct",
+    subject: "portugues",
+    emoji: "✏️",
+    title: "Mestre das palavras",
+    description: "Acerta 10 perguntas de Português.",
+    target: 10,
+    metric: "correct",
+    rewardCoins: 30,
+    rewardXp: 40,
+  },
+  {
+    id: "mat-2-lessons",
+    subject: "matematica",
+    emoji: "🧮",
+    title: "Calculista",
+    description: "Completa 2 missões de Matemática.",
+    target: 2,
+    metric: "lessons",
+    rewardCoins: 25,
+    rewardXp: 30,
+  },
+  {
+    id: "mat-10-correct",
+    subject: "matematica",
+    emoji: "🔢",
+    title: "Conta, conta!",
+    description: "Acerta 10 contas de Matemática.",
+    target: 10,
+    metric: "correct",
+    rewardCoins: 30,
+    rewardXp: 40,
+  },
+  {
+    id: "edm-1-lesson",
+    subject: "estudo-do-meio",
+    emoji: "🌍",
+    title: "Pequeno cientista",
+    description: "Faz 1 missão de Estudo do Meio.",
+    target: 1,
+    metric: "lessons",
+    rewardCoins: 20,
+    rewardXp: 25,
+  },
+  {
+    id: "edm-5-correct",
+    subject: "estudo-do-meio",
+    emoji: "🔬",
+    title: "Descobridor",
+    description: "Acerta 5 perguntas de Estudo do Meio.",
+    target: 5,
+    metric: "correct",
+    rewardCoins: 25,
+    rewardXp: 30,
+  },
+  {
+    id: "read-1",
+    subject: "leitura",
+    emoji: "🎤",
+    title: "Lê em voz alta",
+    description: "Faz 1 prática de leitura com voz.",
+    target: 1,
+    metric: "reads",
+    rewardCoins: 20,
+    rewardXp: 25,
+  },
+  {
+    id: "time-10",
+    subject: "portugues",
+    emoji: "⏱️",
+    title: "10 minutos focado",
+    description: "Estuda durante 10 minutos no total.",
+    target: 10,
+    metric: "minutes",
+    rewardCoins: 20,
+    rewardXp: 25,
+  },
 ];
 
 function seededPick<T>(arr: T[], n: number, seed: number): T[] {
@@ -81,14 +163,19 @@ export function loadMissions(): DailyMissionsState {
     return { date, missions: generateForDay(date), progress: {}, claimed: [] };
   }
   try {
-    const raw = localStorage.getItem(KEY);
+    const raw = lsGet(KEY);
     const today = todayStr();
     if (raw) {
       const parsed = JSON.parse(raw) as DailyMissionsState;
       if (parsed.date === today) return parsed;
     }
-    const fresh: DailyMissionsState = { date: today, missions: generateForDay(today), progress: {}, claimed: [] };
-    localStorage.setItem(KEY, JSON.stringify(fresh));
+    const fresh: DailyMissionsState = {
+      date: today,
+      missions: generateForDay(today),
+      progress: {},
+      claimed: [],
+    };
+    lsSetJSON(KEY, fresh);
     return fresh;
   } catch {
     const date = todayStr();
@@ -98,7 +185,7 @@ export function loadMissions(): DailyMissionsState {
 
 export function saveMissions(state: DailyMissionsState) {
   if (typeof window === "undefined") return;
-  localStorage.setItem(KEY, JSON.stringify(state));
+  lsSetJSON(KEY, state);
 }
 
 export interface ProgressEvent {
@@ -110,17 +197,22 @@ export interface ProgressEvent {
 }
 
 /** Aplica progresso a TODAS as missões do dia e devolve as recém-completadas (não reclamadas ainda). */
-export function applyProgress(ev: ProgressEvent): { state: DailyMissionsState; newlyCompleted: DailyMission[] } {
+export function applyProgress(ev: ProgressEvent): {
+  state: DailyMissionsState;
+  newlyCompleted: DailyMission[];
+} {
   const state = loadMissions();
   const newlyCompleted: DailyMission[] = [];
   for (const m of state.missions) {
     const prev = state.progress[m.id] ?? 0;
     if (prev >= m.target) continue;
     let delta = 0;
-    const subjMatches = m.subject === ev.subject || m.subject === "leitura" && ev.subject === "leitura";
+    const subjMatches =
+      m.subject === ev.subject || (m.subject === "leitura" && ev.subject === "leitura");
     if (m.metric === "lessons" && ev.lessonsDelta && subjMatches) delta = ev.lessonsDelta;
     else if (m.metric === "correct" && ev.correctDelta && subjMatches) delta = ev.correctDelta;
-    else if (m.metric === "minutes" && ev.minutesDelta) delta = ev.minutesDelta; // minutos contam para qualquer disciplina
+    else if (m.metric === "minutes" && ev.minutesDelta)
+      delta = ev.minutesDelta; // minutos contam para qualquer disciplina
     else if (m.metric === "reads" && ev.readsDelta) delta = ev.readsDelta;
     if (delta > 0) {
       state.progress[m.id] = Math.min(m.target, prev + delta);

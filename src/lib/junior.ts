@@ -1,4 +1,4 @@
-// Alegria Júnior — conteúdo + perfis por criança (2-5 anos)
+// Kidoz Júnior — conteúdo + perfis por criança (2-5 anos)
 
 import type { MascotId } from "./mascots";
 

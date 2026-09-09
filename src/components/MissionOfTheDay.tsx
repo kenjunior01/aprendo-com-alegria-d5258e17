@@ -13,7 +13,10 @@ interface Props {
 /** Highlight card for "Missão do Dia" — picks the next unfinished mission for the child's grade. */
 export function MissionOfTheDay({ completedLessons, grade }: Props) {
   const [pulse, setPulse] = useState(false);
-  useEffect(() => { const t = setTimeout(() => setPulse(true), 600); return () => clearTimeout(t); }, []);
+  useEffect(() => {
+    const t = setTimeout(() => setPulse(true), 600);
+    return () => clearTimeout(t);
+  }, []);
 
   const set = new Set(completedLessons);
   const visible = CHAPTERS.filter((c) => c.grade <= Math.min(4, grade + 1));
@@ -36,19 +39,31 @@ export function MissionOfTheDay({ completedLessons, grade }: Props) {
       }}
     >
       <div className="mb-2 flex items-center gap-2">
-        <span className="rounded-full bg-card px-2.5 py-0.5 font-display text-[10px] font-bold uppercase tracking-widest" style={{ color }}>
+        <span
+          className="rounded-full bg-card px-2.5 py-0.5 font-display text-[10px] font-bold uppercase tracking-widest"
+          style={{ color }}
+        >
           ⭐ Missão do dia
         </span>
-        <Sparkles className={cn("h-4 w-4 transition-transform", pulse && "scale-110")} style={{ color }} />
+        <Sparkles
+          className={cn("h-4 w-4 transition-transform", pulse && "scale-110")}
+          style={{ color }}
+        />
       </div>
       <h3 className="font-display text-2xl leading-tight sm:text-3xl">{mission.title}</h3>
-      <p className="mt-1 text-sm text-muted-foreground">{chapter.title} · {chapter.subtitle}</p>
+      <p className="mt-1 text-sm text-muted-foreground">
+        {chapter.title} · {chapter.subtitle}
+      </p>
 
       <Link
         to="/licao/$subjectId/$lessonId"
         params={{ subjectId: mission.subjectId, lessonId: mission.lessonId }}
+        search={{}}
         className="mt-4 inline-flex items-center gap-2 rounded-2xl px-5 py-2.5 font-display text-base font-bold text-white shadow-md transition-transform active:scale-95"
-        style={{ backgroundColor: color, boxShadow: `0 5px 0 0 color-mix(in oklab, ${color} 60%, black)` }}
+        style={{
+          backgroundColor: color,
+          boxShadow: `0 5px 0 0 color-mix(in oklab, ${color} 60%, black)`,
+        }}
       >
         {mission.emoji} Começar agora <ChevronRight className="h-4 w-4" />
       </Link>

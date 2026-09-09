@@ -6,24 +6,59 @@ import { BottomNav } from "@/components/BottomNav";
 import { ChunkyButton } from "@/components/ChunkyButton";
 import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
 import { StripeEmbeddedCheckout } from "@/components/StripeEmbeddedCheckout";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { loadProfile, type Profile } from "@/lib/storage";
 import { useAuth } from "@/hooks/useAuth";
 import { useSubscription } from "@/hooks/useSubscription";
-import { ArrowLeft, Brain, Check, Crown, Gamepad2, Globe2, GraduationCap, Heart, Infinity as InfinityIcon, Palette, ShieldCheck, Sparkles, Star, Trophy, Users, Zap } from "lucide-react";
+import {
+  ArrowLeft,
+  Brain,
+  Check,
+  Crown,
+  Gamepad2,
+  Globe2,
+  GraduationCap,
+  Heart,
+  Infinity as InfinityIcon,
+  Palette,
+  ShieldCheck,
+  Sparkles,
+  Star,
+  Trophy,
+  Users,
+  Zap,
+} from "lucide-react";
 import { RouteError } from "@/components/RouteError";
 
 const TESTIMONIALS = [
-  { name: "Sofia, mãe da Matilde (7)", text: "A Matilde pede para ‘fazer Kidoz’ antes do desenho animado. As mascotes tornaram a leitura divertida.", stars: 5 },
-  { name: "João, pai do Tomás (9)", text: "O Tutor Mocha explica matemática melhor do que eu! E vejo o progresso semanal no painel de pais.", stars: 5 },
-  { name: "Prof. Inês, 2.º ano", text: "Uso o Kidoz como reforço na sala. O alinhamento com o programa nacional faz toda a diferença.", stars: 5 },
+  {
+    name: "Sofia, mãe da Matilde (7)",
+    text: "A Matilde pede para ‘fazer Kidoz’ antes do desenho animado. As mascotes tornaram a leitura divertida.",
+    stars: 5,
+  },
+  {
+    name: "João, pai do Tomás (9)",
+    text: "O Tutor Mocha explica matemática melhor do que eu! E vejo o progresso semanal no painel de pais.",
+    stars: 5,
+  },
+  {
+    name: "Prof. Inês, 2.º ano",
+    text: "Uso o Kidoz como reforço na sala. O alinhamento com o programa nacional faz toda a diferença.",
+    stars: 5,
+  },
 ];
 
 const TRUST = [
   { icon: ShieldCheck, label: "Sem anúncios" },
-  { icon: Heart,       label: "Seguro p/ crianças" },
-  { icon: Users,       label: "+10.000 famílias" },
-  { icon: Trophy,      label: "Programa nacional" },
+  { icon: Heart, label: "Seguro p/ crianças" },
+  { icon: Users, label: "+10.000 famílias" },
+  { icon: Trophy, label: "Programa nacional" },
 ];
 
 // @ts-ignore TanStack Router file-route type resolution
@@ -31,16 +66,29 @@ export const Route = createFileRoute("/premium")({
   head: () => ({
     meta: [
       { title: "Subscrição Kidoz Premium — desde 3,33€/mês" },
-      { name: "description", content: "Acesso ilimitado a todas as disciplinas, Mocha IA, modo família e relatórios. Planos a partir de 3,33€/mês." },
-      { property: "og:title", content: 'Kidoz Premium — desde 3,33€/mês' },
-      { property: "og:description", content: 'Acesso ilimitado a todas as disciplinas, Mocha IA, modo família e relatórios.' },
+      {
+        name: "description",
+        content:
+          "Acesso ilimitado a todas as disciplinas, Mocha IA, modo família e relatórios. Planos a partir de 3,33€/mês.",
+      },
+      { property: "og:title", content: "Kidoz Premium — desde 3,33€/mês" },
+      {
+        property: "og:description",
+        content: "Acesso ilimitado a todas as disciplinas, Mocha IA, modo família e relatórios.",
+      },
       { property: "og:url", content: "https://kidoz.online/premium" },
-      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/acc7c5c1-6f57-466a-a906-520c14783216" },
-      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/acc7c5c1-6f57-466a-a906-520c14783216" },
+      {
+        property: "og:image",
+        content:
+          "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/acc7c5c1-6f57-466a-a906-520c14783216",
+      },
+      {
+        name: "twitter:image",
+        content:
+          "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/acc7c5c1-6f57-466a-a906-520c14783216",
+      },
     ],
-    links: [
-      { rel: "canonical", href: "https://kidoz.online/premium" },
-    ],
+    links: [{ rel: "canonical", href: "https://kidoz.online/premium" }],
     scripts: [
       {
         type: "application/ld+json",
@@ -132,24 +180,71 @@ interface Feature {
 }
 
 const FEATURES: Feature[] = [
-  { icon: InfinityIcon, title: "Desafios Infinitos", desc: "Milhares de níveis procedurais em 12 disciplinas. Aritmética, álgebra, geometria, gramática, vocabulário, geografia, história, lógica e mais — sem fim." },
-  { icon: GraduationCap, title: "Para todas as idades", desc: "Do Kidoz Júnior (2–5) ao avançado (10+). Conteúdo ajustado à idade, ano escolar e região (PT, BR, AO, MZ, CV)." },
-  { icon: Brain, title: "Tutor Mocha IA", desc: "Explicações passo-a-passo, exemplos personalizados e respostas adaptadas ao nível da criança." },
-  { icon: Gamepad2, title: "Jogos exclusivos", desc: "Mini-jogos premium, modo família 1v1, desafios PvP com amigos e ranking semanal." },
-  { icon: Palette, title: "Personalização total", desc: "Mascotes dourados, fatos exclusivos, cenários animados, jardim e mundo personalizáveis." },
-  { icon: Globe2, title: "Realidade Aumentada", desc: "Vê os mascotes em 3D no teu quarto. Aprende explorando objetos reais à tua volta." },
-  { icon: Trophy, title: "Conquistas premium", desc: "Centenas de medalhas, certificados imprimíveis e desafios sazonais únicos." },
-  { icon: Users, title: "Modo família", desc: "Até 4 perfis de criança, painel de pais avançado, controlos de tempo de ecrã e relatórios detalhados." },
-  { icon: Zap, title: "Sem limites", desc: "Vidas infinitas, leitura por voz ilimitada, modo offline e zero anúncios." },
+  {
+    icon: InfinityIcon,
+    title: "Desafios Infinitos",
+    desc: "Milhares de níveis procedurais em 12 disciplinas. Aritmética, álgebra, geometria, gramática, vocabulário, geografia, história, lógica e mais — sem fim.",
+  },
+  {
+    icon: GraduationCap,
+    title: "Para todas as idades",
+    desc: "Do Kidoz Júnior (2–5) ao avançado (10+). Conteúdo ajustado à idade, ano escolar e região (PT, BR, AO, MZ, CV).",
+  },
+  {
+    icon: Brain,
+    title: "Tutor Mocha IA",
+    desc: "Explicações passo-a-passo, exemplos personalizados e respostas adaptadas ao nível da criança.",
+  },
+  {
+    icon: Gamepad2,
+    title: "Jogos exclusivos",
+    desc: "Mini-jogos premium, modo família 1v1, desafios PvP com amigos e ranking semanal.",
+  },
+  {
+    icon: Palette,
+    title: "Personalização total",
+    desc: "Mascotes dourados, fatos exclusivos, cenários animados, jardim e mundo personalizáveis.",
+  },
+  {
+    icon: Globe2,
+    title: "Realidade Aumentada",
+    desc: "Vê os mascotes em 3D no teu quarto. Aprende explorando objetos reais à tua volta.",
+  },
+  {
+    icon: Trophy,
+    title: "Conquistas premium",
+    desc: "Centenas de medalhas, certificados imprimíveis e desafios sazonais únicos.",
+  },
+  {
+    icon: Users,
+    title: "Modo família",
+    desc: "Até 4 perfis de criança, painel de pais avançado, controlos de tempo de ecrã e relatórios detalhados.",
+  },
+  {
+    icon: Zap,
+    title: "Sem limites",
+    desc: "Vidas infinitas, leitura por voz ilimitada, modo offline e zero anúncios.",
+  },
 ];
 
 const FAQS: Array<{ q: string; a: string }> = [
-  { q: "Posso cancelar quando quiser?", a: "Sim. O cancelamento é instantâneo no painel de perfil e mantém o acesso até ao fim do período pago." },
-  { q: "Quantas crianças posso registar?", a: "Até 4 perfis distintos por conta família, cada um com mascote e progresso próprios." },
-  { q: "Funciona offline?", a: "Sim. As lições e desafios infinitos funcionam offline depois da primeira sincronização." },
-  { q: "É seguro para crianças?", a: "Sem anúncios, sem dados partilhados com terceiros e modo pais com PIN para gerir tudo." },
+  {
+    q: "Posso cancelar quando quiser?",
+    a: "Sim. O cancelamento é instantâneo no painel de perfil e mantém o acesso até ao fim do período pago.",
+  },
+  {
+    q: "Quantas crianças posso registar?",
+    a: "Até 4 perfis distintos por conta família, cada um com mascote e progresso próprios.",
+  },
+  {
+    q: "Funciona offline?",
+    a: "Sim. As lições e desafios infinitos funcionam offline depois da primeira sincronização.",
+  },
+  {
+    q: "É seguro para crianças?",
+    a: "Sem anúncios, sem dados partilhados com terceiros e modo pais com PIN para gerir tudo.",
+  },
 ];
-
 
 function PremiumPage() {
   const navigate = useNavigate();
@@ -160,18 +255,31 @@ function PremiumPage() {
 
   useEffect(() => {
     const p = loadProfile();
-    if (!p || !p.name) { navigate({ to: "/comecar" }); return; }
+    if (!p || !p.name) {
+      navigate({ to: "/comecar" });
+      return;
+    }
     setProfile(p);
   }, [navigate]);
 
-  if (!profile) return (
-    <main id="main-content" className="flex min-h-[60dvh] items-center justify-center">
-      <p className="animate-pulse font-display text-lg text-muted-foreground" role="status" aria-live="polite">A carregar…</p>
-    </main>
-  );
+  if (!profile)
+    return (
+      <main id="main-content" className="flex min-h-[60dvh] items-center justify-center">
+        <p
+          className="animate-pulse font-display text-lg text-muted-foreground"
+          role="status"
+          aria-live="polite"
+        >
+          A carregar…
+        </p>
+      </main>
+    );
 
   const handleSubscribe = (priceId: string) => {
-    if (!user) { navigate({ to: "/auth" }); return; }
+    if (!user) {
+      navigate({ to: "/auth" });
+      return;
+    }
     setCheckoutPriceId(priceId);
   };
 
@@ -180,12 +288,16 @@ function PremiumPage() {
       <PaymentTestModeBanner />
       <TopBar profile={profile} />
       <main id="main-content" className="mx-auto max-w-5xl px-4 py-6 sm:py-8">
-        <Link to="/perfil" className="mb-3 inline-flex items-center gap-1 text-sm font-display text-muted-foreground hover:text-foreground">
+        <Link
+          to="/perfil"
+          className="mb-3 inline-flex items-center gap-1 text-sm font-display text-muted-foreground hover:text-foreground"
+        >
           <ArrowLeft className="h-4 w-4" /> Perfil
         </Link>
 
         <motion.section
-          initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
           className="card-chunky relative overflow-hidden rounded-3xl border border-border bg-gradient-to-br from-primary/15 via-secondary/20 to-accent/30 p-6 sm:p-8 text-center"
         >
           <Crown className="mx-auto h-10 w-10 text-primary" />
@@ -214,14 +326,22 @@ function PremiumPage() {
 
         <section className="mt-8">
           <h2 className="font-display text-2xl">Tudo o que recebes</h2>
-          <p className="text-sm text-muted-foreground">Mais de 100 funcionalidades premium para crescer sem fim.</p>
+          <p className="text-sm text-muted-foreground">
+            Mais de 100 funcionalidades premium para crescer sem fim.
+          </p>
           <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3">
             {FEATURES.map((f) => {
               const Icon = f.icon;
               return (
-                <motion.div key={f.title} whileHover={{ y: -3 }} className="card-chunky rounded-2xl border-2 border-border bg-card p-4">
+                <motion.div
+                  key={f.title}
+                  whileHover={{ y: -3 }}
+                  className="card-chunky rounded-2xl border-2 border-border bg-card p-4"
+                >
                   <div className="flex items-center gap-2">
-                    <div className="rounded-xl bg-primary/10 p-2"><Icon className="h-5 w-5 text-primary" /></div>
+                    <div className="rounded-xl bg-primary/10 p-2">
+                      <Icon className="h-5 w-5 text-primary" />
+                    </div>
                     <p className="font-display text-base">{f.title}</p>
                   </div>
                   <p className="mt-2 text-xs text-muted-foreground">{f.desc}</p>
@@ -236,15 +356,25 @@ function PremiumPage() {
             <InfinityIcon className="h-10 w-10 text-primary" />
             <div className="flex-1">
               <p className="font-display text-2xl">Desafios Infinitos</p>
-              <p className="mt-1 text-sm text-muted-foreground">Aritmética, álgebra, frações, geometria, gramática, vocabulário, geografia, história, ciências e lógica — milhares de níveis procedurais que se ajustam a ti.</p>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Aritmética, álgebra, frações, geometria, gramática, vocabulário, geografia,
+                história, ciências e lógica — milhares de níveis procedurais que se ajustam a ti.
+              </p>
             </div>
             <Link to="/desafios/infinitos" className="self-stretch sm:self-center">
-              <ChunkyButton className="w-full sm:w-auto"><Sparkles className="mr-1 inline h-4 w-4" /> Experimentar</ChunkyButton>
+              <ChunkyButton className="w-full sm:w-auto">
+                <Sparkles className="mr-1 inline h-4 w-4" /> Experimentar
+              </ChunkyButton>
             </Link>
           </div>
           <div className="mt-4 grid grid-cols-2 gap-2 text-[11px] sm:grid-cols-4">
             {["Pré-escolar 2–5", "Básico 6–9", "Avançado 10–13", "Adulto 14+"].map((b) => (
-              <div key={b} className="rounded-xl border border-border/60 bg-card/70 p-2 text-center font-display">{b}</div>
+              <div
+                key={b}
+                className="rounded-xl border border-border/60 bg-card/70 p-2 text-center font-display"
+              >
+                {b}
+              </div>
             ))}
           </div>
         </section>
@@ -258,7 +388,9 @@ function PremiumPage() {
                 key={plan.priceId}
                 whileHover={{ y: -4 }}
                 className={`card-chunky relative flex flex-col rounded-3xl border-2 p-5 sm:p-6 ${
-                  plan.highlight ? "border-primary bg-card shadow-elegant" : "border-border bg-card/80"
+                  plan.highlight
+                    ? "border-primary bg-card shadow-elegant"
+                    : "border-border bg-card/80"
                 }`}
               >
                 {plan.badge && (
@@ -304,7 +436,10 @@ function PremiumPage() {
           {TRUST.map((t) => {
             const Icon = t.icon;
             return (
-              <div key={t.label} className="flex items-center justify-center gap-2 rounded-2xl border-2 border-border bg-card/70 px-3 py-3 text-center">
+              <div
+                key={t.label}
+                className="flex items-center justify-center gap-2 rounded-2xl border-2 border-border bg-card/70 px-3 py-3 text-center"
+              >
                 <Icon className="h-5 w-5 text-primary" />
                 <span className="font-display text-sm">{t.label}</span>
               </div>
@@ -323,7 +458,9 @@ function PremiumPage() {
                 className="card-chunky rounded-2xl border-2 border-border bg-card p-4"
               >
                 <div className="mb-2 flex gap-0.5 text-xp">
-                  {Array.from({ length: t.stars }).map((_, i) => <Star key={i} className="h-4 w-4 fill-current" />)}
+                  {Array.from({ length: t.stars }).map((_, i) => (
+                    <Star key={i} className="h-4 w-4 fill-current" />
+                  ))}
                 </div>
                 <blockquote className="text-sm text-foreground/90">“{t.text}”</blockquote>
                 <figcaption className="mt-2 text-xs text-muted-foreground">{t.name}</figcaption>
@@ -337,14 +474,29 @@ function PremiumPage() {
           <div className="card-chunky rounded-3xl border-2 border-primary/40 bg-gradient-to-br from-primary/10 to-accent/15 p-5">
             <Brain className="h-7 w-7 text-primary" />
             <p className="mt-2 font-display text-lg">Tutor Mocha IA</p>
-            <p className="text-sm text-foreground/80">Explica passo-a-passo, gera exercícios novos e adapta-se ao nível da criança em segundos.</p>
-            <Link to="/tutor" className="mt-3 inline-block text-sm font-display text-primary underline-offset-2 hover:underline">Experimentar →</Link>
+            <p className="text-sm text-foreground/80">
+              Explica passo-a-passo, gera exercícios novos e adapta-se ao nível da criança em
+              segundos.
+            </p>
+            <Link
+              to="/tutor"
+              className="mt-3 inline-block text-sm font-display text-primary underline-offset-2 hover:underline"
+            >
+              Experimentar →
+            </Link>
           </div>
           <div className="card-chunky rounded-3xl border-2 border-secondary/50 bg-gradient-to-br from-secondary/15 to-primary/10 p-5">
             <Globe2 className="h-7 w-7 text-pt-world" />
             <p className="mt-2 font-display text-lg">Realidade Aumentada</p>
-            <p className="text-sm text-foreground/80">Vê os mascotes em 3D no quarto da criança a explicar ciência, geografia e história.</p>
-            <Link to="/ra" className="mt-3 inline-block text-sm font-display text-primary underline-offset-2 hover:underline">Ver demo →</Link>
+            <p className="text-sm text-foreground/80">
+              Vê os mascotes em 3D no quarto da criança a explicar ciência, geografia e história.
+            </p>
+            <Link
+              to="/ra"
+              className="mt-3 inline-block text-sm font-display text-primary underline-offset-2 hover:underline"
+            >
+              Ver demo →
+            </Link>
           </div>
         </section>
 
@@ -363,7 +515,9 @@ function PremiumPage() {
         <div className="card-chunky mt-8 rounded-3xl border-2 border-primary/40 bg-gradient-to-br from-primary/10 to-accent/10 p-5 text-center">
           <Heart className="mx-auto h-7 w-7 text-primary" />
           <p className="mt-2 font-display text-lg">Cresce sem limites com o Kidoz Premium</p>
-          <p className="text-xs text-muted-foreground">Mais de 10 000 perguntas, jogos e desafios à tua espera.</p>
+          <p className="text-xs text-muted-foreground">
+            Mais de 10 000 perguntas, jogos e desafios à tua espera.
+          </p>
         </div>
       </main>
 
@@ -371,7 +525,9 @@ function PremiumPage() {
         <DialogContent className="max-w-[48rem] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Finalizar subscrição</DialogTitle>
-            <DialogDescription className="text-sm text-muted-foreground">Checkout seguro para finalizar a subscrição Premium.</DialogDescription>
+            <DialogDescription className="text-sm text-muted-foreground">
+              Checkout seguro para finalizar a subscrição Premium.
+            </DialogDescription>
           </DialogHeader>
           {checkoutPriceId && user && (
             <StripeEmbeddedCheckout

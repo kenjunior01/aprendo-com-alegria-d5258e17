@@ -9,10 +9,25 @@ import { MascotIcon } from "@/components/MascotIcon";
 import { StarRating } from "@/components/StarRating";
 import { XPCounter, CoinCounter } from "@/components/XPCounter";
 import { ChunkyButton } from "@/components/ChunkyButton";
-import { ConfettiCelebration, fireConfetti, FloatingReward } from "@/components/ConfettiCelebration";
+import {
+  ConfettiCelebration,
+  fireConfetti,
+  FloatingReward,
+} from "@/components/ConfettiCelebration";
 import { getMascot, type MascotId } from "@/lib/mascots";
 import { type Achievement } from "@/lib/achievements";
-import { Check, Coins, Heart, Trophy, Sparkles, ArrowRight, RotateCcw, Star, Clock, Target } from "lucide-react";
+import {
+  Check,
+  Coins,
+  Heart,
+  Trophy,
+  Sparkles,
+  ArrowRight,
+  RotateCcw,
+  Star,
+  Clock,
+  Target,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface LessonCompleteScreenProps {
@@ -183,9 +198,7 @@ export function LessonCompleteScreen({
           <p className="mt-2 text-base text-muted-foreground">
             Missão completa: <strong className="text-foreground">{lessonTitle}</strong>
           </p>
-          {chapterName && (
-            <p className="mt-0.5 text-xs text-muted-foreground/70">{chapterName}</p>
-          )}
+          {chapterName && <p className="mt-0.5 text-xs text-muted-foreground/70">{chapterName}</p>}
         </motion.div>
 
         {/* ── 3. Star Rating ── */}
@@ -296,7 +309,9 @@ export function LessonCompleteScreen({
                 <div className="mb-3 flex items-center gap-2">
                   <Trophy className="h-5 w-5 text-primary" />
                   <h2 className="font-display text-lg font-bold">
-                    {newAchievements.length === 1 ? "Nova conquista!" : `${newAchievements.length} novas conquistas!`}
+                    {newAchievements.length === 1
+                      ? "Nova conquista!"
+                      : `${newAchievements.length} novas conquistas!`}
                   </h2>
                 </div>
                 <ul className="space-y-2">
@@ -346,6 +361,7 @@ export function LessonCompleteScreen({
             <Link
               to="/licao/$subjectId/$lessonId"
               params={{ subjectId: nextLesson.subjectId, lessonId: nextLesson.lessonId }}
+              search={{}}
               className="block"
             >
               <ChunkyButton tone="success" className="w-full text-lg">

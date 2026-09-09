@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { motion, AnimatePresence, type Variant } from "framer-motion";
+import { motion, AnimatePresence, type TargetAndTransition } from "framer-motion";
 import { MascotExpression, type MascotMood } from "./MascotExpression";
 import type { MascotId } from "@/lib/mascots";
 import { cn } from "@/lib/utils";
@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 
 type DanceStyle = "wiggle" | "spin" | "bounce-dance" | "disco";
 
-const DANCE_ANIMATIONS: Record<DanceStyle, Variant> = {
+const DANCE_ANIMATIONS: Record<DanceStyle, TargetAndTransition> = {
   wiggle: {
     rotate: [0, -15, 15, -10, 10, -5, 5, 0],
     y: [0, -8, 0, -6, 0, -4, 0],
@@ -172,7 +172,9 @@ export function MascotDance({
 
       {/* Dancing mascot */}
       <motion.div
-        animate={dancing ? DANCE_ANIMATIONS[danceStyle] : { rotate: 0, y: 0, x: 0, scale: growthScale }}
+        animate={
+          dancing ? DANCE_ANIMATIONS[danceStyle] : { rotate: 0, y: 0, x: 0, scale: growthScale }
+        }
         transition={
           dancing
             ? DANCE_ANIMATIONS[danceStyle].transition

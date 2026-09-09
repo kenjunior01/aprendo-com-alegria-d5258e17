@@ -6,7 +6,12 @@ import { BottomNav } from "@/components/BottomNav";
 import { ChunkyButton } from "@/components/ChunkyButton";
 import { loadProfile, updateProfile, type Profile } from "@/lib/storage";
 import { gardenState, progressToNext, LEVEL_NAMES } from "@/lib/garden";
-import { loadMissions, claimMission, dailyMissionStats, type DailyMissionsState } from "@/lib/dailyMissions";
+import {
+  loadMissions,
+  claimMission,
+  dailyMissionStats,
+  type DailyMissionsState,
+} from "@/lib/dailyMissions";
 import { ArrowLeft, Sparkles, Lock, Gift, CheckCircle2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import confetti from "canvas-confetti";
@@ -16,16 +21,25 @@ export const Route = createFileRoute("/jardim")({
   head: () => ({
     meta: [
       { title: "O meu Jardim Mágico — Kidoz" },
-      { name: "description", content: "O teu jardim cresce a cada missão completada. Vê o que conseguiste desbloquear!" },
-      { property: "og:title", content: 'O meu Jardim Mágico — Kidoz' },
-      { property: "og:description", content: 'O teu jardim cresce a cada missão completada.' },
+      {
+        name: "description",
+        content: "O teu jardim cresce a cada missão completada. Vê o que conseguiste desbloquear!",
+      },
+      { property: "og:title", content: "O meu Jardim Mágico — Kidoz" },
+      { property: "og:description", content: "O teu jardim cresce a cada missão completada." },
       { property: "og:url", content: "https://kidoz.online/jardim" },
-      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/acc7c5c1-6f57-466a-a906-520c14783216" },
-      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/acc7c5c1-6f57-466a-a906-520c14783216" },
+      {
+        property: "og:image",
+        content:
+          "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/acc7c5c1-6f57-466a-a906-520c14783216",
+      },
+      {
+        name: "twitter:image",
+        content:
+          "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/acc7c5c1-6f57-466a-a906-520c14783216",
+      },
     ],
-    links: [
-      { rel: "canonical", href: "https://kidoz.online/jardim" },
-    ],
+    links: [{ rel: "canonical", href: "https://kidoz.online/jardim" }],
   }),
   component: GardenPage,
   errorComponent: RouteError,
@@ -39,7 +53,10 @@ function GardenPage() {
 
   useEffect(() => {
     const p = loadProfile();
-    if (!p || !p.name) { navigate({ to: "/comecar" }); return; }
+    if (!p || !p.name) {
+      navigate({ to: "/comecar" });
+      return;
+    }
     setProfile(p);
     setMissions(loadMissions());
   }, [navigate]);
@@ -47,19 +64,34 @@ function GardenPage() {
   const handleClaim = (id: string) => {
     const m = claimMission(id);
     if (!m || !profile) return;
-    const next = updateProfile({ coins: profile.coins + m.rewardCoins, xp: profile.xp + m.rewardXp });
+    const next = updateProfile({
+      coins: profile.coins + m.rewardCoins,
+      xp: profile.xp + m.rewardXp,
+    });
     setProfile(next);
     setMissions(loadMissions());
     setJustClaimed(id);
-    confetti({ particleCount: 90, spread: 75, origin: { y: 0.6 }, colors: ["#7cd16e", "#ffd166", "#5db1ff"] });
+    confetti({
+      particleCount: 90,
+      spread: 75,
+      origin: { y: 0.6 },
+      colors: ["#7cd16e", "#ffd166", "#5db1ff"],
+    });
     setTimeout(() => setJustClaimed(null), 2000);
   };
 
-  if (!profile || !missions) return (
-    <main id="main-content" className="flex min-h-[60dvh] items-center justify-center">
-      <p className="animate-pulse font-display text-lg text-muted-foreground" role="status" aria-live="polite">A carregar…</p>
-    </main>
-  );
+  if (!profile || !missions)
+    return (
+      <main id="main-content" className="flex min-h-[60dvh] items-center justify-center">
+        <p
+          className="animate-pulse font-display text-lg text-muted-foreground"
+          role="status"
+          aria-live="polite"
+        >
+          A carregar…
+        </p>
+      </main>
+    );
   const garden = gardenState(profile);
   const nextProgress = garden.next ? progressToNext(profile, garden.next) : null;
   const stats = dailyMissionStats(missions);
@@ -68,7 +100,10 @@ function GardenPage() {
     <div className="min-h-[100dvh] bg-background pb-24 md:pb-12">
       <TopBar profile={profile} />
       <main id="main-content" className="mx-auto max-w-[48rem] px-4 py-5">
-        <Link to="/app" className="mb-3 inline-flex items-center gap-1 text-sm font-display text-muted-foreground hover:text-foreground">
+        <Link
+          to="/app"
+          className="mb-3 inline-flex items-center gap-1 text-sm font-display text-muted-foreground hover:text-foreground"
+        >
           <ArrowLeft className="h-4 w-4" /> Aventura
         </Link>
 
@@ -82,7 +117,8 @@ function GardenPage() {
             <div>
               <h1 className="font-display text-2xl">O meu Jardim Mágico</h1>
               <p className="text-sm text-muted-foreground">
-                Nível {garden.level} · <strong>{LEVEL_NAMES[garden.level]}</strong> · {garden.totalUnlocked}/{garden.total} criaturas
+                Nível {garden.level} · <strong>{LEVEL_NAMES[garden.level]}</strong> ·{" "}
+                {garden.totalUnlocked}/{garden.total} criaturas
               </p>
             </div>
           </div>
@@ -128,9 +164,11 @@ function GardenPage() {
                     role="listitem"
                     className={cn(
                       "rounded-2xl border-2 p-3 transition-colors",
-                      claimed ? "border-success/40 bg-success/5"
-                        : done ? "border-primary bg-primary/10"
-                        : "border-border bg-muted/30",
+                      claimed
+                        ? "border-success/40 bg-success/5"
+                        : done
+                          ? "border-primary bg-primary/10"
+                          : "border-border bg-muted/30",
                     )}
                   >
                     <div className="flex items-start gap-2">
@@ -144,11 +182,16 @@ function GardenPage() {
                     <div className="mt-2 flex items-center gap-2">
                       <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-background">
                         <div
-                          className={cn("h-full rounded-full transition-all", done ? "bg-success" : "bg-primary")}
+                          className={cn(
+                            "h-full rounded-full transition-all",
+                            done ? "bg-success" : "bg-primary",
+                          )}
                           style={{ width: `${pct * 100}%` }}
                         />
                       </div>
-                      <span className="font-display text-[10px] text-muted-foreground">{prog}/{m.target}</span>
+                      <span className="font-display text-[10px] text-muted-foreground">
+                        {prog}/{m.target}
+                      </span>
                     </div>
                     <div className="mt-2 flex items-center justify-between gap-2">
                       <span className="font-display text-[11px] text-muted-foreground">
@@ -164,13 +207,20 @@ function GardenPage() {
                           Recolher
                         </button>
                       ) : (
-                        <Link to={subjectLink(m.subject)} className="font-display text-[11px] text-primary underline">
+                        <Link
+                          to={subjectLink(m.subject)}
+                          className="font-display text-[11px] text-primary underline"
+                        >
                           Começar →
                         </Link>
                       )}
                     </div>
                     {justClaimed === m.id && (
-                      <motion.p initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} className="mt-1 text-center font-display text-[10px] text-success">
+                      <motion.p
+                        initial={{ opacity: 0, y: 4 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="mt-1 text-center font-display text-[10px] text-success"
+                      >
                         +{m.rewardCoins} 🪙 +{m.rewardXp} ⭐
                       </motion.p>
                     )}
@@ -189,17 +239,25 @@ function GardenPage() {
           className="card-chunky relative mt-5 overflow-hidden rounded-3xl border-2 border-border"
           style={{
             aspectRatio: "5 / 4",
-            background: "linear-gradient(180deg, oklch(0.85 0.10 220) 0%, oklch(0.90 0.08 200) 35%, oklch(0.85 0.12 130) 60%, oklch(0.75 0.14 130) 100%)",
+            background:
+              "linear-gradient(180deg, oklch(0.85 0.10 220) 0%, oklch(0.90 0.08 200) 35%, oklch(0.85 0.12 130) 60%, oklch(0.75 0.14 130) 100%)",
           }}
         >
           {/* sun */}
-          <div className="absolute right-6 top-5 text-5xl drop-shadow-lg" style={{ filter: "drop-shadow(0 0 12px rgba(255,220,100,0.7))" }}>
+          <div
+            className="absolute right-6 top-5 text-5xl drop-shadow-lg"
+            style={{ filter: "drop-shadow(0 0 12px rgba(255,220,100,0.7))" }}
+          >
             ☀️
           </div>
 
           {/* clouds */}
-          <div className="absolute left-8 top-6 text-4xl opacity-80 animate-[float-slow_8s_ease-in-out_infinite]">☁️</div>
-          <div className="absolute right-24 top-12 text-3xl opacity-70 animate-[float-slow_10s_ease-in-out_infinite]">☁️</div>
+          <div className="absolute left-8 top-6 text-4xl opacity-80 animate-[float-slow_8s_ease-in-out_infinite]">
+            ☁️
+          </div>
+          <div className="absolute right-24 top-12 text-3xl opacity-70 animate-[float-slow_10s_ease-in-out_infinite]">
+            ☁️
+          </div>
 
           {/* unlocked items */}
           {garden.unlocked.map((it, i) => (
@@ -255,7 +313,10 @@ function GardenPage() {
                 <p className="text-xs text-muted-foreground">{garden.next.description}</p>
                 <div className="mt-2 flex items-center gap-2">
                   <div className="h-2 flex-1 overflow-hidden rounded-full bg-muted">
-                    <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${nextProgress.pct * 100}%` }} />
+                    <div
+                      className="h-full rounded-full bg-primary transition-all"
+                      style={{ width: `${nextProgress.pct * 100}%` }}
+                    />
                   </div>
                   <span className="font-display text-xs text-muted-foreground">
                     {nextProgress.current}/{nextProgress.target} {nextProgress.label}
@@ -271,9 +332,14 @@ function GardenPage() {
           <div className="card-chunky rounded-3xl border border-border bg-card p-4">
             <h3 className="font-display text-base">✨ Já tens ({garden.unlocked.length})</h3>
             <div className="mt-2 flex flex-wrap gap-2">
-              {garden.unlocked.length === 0 && <p className="text-xs text-muted-foreground">Nada ainda — começa uma missão!</p>}
+              {garden.unlocked.length === 0 && (
+                <p className="text-xs text-muted-foreground">Nada ainda — começa uma missão!</p>
+              )}
               {garden.unlocked.map((it) => (
-                <span key={it.id} className="inline-flex items-center gap-1 rounded-full bg-success/10 px-2 py-1 text-xs">
+                <span
+                  key={it.id}
+                  className="inline-flex items-center gap-1 rounded-full bg-success/10 px-2 py-1 text-xs"
+                >
                   <span className="text-base">{it.emoji}</span> {it.name}
                 </span>
               ))}
@@ -283,18 +349,31 @@ function GardenPage() {
             <h3 className="font-display text-base">🔒 Por descobrir ({garden.locked.length})</h3>
             <div className="mt-2 flex flex-wrap gap-2">
               {garden.locked.slice(0, 8).map((it) => (
-                <span key={it.id} className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-1 text-xs text-muted-foreground">
+                <span
+                  key={it.id}
+                  className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-1 text-xs text-muted-foreground"
+                >
                   <span className="grayscale">{it.emoji}</span> ???
                 </span>
               ))}
-              {garden.locked.length > 8 && <span className="text-xs text-muted-foreground">+{garden.locked.length - 8}</span>}
+              {garden.locked.length > 8 && (
+                <span className="text-xs text-muted-foreground">+{garden.locked.length - 8}</span>
+              )}
             </div>
           </div>
         </div>
 
         <div className="mt-6 grid gap-3 sm:grid-cols-2">
-          <Link to="/app"><ChunkyButton tone="primary" className="w-full">Continuar aventura →</ChunkyButton></Link>
-          <Link to="/tutor"><ChunkyButton tone="ghost" className="w-full">Falar com o Mocha 🦉</ChunkyButton></Link>
+          <Link to="/app">
+            <ChunkyButton tone="primary" className="w-full">
+              Continuar aventura →
+            </ChunkyButton>
+          </Link>
+          <Link to="/tutor">
+            <ChunkyButton tone="ghost" className="w-full">
+              Falar com o Mocha 🦉
+            </ChunkyButton>
+          </Link>
         </div>
       </main>
       <BottomNav />
@@ -302,7 +381,8 @@ function GardenPage() {
   );
 }
 
-const _cn = cn; void _cn;
+const _cn = cn;
+void _cn;
 
 function subjectLink(subject: string): "/app" | "/leitura" {
   if (subject === "leitura") return "/leitura";

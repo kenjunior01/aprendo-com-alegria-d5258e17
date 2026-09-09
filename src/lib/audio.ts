@@ -4,10 +4,12 @@
 let ctx: AudioContext | null = null;
 let muted = false;
 
-const STORAGE_KEY = "lusis-sound-muted";
+import { lsGet, lsSet } from "./localStore";
+
+const STORAGE_KEY = "kidoz-sound-muted";
 
 if (typeof window !== "undefined") {
-  muted = localStorage.getItem(STORAGE_KEY) === "1";
+  muted = lsGet(STORAGE_KEY) === "1";
 }
 
 function getCtx(): AudioContext | null {
@@ -21,7 +23,13 @@ function getCtx(): AudioContext | null {
   return ctx;
 }
 
-function tone(freq: number, duration: number, type: OscillatorType = "sine", vol = 0.18, delay = 0) {
+function tone(
+  freq: number,
+  duration: number,
+  type: OscillatorType = "sine",
+  vol = 0.18,
+  delay = 0,
+) {
   const ac = getCtx();
   if (!ac) return;
   const osc = ac.createOscillator();
@@ -41,7 +49,7 @@ function tone(freq: number, duration: number, type: OscillatorType = "sine", vol
 export function setMuted(v: boolean) {
   muted = v;
   if (typeof window !== "undefined") {
-    localStorage.setItem(STORAGE_KEY, v ? "1" : "0");
+    lsSet(STORAGE_KEY, v ? "1" : "0");
   }
   if (v) stopSpeech();
 }
@@ -121,11 +129,21 @@ let cachedVoice: SpeechSynthesisVoice | null = null;
 // Vozes preferidas por nome (mais naturais/humanas em cada SO/navegador).
 const PREFERRED_NAMES = [
   // macOS / iOS
-  "Joana", "Inês", "Catarina", "Luciana", "Joaquim",
+  "Joana",
+  "Inês",
+  "Catarina",
+  "Luciana",
+  "Joaquim",
   // Google (Android/Chrome)
-  "Google português de Portugal", "Google português do Brasil", "Google português",
+  "Google português de Portugal",
+  "Google português do Brasil",
+  "Google português",
   // Microsoft (Windows/Edge)
-  "Microsoft Duarte", "Microsoft Raquel", "Microsoft Helia", "Microsoft Fernanda", "Microsoft Maria",
+  "Microsoft Duarte",
+  "Microsoft Raquel",
+  "Microsoft Helia",
+  "Microsoft Fernanda",
+  "Microsoft Maria",
 ];
 
 function scoreVoice(v: SpeechSynthesisVoice): number {

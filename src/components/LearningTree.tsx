@@ -54,7 +54,11 @@ function TreeBranch({
     <motion.section
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: chapterIdx * 0.1, duration: 0.5, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] }}
+      transition={{
+        delay: chapterIdx * 0.1,
+        duration: 0.5,
+        ease: [0.22, 1, 0.36, 1] as [number, number, number, number],
+      }}
       aria-label={chapter.title}
     >
       {/* Chapter header — premium card */}
@@ -99,7 +103,10 @@ function TreeBranch({
             {missions.map((m, i) => (
               <Star
                 key={m.lessonId}
-                className={cn("h-4 w-4 transition-all", i < doneCount ? "fill-current text-xp scale-110" : "text-muted-foreground/30")}
+                className={cn(
+                  "h-4 w-4 transition-all",
+                  i < doneCount ? "fill-current text-xp scale-110" : "text-muted-foreground/30",
+                )}
               />
             ))}
           </div>
@@ -107,12 +114,17 @@ function TreeBranch({
             <motion.div
               initial={{ width: 0 }}
               animate={{ width: `${(doneCount / missions.length) * 100}%` }}
-              transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] }}
+              transition={{
+                duration: 0.8,
+                ease: [0.22, 1, 0.36, 1] as [number, number, number, number],
+              }}
               className={cn("h-full rounded-full progress-glow", isComplete && "bg-success")}
               style={!isComplete ? { backgroundColor: color } : undefined}
             />
           </div>
-          <span className="font-display text-xs font-bold tabular-nums">{doneCount}/{missions.length}</span>
+          <span className="font-display text-xs font-bold tabular-nums">
+            {doneCount}/{missions.length}
+          </span>
         </div>
       </div>
 
@@ -221,10 +233,12 @@ function TreeNode({
 
       {/* Node info */}
       <div className="min-w-0 flex-1">
-        <p className={cn(
-          "font-display text-sm font-bold leading-tight",
-          state === "locked" && "text-muted-foreground",
-        )}>
+        <p
+          className={cn(
+            "font-display text-sm font-bold leading-tight",
+            state === "locked" && "text-muted-foreground",
+          )}
+        >
           {mission.title}
         </p>
         <div className="mt-0.5 flex items-center gap-1">
@@ -250,15 +264,16 @@ function TreeNode({
       </div>
 
       {/* XP indicator */}
-      {state !== "locked" && (
-        <span className="text-[10px] font-bold text-xp">+10 XP</span>
-      )}
+      {state !== "locked" && <span className="text-[10px] font-bold text-xp">+10 XP</span>}
     </motion.div>
   );
 
   if (state === "locked") {
     return (
-      <div className="flex flex-col items-center gap-1.5" aria-label={`${mission.title} (bloqueado)`}>
+      <div
+        className="flex flex-col items-center gap-1.5"
+        aria-label={`${mission.title} (bloqueado)`}
+      >
         {node}
       </div>
     );
@@ -268,6 +283,7 @@ function TreeNode({
     <Link
       to="/licao/$subjectId/$lessonId"
       params={{ subjectId: mission.subjectId, lessonId: mission.lessonId }}
+      search={{}}
       onClick={() => haptic(state === "active" ? "celebrate" : "tap")}
       className="flex flex-col items-center gap-1.5"
       aria-label={`Iniciar missão: ${mission.title}`}

@@ -1,4 +1,4 @@
-// Sync do estado Alegria Júnior (perfis, progresso, autocolantes) com a cloud.
+// Sync do estado Kidoz Júnior (perfis, progresso, autocolantes) com a cloud.
 // Estratégia: snapshot completo em jsonb por user_id. Pull faz merge "cloud é a fonte
 // se for mais recente que o local"; push sobrescreve sempre o cloud.
 

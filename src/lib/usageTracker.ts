@@ -1,14 +1,18 @@
 // Tracks per-day app usage minutes locally so parental time-limits can be enforced.
-const KEY = "alegria-usage-v1";
+import { lsGetJSON, lsSet } from "./localStore";
 
-interface UsageMap { [date: string]: number } // minutes
+const KEY = "kidoz-usage-v1";
+
+interface UsageMap {
+  [date: string]: number;
+} // minutes
 
 const today = () => new Date().toISOString().slice(0, 10);
 
 const load = (): UsageMap => {
   if (typeof window === "undefined") return {};
   try {
-    return JSON.parse(localStorage.getItem(KEY) ?? "{}") as UsageMap;
+    return lsGetJSON<UsageMap>(KEY, {});
   } catch {
     return {};
   }
@@ -22,7 +26,7 @@ const save = (m: UsageMap) => {
   const cutoffStr = cutoff.toISOString().slice(0, 10);
   const trimmed: UsageMap = {};
   for (const [k, v] of Object.entries(m)) if (k >= cutoffStr) trimmed[k] = v;
-  localStorage.setItem(KEY, JSON.stringify(trimmed));
+  lsSet(KEY, JSON.stringify(trimmed));
 };
 
 export const getTodayMinutes = (): number => Math.round(load()[today()] ?? 0);

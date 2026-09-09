@@ -4,7 +4,7 @@
 //  - Static assets (JS/CSS/img/fonts): StaleWhileRevalidate
 //  - Same-origin API responses are NOT cached (avoid stale data)
 
-const CACHE_VERSION = 'kidoz-v2';
+const CACHE_VERSION = 'kidoz-v3';
 const STATIC_CACHE = `${CACHE_VERSION}-static`;
 const HTML_CACHE = `${CACHE_VERSION}-html`;
 const PRECACHE_URLS = [
@@ -95,10 +95,27 @@ self.addEventListener('fetch', (event) => {
       const cache = await caches.open(STATIC_CACHE);
       const cached = await cache.match(req);
       const network = fetch(req).then((res) => {
-        if (res && res.ok) cache.put(req, res.clone()).catch(() => {});
+        if (res && (res.ok || res.type === 'opaque')) cache.put(req, res.clone()).catch(() => {});
         return res;
       }).catch(() => null);
       return cached || (await network) || new Response('', { status: 504 });
+    })());
+    return;
+  }
+
+  // Fontes externas (Google Fonts) → cache-first (mudam raramente)
+  if (/fonts\.(googleapis|gstatic)\.com$/.test(url.hostname)) {
+    event.respondWith((async () => {
+      const cache = await caches.open(STATIC_CACHE);
+      const cached = await cache.match(req);
+      if (cached) return cached;
+      try {
+        const res = await fetch(req);
+        if (res.ok || res.type === 'opaque') cache.put(req, res.clone()).catch(() => {});
+        return res;
+      } catch {
+        return new Response('', { status: 504 });
+      }
     })());
   }
 });

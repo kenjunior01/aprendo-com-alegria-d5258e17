@@ -147,7 +147,7 @@ export function calculateDailyChallengeRewards(state: DailyChallengeState, strea
   streakMultiplier: number;
   perfectBonus: boolean;
 } {
-  const correct = state.answers.reduce((sum, ans, i) => {
+  const correct = state.answers.reduce<number>((sum, ans, i) => {
     if (ans === null) return sum;
     return sum + (ans === state.questions[i]?.answerIndex ? 1 : 0);
   }, 0);

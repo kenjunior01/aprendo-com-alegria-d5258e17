@@ -1,5 +1,6 @@
 import { Outlet, Link, createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
 import { useEffect } from "react";
+import { MotionConfig } from "framer-motion";
 import { UsageGuard } from "@/components/UsageGuard";
 import { CookieConsent } from "@/components/CookieConsent";
 import { InstallPrompt } from "@/components/InstallPrompt";
@@ -42,19 +43,32 @@ export const Route = createRootRoute({
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
       { name: "theme-color", content: "#ff8c42" },
-      { title: "Kidoz — Aprender a brincar" },
-      { name: "description", content: "App educativa estilo Duolingo para crianças do 1.º ciclo em Portugal." },
-      { name: "author", content: "Alegria" },
-      { property: "og:site_name", content: "Alegria" },
-      { property: "og:title", content: "Kidoz — Aprender a brincar" },
-      { property: "og:description", content: "App educativa estilo Duolingo para crianças do 1.º ciclo em Portugal." },
+      { title: "Kidoz — Aprender com alegria" },
+      {
+        name: "description",
+        content:
+          "Plataforma educativa estilo Duolingo para crianças do 1.º ciclo. Português, Matemática e Estudo do Meio com mascotes, tutor IA e controlo parental.",
+      },
+      { name: "author", content: "Kidoz" },
+      { property: "og:site_name", content: "Kidoz" },
+      { property: "og:title", content: "Kidoz — Aprender com alegria" },
+      {
+        property: "og:description",
+        content:
+          "Plataforma educativa estilo Duolingo para crianças do 1.º ciclo. Português, Matemática e Estudo do Meio.",
+      },
       { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://kidoz.online" },
       { property: "og:locale", content: "pt_PT" },
       { name: "twitter:card", content: "summary" },
-      { name: "twitter:title", content: "Kidoz — Aprender a brincar" },
-      { name: "twitter:description", content: "App educativa estilo Duolingo para crianças do 1.º ciclo em Portugal." },
-      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/acc7c5c1-6f57-466a-a906-520c14783216" },
-      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/acc7c5c1-6f57-466a-a906-520c14783216" },
+      { name: "twitter:title", content: "Kidoz — Aprender com alegria" },
+      {
+        name: "twitter:description",
+        content:
+          "Plataforma educativa estilo Duolingo para crianças do 1.º ciclo. Português, Matemática e Estudo do Meio.",
+      },
+      { property: "og:image", content: "https://kidoz.online/icon-512.png" },
+      { name: "twitter:image", content: "https://kidoz.online/icon-512.png" },
       { name: "google-site-verification", content: "KkNwae9G6TBDD8H-jnriAzFdEQWqDN-6nTTedsgCSYk" },
     ],
     links: [
@@ -63,7 +77,10 @@ export const Route = createRootRoute({
       { rel: "apple-touch-icon", href: "/icon-512.png" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
-      { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@600;700;800&display=swap" },
+      {
+        rel: "stylesheet",
+        href: "https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@600;700;800&display=swap",
+      },
     ],
     scripts: [
       {
@@ -73,19 +90,18 @@ export const Route = createRootRoute({
           "@graph": [
             {
               "@type": "Organization",
-              "@id": "https://alegria.online/#organization",
-              name: "Alegria",
-              url: "https://alegria.online",
-              logo: "https://alegria.online/icon-512.png",
-              sameAs: ["https://aprendo-com-alegria.lovable.app"],
+              "@id": "https://kidoz.online/#organization",
+              name: "Kidoz",
+              url: "https://kidoz.online",
+              logo: "https://kidoz.online/icon-512.png",
             },
             {
               "@type": "WebSite",
-              "@id": "https://alegria.online/#website",
-              name: "Alegria",
-              url: "https://alegria.online",
+              "@id": "https://kidoz.online/#website",
+              name: "Kidoz",
+              url: "https://kidoz.online",
               inLanguage: "pt-PT",
-              publisher: { "@id": "https://alegria.online/#organization" },
+              publisher: { "@id": "https://kidoz.online/#organization" },
             },
             {
               "@type": "WebApplication",
@@ -141,7 +157,7 @@ function RootComponent() {
     registerServiceWorker();
   }, []);
   return (
-    <>
+    <MotionConfig reducedMotion="user">
       <a
         href="#main-content"
         className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-primary focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-primary-foreground focus:shadow-lg"
@@ -152,6 +168,6 @@ function RootComponent() {
       <UsageGuard />
       <CookieConsent />
       <InstallPrompt />
-    </>
+    </MotionConfig>
   );
 }

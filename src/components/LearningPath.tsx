@@ -4,8 +4,17 @@ import React, { useMemo, useRef, useEffect, useState } from "react";
 import { motion, useInView, useScroll, useTransform } from "framer-motion";
 import { Link } from "@tanstack/react-router";
 import {
-  Lock, Star, CheckCircle2, Crown, Play, Sparkles,
-  ChevronRight, Zap, Trophy, BookOpen, Rocket,
+  Lock,
+  Star,
+  CheckCircle2,
+  Crown,
+  Play,
+  Sparkles,
+  ChevronRight,
+  Zap,
+  Trophy,
+  BookOpen,
+  Rocket,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { haptic } from "@/lib/haptics";
@@ -27,7 +36,7 @@ const PATH_POSITIONS = [
   { x: 0.78, label: "right" },
   { x: 0.18, label: "left-far" },
   { x: 0.72, label: "right-inner" },
-  { x: 0.30, label: "left-inner" },
+  { x: 0.3, label: "left-inner" },
   { x: 0.82, label: "right-far" },
 ] as const;
 
@@ -98,7 +107,11 @@ function PathChapter({
       <motion.div
         initial={{ opacity: 0, y: 20, scale: 0.96 }}
         animate={isInView ? { opacity: 1, y: 0, scale: 1 } : undefined}
-        transition={{ delay: 0.1, duration: 0.5, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] }}
+        transition={{
+          delay: 0.1,
+          duration: 0.5,
+          ease: [0.22, 1, 0.36, 1] as [number, number, number, number],
+        }}
         className="card-premium relative mb-6 overflow-hidden rounded-3xl"
         style={{ backgroundColor: `color-mix(in oklab, ${color} 8%, var(--card))` }}
       >
@@ -151,13 +164,21 @@ function PathChapter({
 
           {/* Progress bar — premium with glow */}
           <div className="mt-3 flex items-center gap-2">
-            <div className="flex gap-0.5" aria-label={`${doneCount} de ${missions.length} estrelas`}>
+            <div
+              className="flex gap-0.5"
+              aria-label={`${doneCount} de ${missions.length} estrelas`}
+            >
               {missions.map((m, i) => (
                 <motion.div
                   key={m.lessonId}
                   initial={{ scale: 0 }}
                   animate={isInView ? { scale: 1 } : undefined}
-                  transition={{ delay: 0.3 + i * 0.05, type: "spring", stiffness: 300, damping: 15 }}
+                  transition={{
+                    delay: 0.3 + i * 0.05,
+                    type: "spring",
+                    stiffness: 300,
+                    damping: 15,
+                  }}
                 >
                   <Star
                     className={cn(
@@ -171,13 +192,21 @@ function PathChapter({
             <div className="relative h-2.5 flex-1 overflow-hidden rounded-full bg-muted">
               <motion.div
                 initial={{ width: 0 }}
-                animate={isInView ? { width: `${(doneCount / missions.length) * 100}%` } : undefined}
-                transition={{ delay: 0.4, duration: 0.8, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] }}
+                animate={
+                  isInView ? { width: `${(doneCount / missions.length) * 100}%` } : undefined
+                }
+                transition={{
+                  delay: 0.4,
+                  duration: 0.8,
+                  ease: [0.22, 1, 0.36, 1] as [number, number, number, number],
+                }}
                 className={cn("h-full rounded-full progress-glow", isComplete && "bg-success")}
                 style={!isComplete ? { backgroundColor: color } : undefined}
               />
             </div>
-            <span className="font-display text-xs font-bold tabular-nums">{doneCount}/{missions.length}</span>
+            <span className="font-display text-xs font-bold tabular-nums">
+              {doneCount}/{missions.length}
+            </span>
           </div>
         </div>
       </motion.div>
@@ -205,7 +234,13 @@ function PathChapter({
           const isDone = completed.has(mission.lessonId);
           const isActive = idx === activeIdx;
           const isLocked = idx > activeIdx;
-          const state: NodeState = isDone ? "done" : isActive ? "active" : isLocked ? "locked" : "available";
+          const state: NodeState = isDone
+            ? "done"
+            : isActive
+              ? "active"
+              : isLocked
+                ? "locked"
+                : "available";
           const pos = PATH_POSITIONS[idx % PATH_POSITIONS.length];
 
           // Decorative element between nodes
@@ -218,7 +253,12 @@ function PathChapter({
                 <motion.div
                   initial={{ opacity: 0, scale: 0 }}
                   animate={isInView ? { opacity: deco.opacity, scale: 1 } : undefined}
-                  transition={{ delay: 0.3 + idx * 0.08, type: "spring", stiffness: 200, damping: 15 }}
+                  transition={{
+                    delay: 0.3 + idx * 0.08,
+                    type: "spring",
+                    stiffness: 200,
+                    damping: 15,
+                  }}
                   className="flex justify-center py-1"
                   style={{ fontSize: deco.size }}
                   aria-hidden="true"
@@ -248,7 +288,9 @@ function PathChapter({
                   ease: [0.22, 1, 0.36, 1] as [number, number, number, number],
                 }}
                 className="relative flex py-2"
-                style={{ justifyContent: pos.x < 0.5 ? "flex-start" : pos.x > 0.5 ? "flex-end" : "center" }}
+                style={{
+                  justifyContent: pos.x < 0.5 ? "flex-start" : pos.x > 0.5 ? "flex-end" : "center",
+                }}
               >
                 <div
                   style={{
@@ -256,12 +298,7 @@ function PathChapter({
                     marginRight: pos.x > 0.5 ? `${(1 - pos.x) * 100}%` : undefined,
                   }}
                 >
-                  <PathNode
-                    mission={mission}
-                    chapter={chapter}
-                    state={state}
-                    color={color}
-                  />
+                  <PathNode mission={mission} chapter={chapter} state={state} color={color} />
                 </div>
               </motion.div>
             </React.Fragment>
@@ -272,7 +309,12 @@ function PathChapter({
         <motion.div
           initial={{ opacity: 0, scale: 0.5 }}
           animate={isInView ? { opacity: 1, scale: 1 } : undefined}
-          transition={{ delay: 0.3 + missions.length * 0.1, type: "spring", stiffness: 200, damping: 15 }}
+          transition={{
+            delay: 0.3 + missions.length * 0.1,
+            type: "spring",
+            stiffness: 200,
+            damping: 15,
+          }}
           className="relative flex justify-center py-5"
         >
           <motion.div
@@ -349,11 +391,7 @@ function CurvedConnector({
 
   return (
     <div className="relative h-12 w-full overflow-hidden" aria-hidden="true">
-      <svg
-        viewBox={`0 0 ${svgWidth} 100`}
-        className="h-full w-full"
-        preserveAspectRatio="none"
-      >
+      <svg viewBox={`0 0 ${svgWidth} 100`} className="h-full w-full" preserveAspectRatio="none">
         {/* Background path */}
         <path
           d={pathD}
@@ -459,11 +497,13 @@ function PathNode({
 
       {/* Node info */}
       <div className="min-w-0 flex-1">
-        <p className={cn(
-          "font-display text-sm font-bold leading-tight",
-          state === "locked" && "text-muted-foreground/70",
-          state === "active" && "text-foreground",
-        )}>
+        <p
+          className={cn(
+            "font-display text-sm font-bold leading-tight",
+            state === "locked" && "text-muted-foreground/70",
+            state === "active" && "text-foreground",
+          )}
+        >
           {mission.title}
         </p>
         <div className="mt-1 flex items-center gap-1.5">
@@ -501,12 +541,16 @@ function PathNode({
 
       {/* XP reward indicator */}
       {state !== "locked" && (
-        <div className={cn(
-          "flex flex-col items-center gap-0.5",
-          state === "done" && "opacity-50",
-        )}>
-          <Zap className={cn("h-3.5 w-3.5", state === "done" ? "text-muted-foreground" : "text-xp")} />
-          <span className={cn("font-display text-[10px] font-bold", state === "done" ? "text-muted-foreground" : "text-xp")}>
+        <div className={cn("flex flex-col items-center gap-0.5", state === "done" && "opacity-50")}>
+          <Zap
+            className={cn("h-3.5 w-3.5", state === "done" ? "text-muted-foreground" : "text-xp")}
+          />
+          <span
+            className={cn(
+              "font-display text-[10px] font-bold",
+              state === "done" ? "text-muted-foreground" : "text-xp",
+            )}
+          >
             +10
           </span>
         </div>
@@ -516,7 +560,10 @@ function PathNode({
 
   if (state === "locked") {
     return (
-      <div className="flex flex-col items-center gap-1.5" aria-label={`${mission.title} (bloqueado)`}>
+      <div
+        className="flex flex-col items-center gap-1.5"
+        aria-label={`${mission.title} (bloqueado)`}
+      >
         {node}
       </div>
     );
@@ -526,6 +573,7 @@ function PathNode({
     <Link
       to="/licao/$subjectId/$lessonId"
       params={{ subjectId: mission.subjectId, lessonId: mission.lessonId }}
+      search={{}}
       onClick={() => haptic(state === "active" ? "celebrate" : "tap")}
       className="flex flex-col items-center gap-1.5 focus-ring rounded-2xl"
       aria-label={`Iniciar missão: ${mission.title}`}

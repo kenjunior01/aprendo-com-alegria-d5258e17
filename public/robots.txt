@@ -11,4 +11,4 @@ Disallow: /loja
 Disallow: /tutor
 Disallow: /amigo
 
-Sitemap: https://alegria.online/sitemap.xml
+Sitemap: https://kidoz.online/sitemap.xml

@@ -1,4 +1,4 @@
-// Sistema de mascote dinâmico para o Alegria Júnior (PT).
+// Sistema de mascote dinâmico para o Kidoz Júnior (PT).
 // O mascote evolui com a aprendizagem (sessões, jogos), tem emoções,
 // vozes (rate/pitch), e cenários que o miúdo pode escolher ou que mudam
 // automaticamente com o nível.
