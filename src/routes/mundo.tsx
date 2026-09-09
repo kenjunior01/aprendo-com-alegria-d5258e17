@@ -35,8 +35,8 @@ export const Route = createFileRoute("/mundo")({
       { property: "og:title", content: 'O Meu Mundo — Kidoz' },
       { property: "og:description", content: 'Decora o teu quarto virtual com Abracadinhos.' },
       { property: "og:url", content: "https://kidoz.online/mundo" },
-      { property: "og:image", content: "https://kidoz.online/og-image.png" },
-      { name: "twitter:image", content: "https://kidoz.online/og-image.png" },
+      { property: "og:image", content: "https://kidoz.online/og-image.jpg" },
+      { name: "twitter:image", content: "https://kidoz.online/og-image.jpg" },
     ],
     links: [
       { rel: "canonical", href: "https://kidoz.online/mundo" },

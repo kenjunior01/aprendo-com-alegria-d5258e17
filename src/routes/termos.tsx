@@ -9,8 +9,8 @@ export const Route = createFileRoute("/termos")({
       { property: "og:title", content: "Termos de Utilização — Kidoz" },
       { property: "og:description", content: "Termos de utilização da plataforma educativa Kidoz: condições de uso, registo, propriedade intelectual e resolução de litígios." },
       { property: "og:url", content: "https://kidoz.online/termos" },
-      { property: "og:image", content: "https://kidoz.online/og-image.png" },
-      { name: "twitter:image", content: "https://kidoz.online/og-image.png" },
+      { property: "og:image", content: "https://kidoz.online/og-image.jpg" },
+      { name: "twitter:image", content: "https://kidoz.online/og-image.jpg" },
     ],
     links: [
       { rel: "canonical", href: "https://kidoz.online/termos" },

@@ -17,8 +17,8 @@ export const Route = createFileRoute("/comecar")({
       { property: "og:title", content: 'Começar no Kidoz' },
       { property: "og:description", content: 'Cria o teu perfil e escolhe a tua mascote para começar a aventura.' },
       { property: "og:url", content: "https://kidoz.online/comecar" },
-      { property: "og:image", content: "https://kidoz.online/og-image.png" },
-      { name: "twitter:image", content: "https://kidoz.online/og-image.png" },
+      { property: "og:image", content: "https://kidoz.online/og-image.jpg" },
+      { name: "twitter:image", content: "https://kidoz.online/og-image.jpg" },
     ],
     links: [
       { rel: "canonical", href: "https://kidoz.online/comecar" },

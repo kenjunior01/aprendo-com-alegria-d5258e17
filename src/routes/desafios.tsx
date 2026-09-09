@@ -36,8 +36,8 @@ export const Route = createFileRoute("/desafios")({
     meta: [
       { title: "Arena de Desafios — Kidoz" },
       { name: "description", content: "Desafios diários da IA, batalhas épicas com amigos e ligas nacionais." },
-      { property: "og:image", content: "https://kidoz.online/og-image.png" },
-      { name: "twitter:image", content: "https://kidoz.online/og-image.png" },
+      { property: "og:image", content: "https://kidoz.online/og-image.jpg" },
+      { name: "twitter:image", content: "https://kidoz.online/og-image.jpg" },
     ],
   }),
   component: DesafiosPage,

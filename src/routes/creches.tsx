@@ -24,8 +24,8 @@ export const Route = createFileRoute("/creches")({
       { property: "og:title", content: 'Kidoz para Creches e Jardins de Infância (2-5 anos)' },
       { property: "og:description", content: 'Kidoz Júnior para creches e jardins de infância. Planos Básico, Premium e Institucional com gestão de turmas, portefólios digitais e Kidoz Pro.' },
       { property: "og:url", content: "https://kidoz.online/creches" },
-      { property: "og:image", content: "https://kidoz.online/og-image.png" },
-      { name: "twitter:image", content: "https://kidoz.online/og-image.png" },
+      { property: "og:image", content: "https://kidoz.online/og-image.jpg" },
+      { name: "twitter:image", content: "https://kidoz.online/og-image.jpg" },
     ],
     links: [
       { rel: "canonical", href: "https://kidoz.online/creches" },

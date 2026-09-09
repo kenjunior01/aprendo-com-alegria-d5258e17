@@ -10,8 +10,8 @@ export const Route = createFileRoute("/amigo")({
   head: () => ({
     meta: [
       { title: "O Meu Amigo — Kidoz" },
-      { property: "og:image", content: "https://kidoz.online/og-image.png" },
-      { name: "twitter:image", content: "https://kidoz.online/og-image.png" },
+      { property: "og:image", content: "https://kidoz.online/og-image.jpg" },
+      { name: "twitter:image", content: "https://kidoz.online/og-image.jpg" },
     ],
   }),
   component: AmigoMode,

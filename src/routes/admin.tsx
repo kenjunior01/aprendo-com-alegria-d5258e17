@@ -102,12 +102,12 @@ export const Route = createFileRoute("/admin")({
       {
         property: "og:image",
         content:
-          "https://kidoz.online/og-image.png",
+          "https://kidoz.online/og-image.jpg",
       },
       {
         name: "twitter:image",
         content:
-          "https://kidoz.online/og-image.png",
+          "https://kidoz.online/og-image.jpg",
       },
     ],
   }),

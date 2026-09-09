@@ -11,8 +11,8 @@ export const Route = createFileRoute("/ajuda")({
       { property: "og:title", content: "Ajuda — Kidoz" },
       { property: "og:description", content: "Página de ajuda do Kidoz: perguntas frequentes, contacto e links úteis para pais, mães e educadores." },
       { property: "og:url", content: "https://kidoz.online/ajuda" },
-      { property: "og:image", content: "https://kidoz.online/og-image.png" },
-      { name: "twitter:image", content: "https://kidoz.online/og-image.png" },
+      { property: "og:image", content: "https://kidoz.online/og-image.jpg" },
+      { name: "twitter:image", content: "https://kidoz.online/og-image.jpg" },
     ],
     links: [
       { rel: "canonical", href: "https://kidoz.online/ajuda" },

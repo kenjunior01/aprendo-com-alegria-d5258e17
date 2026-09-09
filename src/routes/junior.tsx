@@ -33,8 +33,8 @@ export const Route = createFileRoute("/junior")({
       { property: "og:title", content: 'Kidoz Júnior — Jogos para crianças 2-5 anos' },
       { property: "og:description", content: 'Jogos seguros e divertidos para crianças dos 2 aos 5 anos: cores, animais, rotinas e histórias mágicas.' },
       { property: "og:url", content: "https://kidoz.online/junior" },
-      { property: "og:image", content: "https://kidoz.online/og-image.png" },
-      { name: "twitter:image", content: "https://kidoz.online/og-image.png" },
+      { property: "og:image", content: "https://kidoz.online/og-image.jpg" },
+      { name: "twitter:image", content: "https://kidoz.online/og-image.jpg" },
     ],
     links: [
       { rel: "canonical", href: "https://kidoz.online/junior" },

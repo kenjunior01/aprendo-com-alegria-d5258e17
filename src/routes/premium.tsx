@@ -80,12 +80,12 @@ export const Route = createFileRoute("/premium")({
       {
         property: "og:image",
         content:
-          "https://kidoz.online/og-image.png",
+          "https://kidoz.online/og-image.jpg",
       },
       {
         name: "twitter:image",
         content:
-          "https://kidoz.online/og-image.png",
+          "https://kidoz.online/og-image.jpg",
       },
     ],
     links: [{ rel: "canonical", href: "https://kidoz.online/premium" }],

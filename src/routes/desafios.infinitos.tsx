@@ -27,8 +27,8 @@ export const Route = createFileRoute("/desafios/infinitos")({
       { property: "og:title", content: 'Desafios Infinitos — Kidoz' },
       { property: "og:description", content: 'Centenas de níveis procedurais de matemática, língua, ciências e lógica.' },
       { property: "og:url", content: "https://kidoz.online/desafios/infinitos" },
-      { property: "og:image", content: "https://kidoz.online/og-image.png" },
-      { name: "twitter:image", content: "https://kidoz.online/og-image.png" },
+      { property: "og:image", content: "https://kidoz.online/og-image.jpg" },
+      { name: "twitter:image", content: "https://kidoz.online/og-image.jpg" },
     ],
     links: [
       { rel: "canonical", href: "https://kidoz.online/desafios/infinitos" },

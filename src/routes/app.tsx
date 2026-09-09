@@ -24,8 +24,8 @@ export const Route = createFileRoute("/app")({
       { property: "og:title", content: 'A minha aventura — Kidoz' },
       { property: "og:description", content: 'Caminho de aprendizagem visual para Português, Matemática e Estudo do Meio do 1.º ciclo.' },
       { property: "og:url", content: "https://kidoz.online/app" },
-      { property: "og:image", content: "https://kidoz.online/og-image.png" },
-      { name: "twitter:image", content: "https://kidoz.online/og-image.png" },
+      { property: "og:image", content: "https://kidoz.online/og-image.jpg" },
+      { name: "twitter:image", content: "https://kidoz.online/og-image.jpg" },
     ],
     links: [
       { rel: "canonical", href: "https://kidoz.online/app" },

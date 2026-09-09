@@ -17,23 +17,46 @@ if (typeof window !== "undefined") {
 
 function NotFoundComponent() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
+    <main
+      id="main-content"
+      className="bg-sky-island relative flex min-h-[100dvh] items-center justify-center overflow-hidden px-4"
+    >
+      {["⭐", "🎈", "✨", "☁️"].map((e, i) => (
+        <span
+          key={i}
+          aria-hidden="true"
+          className="pointer-events-none absolute animate-bounce-soft text-2xl opacity-40"
+          style={{
+            left: `${12 + i * 22}%`,
+            top: `${18 + (i % 2) * 55}%`,
+            animationDelay: `${i * 0.4}s`,
+          }}
+        >
+          {e}
+        </span>
+      ))}
       <div className="max-w-[28rem] text-center">
-        <h1 className="text-7xl font-bold text-foreground">404</h1>
-        <h2 className="mt-4 text-xl font-semibold text-foreground">Página não encontrada</h2>
-        <p className="mt-2 text-sm text-muted-foreground">
-          A página que procuras não existe ou foi movida.
+        <span aria-hidden="true" className="mb-2 inline-block text-7xl sm:text-8xl">
+          🦉
+        </span>
+        <h1 className="font-display text-4xl font-bold sm:text-5xl">Ups! Página perdida</h1>
+        <p className="mt-3 text-base text-muted-foreground">
+          A Mocha procurou por todo o céu e não encontrou esta página. Vamos voltar à aventura?
         </p>
-        <div className="mt-6">
-          <Link
-            to="/"
-            className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
-          >
-            Voltar ao início
+        <div className="mt-7 flex flex-col items-center justify-center gap-3 sm:flex-row">
+          <Link to="/">
+            <span className="btn-chunky inline-flex min-h-[48px] items-center justify-center rounded-2xl bg-primary px-6 py-3 font-display text-base font-semibold uppercase tracking-wide text-primary-foreground">
+              Voltar ao início
+            </span>
+          </Link>
+          <Link to="/comecar">
+            <span className="btn-chunky inline-flex min-h-[48px] items-center justify-center rounded-2xl border border-border bg-card px-6 py-3 font-display text-base font-semibold uppercase tracking-wide text-foreground">
+              Criar perfil
+            </span>
           </Link>
         </div>
       </div>
-    </div>
+    </main>
   );
 }
 
@@ -60,20 +83,25 @@ export const Route = createRootRoute({
       { property: "og:type", content: "website" },
       { property: "og:url", content: "https://kidoz.online" },
       { property: "og:locale", content: "pt_PT" },
-      { name: "twitter:card", content: "summary" },
+      { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: "Kidoz — Aprender com alegria" },
       {
         name: "twitter:description",
         content:
           "Plataforma educativa estilo Duolingo para crianças do 1.º ciclo. Português, Matemática e Estudo do Meio.",
       },
-      { property: "og:image", content: "https://kidoz.online/icon-512.png" },
-      { name: "twitter:image", content: "https://kidoz.online/icon-512.png" },
+      { property: "og:image", content: "https://kidoz.online/og-image.jpg" },
+      { property: "og:image:width", content: "1200" },
+      { property: "og:image:height", content: "675" },
+      { property: "og:image:alt", content: "Kidoz — Aprender a brincar" },
+      { name: "twitter:image", content: "https://kidoz.online/og-image.jpg" },
       { name: "google-site-verification", content: "KkNwae9G6TBDD8H-jnriAzFdEQWqDN-6nTTedsgCSYk" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
       { rel: "manifest", href: "/manifest.webmanifest" },
+      { rel: "icon", href: "/favicon.ico", sizes: "48x48" },
+      { rel: "icon", type: "image/png", href: "/icon-192.png", sizes: "192x192" },
       { rel: "apple-touch-icon", href: "/icon-512.png" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },

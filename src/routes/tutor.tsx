@@ -36,11 +36,11 @@ export const Route = createFileRoute("/tutor")({
       { property: "og:url", content: "https://kidoz.online/tutor" },
       {
         property: "og:image",
-        content: "https://kidoz.online/og-image.png",
+        content: "https://kidoz.online/og-image.jpg",
       },
       {
         name: "twitter:image",
-        content: "https://kidoz.online/og-image.png",
+        content: "https://kidoz.online/og-image.jpg",
       },
     ],
     links: [{ rel: "canonical", href: "https://kidoz.online/tutor" }],

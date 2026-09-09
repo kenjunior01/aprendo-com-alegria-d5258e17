@@ -45,8 +45,8 @@ export const Route = createFileRoute("/escola")({
       { property: "og:title", content: 'Painel da Escola — Kidoz' },
       { property: "og:description", content: 'Painel para professores: turmas, métricas dos alunos e exportação CSV.' },
       { property: "og:url", content: "https://kidoz.online/escola" },
-      { property: "og:image", content: "https://kidoz.online/og-image.png" },
-      { name: "twitter:image", content: "https://kidoz.online/og-image.png" },
+      { property: "og:image", content: "https://kidoz.online/og-image.jpg" },
+      { name: "twitter:image", content: "https://kidoz.online/og-image.jpg" },
     ],
     links: [
       { rel: "canonical", href: "https://kidoz.online/escola" },

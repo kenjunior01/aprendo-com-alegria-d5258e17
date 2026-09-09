@@ -27,16 +27,65 @@ export const Route = createFileRoute("/")({
       { property: "og:url", content: "https://kidoz.online/" },
       {
         property: "og:image",
-        content:
-          "https://kidoz.online/og-image.png",
+        content: "https://kidoz.online/og-image.jpg",
       },
       {
         name: "twitter:image",
-        content:
-          "https://kidoz.online/og-image.png",
+        content: "https://kidoz.online/og-image.jpg",
       },
     ],
     links: [{ rel: "canonical", href: "https://kidoz.online/" }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          mainEntity: [
+            {
+              "@type": "Question",
+              name: "A Kidoz é gratuita?",
+              acceptedAnswer: {
+                "@type": "Answer",
+                text: "Podes criar o perfil e experimentar lições gratuitamente. Para acesso completo existem planos para famílias, escolas (0,99€/aluno) e creches.",
+              },
+            },
+            {
+              "@type": "Question",
+              name: "É seguro para o meu filho?",
+              acceptedAnswer: {
+                "@type": "Answer",
+                text: "Sim. Sem anúncios, sem chat entre estranhos, com consentimento parental, tutor IA com regras de proteção infantil (COPPA/RGPD) e painel de pais.",
+              },
+            },
+            {
+              "@type": "Question",
+              name: "Que idades e anos abrange?",
+              acceptedAnswer: {
+                "@type": "Answer",
+                text: "Do 1.º ao 4.º ano (1.º ciclo, 6-10 anos), com modo Júnior adaptado para crianças dos 2 aos 5 anos.",
+              },
+            },
+            {
+              "@type": "Question",
+              name: "Funciona sem internet?",
+              acceptedAnswer: {
+                "@type": "Answer",
+                text: "Sim! A Kidoz é uma app instalável (PWA) — depois de instalada, as lições continuam disponíveis offline.",
+              },
+            },
+            {
+              "@type": "Question",
+              name: "Está alinhado com o programa escolar?",
+              acceptedAnswer: {
+                "@type": "Answer",
+                text: "O conteúdo segue o programa nacional português de Português, Matemática e Estudo do Meio, com adaptações para PALOP (Moçambique, Angola, Cabo Verde).",
+              },
+            },
+          ],
+        }),
+      },
+    ],
   }),
   component: Landing,
   errorComponent: RouteError,
@@ -162,6 +211,29 @@ function Landing() {
           </Link>
         </motion.div>
 
+        {/* Trust strip — segurança e confiança para os pais, logo sob os CTAs */}
+        <motion.ul
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.7 }}
+          className="mt-6 flex flex-wrap items-center justify-center gap-2 text-[11px] font-semibold text-foreground/70 sm:text-xs"
+          aria-label="Garantias de confiança"
+        >
+          {[
+            "🔒 Seguro para crianças",
+            "🚫 Sem anúncios",
+            "🇵🇹 Programa nacional",
+            "👨‍👩‍👧 Painel de pais",
+          ].map((t) => (
+            <li
+              key={t}
+              className="rounded-full border border-border bg-card/80 px-3 py-1.5 backdrop-blur"
+            >
+              {t}
+            </li>
+          ))}
+        </motion.ul>
+
         {/* Subject cards */}
         <motion.div
           variants={stagger.container}
@@ -180,6 +252,9 @@ function Landing() {
           </motion.div>
         </motion.div>
 
+        {/* Stats — números reais da plataforma */}
+        <StatsStrip />
+
         {/* How it works */}
         <HowItWorks />
 
@@ -188,6 +263,9 @@ function Landing() {
 
         {/* Testimonials */}
         <Testimonials />
+
+        {/* FAQ — respostas rápidas para pais e professores (SEO) */}
+        <FaqSection />
 
         {/* Bottom CTAs */}
         <motion.div
@@ -369,7 +447,7 @@ function Testimonials() {
     <section className="mt-12 w-full sm:mt-16">
       <h2 className="mb-2 font-display text-2xl sm:text-3xl">O que dizem pais e professores</h2>
       <p className="mb-5 text-sm text-muted-foreground">
-        Famílias reais a aprender com a Kidoz em Portugal e países PALOP.
+        Pais e professores que usam a Kidoz em Portugal e países PALOP.
       </p>
       <div className="grid gap-3 sm:gap-4 md:grid-cols-3">
         {TESTIMONIALS.map((t, i) => (
@@ -391,6 +469,86 @@ function Testimonials() {
               </div>
             </figcaption>
           </motion.figure>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function StatsStrip() {
+  const stats = [
+    { n: "30+", label: "lições" },
+    { n: "300+", label: "exercícios" },
+    { n: "∞", label: "desafios gerados" },
+    { n: "5 min", label: "por dia chega" },
+  ];
+  return (
+    <motion.section
+      initial={{ opacity: 0, y: 16 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      aria-label="Números da Kidoz"
+      className="card-chunky mt-12 grid w-full grid-cols-2 gap-2 rounded-3xl border border-border bg-card/90 p-4 backdrop-blur sm:mt-16 sm:grid-cols-4 sm:p-5"
+    >
+      {stats.map((s) => (
+        <div key={s.label} className="text-center">
+          <p className="font-display text-2xl font-bold text-primary sm:text-3xl">{s.n}</p>
+          <p className="text-xs text-muted-foreground sm:text-sm">{s.label}</p>
+        </div>
+      ))}
+    </motion.section>
+  );
+}
+
+const FAQS = [
+  {
+    q: "A Kidoz é gratuita?",
+    a: "Podes criar o perfil e experimentar lições gratuitamente. Para acesso completo existem planos para famílias, escolas (0,99€/aluno) e creches.",
+  },
+  {
+    q: "É seguro para o meu filho?",
+    a: "Sim. Sem anúncios, sem chat entre estranhos, com consentimento parental, tutor IA com regras de proteção infantil (COPPA/RGPD) e painel de pais.",
+  },
+  {
+    q: "Que idades e anos abrange?",
+    a: "Do 1.º ao 4.º ano (1.º ciclo, 6-10 anos), com modo Júnior adaptado para crianças dos 2 aos 5 anos.",
+  },
+  {
+    q: "Funciona sem internet?",
+    a: "Sim! A Kidoz é uma app instalável (PWA) — depois de instalada, as lições continuam disponíveis offline.",
+  },
+  {
+    q: "Está alinhado com o programa escolar?",
+    a: "O conteúdo segue o programa nacional português de Português, Matemática e Estudo do Meio, com adaptações para PALOP (Moçambique, Angola, Cabo Verde).",
+  },
+];
+
+function FaqSection() {
+  return (
+    <section className="mt-12 w-full sm:mt-16" aria-labelledby="faq-heading">
+      <h2 id="faq-heading" className="mb-2 text-center font-display text-2xl sm:text-3xl">
+        Perguntas frequentes
+      </h2>
+      <p className="mb-5 text-center text-sm text-muted-foreground">
+        Tudo o que pais e professores costumam perguntar.
+      </p>
+      <div className="mx-auto flex max-w-[36rem] flex-col gap-2">
+        {FAQS.map((f) => (
+          <details
+            key={f.q}
+            className="card-chunky group rounded-2xl border border-border bg-card px-4 py-3 text-left"
+          >
+            <summary className="flex cursor-pointer list-none items-center justify-between gap-3 font-display text-sm font-semibold sm:text-base [&::-webkit-details-marker]:hidden">
+              {f.q}
+              <span
+                aria-hidden="true"
+                className="shrink-0 text-muted-foreground transition-transform group-open:rotate-45"
+              >
+                ＋
+              </span>
+            </summary>
+            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{f.a}</p>
+          </details>
         ))}
       </div>
     </section>

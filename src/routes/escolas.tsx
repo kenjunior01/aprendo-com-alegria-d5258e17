@@ -34,8 +34,8 @@ export const Route = createFileRoute("/escolas")({
       { property: "og:title", content: 'Plano Escolas Kidoz — 0,99€/aluno/mês' },
       { property: "og:description", content: 'Plano dedicado para escolas e instituições, painel de turmas e relatórios de progresso.' },
       { property: "og:url", content: "https://kidoz.online/escolas" },
-      { property: "og:image", content: "https://kidoz.online/og-image.png" },
-      { name: "twitter:image", content: "https://kidoz.online/og-image.png" },
+      { property: "og:image", content: "https://kidoz.online/og-image.jpg" },
+      { name: "twitter:image", content: "https://kidoz.online/og-image.jpg" },
     ],
     links: [
       { rel: "canonical", href: "https://kidoz.online/escolas" },

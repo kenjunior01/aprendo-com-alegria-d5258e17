@@ -20,8 +20,8 @@ export const Route = createFileRoute("/leitura")({
       { property: "og:title", content: 'Leitura em voz alta — Kidoz' },
       { property: "og:description", content: 'Pratica a leitura com reconhecimento de voz adaptado a crianças.' },
       { property: "og:url", content: "https://kidoz.online/leitura" },
-      { property: "og:image", content: "https://kidoz.online/og-image.png" },
-      { name: "twitter:image", content: "https://kidoz.online/og-image.png" },
+      { property: "og:image", content: "https://kidoz.online/og-image.jpg" },
+      { name: "twitter:image", content: "https://kidoz.online/og-image.jpg" },
     ],
     links: [
       { rel: "canonical", href: "https://kidoz.online/leitura" },
