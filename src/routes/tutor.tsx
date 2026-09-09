@@ -6,6 +6,7 @@ import { BottomNav } from "@/components/BottomNav";
 import { Mascot } from "@/components/Mascot";
 import { loadProfile, type Profile } from "@/lib/storage";
 import { appendMessages, getHistory } from "@/lib/tutorHistory";
+import { formatTutorText } from "@/lib/formatTutorText";
 import { getMascot, type MascotId } from "@/lib/mascots";
 import { supabase } from "@/integrations/supabase/client";
 import { ArrowLeft, Send, Sparkles, Trash2 } from "lucide-react";
@@ -35,13 +36,11 @@ export const Route = createFileRoute("/tutor")({
       { property: "og:url", content: "https://kidoz.online/tutor" },
       {
         property: "og:image",
-        content:
-          "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/acc7c5c1-6f57-466a-a906-520c14783216",
+        content: "https://kidoz.online/og-image.png",
       },
       {
         name: "twitter:image",
-        content:
-          "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/acc7c5c1-6f57-466a-a906-520c14783216",
+        content: "https://kidoz.online/og-image.png",
       },
     ],
     links: [{ rel: "canonical", href: "https://kidoz.online/tutor" }],
@@ -232,7 +231,7 @@ function TutorChat() {
     );
 
   return (
-    <div className="min-h-[100dvh] bg-sky-island pb-24 md:pb-12">
+    <div className="min-h-[100dvh] bg-sky-island pb-28 md:pb-12">
       <TopBar profile={profile} />
       <main
         id="main-content"
@@ -268,7 +267,7 @@ function TutorChat() {
         <div
           ref={scrollRef}
           className="card-chunky flex-1 overflow-y-auto rounded-3xl border border-border bg-card/95 p-4 backdrop-blur"
-          style={{ maxHeight: "60vh", minHeight: 320 }}
+          style={{ maxHeight: "min(60vh, calc(100dvh - 22rem))", minHeight: 260 }}
         >
           <div className="space-y-3">
             <AnimatePresence initial={false}>
@@ -287,7 +286,7 @@ function TutorChat() {
                         : "bg-muted text-foreground rounded-bl-sm",
                     )}
                   >
-                    {m.content}
+                    {formatTutorText(m.content)}
                   </div>
                 </motion.div>
               ))}
@@ -299,7 +298,7 @@ function TutorChat() {
                 className="flex justify-start"
               >
                 <div className="max-w-[85%] rounded-2xl rounded-bl-sm bg-muted px-4 py-2.5 text-sm leading-relaxed sm:text-base">
-                  {streaming}
+                  {formatTutorText(streaming)}
                   <span className="ml-0.5 inline-block h-3 w-1.5 animate-pulse bg-foreground/60 align-middle" />
                 </div>
               </motion.div>

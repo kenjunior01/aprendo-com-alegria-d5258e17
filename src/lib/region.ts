@@ -14,12 +14,42 @@ export type RegionInfo = {
 
 export const REGIONS: Record<RegionCode, RegionInfo> = {
   PT: { code: "PT", flag: "🇵🇹", country: "Portugal", curriculum: "1.º ciclo", language: "pt" },
-  BR: { code: "BR", flag: "🇧🇷", country: "Brasil", curriculum: "Ensino Fundamental I", language: "pt" },
-  MZ: { code: "MZ", flag: "🇲🇿", country: "Moçambique", curriculum: "Ensino Primário", language: "pt" },
+  BR: {
+    code: "BR",
+    flag: "🇧🇷",
+    country: "Brasil",
+    curriculum: "Ensino Fundamental I",
+    language: "pt",
+  },
+  MZ: {
+    code: "MZ",
+    flag: "🇲🇿",
+    country: "Moçambique",
+    curriculum: "Ensino Primário",
+    language: "pt",
+  },
   AO: { code: "AO", flag: "🇦🇴", country: "Angola", curriculum: "Ensino Primário", language: "pt" },
-  CV: { code: "CV", flag: "🇨🇻", country: "Cabo Verde", curriculum: "Ensino Básico", language: "pt" },
-  US: { code: "US", flag: "🇺🇸", country: "the USA", curriculum: "Elementary School", language: "en" },
-  ZA: { code: "ZA", flag: "🇿🇦", country: "South Africa", curriculum: "Foundation Phase", language: "en" },
+  CV: {
+    code: "CV",
+    flag: "🇨🇻",
+    country: "Cabo Verde",
+    curriculum: "Ensino Básico",
+    language: "pt",
+  },
+  US: {
+    code: "US",
+    flag: "🇺🇸",
+    country: "the USA",
+    curriculum: "Elementary School",
+    language: "en",
+  },
+  ZA: {
+    code: "ZA",
+    flag: "🇿🇦",
+    country: "South Africa",
+    curriculum: "Foundation Phase",
+    language: "en",
+  },
   GB: { code: "GB", flag: "🇬🇧", country: "the UK", curriculum: "Key Stage 1-2", language: "en" },
 };
 
@@ -85,8 +115,13 @@ export function detectRegion(): RegionInfo {
   return DEFAULT;
 }
 
+const PT_BADGE_DEFAULT = "🇵🇹 Feito para o 1.º ciclo em Portugal";
+
 export function regionBadgeText(r: RegionInfo): string {
-  if (r.language === "en") return `${r.flag} Made for ${r.curriculum} in ${r.country}`;
+  // A interface é PT-PT: só personalizamos o badge para regiões lusófonas.
+  // Para visitantes EN (ex: en-US) mostramos o badge PT — evita misturar
+  // inglês/português enquanto não existir i18n completo da app.
+  if (r.language !== "pt") return PT_BADGE_DEFAULT;
   return `${r.flag} Feito para o ${r.curriculum} em ${r.country}`;
 }
 
@@ -156,11 +191,16 @@ const VOCAB_CV: VocabMap = {
 
 export function vocabularyFor(region: RegionCode): VocabMap {
   switch (region) {
-    case "BR": return VOCAB_BR;
-    case "AO": return VOCAB_AO;
-    case "MZ": return VOCAB_MZ;
-    case "CV": return VOCAB_CV;
-    default: return {};
+    case "BR":
+      return VOCAB_BR;
+    case "AO":
+      return VOCAB_AO;
+    case "MZ":
+      return VOCAB_MZ;
+    case "CV":
+      return VOCAB_CV;
+    default:
+      return {};
   }
 }
 
@@ -172,7 +212,9 @@ export function localize(text: string, region: RegionCode): string {
   for (const [from, to] of Object.entries(vocab)) {
     if (from.includes("_")) continue; // só substitui palavras simples
     const re = new RegExp(`\\b${from}\\b`, "gi");
-    out = out.replace(re, (m) => (m[0] === m[0].toUpperCase() ? to[0].toUpperCase() + to.slice(1) : to));
+    out = out.replace(re, (m) =>
+      m[0] === m[0].toUpperCase() ? to[0].toUpperCase() + to.slice(1) : to,
+    );
   }
   return out;
 }
@@ -188,14 +230,70 @@ export interface CulturalExample {
 }
 
 const CULTURE: Record<RegionCode, CulturalExample> = {
-  PT: { landmark: "Torre de Belém", city: "Lisboa", capital: "Lisboa", currency: "Euro (€)", river: "Tejo", holidays: ["Dia de Portugal", "Carnaval", "Páscoa", "Natal"] },
-  BR: { landmark: "Cristo Redentor", city: "Rio de Janeiro", capital: "Brasília", currency: "Real (R$)", river: "Amazonas", holidays: ["Carnaval", "Festa Junina", "Independência (7 set.)", "Natal"] },
-  AO: { landmark: "Fortaleza de São Miguel", city: "Luanda", capital: "Luanda", currency: "Kwanza (Kz)", river: "Kwanza", holidays: ["Dia da Independência (11 nov.)", "Carnaval", "Páscoa", "Natal"] },
-  MZ: { landmark: "Ilha de Moçambique", city: "Maputo", capital: "Maputo", currency: "Metical (MT)", river: "Zambeze", holidays: ["Dia da Independência (25 jun.)", "Dia da Mulher Moçambicana", "Páscoa", "Natal"] },
-  CV: { landmark: "Cidade Velha", city: "Praia", capital: "Praia", currency: "Escudo cabo-verdiano", river: "Ribeira de Paúl", holidays: ["Dia da Independência (5 jul.)", "Carnaval de Mindelo", "Páscoa", "Natal"] },
-  US: { landmark: "Statue of Liberty", city: "New York", capital: "Washington D.C.", currency: "US Dollar ($)", river: "Mississippi", holidays: ["Thanksgiving", "Independence Day (July 4)", "Christmas"] },
-  ZA: { landmark: "Table Mountain", city: "Cape Town", capital: "Pretoria", currency: "Rand (R)", river: "Orange", holidays: ["Heritage Day", "Freedom Day", "Christmas"] },
-  GB: { landmark: "Big Ben", city: "London", capital: "London", currency: "Pound (£)", river: "Thames", holidays: ["Bonfire Night", "Christmas", "Easter"] },
+  PT: {
+    landmark: "Torre de Belém",
+    city: "Lisboa",
+    capital: "Lisboa",
+    currency: "Euro (€)",
+    river: "Tejo",
+    holidays: ["Dia de Portugal", "Carnaval", "Páscoa", "Natal"],
+  },
+  BR: {
+    landmark: "Cristo Redentor",
+    city: "Rio de Janeiro",
+    capital: "Brasília",
+    currency: "Real (R$)",
+    river: "Amazonas",
+    holidays: ["Carnaval", "Festa Junina", "Independência (7 set.)", "Natal"],
+  },
+  AO: {
+    landmark: "Fortaleza de São Miguel",
+    city: "Luanda",
+    capital: "Luanda",
+    currency: "Kwanza (Kz)",
+    river: "Kwanza",
+    holidays: ["Dia da Independência (11 nov.)", "Carnaval", "Páscoa", "Natal"],
+  },
+  MZ: {
+    landmark: "Ilha de Moçambique",
+    city: "Maputo",
+    capital: "Maputo",
+    currency: "Metical (MT)",
+    river: "Zambeze",
+    holidays: ["Dia da Independência (25 jun.)", "Dia da Mulher Moçambicana", "Páscoa", "Natal"],
+  },
+  CV: {
+    landmark: "Cidade Velha",
+    city: "Praia",
+    capital: "Praia",
+    currency: "Escudo cabo-verdiano",
+    river: "Ribeira de Paúl",
+    holidays: ["Dia da Independência (5 jul.)", "Carnaval de Mindelo", "Páscoa", "Natal"],
+  },
+  US: {
+    landmark: "Statue of Liberty",
+    city: "New York",
+    capital: "Washington D.C.",
+    currency: "US Dollar ($)",
+    river: "Mississippi",
+    holidays: ["Thanksgiving", "Independence Day (July 4)", "Christmas"],
+  },
+  ZA: {
+    landmark: "Table Mountain",
+    city: "Cape Town",
+    capital: "Pretoria",
+    currency: "Rand (R)",
+    river: "Orange",
+    holidays: ["Heritage Day", "Freedom Day", "Christmas"],
+  },
+  GB: {
+    landmark: "Big Ben",
+    city: "London",
+    capital: "London",
+    currency: "Pound (£)",
+    river: "Thames",
+    holidays: ["Bonfire Night", "Christmas", "Easter"],
+  },
 };
 
 export function culturalExample(region: RegionCode): CulturalExample {
@@ -206,6 +304,8 @@ export function culturalExample(region: RegionCode): CulturalExample {
 export function regionalContextPrompt(region: RegionCode, interests: string[]): string {
   const c = culturalExample(region);
   const r = REGIONS[region] ?? DEFAULT;
-  const interestStr = interests.length ? `Interesses da criança: ${interests.join(", ")}. Usa estes temas como contexto nos exemplos (ex: se gosta de dinossauros, faz problemas com T-Rex).` : "";
+  const interestStr = interests.length
+    ? `Interesses da criança: ${interests.join(", ")}. Usa estes temas como contexto nos exemplos (ex: se gosta de dinossauros, faz problemas com T-Rex).`
+    : "";
   return `País: ${r.country} (${r.curriculum}). Usa exemplos locais (ex: ${c.landmark} em ${c.city}, moeda ${c.currency}, rio ${c.river}). Vocabulário ${region === "BR" ? "pt-BR" : "pt-PT"}. ${interestStr}`.trim();
 }

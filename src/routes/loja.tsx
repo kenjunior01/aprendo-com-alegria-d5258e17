@@ -20,8 +20,8 @@ export const Route = createFileRoute("/loja")({
       { property: "og:title", content: 'Loja Kidoz — personaliza a tua mascote' },
       { property: "og:description", content: 'Chapéus, fatos e cenários para a tua mascote, ganhos com Abracadinhos.' },
       { property: "og:url", content: "https://kidoz.online/loja" },
-      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/acc7c5c1-6f57-466a-a906-520c14783216" },
-      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/acc7c5c1-6f57-466a-a906-520c14783216" },
+      { property: "og:image", content: "https://kidoz.online/og-image.png" },
+      { name: "twitter:image", content: "https://kidoz.online/og-image.png" },
     ],
     links: [
       { rel: "canonical", href: "https://kidoz.online/loja" },

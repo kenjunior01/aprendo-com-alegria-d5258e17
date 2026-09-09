@@ -25,8 +25,8 @@ export const Route = createFileRoute("/conquistas")({
       { property: "og:title", content: 'As minhas conquistas — Kidoz' },
       { property: "og:description", content: 'Vê as tuas medalhas desbloqueadas e as próximas a conquistar.' },
       { property: "og:url", content: "https://kidoz.online/conquistas" },
-      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/acc7c5c1-6f57-466a-a906-520c14783216" },
-      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/acc7c5c1-6f57-466a-a906-520c14783216" },
+      { property: "og:image", content: "https://kidoz.online/og-image.png" },
+      { name: "twitter:image", content: "https://kidoz.online/og-image.png" },
     ],
     links: [
       { rel: "canonical", href: "https://kidoz.online/conquistas" },

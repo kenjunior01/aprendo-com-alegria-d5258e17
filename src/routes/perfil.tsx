@@ -24,8 +24,8 @@ export const Route = createFileRoute("/perfil")({
       { property: "og:title", content: 'Perfil — Kidoz' },
       { property: "og:description", content: 'Vê o teu progresso e troca de mascote.' },
       { property: "og:url", content: "https://kidoz.online/perfil" },
-      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/acc7c5c1-6f57-466a-a906-520c14783216" },
-      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/acc7c5c1-6f57-466a-a906-520c14783216" },
+      { property: "og:image", content: "https://kidoz.online/og-image.png" },
+      { name: "twitter:image", content: "https://kidoz.online/og-image.png" },
     ],
     links: [
       { rel: "canonical", href: "https://kidoz.online/perfil" },

@@ -11,8 +11,8 @@ export const Route = createFileRoute("/aprender/estudo-do-meio")({
       { property: "og:title", content: "Aprender Estudo do Meio — 1.º ciclo | Kidoz" },
       { property: "og:description", content: "Corpo humano, natureza, Portugal e ciência em lições curtas com mascotes e mascote tutor IA." },
       { property: "og:url", content: "https://kidoz.online/aprender/estudo-do-meio" },
-      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/acc7c5c1-6f57-466a-a906-520c14783216" },
-      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/acc7c5c1-6f57-466a-a906-520c14783216" },
+      { property: "og:image", content: "https://kidoz.online/og-image.png" },
+      { name: "twitter:image", content: "https://kidoz.online/og-image.png" },
     ],
     links: [{ rel: "canonical", href: "https://kidoz.online/aprender/estudo-do-meio" }],
     scripts: [{

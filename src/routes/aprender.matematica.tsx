@@ -11,8 +11,8 @@ export const Route = createFileRoute("/aprender/matematica")({
       { property: "og:title", content: "Aprender Matemática — 1.º ciclo | Kidoz" },
       { property: "og:description", content: "Números, operações, frações e geometria em lições curtas e divertidas para crianças." },
       { property: "og:url", content: "https://kidoz.online/aprender/matematica" },
-      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/acc7c5c1-6f57-466a-a906-520c14783216" },
-      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/acc7c5c1-6f57-466a-a906-520c14783216" },
+      { property: "og:image", content: "https://kidoz.online/og-image.png" },
+      { name: "twitter:image", content: "https://kidoz.online/og-image.png" },
     ],
     links: [{ rel: "canonical", href: "https://kidoz.online/aprender/matematica" }],
     scripts: [{

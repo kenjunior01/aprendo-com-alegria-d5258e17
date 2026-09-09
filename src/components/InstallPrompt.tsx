@@ -1,27 +1,47 @@
 import { useEffect, useState } from "react";
+import { useLocation } from "@tanstack/react-router";
 import { Download, X } from "lucide-react";
 import { ChunkyButton } from "./ChunkyButton";
 
+/** Rotas onde o banner bloquearia ações críticas (onboarding, auth, chat do tutor). */
+const BLOCKED_PREFIXES = ["/comecar", "/auth", "/tutor", "/licao", "/checkout"];
+
+/** Atraso antes de mostrar o banner — deixa o utilizador explorar primeiro. */
+const SHOW_DELAY_MS = 15000;
+
 /**
  * PWA install prompt — shows a subtle banner when the app is installable
- * but not yet installed. Dismissed state persists in sessionStorage.
+ * but not yet installed. Dismissed state persists in localStorage.
  */
 export function InstallPrompt() {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [dismissed, setDismissed] = useState(false);
   const [isStandalone, setIsStandalone] = useState(false);
+  const [delayed, setDelayed] = useState(false);
+  const location = useLocation();
+
+  const onBlockedRoute = BLOCKED_PREFIXES.some(
+    (p) => location.pathname === p || location.pathname.startsWith(p + "/"),
+  );
 
   useEffect(() => {
     // Check if already running as installed PWA
-    if (window.matchMedia("(display-mode: standalone)").matches || (navigator as unknown as Record<string, unknown>).standalone === true) {
+    if (
+      window.matchMedia("(display-mode: standalone)").matches ||
+      (navigator as unknown as Record<string, unknown>).standalone === true
+    ) {
       setIsStandalone(true);
       return;
     }
 
-    // Check if previously dismissed this session
-    if (sessionStorage.getItem("kidoz_install_dismissed")) {
-      setDismissed(true);
-      return;
+    // Check if previously dismissed (persistente — não voltar a incomodar)
+    try {
+      if (localStorage.getItem("kidoz_install_dismissed")) {
+        setDismissed(true);
+        return;
+      }
+    } catch {
+      /* localStorage indisponível */
     }
 
     // Listen for the beforeinstallprompt event
@@ -30,8 +50,14 @@ export function InstallPrompt() {
       setDeferredPrompt(e as BeforeInstallPromptEvent);
     };
 
+    // Delay antes de mostrar — evita cobrir conteúdo nos primeiros segundos
+    const timer = window.setTimeout(() => setDelayed(true), SHOW_DELAY_MS);
+
     window.addEventListener("beforeinstallprompt", handler);
-    return () => window.removeEventListener("beforeinstallprompt", handler);
+    return () => {
+      window.removeEventListener("beforeinstallprompt", handler);
+      window.clearTimeout(timer);
+    };
   }, []);
 
   const handleInstall = async () => {
@@ -45,15 +71,20 @@ export function InstallPrompt() {
 
   const handleDismiss = () => {
     setDismissed(true);
-    sessionStorage.setItem("kidoz_install_dismissed", "1");
+    try {
+      localStorage.setItem("kidoz_install_dismissed", "1");
+    } catch {
+      /* noop */
+    }
   };
 
-  // Don't show if: already standalone, no prompt available, or dismissed
-  if (isStandalone || !deferredPrompt || dismissed) return null;
+  // Não mostrar se: standalone, sem prompt, dispensado, em rota crítica,
+  // ou antes do atraso inicial (evita cobrir onboarding/autenticação)
+  if (isStandalone || !deferredPrompt || dismissed || !delayed || onBlockedRoute) return null;
 
   return (
     <div
-      className="fixed bottom-16 left-4 right-4 z-30 sm:left-auto sm:right-4 sm:bottom-4 sm:max-w-[20rem]"
+      className="fixed bottom-20 left-4 right-4 z-30 sm:left-auto sm:right-4 sm:bottom-4 sm:max-w-[20rem]"
       role="dialog"
       aria-label="Instalar aplicação"
     >
