@@ -8,6 +8,7 @@ import { installServerFnAuthInterceptor } from "@/integrations/supabase/serverFn
 import { registerServiceWorker } from "@/lib/registerSW";
 import { loadHapticsPref } from "@/lib/haptics";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
+import { useCartSync } from "@/hooks/useCartSync";
 
 import appCss from "../styles.css?url";
 
