@@ -18,6 +18,7 @@ import { Route as PremiumRouteImport } from './routes/premium'
 import { Route as PerfilRouteImport } from './routes/perfil'
 import { Route as PaisRouteImport } from './routes/pais'
 import { Route as MundoRouteImport } from './routes/mundo'
+import { Route as MerchRouteImport } from './routes/merch'
 import { Route as LojaRouteImport } from './routes/loja'
 import { Route as LeituraRouteImport } from './routes/leitura'
 import { Route as JuniorRouteImport } from './routes/junior'
@@ -35,6 +36,7 @@ import { Route as AmigoRouteImport } from './routes/amigo'
 import { Route as AjudaRouteImport } from './routes/ajuda'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ProdutoHandleRouteImport } from './routes/produto.$handle'
 import { Route as DesafiosInfinitosRouteImport } from './routes/desafios.infinitos'
 import { Route as CheckoutReturnRouteImport } from './routes/checkout.return'
 import { Route as CapituloChapterIdRouteImport } from './routes/capitulo.$chapterId'
@@ -91,6 +93,11 @@ const PaisRoute = PaisRouteImport.update({
 const MundoRoute = MundoRouteImport.update({
   id: '/mundo',
   path: '/mundo',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MerchRoute = MerchRouteImport.update({
+  id: '/merch',
+  path: '/merch',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LojaRoute = LojaRouteImport.update({
@@ -178,6 +185,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProdutoHandleRoute = ProdutoHandleRouteImport.update({
+  id: '/produto/$handle',
+  path: '/produto/$handle',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DesafiosInfinitosRoute = DesafiosInfinitosRouteImport.update({
   id: '/infinitos',
   path: '/infinitos',
@@ -259,6 +271,7 @@ export interface FileRoutesByFullPath {
   '/junior': typeof JuniorRoute
   '/leitura': typeof LeituraRoute
   '/loja': typeof LojaRoute
+  '/merch': typeof MerchRoute
   '/mundo': typeof MundoRoute
   '/pais': typeof PaisRoute
   '/perfil': typeof PerfilRoute
@@ -274,6 +287,7 @@ export interface FileRoutesByFullPath {
   '/capitulo/$chapterId': typeof CapituloChapterIdRoute
   '/checkout/return': typeof CheckoutReturnRoute
   '/desafios/infinitos': typeof DesafiosInfinitosRoute
+  '/produto/$handle': typeof ProdutoHandleRoute
   '/api/public/tutor-stream': typeof ApiPublicTutorStreamRoute
   '/licao/$subjectId/$lessonId': typeof LicaoSubjectIdLessonIdRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
@@ -299,6 +313,7 @@ export interface FileRoutesByTo {
   '/junior': typeof JuniorRoute
   '/leitura': typeof LeituraRoute
   '/loja': typeof LojaRoute
+  '/merch': typeof MerchRoute
   '/mundo': typeof MundoRoute
   '/pais': typeof PaisRoute
   '/perfil': typeof PerfilRoute
@@ -314,6 +329,7 @@ export interface FileRoutesByTo {
   '/capitulo/$chapterId': typeof CapituloChapterIdRoute
   '/checkout/return': typeof CheckoutReturnRoute
   '/desafios/infinitos': typeof DesafiosInfinitosRoute
+  '/produto/$handle': typeof ProdutoHandleRoute
   '/api/public/tutor-stream': typeof ApiPublicTutorStreamRoute
   '/licao/$subjectId/$lessonId': typeof LicaoSubjectIdLessonIdRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
@@ -340,6 +356,7 @@ export interface FileRoutesById {
   '/junior': typeof JuniorRoute
   '/leitura': typeof LeituraRoute
   '/loja': typeof LojaRoute
+  '/merch': typeof MerchRoute
   '/mundo': typeof MundoRoute
   '/pais': typeof PaisRoute
   '/perfil': typeof PerfilRoute
@@ -355,6 +372,7 @@ export interface FileRoutesById {
   '/capitulo/$chapterId': typeof CapituloChapterIdRoute
   '/checkout/return': typeof CheckoutReturnRoute
   '/desafios/infinitos': typeof DesafiosInfinitosRoute
+  '/produto/$handle': typeof ProdutoHandleRoute
   '/api/public/tutor-stream': typeof ApiPublicTutorStreamRoute
   '/licao/$subjectId/$lessonId': typeof LicaoSubjectIdLessonIdRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
@@ -382,6 +400,7 @@ export interface FileRouteTypes {
     | '/junior'
     | '/leitura'
     | '/loja'
+    | '/merch'
     | '/mundo'
     | '/pais'
     | '/perfil'
@@ -397,6 +416,7 @@ export interface FileRouteTypes {
     | '/capitulo/$chapterId'
     | '/checkout/return'
     | '/desafios/infinitos'
+    | '/produto/$handle'
     | '/api/public/tutor-stream'
     | '/licao/$subjectId/$lessonId'
     | '/api/public/payments/webhook'
@@ -422,6 +442,7 @@ export interface FileRouteTypes {
     | '/junior'
     | '/leitura'
     | '/loja'
+    | '/merch'
     | '/mundo'
     | '/pais'
     | '/perfil'
@@ -437,6 +458,7 @@ export interface FileRouteTypes {
     | '/capitulo/$chapterId'
     | '/checkout/return'
     | '/desafios/infinitos'
+    | '/produto/$handle'
     | '/api/public/tutor-stream'
     | '/licao/$subjectId/$lessonId'
     | '/api/public/payments/webhook'
@@ -462,6 +484,7 @@ export interface FileRouteTypes {
     | '/junior'
     | '/leitura'
     | '/loja'
+    | '/merch'
     | '/mundo'
     | '/pais'
     | '/perfil'
@@ -477,6 +500,7 @@ export interface FileRouteTypes {
     | '/capitulo/$chapterId'
     | '/checkout/return'
     | '/desafios/infinitos'
+    | '/produto/$handle'
     | '/api/public/tutor-stream'
     | '/licao/$subjectId/$lessonId'
     | '/api/public/payments/webhook'
@@ -503,6 +527,7 @@ export interface RootRouteChildren {
   JuniorRoute: typeof JuniorRoute
   LeituraRoute: typeof LeituraRoute
   LojaRoute: typeof LojaRoute
+  MerchRoute: typeof MerchRoute
   MundoRoute: typeof MundoRoute
   PaisRoute: typeof PaisRoute
   PerfilRoute: typeof PerfilRoute
@@ -517,6 +542,7 @@ export interface RootRouteChildren {
   AprenderPortuguesRoute: typeof AprenderPortuguesRoute
   CapituloChapterIdRoute: typeof CapituloChapterIdRoute
   CheckoutReturnRoute: typeof CheckoutReturnRoute
+  ProdutoHandleRoute: typeof ProdutoHandleRoute
   ApiPublicTutorStreamRoute: typeof ApiPublicTutorStreamRoute
   LicaoSubjectIdLessonIdRoute: typeof LicaoSubjectIdLessonIdRoute
   ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
@@ -588,6 +614,13 @@ declare module '@tanstack/react-router' {
       path: '/mundo'
       fullPath: '/mundo'
       preLoaderRoute: typeof MundoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/merch': {
+      id: '/merch'
+      path: '/merch'
+      fullPath: '/merch'
+      preLoaderRoute: typeof MerchRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/loja': {
@@ -709,6 +742,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/produto/$handle': {
+      id: '/produto/$handle'
+      path: '/produto/$handle'
+      fullPath: '/produto/$handle'
+      preLoaderRoute: typeof ProdutoHandleRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/desafios/infinitos': {
       id: '/desafios/infinitos'
       path: '/infinitos'
@@ -826,6 +866,7 @@ const rootRouteChildren: RootRouteChildren = {
   JuniorRoute: JuniorRoute,
   LeituraRoute: LeituraRoute,
   LojaRoute: LojaRoute,
+  MerchRoute: MerchRoute,
   MundoRoute: MundoRoute,
   PaisRoute: PaisRoute,
   PerfilRoute: PerfilRoute,
@@ -840,6 +881,7 @@ const rootRouteChildren: RootRouteChildren = {
   AprenderPortuguesRoute: AprenderPortuguesRoute,
   CapituloChapterIdRoute: CapituloChapterIdRoute,
   CheckoutReturnRoute: CheckoutReturnRoute,
+  ProdutoHandleRoute: ProdutoHandleRoute,
   ApiPublicTutorStreamRoute: ApiPublicTutorStreamRoute,
   LicaoSubjectIdLessonIdRoute: LicaoSubjectIdLessonIdRoute,
   ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
