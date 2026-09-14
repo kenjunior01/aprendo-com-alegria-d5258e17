@@ -180,6 +180,7 @@ function RootShell({ children }: { children: React.ReactNode }) {
 
 function RootComponent() {
   usePushNotifications();
+  useCartSync();
   useEffect(() => {
     installServerFnAuthInterceptor();
     loadHapticsPref();
