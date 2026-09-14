@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { ShoppingBag, ArrowRight, Package } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -7,11 +7,7 @@ import { CartDrawer } from "@/components/CartDrawer";
 import { useCartStore } from "@/stores/cartStore";
 import { fetchShopifyProducts, formatPrice, type ShopifyProduct } from "@/lib/shopify";
 import { AlegriaLogo } from "@/components/AlegriaLogo";
-
-const productsQueryOptions = {
-  queryKey: ["shopify-products"],
-  queryFn: () => fetchShopifyProducts(50),
-};
+import { KidLoader } from "@/components/KidLoader";
 
 export const Route = createFileRoute("/merch")({
   head: () => ({
@@ -34,9 +30,6 @@ export const Route = createFileRoute("/merch")({
     ],
     links: [{ rel: "canonical", href: "https://kidoz.online/merch" }],
   }),
-  loader: async ({ context }) => {
-    await context.queryClient.ensureQueryData(productsQueryOptions);
-  },
   component: MerchPage,
 });
 
@@ -105,7 +98,28 @@ function ProductCard({ product }: { product: ShopifyProduct }) {
 }
 
 function MerchPage() {
-  const { data: products } = useSuspenseQuery(productsQueryOptions);
+  const [products, setProducts] = useState<ShopifyProduct[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    const load = async () => {
+      try {
+        setLoading(true);
+        const data = await fetchShopifyProducts(50);
+        if (!cancelled) setProducts(data);
+      } catch (err) {
+        if (!cancelled) setError(err instanceof Error ? err.message : "Erro ao carregar produtos");
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    };
+    load();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   return (
     <div className="min-h-[100dvh] bg-background">
@@ -150,7 +164,16 @@ function MerchPage() {
         {/* Products grid */}
         <section id="produtos" className="mt-10 sm:mt-14">
           <h2 className="font-display text-2xl font-bold sm:text-3xl">Produtos</h2>
-          {products.length === 0 ? (
+          {loading ? (
+            <div className="mt-8 flex items-center justify-center">
+              <KidLoader />
+            </div>
+          ) : error ? (
+            <div className="mt-8 rounded-3xl border border-destructive/20 bg-destructive/10 p-6 text-center text-destructive">
+              <p className="font-display font-semibold">Erro ao carregar produtos</p>
+              <p className="mt-1 text-sm">{error}</p>
+            </div>
+          ) : products.length === 0 ? (
             <div className="mt-8 flex flex-col items-center justify-center rounded-3xl border border-dashed border-border bg-card p-10 text-center">
               <Package className="h-12 w-12 text-muted-foreground" />
               <h3 className="mt-4 font-display text-xl font-semibold">Ainda não há produtos</h3>

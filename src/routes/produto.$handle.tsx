@@ -1,19 +1,14 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { useSuspenseQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { ArrowLeft, Check, Loader2, ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CartDrawer } from "@/components/CartDrawer";
 import { useCartStore } from "@/stores/cartStore";
-import { fetchShopifyProductByHandle, formatPrice, type ShopifyProduct } from "@/lib/shopify";
+import { fetchShopifyProductByHandle, formatPrice, type ShopifyProduct, type ProductNode } from "@/lib/shopify";
 import { AlegriaLogo } from "@/components/AlegriaLogo";
+import { KidLoader } from "@/components/KidLoader";
 import { cn } from "@/lib/utils";
-
-const productQueryOptions = (handle: string) => ({
-  queryKey: ["shopify-product", handle],
-  queryFn: () => fetchShopifyProductByHandle(handle),
-});
 
 export const Route = createFileRoute("/produto/$handle")({
   head: ({ params }) => ({
@@ -29,21 +24,49 @@ export const Route = createFileRoute("/produto/$handle")({
     ],
     links: [{ rel: "canonical", href: `https://kidoz.online/produto/${params.handle}` }],
   }),
-  loader: async ({ context, params }) => {
-    const product = await context.queryClient.ensureQueryData(productQueryOptions(params.handle));
-    if (!product) throw notFound();
-  },
   component: ProductDetailPage,
 });
 
 function ProductDetailPage() {
   const { handle } = Route.useParams();
-  const { data: product } = useSuspenseQuery(productQueryOptions(handle));
+  const [product, setProduct] = useState<ProductNode | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const addItem = useCartStore((state) => state.addItem);
   const isLoading = useCartStore((state) => state.isLoading);
   const [added, setAdded] = useState(false);
 
-  if (!product) throw notFound();
+  useEffect(() => {
+    let cancelled = false;
+    const load = async () => {
+      try {
+        setLoading(true);
+        const data = await fetchShopifyProductByHandle(handle);
+        if (!data) throw notFound();
+        if (!cancelled) setProduct(data);
+      } catch (err) {
+        if (!cancelled) setError(err instanceof Error ? err.message : "Erro ao carregar produto");
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    };
+    load();
+    return () => {
+      cancelled = true;
+    };
+  }, [handle]);
+
+  if (loading) {
+    return (
+      <div className="flex min-h-[100dvh] items-center justify-center bg-background">
+        <KidLoader />
+      </div>
+    );
+  }
+
+  if (error || !product) {
+    throw notFound();
+  }
 
   const [selectedVariant, setSelectedVariant] = useState(product.variants.edges[0]?.node);
   const [selectedImage, setSelectedImage] = useState(product.images.edges[0]?.node);
@@ -51,7 +74,7 @@ function ProductDetailPage() {
   const handleAdd = async () => {
     if (!selectedVariant) return;
     await addItem({
-      product: { node: product } as ShopifyProduct,
+      product: { node: product },
       variantId: selectedVariant.id,
       variantTitle: selectedVariant.title,
       price: selectedVariant.price,
