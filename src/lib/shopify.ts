@@ -52,6 +52,9 @@ export interface ShopifyProduct {
   };
 }
 
+/** Tipo do nó de produto devolvido pela Storefront API (usado em /produto/$handle). */
+export type ProductNode = ShopifyProduct["node"];
+
 export interface CartItem {
   lineId: string | null;
   product: ShopifyProduct;
@@ -232,7 +235,9 @@ export async function storefrontApiRequest(query: string, variables: Record<stri
   const data = await response.json();
 
   if (data.errors) {
-    throw new Error(`Error calling Shopify: ${data.errors.map((e: { message: string }) => e.message).join(", ")}`);
+    throw new Error(
+      `Error calling Shopify: ${data.errors.map((e: { message: string }) => e.message).join(", ")}`,
+    );
   }
 
   return data;
@@ -243,7 +248,9 @@ export async function fetchShopifyProducts(first = 50, query?: string): Promise<
   return data?.data?.products?.edges ?? [];
 }
 
-export async function fetchShopifyProductByHandle(handle: string): Promise<ShopifyProduct["node"] | null> {
+export async function fetchShopifyProductByHandle(
+  handle: string,
+): Promise<ShopifyProduct["node"] | null> {
   const data = await storefrontApiRequest(PRODUCT_BY_HANDLE_QUERY, { handle });
   return data?.data?.product ?? null;
 }
@@ -258,7 +265,9 @@ function formatCheckoutUrl(checkoutUrl: string): string {
   }
 }
 
-function isCartNotFoundError(userErrors: Array<{ field: string[] | null; message: string }>): boolean {
+function isCartNotFoundError(
+  userErrors: Array<{ field: string[] | null; message: string }>,
+): boolean {
   return userErrors.some(
     (e) =>
       e.message.toLowerCase().includes("cart not found") ||
@@ -348,7 +357,9 @@ export async function removeLineFromShopifyCart(
   return { success: true };
 }
 
-export async function fetchShopifyCart(cartId: string): Promise<{ id: string; totalQuantity: number } | null> {
+export async function fetchShopifyCart(
+  cartId: string,
+): Promise<{ id: string; totalQuantity: number } | null> {
   const data = await storefrontApiRequest(CART_QUERY, { id: cartId });
   return data?.data?.cart ?? null;
 }

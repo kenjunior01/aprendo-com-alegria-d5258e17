@@ -11,7 +11,7 @@ import { getMascot } from "@/lib/mascots";
 import { AdaptiveTip } from "@/components/AdaptiveTip";
 import { MissionOfTheDay } from "@/components/MissionOfTheDay";
 import { SeasonalBanner } from "@/components/SeasonalBanner";
-import { Lock, Star, CheckCircle2, Crown, Play, Gamepad2 } from "lucide-react";
+import { Lock, Star, CheckCircle2, Crown, Play, GraduationCap } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { haptic } from "@/lib/haptics";
 import { RouteError } from "@/components/RouteError";
@@ -105,7 +105,7 @@ function AppHome() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
           className="relative mb-5 overflow-hidden rounded-[2.5rem] border border-white/40 bg-gradient-to-br from-primary/20 via-card to-accent/20 p-6 shadow-xl backdrop-blur-xl"
-          aria-label="Área de interação com a mascote"
+          aria-label="Entrar na Sala de Aula Mágica com a mascote"
         >
           <div className="flex flex-col items-center text-center">
             <p className="mb-1 font-display text-[10px] font-bold uppercase tracking-[0.2em] text-primary/70">
@@ -133,9 +133,12 @@ function AppHome() {
                 />
               </div>
 
-              <div className="btn-chunky flex items-center gap-2 rounded-full bg-primary px-8 py-3 text-white shadow-lg">
-                <Gamepad2 className="h-5 w-5" />
-                <span>Entrar no Quarto</span>
+              <div className="btn-chunky relative flex items-center gap-2 rounded-full bg-primary px-8 py-3 text-white shadow-lg">
+                <GraduationCap className="h-5 w-5" />
+                <span>Entrar na Sala de Aula</span>
+                <span className="absolute -right-2 -top-2 rotate-6 rounded-full bg-xp px-2 py-0.5 font-display text-[10px] font-black text-white shadow-md">
+                  NOVO
+                </span>
               </div>
             </Link>
           </div>

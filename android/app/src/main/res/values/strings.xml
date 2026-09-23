@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Kidoz</string>
+    <string name="title_activity_main">Kidoz</string>
+    <string name="package_name">online.kidoz.app</string>
+    <string name="custom_url_scheme">online.kidoz.app</string>
+</resources>

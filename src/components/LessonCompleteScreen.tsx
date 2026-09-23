@@ -16,6 +16,7 @@ import {
 } from "@/components/ConfettiCelebration";
 import { getMascot, type MascotId } from "@/lib/mascots";
 import { type Achievement } from "@/lib/achievements";
+import { haptic } from "@/lib/haptics";
 import {
   Check,
   Coins,
@@ -96,6 +97,11 @@ export function LessonCompleteScreen({
       clearTimeout(achTimer);
     };
   }, []);
+
+  // Haptics de celebração — momento Tom-style (vibração nativa no APK)
+  useEffect(() => {
+    haptic(isPerfect ? "celebrate" : "success");
+  }, [isPerfect]);
 
   // Fire extra confetti for perfect lessons
   useEffect(() => {

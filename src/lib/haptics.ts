@@ -1,5 +1,8 @@
-// Haptic feedback util — usa Vibration API quando disponível
-// (mobile Chrome / Android). Em iOS Safari não vibra mas não falha.
+// Haptic feedback util — usa @capacitor/haptics no APK (feedback nativo
+// Android) e a Vibration API na web (mobile Chrome/Android).
+// Em iOS Safari não vibra mas não falha.
+
+import { isNative } from "./native";
 
 type Pattern = "tap" | "success" | "error" | "celebrate";
 
@@ -28,8 +31,39 @@ export function loadHapticsPref() {
 export function haptic(pattern: Pattern = "tap") {
   if (!enabled) return;
   if (typeof navigator === "undefined") return;
+
+  // APK: haptics nativo (import dinâmico — zero custo no bundle web)
+  if (isNative()) {
+    void import("@capacitor/haptics")
+      .then(({ Haptics, ImpactStyle, NotificationType }) => {
+        switch (pattern) {
+          case "tap":
+            void Haptics.impact({ style: ImpactStyle.Light });
+            break;
+          case "success":
+            void Haptics.notification({ type: NotificationType.Success });
+            break;
+          case "error":
+            void Haptics.notification({ type: NotificationType.Error });
+            break;
+          case "celebrate":
+            void Haptics.vibrate({ duration: 280 });
+            break;
+        }
+      })
+      .catch(() => {
+        /* fallback silencioso */
+      });
+    return;
+  }
+
+  // Web: Vibration API
   const nav = navigator as Navigator & { vibrate?: (p: number | number[]) => boolean };
   if (typeof nav.vibrate === "function") {
-    try { nav.vibrate(PATTERNS[pattern]); } catch { /* noop */ }
+    try {
+      nav.vibrate(PATTERNS[pattern]);
+    } catch {
+      /* noop */
+    }
   }
 }

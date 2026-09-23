@@ -4,9 +4,11 @@ import { MotionConfig } from "framer-motion";
 import { UsageGuard } from "@/components/UsageGuard";
 import { CookieConsent } from "@/components/CookieConsent";
 import { InstallPrompt } from "@/components/InstallPrompt";
+import { Toaster } from "@/components/ui/sonner";
 import { installServerFnAuthInterceptor } from "@/integrations/supabase/serverFnAuth";
 import { registerServiceWorker } from "@/lib/registerSW";
 import { loadHapticsPref } from "@/lib/haptics";
+import { initNative, initOfflineGuard } from "@/lib/native";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
 import { useCartSync } from "@/hooks/useCartSync";
 
@@ -185,6 +187,8 @@ function RootComponent() {
     installServerFnAuthInterceptor();
     loadHapticsPref();
     registerServiceWorker();
+    initOfflineGuard();
+    void initNative();
   }, []);
   return (
     <MotionConfig reducedMotion="user">
@@ -198,6 +202,7 @@ function RootComponent() {
       <UsageGuard />
       <CookieConsent />
       <InstallPrompt />
+      <Toaster position="top-center" offset={14} />
     </MotionConfig>
   );
 }

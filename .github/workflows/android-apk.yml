@@ -1,0 +1,85 @@
+name: APK Android
+
+# Gera a APK da Kidoz automaticamente em cada push para main
+# (ou manualmente em Actions → APK Android → Run workflow).
+# A APK fica disponível para download nos "Artifacts" da run.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "src/**"
+      - "android/**"
+      - "public/**"
+      - "capacitor.config.ts"
+      - "package.json"
+      - ".github/workflows/android-apk.yml"
+  workflow_dispatch:
+
+jobs:
+  build-apk:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Build web (dist/client)
+        run: npm run build
+
+      - name: Sincronizar Capacitor
+        run: npx cap sync android
+
+      - name: Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Build APK (debug, instalável)
+        working-directory: android
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleDebug --no-daemon --stacktrace
+
+      - name: Renomear APK
+        run: |
+          mkdir -p output
+          cp android/app/build/outputs/apk/debug/app-debug.apk output/Kidoz-debug.apk
+
+      - name: Publicar artefacto
+        uses: actions/upload-artifact@v4
+        with:
+          name: Kidoz-APK
+          path: output/Kidoz-debug.apk
+          retention-days: 30
+
+      # --- Para a Play Store (AAB assinado), configure estes secrets:
+      #   ANDROID_KEYSTORE_BASE64, ANDROID_KEYSTORE_PASSWORD,
+      #   ANDROID_KEY_ALIAS, ANDROID_KEY_PASSWORD
+      # e descomente o bloco abaixo:
+      # - name: Build AAB assinado (release)
+      #   env:
+      #     KS: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+      #     KS_PASS: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+      #     KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+      #     KEY_PASS: ${{ secrets.ANDROID_KEY_PASSWORD }}
+      #   working-directory: android
+      #   run: |
+      #     echo "$KS" | base64 -d > app/keystore.jks
+      #     ./gradlew bundleRelease -Pandroid.injected.signing.store.file=$PWD/app/keystore.jks \
+      #       -Pandroid.injected.signing.store.password=$KS_PASS \
+      #       -Pandroid.injected.signing.key.alias=$KEY_ALIAS \
+      #       -Pandroid.injected.signing.key.password=$KEY_PASS --no-daemon
+      # - uses: actions/upload-artifact@v4
+      #   with:
+      #     name: Kidoz-AAB
+      #     path: android/app/build/outputs/bundle/release/app-release.aab

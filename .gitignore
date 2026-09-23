@@ -37,8 +37,8 @@ bun.lockb
 # Electron build output
 build-electron/
 
-# Capacitor
-android/
+# Capacitor — plataforma android É versionada (build APK no GitHub Actions);
+# assets web copiados são ignorados pelo próprio android/.gitignore
 ios/
 
 # Environment variables — nunca versionar (auditoria C4)

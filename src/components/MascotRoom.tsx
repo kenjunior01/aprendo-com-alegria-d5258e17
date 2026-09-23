@@ -19,7 +19,6 @@ import {
   Sparkles as SparklesIcon,
   X,
   Play,
-  MapPin,
   Trophy,
   Gift,
   ListChecks,
@@ -44,6 +43,8 @@ import {
 import { GAME_REGISTRY, type GameEntry } from "@/lib/juniorGameRegistry";
 import { getRandomSticker, type Sticker } from "@/lib/stickers";
 import { getRandomTrivia, type TriviaQuestion } from "@/lib/triviaBank";
+import { ClassroomScene } from "./ClassroomScene";
+import { getNextMission } from "@/lib/nextMission";
 
 // --- Lazy-loaded heavy components ---
 const StickerAlbum = lazy(() =>
@@ -81,7 +82,7 @@ interface Props {
 
 export function MascotRoom({ profile }: Props) {
   const navigate = useNavigate();
-  const [room, setRoom] = useState<RoomType>("living");
+  const [room, setRoom] = useState<RoomType>("classroom");
   const [mood, setMood] = useState<MascotMood>("neutral");
   const [bubble, setBubble] = useState<string | null>(null);
   const [selectedGame, setSelectedGame] = useState<string | null>(null);
@@ -95,6 +96,27 @@ export function MascotRoom({ profile }: Props) {
   const growth = getGrowthStage(profile.grade, profile.xp);
   const region = profile.region ?? "PT";
   const t = (text: string) => localize(text, region);
+  const nextMission = useMemo(
+    () => getNextMission(profile.completedLessons, profile.grade),
+    [profile.completedLessons, profile.grade],
+  );
+
+  const goToNextMission = () => {
+    haptic("tap");
+    playTap();
+    if (nextMission) {
+      navigate({
+        to: "/licao/$subjectId/$lessonId",
+        params: {
+          subjectId: nextMission.mission.subjectId,
+          lessonId: nextMission.mission.lessonId,
+        },
+        search: {},
+      });
+    } else {
+      navigate({ to: "/app" });
+    }
+  };
 
   const today = new Date().toISOString().slice(0, 10);
   const hasGift = profile.lastDailyGift !== today;
@@ -343,27 +365,7 @@ export function MascotRoom({ profile }: Props) {
           transition={{ duration: 0.5 }}
           className="pointer-events-none absolute inset-0 z-0"
         >
-          {room === "classroom" && (
-            <>
-              {/* Blackboard */}
-              <div
-                onClick={() => navigate({ to: "/tutor", search: { mascotId: profile.mascot } })}
-                className="absolute left-[10%] right-[10%] top-[15%] h-[40%] rounded-xl border-8 border-amber-900 bg-emerald-900 shadow-2xl cursor-pointer hover:brightness-110 transition-all group"
-              >
-                <div className="flex h-full flex-col items-center justify-center p-4 text-white/20">
-                  <div className="font-display text-4xl font-bold uppercase tracking-widest sm:text-6xl">
-                    ABC • 123
-                  </div>
-                  <div className="mt-4 h-1 w-32 rounded-full bg-white/10" />
-                  <div className="opacity-0 group-hover:opacity-100 transition-opacity text-white/60 text-xs mt-4 font-display">
-                    Toca para conversar com o {mascot.name}
-                  </div>
-                </div>
-              </div>
-              {/* Desk shadow/floor line */}
-              <div className="absolute bottom-0 left-0 right-0 h-[30%] bg-amber-100/50" />
-            </>
-          )}
+          {room === "classroom" && <ClassroomScene profile={profile} />}
 
           {room === "kitchen" && (
             <>
@@ -410,15 +412,17 @@ export function MascotRoom({ profile }: Props) {
         </motion.div>
       </AnimatePresence>
 
-      <motion.div
-        animate={{ x: mousePos.x, y: mousePos.y }}
-        className="pointer-events-none absolute inset-0 z-0 opacity-20"
-      >
-        <div className="absolute left-[10%] top-[20%] text-9xl">☁️</div>
-        <div className="absolute right-[15%] top-[10%] text-8xl">☁️</div>
-        <div className="absolute bottom-[20%] left-[20%] text-7xl">🌳</div>
-        <div className="absolute bottom-[10%] right-[25%] text-9xl">🌳</div>
-      </motion.div>
+      {room !== "classroom" && (
+        <motion.div
+          animate={{ x: mousePos.x, y: mousePos.y }}
+          className="pointer-events-none absolute inset-0 z-0 opacity-20"
+        >
+          <div className="absolute left-[10%] top-[20%] text-9xl">☁️</div>
+          <div className="absolute right-[15%] top-[10%] text-8xl">☁️</div>
+          <div className="absolute bottom-[20%] left-[20%] text-7xl">🌳</div>
+          <div className="absolute bottom-[10%] right-[25%] text-9xl">🌳</div>
+        </motion.div>
+      )}
 
       <div className="pointer-events-none absolute inset-0 z-0 bg-gradient-to-tr from-white/10 via-transparent to-black/5 opacity-50" />
 
@@ -459,23 +463,29 @@ export function MascotRoom({ profile }: Props) {
           <motion.button
             whileTap={{ scale: 0.9 }}
             onClick={() => navigate({ to: "/tutor", search: {} })}
+            aria-label={t("Conversar")}
             className="flex items-center gap-2 rounded-2xl border border-primary/30 bg-primary/20 px-4 py-2 font-display text-sm font-bold text-primary shadow-lg backdrop-blur-xl transition-all hover:bg-primary/30"
           >
-            <MessageCircle className="h-4 w-4" /> {t("Conversar")}
+            <MessageCircle className="h-4 w-4" />
+            <span className="hidden sm:inline">{t("Conversar")}</span>
           </motion.button>
           <motion.button
             whileTap={{ scale: 0.9 }}
             onClick={() => navigate({ to: "/desafios" })}
+            aria-label={t("Missões")}
             className="flex items-center gap-2 rounded-2xl border border-emerald-400/40 bg-emerald-400/20 px-4 py-2 font-display text-sm font-bold text-emerald-700 shadow-lg backdrop-blur-xl transition-all hover:bg-emerald-400/30"
           >
-            <ListChecks className="h-4 w-4" /> {t("Missões")}
+            <ListChecks className="h-4 w-4" />
+            <span className="hidden sm:inline">{t("Missões")}</span>
           </motion.button>
           <motion.button
             whileTap={{ scale: 0.9 }}
             onClick={() => navigate({ to: "/loja" })}
+            aria-label={t("Loja")}
             className="flex items-center gap-2 rounded-2xl border border-xp/30 bg-xp/20 px-4 py-2 font-display text-sm font-bold text-xp shadow-lg backdrop-blur-xl transition-all hover:bg-xp/30"
           >
-            <ShoppingBag className="h-4 w-4" /> {t("Loja")}
+            <ShoppingBag className="h-4 w-4" />
+            <span className="hidden sm:inline">{t("Loja")}</span>
           </motion.button>
           <motion.button
             whileTap={{ scale: 0.9 }}
@@ -547,12 +557,12 @@ export function MascotRoom({ profile }: Props) {
         </span>
       </div>
 
-      <div className="relative flex flex-1 flex-col items-center justify-center">
+      <div className="pointer-events-none relative z-10 flex flex-1 flex-col items-center justify-center">
         {currentTrivia ? (
           <motion.div
             initial={{ opacity: 0, scale: 0.8, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            className="z-50 w-full max-w-[24rem] rounded-[2.5rem] border-4 border-white bg-white/90 p-8 shadow-2xl backdrop-blur-xl"
+            className="pointer-events-auto z-50 w-full max-w-[24rem] rounded-[2.5rem] border-4 border-white bg-white/90 p-8 shadow-2xl backdrop-blur-xl"
           >
             <div className="mb-6 text-center">
               <span className="inline-block rounded-full bg-blue-100 px-4 py-1 text-[10px] font-black uppercase tracking-widest text-blue-600">
@@ -604,7 +614,7 @@ export function MascotRoom({ profile }: Props) {
             </button>
           </motion.div>
         ) : room === "games" ? (
-          <div className="w-full max-w-[28rem] px-6 h-full overflow-y-auto pt-10 pb-20 scrollbar-none">
+          <div className="pointer-events-auto h-full w-full max-w-[28rem] overflow-y-auto px-6 pb-20 pt-10 scrollbar-none">
             {!selectedGame ? (
               <motion.div
                 initial={{ opacity: 0, scale: 0.9 }}
@@ -679,7 +689,10 @@ export function MascotRoom({ profile }: Props) {
                   animate={{ scale: 1, rotate: 0 }}
                   whileHover={{ scale: 1.1, rotate: 5 }}
                   onClick={claimGift}
-                  className="absolute bottom-10 right-10 z-20 flex flex-col items-center gap-1 transition-transform active:scale-90"
+                  className={cn(
+                    "pointer-events-auto absolute bottom-10 z-20 flex flex-col items-center gap-1 transition-transform active:scale-90",
+                    room === "classroom" ? "left-8" : "right-10",
+                  )}
                 >
                   <div className="relative">
                     <Gift className="h-14 w-14 text-amber-500 fill-amber-200" />
@@ -716,41 +729,10 @@ export function MascotRoom({ profile }: Props) {
                   🛌
                 </motion.span>
               )}
-              {room === "classroom" && (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0 }}
-                  key="classroom-icon"
-                  className="absolute inset-0 flex flex-col items-center justify-start pt-20"
-                >
-                  <div
-                    onClick={() => setAlbumOpen(true)}
-                    className="cursor-pointer hover:scale-110 transition-transform flex flex-col items-center"
-                  >
-                    <span className="text-6xl opacity-50 mb-2">📖</span>
-                    <span className="bg-white/40 backdrop-blur-sm px-3 py-1 rounded-full text-[10px] font-bold text-emerald-800 border border-white/40 uppercase tracking-widest">
-                      O meu Livro
-                    </span>
-                  </div>
-                  {region === "MZ" && (
-                    <motion.div
-                      initial={{ y: 20, opacity: 0 }}
-                      animate={{ y: 0, opacity: 1 }}
-                      className="bg-white/60 backdrop-blur-sm p-4 rounded-2xl border-2 border-emerald-500 max-w-[280px] text-center mt-4"
-                    >
-                      <MapPin className="h-5 w-5 text-emerald-600 mx-auto mb-2" />
-                      <p className="font-display text-sm text-emerald-900">
-                        Sabias que o <strong>Zambeze</strong> é o maior rio de Moçambique? 🌊
-                      </p>
-                    </motion.div>
-                  )}
-                </motion.div>
-              )}
             </AnimatePresence>
 
             {room === "talk" ? (
-              <div className="relative scale-125 md:scale-150 transition-transform">
+              <div className="pointer-events-auto relative scale-125 transition-transform md:scale-150">
                 {growth.stage === "mestre" && (
                   <motion.div
                     initial={{ opacity: 0 }}
@@ -792,7 +774,10 @@ export function MascotRoom({ profile }: Props) {
                 role="button"
                 tabIndex={0}
                 aria-label="Interagir com mascote"
-                className="relative cursor-pointer transition-transform active:scale-95 scale-110 md:scale-125"
+                className={cn(
+                  "pointer-events-auto relative cursor-pointer transition-transform active:scale-95",
+                  room === "classroom" ? "scale-95 md:scale-110" : "scale-110 md:scale-125",
+                )}
               >
                 {growth.stage === "mestre" && (
                   <motion.div
@@ -811,11 +796,28 @@ export function MascotRoom({ profile }: Props) {
                 />
               </div>
             )}
+
+            {room === "classroom" && (
+              <motion.button
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.35, type: "spring", stiffness: 200, damping: 16 }}
+                whileTap={{ scale: 0.94 }}
+                onClick={goToNextMission}
+                className="btn-chunky pointer-events-auto absolute bottom-2 left-1/2 z-20 flex -translate-x-1/2 items-center gap-2 whitespace-nowrap rounded-full bg-primary px-6 py-3 font-display text-sm text-white shadow-xl sm:text-base"
+              >
+                <GraduationCap className="h-5 w-5" />
+                {nextMission ? t("Continuar a aprender") : t("Ver a minha aventura")}
+              </motion.button>
+            )}
           </>
         )}
       </div>
 
-      <div className="relative z-10 p-6 pb-12">
+      <div
+        className="relative z-10 p-6"
+        style={{ paddingBottom: "max(3rem, calc(env(safe-area-inset-bottom) + 1.25rem))" }}
+      >
         <div className="mx-auto flex max-w-[32rem] justify-between gap-2 rounded-[2.5rem] border border-white/40 bg-white/40 p-4 shadow-[0_20px_50px_rgba(0,0,0,0.1)] backdrop-blur-2xl">
           {stats.map((stat) => (
             <div key={stat.id} className="flex flex-col items-center gap-2">
