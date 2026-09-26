@@ -9,6 +9,7 @@ import { installServerFnAuthInterceptor } from "@/integrations/supabase/serverFn
 import { registerServiceWorker } from "@/lib/registerSW";
 import { loadHapticsPref } from "@/lib/haptics";
 import { initNative, initOfflineGuard } from "@/lib/native";
+import { RouteFx } from "@/components/RouteFx";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
 import { useCartSync } from "@/hooks/useCartSync";
 
@@ -199,6 +200,7 @@ function RootComponent() {
         Saltar para o conteúdo
       </a>
       <Outlet />
+      <RouteFx />
       <UsageGuard />
       <CookieConsent />
       <InstallPrompt />

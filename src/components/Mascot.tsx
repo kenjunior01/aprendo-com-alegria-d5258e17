@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 
 interface Props {
   id: MascotId;
-  size?: "sm" | "md" | "lg" | "xl";
+  size?: "xs" | "sm" | "md" | "lg" | "xl";
   bouncing?: boolean;
   className?: string;
   equippedItemId?: string | null;
@@ -13,6 +13,7 @@ interface Props {
 }
 
 const sizeMap = {
+  xs: "h-9 w-9",
   sm: "h-16 w-16",
   md: "h-28 w-28",
   lg: "h-40 w-40",
@@ -20,6 +21,7 @@ const sizeMap = {
 };
 
 const itemSize = {
+  xs: { hat: "text-base -top-1.5 -right-0.5", outfit: "text-xs bottom-0 -right-0.5", badge: "text-xs -bottom-1 -left-0.5" },
   sm: { hat: "text-xl -top-2 -right-1", outfit: "text-base bottom-0 -right-1", badge: "text-sm -bottom-1 -left-1" },
   md: { hat: "text-3xl -top-3 -right-2", outfit: "text-2xl bottom-0 -right-2", badge: "text-xl -bottom-1 -left-2" },
   lg: { hat: "text-5xl -top-4 -right-3", outfit: "text-4xl bottom-1 -right-3", badge: "text-3xl -bottom-1 -left-3" },

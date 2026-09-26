@@ -347,8 +347,24 @@ function LessonPage() {
             </div>
             <ComboTracker combo={combo} variant="inline" />
             <div className="flex items-center gap-1 font-display text-destructive">
-              <Heart className="h-5 w-5 fill-current" />
-              <span className="font-semibold">{hearts}</span>
+              <motion.span
+                key={hearts}
+                initial={{ scale: 1.6, rotate: -18, opacity: 0.4 }}
+                animate={{ scale: 1, rotate: 0, opacity: 1 }}
+                transition={{ type: "spring", stiffness: 520, damping: 17 }}
+                className="inline-flex"
+              >
+                <Heart className="h-5 w-5 fill-current" />
+              </motion.span>
+              <motion.span
+                key={`h-${hearts}`}
+                initial={{ scale: 1.45 }}
+                animate={{ scale: 1 }}
+                transition={{ type: "spring", stiffness: 520, damping: 17 }}
+                className="inline-block font-semibold tabular-nums"
+              >
+                {hearts}
+              </motion.span>
             </div>
             <SoundToggle />
           </div>
@@ -406,23 +422,57 @@ function LessonPage() {
                 const showWrong = revealed && isSel && i !== q.answerIndex;
                 return (
                   <motion.button
-                    key={i}
-                    whileTap={{ scale: revealed ? 1 : 0.97 }}
+                    key={`${qIndex}-${i}`}
+                    whileTap={{ scale: revealed ? 1 : 0.96 }}
                     disabled={revealed}
                     onClick={() => {
                       setSelected(i);
                       speak(opt, { rate: 1 });
+                      haptic("tap");
                     }}
+                    initial={{ opacity: 0, y: 18, scale: 0.95 }}
+                    animate={
+                      showWrong
+                        ? { opacity: 1, y: 0, scale: 1, x: [0, -9, 9, -6, 6, 0] }
+                        : showCorrect
+                          ? { opacity: 1, y: 0, scale: [1, 1.07, 1], x: 0 }
+                          : { opacity: 1, y: 0, scale: 1, x: 0 }
+                    }
+                    transition={
+                      showWrong
+                        ? { duration: 0.5, ease: "easeOut", x: { duration: 0.45 } }
+                        : showCorrect
+                          ? {
+                              duration: 0.4,
+                              scale: { type: "spring", stiffness: 340, damping: 13 },
+                            }
+                          : {
+                              delay: 0.06 + i * 0.055,
+                              type: "spring",
+                              stiffness: 300,
+                              damping: 24,
+                            }
+                    }
                     className={cn(
                       "card-chunky flex min-h-[60px] items-center rounded-2xl border-2 border-border bg-card px-4 py-4 text-left font-display text-base transition-all sm:text-lg",
                       isSel && !revealed && "border-primary ring-4 ring-primary/25",
-                      showCorrect && "border-success bg-success/15 text-success",
+                      showCorrect &&
+                        "border-success bg-success/15 text-success shadow-[0_0_18px_2px_rgba(124,209,110,0.4)]",
                       showWrong && "border-destructive bg-destructive/10 text-destructive",
                     )}
                   >
-                    <span className="mr-3 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-muted text-sm">
+                    <motion.span
+                      initial={false}
+                      animate={
+                        isSel && !revealed
+                          ? { scale: 1.12, rotate: [0, -7, 0] }
+                          : { scale: 1, rotate: 0 }
+                      }
+                      transition={{ type: "spring", stiffness: 420, damping: 14 }}
+                      className="mr-3 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-muted text-sm"
+                    >
                       {String.fromCharCode(65 + i)}
-                    </span>
+                    </motion.span>
                     <span className="flex-1">{opt}</span>
                   </motion.button>
                 );
@@ -446,7 +496,11 @@ function LessonPage() {
             >
               <div className="mx-auto flex max-w-[48rem] flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:py-5">
                 <div className="flex items-center gap-3">
-                  <span
+                  <motion.span
+                    key={isCorrect ? "ok" : "no"}
+                    initial={{ scale: 0.3, rotate: -35, opacity: 0 }}
+                    animate={{ scale: 1, rotate: 0, opacity: 1 }}
+                    transition={{ type: "spring", stiffness: 460, damping: 15 }}
                     className={cn(
                       "flex h-10 w-10 shrink-0 items-center justify-center rounded-full",
                       isCorrect
@@ -459,7 +513,7 @@ function LessonPage() {
                     ) : (
                       <X className="h-6 w-6" strokeWidth={3} />
                     )}
-                  </span>
+                  </motion.span>
                   <div>
                     <p
                       className={cn(
@@ -515,7 +569,7 @@ function LessonPage() {
               <ChunkyButton
                 onClick={onCheck}
                 disabled={selected === null}
-                className="ml-auto w-full sm:w-auto"
+                className={cn("ml-auto w-full sm:w-auto", selected !== null && "cta-glow")}
               >
                 Verificar
               </ChunkyButton>

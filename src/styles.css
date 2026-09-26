@@ -383,12 +383,12 @@
 
   /* ─── Premium Glass — stronger blur for headers ─── */
   .glass-premium {
-    background: oklch(1 0 0 / 0.8);
+    background: oklch(1 0 0 / 0.92);
     backdrop-filter: blur(24px) saturate(1.2);
     -webkit-backdrop-filter: blur(24px) saturate(1.2);
   }
   .dark .glass-premium {
-    background: oklch(0.18 0.04 260 / 0.8);
+    background: oklch(0.18 0.04 260 / 0.92);
     backdrop-filter: blur(24px) saturate(1.2);
     -webkit-backdrop-filter: blur(24px) saturate(1.2);
   }
@@ -1001,3 +1001,44 @@ iframe[src*="lovable.dev/badge"] {
 .scene-plane { animation: scene-plane 19s linear infinite; }
 .scene-mote { animation: scene-mote 9s ease-in-out infinite; }
 .scene-chalk-in { animation: scene-chalk-in 1.1s ease-out both; }
+
+/* ─── Route FX — transições de navegação (apenas transform/opacity, p/ APK) ─── */
+/* ⚠️ Apenas opacity: transform em #main-content criaria um containing block
+   que quebra os filhos position:fixed (BottomNav, barras de resposta). */
+@keyframes route-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .route-enter {
+    animation: route-in 300ms ease-out both;
+  }
+}
+
+/* Barra de progresso de navegação (indeterminada, estilo YouTube) */
+@keyframes nav-progress {
+  0% { transform: translateX(-110%); }
+  55% { transform: translateX(25%); }
+  100% { transform: translateX(115%); }
+}
+.nav-progress-bar {
+  animation: nav-progress 1.1s cubic-bezier(0.45, 0, 0.2, 1) infinite;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--color-primary) 30%,
+    color-mix(in oklab, var(--color-primary) 55%, white) 60%,
+    transparent 100%
+  );
+  box-shadow: 0 0 8px 1px color-mix(in oklab, var(--color-primary) 45%, transparent);
+}
+
+/* Brilho pulsante para CTAs que esperam ação (ex.: Verificar) */
+@keyframes cta-glow-k {
+  0%, 100% { box-shadow: 0 0 0 0 color-mix(in oklab, var(--color-primary) 0%, transparent); }
+  50% { box-shadow: 0 0 0 7px color-mix(in oklab, var(--color-primary) 26%, transparent); }
+}
+.cta-glow { animation: cta-glow-k 1.5s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) {
+  .cta-glow { animation: none; }
+}
