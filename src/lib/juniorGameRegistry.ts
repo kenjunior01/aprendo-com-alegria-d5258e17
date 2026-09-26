@@ -322,6 +322,20 @@ const GameParOuImpar = lazy(() =>
   import("@/components/junior/JuniorGamesV8").then((m) => ({ default: m.GameParOuImpar })),
 );
 
+// V9 — Ronda 2 (caça-palavras, frases, balões, MZ)
+const GameCacaPalavras = lazy(() =>
+  import("@/components/junior/JuniorGamesV9").then((m) => ({ default: m.GameCacaPalavras })),
+);
+const GameOrdenaFrase = lazy(() =>
+  import("@/components/junior/JuniorGamesV9").then((m) => ({ default: m.GameOrdenaFrase })),
+);
+const GameBalaoMatematico = lazy(() =>
+  import("@/components/junior/JuniorGamesV9").then((m) => ({ default: m.GameBalaoMatematico })),
+);
+const GameCapitaisMZ = lazy(() =>
+  import("@/components/junior/JuniorGamesV9").then((m) => ({ default: m.GameProvinciasMZ })),
+);
+
 // --- MASTER REGISTRY ---
 export const GAME_REGISTRY: Record<string, GameEntry> = {
   // V1 — Jardins base
@@ -1022,6 +1036,40 @@ export const GAME_REGISTRY: Record<string, GameEntry> = {
     component: GameParOuImpar,
   },
 
+  // V9 — Ronda 2
+  "caca-palavras": {
+    id: "caca-palavras",
+    title: "Caça-Palavras",
+    emoji: "🔍",
+    ageGroup: "6+",
+    garden: "letras",
+    component: GameCacaPalavras,
+  },
+  "ordena-frase": {
+    id: "ordena-frase",
+    title: "Ordena a Frase",
+    emoji: "✍️",
+    ageGroup: "6+",
+    garden: "portugues",
+    component: GameOrdenaFrase,
+  },
+  "balao-matematico": {
+    id: "balao-matematico",
+    title: "Balão Matemático",
+    emoji: "🎈",
+    ageGroup: "6+",
+    garden: "matematica",
+    component: GameBalaoMatematico,
+  },
+  "provincias-mz": {
+    id: "provincias-mz",
+    title: "Capitais MZ",
+    emoji: "🗺️",
+    ageGroup: "6+",
+    garden: "mz",
+    component: GameCapitaisMZ,
+  },
+
   // Mozambique (region-specific)
   "mz-provinces": {
     id: "mz-provinces",
@@ -1139,4 +1187,8 @@ export const ARCADE_POOL: GameEntry[] = [
   GAME_REGISTRY["salto-contar"],
   GAME_REGISTRY["quebra-emoji"],
   GAME_REGISTRY["par-ou-impar"],
+  // V9 — Ronda 2
+  GAME_REGISTRY["caca-palavras"],
+  GAME_REGISTRY["balao-matematico"],
+  GAME_REGISTRY["provincias-mz"],
 ];

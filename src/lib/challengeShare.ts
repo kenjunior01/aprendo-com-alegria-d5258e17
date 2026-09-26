@@ -10,7 +10,8 @@ const SITE = "https://kidoz.online";
 
 export type ChallengePayload =
   | { k: "lesson"; s: string; l: string; n: string; c?: number; m?: MascotId }
-  | { k: "infinite"; t: TrackId; l: number; n: string; s?: number; m?: MascotId };
+  | { k: "infinite"; t: TrackId; l: number; n: string; s?: number; m?: MascotId }
+  | { k: "quiz"; z: number; n: string; c?: number; m?: MascotId };
 
 // ─── Codificação compacta (base64url de JSON com chaves curtas) ───
 function toUrlSafe(b64: string): string {
@@ -21,7 +22,7 @@ function fromUrlSafe(s: string): string {
   return b64 + "=".repeat((4 - (b64.length % 4)) % 4);
 }
 
-function encodeShort(p: ChallengePayload): Record<string, unknown> {
+function encodeShort(p: Exclude<ChallengePayload, { k: "quiz" }>): Record<string, unknown> {
   if (p.k === "lesson") {
     const o: Record<string, unknown> = { k: "l", s: p.s, l: p.l, n: p.n };
     if (p.c !== undefined) o.c = p.c;
@@ -30,6 +31,13 @@ function encodeShort(p: ChallengePayload): Record<string, unknown> {
   }
   const o: Record<string, unknown> = { k: "i", t: p.t, l: p.l, n: p.n };
   if (p.s !== undefined) o.s = p.s;
+  if (p.m) o.m = p.m;
+  return o;
+}
+
+function encodeQuiz(p: Extract<ChallengePayload, { k: "quiz" }>): Record<string, unknown> {
+  const o: Record<string, unknown> = { k: "q", z: p.z, n: p.n };
+  if (p.c !== undefined) o.c = p.c;
   if (p.m) o.m = p.m;
   return o;
 }
@@ -58,6 +66,12 @@ function decodeShort(o: Record<string, unknown>): ChallengePayload | null {
       if (typeof o.m === "string") out.m = o.m as MascotId;
       return out;
     }
+    if (o.k === "q" && typeof o.z === "number" && typeof o.n === "string") {
+      const out: ChallengePayload = { k: "quiz", z: o.z, n: o.n };
+      if (typeof o.c === "number") out.c = o.c;
+      if (typeof o.m === "string") out.m = o.m as MascotId;
+      return out;
+    }
     return null;
   } catch {
     return null;
@@ -66,7 +80,8 @@ function decodeShort(o: Record<string, unknown>): ChallengePayload | null {
 
 export function encodeChallenge(p: ChallengePayload): string {
   try {
-    const json = JSON.stringify(encodeShort(p));
+    const short = p.k === "quiz" ? encodeQuiz(p) : encodeShort(p);
+    const json = JSON.stringify(short);
     // UTF-8 safe base64
     const bytes = new TextEncoder().encode(json);
     let bin = "";
@@ -96,6 +111,7 @@ export function challengeLink(p: ChallengePayload): string {
 
 export function buildChallengeMessage(p: ChallengePayload): string {
   const link = challengeLink(p);
+  if (p.k === "quiz") return buildQuizMessage(p, link);
   if (p.k === "lesson") {
     const lesson = getLesson(p.s, p.l);
     const subject = getSubject(p.s);
@@ -118,6 +134,16 @@ export function buildChallengeMessage(p: ChallengePayload): string {
     `▶️ Jogar: ${link}`,
   ];
   return parts.filter(Boolean).join("\n");
+}
+
+function buildQuizMessage(p: Extract<ChallengePayload, { k: "quiz" }>, link: string): string {
+  return [
+    `⚡ ${p.n} desafiou-te para um Quiz Relâmpago no Kidoz!`,
+    "🍎 5 perguntas IGUAIS para os dois — quem acerta mais?",
+    p.c !== undefined ? `🎯 Pontuação a bater: ${p.c}/5` : "🎯 Consegues 5/5?",
+    "",
+    `▶️ Jogar: ${link}`,
+  ].join("\n");
 }
 
 // ─── Partilha ───

@@ -158,6 +158,11 @@ export function ChallengeShareSheet({ open, onClose, payload, title }: Props) {
 }
 
 function buildMsg(p: ChallengePayload): string {
+  if (p.k === "quiz") {
+    return p.c !== undefined
+      ? `⚡ Quiz Relâmpago — 5 perguntas iguais! Pontuação a bater: ${p.c}/5`
+      : "⚡ Quiz Relâmpago — 5 perguntas iguais para os dois!";
+  }
   if (p.k === "lesson") {
     return p.c !== undefined ? `🎯 Pontuação a bater: ${p.c}%` : "🎯 Consegues ganhar-me?";
   }

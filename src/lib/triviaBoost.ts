@@ -943,12 +943,59 @@ export const TRIVIA_BOOST: TriviaQuestion[] = [
   },
 ];
 
-/** Banco total: triviaBank (auto-gerado) + boost autorado. */
+/** Banco total: triviaBank (auto-gerado) + boost autorado + ultra (Ronda 2). */
 import { TRIVIA_BANK } from "@/lib/triviaBank";
-export const ALL_TRIVIA: TriviaQuestion[] = [...TRIVIA_BANK, ...TRIVIA_BOOST];
+import { TRIVIA_ULTRA } from "@/lib/triviaUltra";
+export const ALL_TRIVIA: TriviaQuestion[] = [...TRIVIA_BANK, ...TRIVIA_BOOST, ...TRIVIA_ULTRA];
 
 /** Escolhe n perguntas aleatórias do banco total, opcionalmente por categoria. */
 export function getRandomTriviaBoost(n: number, category?: string): TriviaQuestion[] {
   const pool = category ? ALL_TRIVIA.filter((q) => q.category === category) : ALL_TRIVIA;
   return [...pool].sort(() => Math.random() - 0.5).slice(0, n);
+}
+
+/**
+ * Escolhe n perguntas de forma DETERMINÍSTICA a partir de uma seed.
+ * Usada no Quiz Relâmpago partilhado por link: gerador e amigo recebem
+ * exatamente as mesmas perguntas a partir do mesmo seed (LCG mulberry32).
+ */
+export function pickSeededTrivia(seed: number, n: number, category?: string): TriviaQuestion[] {
+  const pool = (category ? ALL_TRIVIA.filter((q) => q.category === category) : ALL_TRIVIA).map(
+    (q, i) => ({ q, i }),
+  );
+  // mulberry32 — PRNG pequeno e estável
+  let a = seed >>> 0 || 1;
+  const rand = () => {
+    a |= 0;
+    a = (a + 0x6d2b79f5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+  // Fisher–Yates determinístico
+  for (let i = pool.length - 1; i > 0; i--) {
+    const j = Math.floor(rand() * (i + 1));
+    [pool[i], pool[j]] = [pool[j], pool[i]];
+  }
+  // Embaralha também as opções de cada pergunta (determinístico por seed+i)
+  return pool.slice(0, n).map(({ q, i }, k) => {
+    const idx = q.options.map((_, oi) => oi);
+    let b = (seed ^ (i * 7919) ^ (k * 104729)) >>> 0 || 1;
+    const rand2 = () => {
+      b |= 0;
+      b = (b + 0x6d2b79f5) | 0;
+      let t = Math.imul(b ^ (b >>> 15), 1 | b);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+    for (let oi = idx.length - 1; oi > 0; oi--) {
+      const j = Math.floor(rand2() * (oi + 1));
+      [idx[oi], idx[j]] = [idx[j], idx[oi]];
+    }
+    return {
+      ...q,
+      options: idx.map((oi) => q.options[oi]),
+      answerIndex: idx.indexOf(q.answerIndex),
+    };
+  });
 }

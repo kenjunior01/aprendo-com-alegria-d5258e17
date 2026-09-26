@@ -20,7 +20,11 @@ export type MascotGesture =
   | "cheer"
   | "giggle"
   | "sleep"
-  | "think";
+  | "think"
+  | "dance"
+  | "love"
+  | "surprise"
+  | "yawn";
 
 interface Props {
   mascotId: MascotId;
@@ -79,6 +83,26 @@ const GESTURE_VARIANTS: Record<
     animate: { rotate: [0, -4, 0], x: [0, -3, 0] },
     transition: { duration: 1.6, repeat: Infinity },
   },
+  dance: {
+    animate: {
+      rotate: [0, -10, 10, -10, 10, 0],
+      y: [0, -6, -2, -6, -2, 0],
+      scaleX: [1, 1.05, 0.97, 1.05, 0.97, 1],
+    },
+    transition: { duration: 1.5, repeat: 1 },
+  },
+  love: {
+    animate: { scale: [1, 1.12, 1.06, 1.1, 1], rotate: [0, 4, -4, 3, 0] },
+    transition: { duration: 1.2 },
+  },
+  surprise: {
+    animate: { scaleY: [1, 1.16, 0.96, 1.04, 1], y: [0, -8, 0, -3, 0] },
+    transition: { duration: 0.8 },
+  },
+  yawn: {
+    animate: { scaleY: [1, 1.14, 1.1, 1], scaleX: [1, 0.94, 0.96, 1], rotate: [0, -3, 0] },
+    transition: { duration: 1.8 },
+  },
 };
 
 const GESTURE_EMOJI: Partial<Record<MascotGesture, string[]>> = {
@@ -90,7 +114,20 @@ const GESTURE_EMOJI: Partial<Record<MascotGesture, string[]>> = {
   think: ["💭"],
   shake: ["❓"],
   nod: ["👍"],
+  dance: ["🎶", "💫", "🎵"],
+  love: ["💛", "💖", "💕"],
+  surprise: ["❗", "😮"],
+  yawn: ["🥱"],
 };
+
+/** Frases de saudação conforme a hora — comportamento humano diurno. */
+function timeGreeting(): string {
+  const h = new Date().getHours();
+  if (h >= 5 && h < 12) return "Bom dia! ☀️";
+  if (h >= 12 && h < 18) return "Boa tarde! 😊";
+  if (h >= 18 && h < 21) return "Boa noite! 🌆";
+  return "Ainda acordado? 🌙";
+}
 
 export function MascotLive({
   mascotId,
@@ -114,15 +151,20 @@ export function MascotLive({
     if (mood) return mood;
     switch (gesture) {
       case "cheer":
+      case "dance":
         return "celebrate";
       case "giggle":
+      case "love":
         return "happy";
       case "sleep":
+      case "yawn":
         return "tired";
       case "think":
         return "thinking";
       case "shake":
         return "sad";
+      case "surprise":
+        return "excited";
       default:
         return "neutral";
     }
@@ -133,11 +175,13 @@ export function MascotLive({
       phrases?.length
         ? phrases
         : [
+            timeGreeting(),
             m.greeting,
             m.encourage,
             "Gostas da sala? 😊",
             "Vamos aprender juntos!",
             "Toca no quadro! ✏️",
+            "Sabias? O globo conta factos! 🌍",
           ],
     [phrases, m],
   );
@@ -152,17 +196,17 @@ export function MascotLive({
       behaviorTimer.current = setTimeout(() => {
         if (!alive) return;
         const roll = Math.random();
-        if (roll < 0.34) {
+        if (roll < 0.22) {
           // olhar para os lados (humano curioso)
           const dir = (Math.random() > 0.5 ? 1 : -1) as 1 | -1;
           setLookDir(dir);
           setTimeout(() => alive && setLookDir(0), 900);
-        } else if (roll < 0.58) {
+        } else if (roll < 0.42) {
           setGesture("idle");
           // micro-hop
           setGesture("jump");
           setTimeout(() => alive && setGesture("idle"), 800);
-        } else if (roll < 0.8) {
+        } else if (roll < 0.58) {
           // nota musical flutuante (hum)
           setSparks((s) => [
             ...s.slice(-3),
@@ -170,10 +214,22 @@ export function MascotLive({
           ]);
           playNote(520 + Math.random() * 300, 0.28, 0.1);
           setTimeout(() => alive && setGesture("idle"), 300);
-        } else {
+        } else if (roll < 0.72) {
           // acena de vez em quando
           setGesture("wave");
           setTimeout(() => alive && setGesture("idle"), 1100);
+        } else if (roll < 0.82) {
+          // alongamento de manhã (humano preguiçoso)
+          setGesture("surprise");
+          setTimeout(() => alive && setGesture("idle"), 900);
+        } else if (roll < 0.92) {
+          // pensa profundamente (comportamento estudioso)
+          setGesture("think");
+          setTimeout(() => alive && setGesture("idle"), 2200);
+        } else {
+          // dança espontânea — é a alegria de aprender!
+          setGesture("dance");
+          setTimeout(() => alive && setGesture("idle"), 2600);
         }
         schedule(3500 + Math.random() * 4500);
       }, ms);
@@ -185,13 +241,19 @@ export function MascotLive({
     };
   }, [isSleeping]); // reinicia quando adormece/acorda
 
-  // ── Noite → adormece sozinho (2.5 s depois de entrar) ──
+  // ── Noite → boceja (1.2 s) e adormece (2.5 s depois de entrar) ──
   useEffect(() => {
     if (!isNight) return;
-    const t = setTimeout(() => {
-      setGesture((g) => (g === "idle" || g === "sleep" ? "sleep" : g));
+    const t1 = setTimeout(() => {
+      setGesture((g) => (g === "idle" ? "yawn" : g));
+    }, 1200);
+    const t2 = setTimeout(() => {
+      setGesture((g) => (g === "idle" || g === "yawn" ? "sleep" : g));
     }, 2500);
-    return () => clearTimeout(t);
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+    };
   }, [isNight]);
 
   // Limpa sparks
@@ -212,7 +274,8 @@ export function MascotLive({
       })),
     ]);
     if (message) setBubble(message);
-    const dur = g === "sleep" ? 800 : g === "cheer" ? 2200 : 1500;
+    const dur =
+      g === "sleep" ? 800 : g === "cheer" || g === "dance" ? 2600 : g === "think" ? 2400 : 1500;
     setTimeout(() => {
       setGesture((cur) => (cur === g ? "idle" : cur));
     }, dur);
@@ -229,15 +292,16 @@ export function MascotLive({
       react("giggle", "Ahhh… já estou acordado! 🥱");
       return;
     }
-    const cycle = tapCount.current % 4;
+    const cycle = tapCount.current % 6;
     if (cycle === 0) react("giggle", pickPhrases[Math.floor(Math.random() * pickPhrases.length)]);
     else if (cycle === 1) react("jump");
     else if (cycle === 2)
       react("wave", pickPhrases[Math.floor(Math.random() * pickPhrases.length)]);
-    else {
+    else if (cycle === 3) {
       react("cheer");
       playCorrect();
-    }
+    } else if (cycle === 4) react("dance", "La la la! 🎵");
+    else react("love", "Tu és o melhor! 💖");
   };
 
   const variant = gesture !== "idle" ? GESTURE_VARIANTS[gesture] : null;

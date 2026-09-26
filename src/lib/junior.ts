@@ -548,6 +548,43 @@ export const GAMES: JuniorGame[] = [
     age: "4-5",
     garden: "preparacao",
   },
+  // V9 — Ronda 2
+  {
+    id: "caca-palavras",
+    title: "Caça-Palavras",
+    emoji: "🔍",
+    description: "Encontra as palavras escondidas na grelha de letras.",
+    benefits: ["Leitura", "Vocabulário"],
+    age: "4-5",
+    garden: "descobertas",
+  },
+  {
+    id: "ordena-frase",
+    title: "Ordena a Frase",
+    emoji: "✍️",
+    description: "Toca nas palavras pela ordem certa e constrói frases.",
+    benefits: ["Leitura", "Gramática"],
+    age: "4-5",
+    garden: "preparacao",
+  },
+  {
+    id: "balao-matematico",
+    title: "Balão Matemático",
+    emoji: "🎈",
+    description: "Estoura o balão com a resposta certa da conta!",
+    benefits: ["Cálculo mental", "Reflexos"],
+    age: "4-5",
+    garden: "preparacao",
+  },
+  {
+    id: "provincias-mz",
+    title: "Capitais de Moçambique",
+    emoji: "🗺️",
+    description: "Qual é a capital de cada província? Aprende factos!",
+    benefits: ["Geografia MZ", "Memória"],
+    age: "4-5",
+    garden: "descobertas",
+  },
 
   // ---- 🍼 Bebés/Toddlers (2-3) — toques grandes, narração e tutoriais
   {

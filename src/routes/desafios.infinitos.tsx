@@ -56,6 +56,13 @@ export const Route = createFileRoute("/desafios/infinitos")({
     ],
     links: [{ rel: "canonical", href: "https://kidoz.online/desafios/infinitos" }],
   }),
+  // Deep-link dos Desafios Expressos: /desafios/infinitos?t=<pista>&l=<nível>
+  validateSearch: (search: Record<string, unknown>): { t?: string; l?: number } => {
+    const out: { t?: string; l?: number } = {};
+    if (typeof search.t === "string" && search.t.length < 40) out.t = search.t;
+    if (typeof search.l === "number" && search.l >= 1 && search.l <= 999) out.l = search.l;
+    return out;
+  },
   component: InfinitePage,
   errorComponent: RouteError,
 });
@@ -78,6 +85,16 @@ function InfinitePage() {
     mePosition: number | null;
   } | null>(null);
   const [filterScope, setFilterScope] = useState<"all" | "age" | "region">("all");
+
+  // Deep-link ?t=&l= — abre diretamente nos níveis da pista partilhada
+  const deepLink = Route.useSearch();
+  useEffect(() => {
+    if (deepLink.t && TRACKS.some((t) => t.id === deepLink.t)) {
+      setTrackId(deepLink.t as TrackId);
+      if (deepLink.l) setLevel(deepLink.l);
+      setView("levels");
+    }
+  }, [deepLink.t, deepLink.l]);
 
   const submitInfiniteScoreFn = useServerFn(submitInfiniteScore);
   const getWeeklyFn = useServerFn(getInfiniteWeeklyRanking);

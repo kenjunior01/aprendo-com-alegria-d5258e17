@@ -1,4 +1,12 @@
-import { useEffect, useMemo, useState, type CSSProperties, type ReactNode } from "react";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type CSSProperties,
+  type PointerEvent as ReactPointerEvent,
+  type ReactNode,
+} from "react";
 import { createPortal } from "react-dom";
 import {
   AnimatePresence,
@@ -10,15 +18,17 @@ import {
 } from "framer-motion";
 import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
-import { Bird, Trophy, X } from "lucide-react";
+import { Bird, Brush, Eraser, MapPin, Palette, Sparkles, Trophy, X } from "lucide-react";
 import type { Profile } from "@/lib/storage";
 import { updateProfile } from "@/lib/storage";
 import { getNextMission } from "@/lib/nextMission";
 import { getMascot, MASCOTS, type MascotId } from "@/lib/mascots";
 import { haptic } from "@/lib/haptics";
 import { playCorrect, playTap, playNote, playMeow, playWrong } from "@/lib/audio";
-import { getRandomTriviaBoost, type TriviaQuestion } from "@/lib/triviaBoost";
 import { MascotLive } from "@/components/MascotLive";
+import { LightningQuiz } from "@/components/LightningQuiz";
+import { ChallengeShareSheet } from "@/components/ChallengeShareSheet";
+import type { ChallengePayload } from "@/lib/challengeShare";
 import { getRandomFact } from "@/lib/funFacts";
 import { getMozambiqueFact } from "@/lib/region";
 import { cn } from "@/lib/utils";
@@ -87,6 +97,18 @@ function getPhase(hour: number): DayPhase {
   return "night";
 }
 
+/** Linha da "professora" conforme a hora e a missão do dia. */
+function timeTeacherLine(emoji?: string, title?: string): string {
+  const h = new Date().getHours();
+  const greeting =
+    h >= 5 && h < 12
+      ? "Bom dia, turma! ☀️"
+      : h >= 12 && h < 18
+        ? "Boa tarde, turma! 😊"
+        : "Boa noite, turma! 🌆";
+  return title ? `${greeting} Hoje: ${emoji ?? "📘"} ${title}` : greeting;
+}
+
 const FLAG_COLORS = ["#ef476f", "#ffd166", "#06d6a0", "#118ab2", "#f78c6b"];
 
 const BOOKS = [
@@ -107,152 +129,24 @@ const XYLOPHONE = [
 
 type Weather = "sun" | "cloud" | "rain";
 
-// Quiz relâmpago da maçã — 5 perguntas aleatórias, +2 moedas por acerto
-function LightningQuiz({
-  profile,
-  onClose,
-}: {
-  profile: Profile;
-  onClose: (earned: number) => void;
-}) {
-  const questions = useMemo<TriviaQuestion[]>(() => getRandomTriviaBoost(5), []);
-  const [idx, setIdx] = useState(0);
-  const [picked, setPicked] = useState<number | null>(null);
-  const [correct, setCorrect] = useState(0);
-  const q = questions[idx];
-  const done = idx >= questions.length;
+// Giz do quadro desenhável
+const CHALKS = [
+  { color: "#ffffff", label: "Branco" },
+  { color: "#ffd166", label: "Amarelo" },
+  { color: "#7fd8ff", label: "Azul" },
+  { color: "#ff9eb5", label: "Rosa" },
+  { color: "#9dffb0", label: "Verde" },
+] as const;
 
-  useEffect(() => {
-    if (done && correct > 0) {
-      updateProfile({ coins: profile.coins + correct * 2 });
-    }
-  }, [done]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  const pick = (i: number) => {
-    if (picked !== null) return;
-    setPicked(i);
-    if (i === q.answerIndex) {
-      setCorrect((c) => c + 1);
-      playCorrect();
-      haptic("success");
-    } else {
-      playWrong();
-      haptic("error");
-    }
-    setTimeout(() => {
-      setIdx((v) => v + 1);
-      setPicked(null);
-    }, 1100);
-  };
-
-  // Portal seguro: no SSR/edge cases sem document.body, não renderiza
-  if (typeof document === "undefined") return null;
-
-  return createPortal(
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="pointer-events-auto fixed inset-0 z-[90] flex items-center justify-center bg-black/45 p-4"
-    >
-      <motion.div
-        initial={{ scale: 0.85, y: 24 }}
-        animate={{ scale: 1, y: 0 }}
-        exit={{ scale: 0.9, y: 12 }}
-        transition={{ type: "spring", stiffness: 240, damping: 20 }}
-        className="w-full max-w-md rounded-3xl border-4 border-amber-200 bg-card p-5 shadow-2xl"
-      >
-        <div className="flex items-center justify-between">
-          <span className="font-display text-sm font-bold text-amber-600">
-            🍎 Pergunta Relâmpago · +2 moedas por acerto
-          </span>
-          <button
-            type="button"
-            onClick={() => {
-              haptic("tap");
-              onClose(correct * 2);
-            }}
-            aria-label="Fechar pergunta relâmpago"
-            className="rounded-full bg-muted p-1.5 text-muted-foreground transition hover:bg-muted/70"
-          >
-            <X className="h-4 w-4" />
-          </button>
-        </div>
-        {!done && q ? (
-          <>
-            <div className="mt-1 flex gap-1">
-              {questions.map((_, i) => (
-                <span
-                  key={i}
-                  className={cn(
-                    "h-1.5 flex-1 rounded-full",
-                    i < idx ? "bg-success" : i === idx ? "bg-amber-400" : "bg-muted",
-                  )}
-                />
-              ))}
-            </div>
-            <p className="mt-3 font-display text-lg font-bold">{q.prompt}</p>
-            <div className="mt-3 grid gap-2">
-              {q.options.map((opt, i) => (
-                <button
-                  key={i}
-                  type="button"
-                  onClick={() => pick(i)}
-                  disabled={picked !== null}
-                  className={cn(
-                    "rounded-2xl border-2 px-4 py-2.5 text-left font-display text-sm font-semibold transition",
-                    picked === null &&
-                      "border-border bg-background hover:border-amber-300 active:scale-[0.98]",
-                    picked !== null &&
-                      i === q.answerIndex &&
-                      "border-success bg-success/15 text-success",
-                    picked !== null &&
-                      i === picked &&
-                      i !== q.answerIndex &&
-                      "border-destructive bg-destructive/10 text-destructive",
-                    picked !== null &&
-                      i !== q.answerIndex &&
-                      i !== picked &&
-                      "border-border opacity-50",
-                  )}
-                >
-                  {opt}
-                </button>
-              ))}
-            </div>
-            {q.hint && picked !== null && picked !== q.answerIndex && (
-              <p className="mt-2 text-xs text-muted-foreground">💡 {q.hint}</p>
-            )}
-          </>
-        ) : (
-          <div className="py-4 text-center">
-            <p className="font-display text-5xl">
-              {correct >= 4 ? "🏆" : correct >= 2 ? "🎉" : "🍎"}
-            </p>
-            <p className="mt-2 font-display text-2xl font-bold">{correct}/5 acertos!</p>
-            <p className="mt-1 text-sm text-muted-foreground">+{correct * 2} moedas ganhas 🪙</p>
-            <div className="mt-4 flex justify-center gap-2">
-              <button
-                type="button"
-                onClick={() => {
-                  haptic("tap");
-                  onClose(correct * 2);
-                }}
-                className="rounded-2xl bg-primary px-5 py-2.5 font-display font-bold text-primary-foreground active:scale-95"
-              >
-                Ótimo!
-              </button>
-            </div>
-          </div>
-        )}
-      </motion.div>
-    </motion.div>,
-    document.body,
-  );
+interface ChalkStroke {
+  color: string;
+  points: { x: number; y: number }[]; // % do quadro
 }
 
 interface Props {
   profile: Profile;
+  /** Avisa o pai (MascotRoom) quando o modo desenho liga/desliga. */
+  onDrawMode?: (active: boolean) => void;
 }
 
 /**
@@ -281,7 +175,7 @@ function ParallaxLayer({
   );
 }
 
-export function ClassroomScene({ profile }: Props) {
+export function ClassroomScene({ profile, onDrawMode }: Props) {
   const navigate = useNavigate();
   const [now, setNow] = useState(() => new Date());
   const [lampOn, setLampOn] = useState(false);
@@ -294,6 +188,15 @@ export function ClassroomScene({ profile }: Props) {
   const [meowHearts, setMeowHearts] = useState<{ id: number; x: number }[]>([]);
   const [activeKey, setActiveKey] = useState<number | null>(null);
   const [quizEarned, setQuizEarned] = useState(0);
+  // Quiz Relâmpago partilhável: seed estável enquanto o quiz está aberto
+  const [quizSeed, setQuizSeed] = useState(() => Math.floor(Math.random() * 2 ** 31));
+  const [quizPayload, setQuizPayload] = useState<ChallengePayload | null>(null);
+  const [shareOpen, setShareOpen] = useState(false);
+  // Quadro desenhável a giz
+  const [drawMode, setDrawMode] = useState(false);
+  const [chalkColor, setChalkColor] = useState<string>(CHALKS[0].color);
+  const [strokes, setStrokes] = useState<ChalkStroke[]>([]);
+  const drawing = useRef(false);
 
   const mascot = getMascot(profile.mascot);
   // O colega de banco é uma mascote DIFERENTE da do perfil — o amigo de turma!
@@ -427,7 +330,71 @@ export function ClassroomScene({ profile }: Props) {
   const openAppleQuiz = () => {
     haptic("tap");
     playTap();
+    setQuizSeed(Math.floor(Math.random() * 2 ** 31));
     setQuizOpen(true);
+  };
+
+  // ── Desenho a giz no quadro (transform/opacity friendly, SVG %) ──
+  const boardRect = useRef<DOMRect | null>(null);
+  const startStroke = (e: ReactPointerEvent) => {
+    if (!drawMode) return;
+    e.preventDefault();
+    const el = e.currentTarget as Element | null;
+    if (!el) return;
+    // Captura o ponteiro: os moves continuam a chegar mesmo sobre outros elementos
+    try {
+      el.setPointerCapture(e.pointerId);
+    } catch {
+      /* sem capture — funciona na mesma dentro do quadro */
+    }
+    boardRect.current = el.getBoundingClientRect();
+    const pt = chalkPoint(e.clientX, e.clientY);
+    if (!pt) return;
+    drawing.current = true;
+    setStrokes((s) => [...s.slice(-59), { color: chalkColor, points: [pt] }]);
+  };
+  const chalkPoint = (clientX: number, clientY: number) => {
+    const r = boardRect.current;
+    if (!r) return null;
+    return {
+      x: Math.max(0, Math.min(100, ((clientX - r.left) / r.width) * 100)),
+      y: Math.max(0, Math.min(100, ((clientY - r.top) / r.height) * 100)),
+    };
+  };
+  const moveStroke = (e: ReactPointerEvent) => {
+    if (!drawMode || !drawing.current) return;
+    e.preventDefault();
+    const pt = chalkPoint(e.clientX, e.clientY);
+    if (!pt) return;
+    setStrokes((s) => {
+      const last = s[s.length - 1];
+      if (!last) return s;
+      return [...s.slice(0, -1), { ...last, points: [...last.points.slice(-160), pt] }];
+    });
+  };
+  const endStroke = (e?: ReactPointerEvent) => {
+    if (e) {
+      try {
+        (e.currentTarget as Element | null)?.releasePointerCapture?.(e.pointerId);
+      } catch {
+        /* pointer já libertado */
+      }
+    }
+    drawing.current = false;
+  };
+  const toggleDrawMode = () => {
+    haptic("tap");
+    playTap();
+    setDrawMode((v) => !v);
+  };
+
+  // Notifica o pai (MascotRoom) para esbater a mascote central durante o desenho
+  useEffect(() => {
+    onDrawMode?.(drawMode);
+  }, [drawMode]); // eslint-disable-line react-hooks/exhaustive-deps
+  const clearBoard = () => {
+    haptic("tap");
+    setStrokes([]);
   };
 
   return (
@@ -649,18 +616,27 @@ export function ClassroomScene({ profile }: Props) {
         </div>
       </ParallaxLayer>
 
-      {/* ═══ Quadro interativo ═══ */}
+      {/* ═══ Quadro interativo (z-30 no modo desenho para ficar acima da mascote) ═══ */}
       <ParallaxLayer
         depth={6}
         sx={psx}
         sy={psy}
-        className="absolute left-[56%] top-[11%] h-[33%] max-h-[300px] min-h-[150px] w-[44%] min-w-[220px] max-w-[540px] -translate-x-1/2 md:left-1/2 md:w-[46%]"
+        className={cn(
+          "absolute left-[56%] top-[11%] h-[33%] max-h-[300px] min-h-[150px] w-[44%] min-w-[220px] max-w-[540px] -translate-x-1/2 md:left-1/2 md:w-[46%]",
+          drawMode && "z-30",
+        )}
       >
         <button
           type="button"
-          onClick={openNextMission}
+          onClick={() => {
+            if (!drawMode) openNextMission();
+          }}
           aria-label={
-            next ? `Abrir a missão de hoje: ${next.mission.title}` : "Ver o caminho de aprendizagem"
+            drawMode
+              ? "Modo desenho ativo — desenha no quadro!"
+              : next
+                ? `Abrir a missão de hoje: ${next.mission.title}`
+                : "Ver o caminho de aprendizagem"
           }
           className="group pointer-events-auto block h-full w-full"
         >
@@ -738,6 +714,39 @@ export function ClassroomScene({ profile }: Props) {
               >
                 🔥 {profile.streak} {profile.streak === 1 ? "dia" : "dias"} · ⭐ {profile.xp} XP
               </p>
+
+              {/* Superfície de desenho a giz (desativa o clique da missão) */}
+              {drawMode && (
+                <div
+                  className="pointer-events-auto absolute inset-0 touch-none"
+                  style={{ cursor: "crosshair" }}
+                  onPointerDown={(e) => {
+                    e.stopPropagation();
+                    startStroke(e);
+                  }}
+                  onPointerMove={moveStroke}
+                  onPointerUp={endStroke}
+                  onPointerLeave={(e) => endStroke(e)}
+                  onPointerCancel={(e) => endStroke(e)}
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="h-full w-full">
+                    {strokes.map((s, i) => (
+                      <polyline
+                        key={i}
+                        points={s.points.map((p) => `${p.x},${p.y}`).join(" ")}
+                        fill="none"
+                        stroke={s.color}
+                        strokeWidth={2.5}
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        vectorEffect="non-scaling-stroke"
+                        opacity={0.92}
+                      />
+                    ))}
+                  </svg>
+                </div>
+              )}
             </div>
           </div>
           {/* Tabuleiro do giz */}
@@ -747,6 +756,67 @@ export function ClassroomScene({ profile }: Props) {
             <span className="absolute bottom-0.5 right-[14%] h-2.5 w-9 rounded-sm bg-slate-700/90" />
           </div>
         </button>
+
+        {/* Botão de desenhar (giz mágico) */}
+        <motion.button
+          type="button"
+          onClick={toggleDrawMode}
+          whileTap={{ scale: 0.85 }}
+          animate={drawMode ? { scale: [1, 1.12, 1] } : {}}
+          transition={drawMode ? { duration: 0.6, repeat: Infinity } : undefined}
+          aria-label={drawMode ? "Sair do modo desenho" : "Desenhar no quadro com giz"}
+          aria-pressed={drawMode}
+          className={cn(
+            "pointer-events-auto absolute -right-2 -top-3 z-10 flex h-8 w-8 items-center justify-center rounded-full border-2 shadow-lg transition-colors sm:h-9 sm:w-9",
+            drawMode
+              ? "border-amber-200 bg-amber-400 text-amber-950"
+              : "border-white bg-white/95 text-slate-700",
+          )}
+        >
+          {drawMode ? <Brush className="h-4 w-4" /> : <Palette className="h-4 w-4" />}
+        </motion.button>
+
+        {/* Barra de giz (cores + apagador) */}
+        <AnimatePresence>
+          {drawMode && (
+            <motion.div
+              initial={{ opacity: 0, y: 8, scale: 0.9 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 8, scale: 0.9 }}
+              transition={{ type: "spring", stiffness: 320, damping: 22 }}
+              className="pointer-events-auto absolute -top-9 left-1/2 flex -translate-x-1/2 items-center gap-1.5 rounded-full border border-white/60 bg-white/90 px-2.5 py-1.5 shadow-xl backdrop-blur-sm"
+            >
+              {CHALKS.map((c) => (
+                <button
+                  key={c.color}
+                  type="button"
+                  onClick={() => {
+                    haptic("tap");
+                    setChalkColor(c.color);
+                  }}
+                  aria-label={`Giz ${c.label}`}
+                  aria-pressed={chalkColor === c.color}
+                  className={cn(
+                    "h-5 w-5 rounded-full border-2 transition-transform",
+                    chalkColor === c.color
+                      ? "scale-125 border-slate-800"
+                      : "border-white hover:scale-110",
+                  )}
+                  style={{ backgroundColor: c.color }}
+                />
+              ))}
+              <span className="mx-0.5 h-4 w-px bg-slate-300" />
+              <button
+                type="button"
+                onClick={clearBoard}
+                aria-label="Apagar tudo"
+                className="flex items-center gap-1 rounded-full bg-slate-100 px-2 py-1 font-display text-[10px] font-bold text-slate-700 transition hover:bg-slate-200"
+              >
+                <Eraser className="h-3 w-3" /> Apagar
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </ParallaxLayer>
 
       {/* ═══ Cartazes (sm+) ═══ */}
@@ -870,6 +940,24 @@ export function ClassroomScene({ profile }: Props) {
         </span>
       </ParallaxLayer>
 
+      {/* ═══ Borboletas da sala (só de dia) ═══ */}
+      {!p.isNight && (
+        <>
+          <span
+            className="scene-butterfly-a pointer-events-none absolute left-0 top-[34%] text-lg"
+            aria-hidden
+          >
+            🦋
+          </span>
+          <span
+            className="scene-butterfly-b pointer-events-none absolute left-0 top-[52%] text-base opacity-80"
+            aria-hidden
+          >
+            🦋
+          </span>
+        </>
+      )}
+
       {/* ═══ Partículas de poeira mágica ═══ */}
       {[
         { l: "12%", b: "30%", d: "0s" },
@@ -982,6 +1070,64 @@ export function ClassroomScene({ profile }: Props) {
         <div className="mt-0 h-1 w-full rounded bg-amber-800/80" />
       </ParallaxLayer>
 
+      {/* ═══ Mapa de Moçambique na parede (sm+) — toca para um facto! ═══ */}
+      <ParallaxLayer
+        depth={10}
+        sx={psx}
+        sy={psy}
+        className="absolute left-[3%] top-[47%] hidden w-[9%] min-w-[64px] max-w-[92px] md:block"
+      >
+        <motion.button
+          type="button"
+          whileTap={{ scale: 0.9, rotate: -2 }}
+          onClick={() => {
+            haptic("tap");
+            playCorrect();
+            toast(getMozambiqueFact(), { icon: "🇲🇿", duration: 5000 });
+          }}
+          aria-label="Mapa de Moçambique — toca para descobrir um facto"
+          className="pointer-events-auto block w-full rounded-md border-4 border-white bg-[#ffe9b8] p-1 shadow-lg"
+        >
+          {/* Mapa estilizado (forma vertical simplificada) */}
+          <span className="relative block h-14 w-full sm:h-16">
+            <span
+              className="absolute inset-0 rounded-[40%_10%_45%_15%] bg-[#3fa66a]"
+              style={{
+                clipPath:
+                  "polygon(30% 0, 75% 8%, 92% 38%, 78% 72%, 85% 100%, 40% 92%, 12% 62%, 0 30%, 15% 6%)",
+              }}
+            />
+            <span className="absolute left-[38%] top-[30%] h-px w-[46%] rotate-[18deg] bg-white/70" />
+            <span className="absolute left-[30%] top-[55%] h-px w-[52%] -rotate-[10deg] bg-white/70" />
+            <span className="absolute right-[8%] top-[48%] h-2.5 w-2.5 rounded-full bg-[#f4c542]" />
+          </span>
+          <span className="mt-0.5 flex items-center justify-center gap-1 font-display text-[9px] font-black text-emerald-900">
+            <MapPin className="h-2.5 w-2.5" /> MOÇAMBIQUE
+          </span>
+        </motion.button>
+      </ParallaxLayer>
+
+      {/* ═══ Professor vivo (a mascote do perfil dá a aula!) ═══ */}
+      <ParallaxLayer
+        depth={7}
+        sx={psx}
+        sy={psy}
+        className="absolute bottom-[24%] left-[33%] sm:left-[36%]"
+      >
+        <MascotLive
+          mascotId={profile.mascot}
+          size="sm"
+          isNight={p.isNight}
+          phrases={[
+            timeTeacherLine(next?.mission.emoji, next?.mission.title),
+            "Quem sabe a resposta? ✋",
+            "Muito bem, turma!",
+            "Recesso depois do quadro!",
+            `A aula do ${profile.name} está a começar!`,
+          ]}
+        />
+      </ParallaxLayer>
+
       {/* ═══ Colega de banco (mascote VIVA — acena, dorme à noite, reage a toques) ═══ */}
       <ParallaxLayer
         depth={7}
@@ -1022,20 +1168,40 @@ export function ClassroomScene({ profile }: Props) {
         style={{ opacity: p.isNight && !lampOn ? 1 : 0 }}
       />
 
-      {/* ═══ Pergunta Relâmpago (maçã) ═══ */}
+      {/* ═══ Pergunta Relâmpago (maçã) — agora partilhável por WhatsApp! ═══ */}
       <AnimatePresence>
         {quizOpen && (
           <LightningQuiz
-            profile={profile}
+            seed={quizSeed}
             onClose={(earned) => {
               setQuizOpen(false);
               setQuizEarned(earned);
-              if (earned > 0) toast(`+${earned} moedas da maçã!`, { icon: "🪙", duration: 3000 });
+              if (earned > 0) {
+                updateProfile({ coins: profile.coins + earned });
+                toast(`+${earned} moedas da maçã!`, { icon: "🪙", duration: 3000 });
+              }
               setTimeout(() => setQuizEarned(0), 3000);
+            }}
+            onChallenge={(correct) => {
+              // Desafio Expresso: mesmo seed → o amigo recebe AS MESMAS perguntas
+              setQuizPayload({
+                k: "quiz",
+                z: quizSeed,
+                c: correct,
+                n: profile.name,
+                m: profile.mascot,
+              });
+              setShareOpen(true);
             }}
           />
         )}
       </AnimatePresence>
+      <ChallengeShareSheet
+        open={shareOpen}
+        onClose={() => setShareOpen(false)}
+        payload={quizPayload}
+        title="Quiz Relâmpago: 5 perguntas iguais — quem acerta mais?"
+      />
       {quizEarned > 0 && (
         <motion.span
           initial={{ opacity: 0, y: 0, scale: 0.6 }}

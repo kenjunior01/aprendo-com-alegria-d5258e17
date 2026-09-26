@@ -85,6 +85,8 @@ export function MascotRoom({ profile }: Props) {
   const [room, setRoom] = useState<RoomType>("classroom");
   const [mood, setMood] = useState<MascotMood>("neutral");
   const [bubble, setBubble] = useState<string | null>(null);
+  // Quadro desenhável ativo? → esbate a mascote central para o giz ficar visível
+  const [boardDrawMode, setBoardDrawMode] = useState(false);
   const [selectedGame, setSelectedGame] = useState<string | null>(null);
   const [photoMode, setPhotoMode] = useState(false);
   const [albumOpen, setAlbumOpen] = useState(false);
@@ -365,7 +367,9 @@ export function MascotRoom({ profile }: Props) {
           transition={{ duration: 0.5 }}
           className="pointer-events-none absolute inset-0 z-0"
         >
-          {room === "classroom" && <ClassroomScene profile={profile} />}
+          {room === "classroom" && (
+            <ClassroomScene profile={profile} onDrawMode={setBoardDrawMode} />
+          )}
 
           {room === "kitchen" && (
             <>
@@ -775,8 +779,9 @@ export function MascotRoom({ profile }: Props) {
                 tabIndex={0}
                 aria-label="Interagir com mascote"
                 className={cn(
-                  "pointer-events-auto relative cursor-pointer transition-transform active:scale-95",
+                  "pointer-events-auto relative cursor-pointer transition-all duration-300 active:scale-95",
                   room === "classroom" ? "scale-95 md:scale-110" : "scale-110 md:scale-125",
+                  boardDrawMode && "pointer-events-none opacity-20",
                 )}
               >
                 {growth.stage === "mestre" && (

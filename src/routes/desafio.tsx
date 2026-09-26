@@ -1,12 +1,15 @@
 // /desafio — página de destino dos Desafios Expressos partilhados por link
 // (WhatsApp etc.). Funciona SEM conta: decodifica o payload do URL e
-// lança a lição/desafio infinito direto. 100% client-side.
+// lança a lição/desafio infinito direto — ou o Quiz Relâmpago inline.
+// 100% client-side.
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { ArrowRight, Home, Swords, Star, Target } from "lucide-react";
+import { ArrowRight, Home, Swords, Star, Target, Zap } from "lucide-react";
 import { ChunkyButton } from "@/components/ChunkyButton";
 import { MascotIcon } from "@/components/MascotIcon";
+import { LightningQuiz } from "@/components/LightningQuiz";
+import { ChallengeShareSheet } from "@/components/ChallengeShareSheet";
 import { RouteError } from "@/components/RouteError";
 import { decodeChallenge, cleanName, type ChallengePayload } from "@/lib/challengeShare";
 import { getLesson, getSubject } from "@/lib/curriculum";
@@ -45,6 +48,9 @@ function DesafioLanding() {
   const { p } = Route.useSearch();
   const navigate = useNavigate();
   const payload = useMemo<ChallengePayload | null>(() => (p ? decodeChallenge(p) : null), [p]);
+  const [quizPlaying, setQuizPlaying] = useState(false);
+  const [rematch, setRematch] = useState<ChallengePayload | null>(null);
+  const [rematchOpen, setRematchOpen] = useState(false);
 
   const info = useMemo(() => {
     if (!payload) return null;
@@ -56,6 +62,15 @@ function DesafioLanding() {
         title: lesson ? lesson.title : "Lição mistério",
         subtitle: subject?.name ?? "Desafio de lição",
         beat: payload.c !== undefined ? `${payload.c}%` : null,
+        beatLabel: "Pontuação a bater",
+      };
+    }
+    if (payload.k === "quiz") {
+      return {
+        emoji: "⚡",
+        title: "Quiz Relâmpago",
+        subtitle: "5 perguntas IGUAIS para os dois — quem acerta mais?",
+        beat: payload.c !== undefined ? `${payload.c}/5` : null,
         beatLabel: "Pontuação a bater",
       };
     }
@@ -80,9 +95,16 @@ function DesafioLanding() {
         params: { subjectId: payload.s, lessonId: payload.l },
         search: {},
       });
+    } else if (payload.k === "quiz") {
+      speak("Desafio aceite! Boa sorte!", { pitch: 1.2 });
+      setQuizPlaying(true);
     } else {
       speak("Desafio aceite! Boa sorte!", { pitch: 1.2 });
-      void navigate({ to: "/desafios/infinitos" });
+      // Deep-link: pré-seleciona a pista e o nível nos Desafios Infinitos
+      void navigate({
+        to: "/desafios/infinitos",
+        search: { t: payload.t, l: payload.l },
+      });
     }
   };
 
@@ -116,6 +138,41 @@ function DesafioLanding() {
   }
 
   const challenger = cleanName(payload.n);
+
+  // ─── Quiz Relâmpago inline (5 perguntas iguais, mesmo seed) ───
+  if (quizPlaying && payload?.k === "quiz") {
+    return (
+      <main className="bg-sky-island flex min-h-[100dvh] flex-col items-center justify-center px-4 py-8">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.92 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="flex w-full max-w-md items-center justify-center"
+        >
+          <LightningQuiz
+            seed={payload.z}
+            scoreToBeat={payload.c}
+            challengerName={challenger}
+            coinsPerCorrect={0}
+            onClose={() => {
+              setQuizPlaying(false);
+              void navigate({ to: "/" });
+            }}
+            onChallenge={(correct) => {
+              // Revanche: MESMO seed → mesmas perguntas para os dois!
+              setRematch({ k: "quiz", z: payload.z, c: correct, n: "O teu rival" });
+              setRematchOpen(true);
+            }}
+          />
+        </motion.div>
+        <ChallengeShareSheet
+          open={rematchOpen}
+          onClose={() => setRematchOpen(false)}
+          payload={rematch}
+          title="Revanche: 5 perguntas iguais — quem acerta mais?"
+        />
+      </main>
+    );
+  }
 
   return (
     <main className="bg-sky-island relative flex min-h-[100dvh] flex-col items-center justify-center overflow-hidden px-5 py-10">
@@ -173,6 +230,8 @@ function DesafioLanding() {
             >
               {payload.k === "infinite" ? (
                 <Star className="h-5 w-5 fill-current" />
+              ) : payload.k === "quiz" ? (
+                <Zap className="h-5 w-5" />
               ) : (
                 <Target className="h-5 w-5" />
               )}
@@ -189,11 +248,14 @@ function DesafioLanding() {
           className="mt-6 flex flex-col gap-3"
         >
           <ChunkyButton tone="success" onClick={accept} className="w-full text-xl">
-            Aceitar desafio <ArrowRight className="ml-2 inline h-6 w-6" />
+            {payload.k === "quiz" ? "Jogar quiz agora" : "Aceitar desafio"}{" "}
+            <ArrowRight className="ml-2 inline h-6 w-6" />
           </ChunkyButton>
           <p className="text-xs text-muted-foreground">
-            Grátis, sem conta. Joga e bate{" "}
-            {payload.k === "infinite" ? "as estrelas" : "a pontuação"} do {challenger}!
+            Grátis, sem conta.{" "}
+            {payload.k === "quiz"
+              ? `Recebes as mesmas 5 perguntas do ${challenger}!`
+              : `Joga e bate ${payload.k === "infinite" ? "as estrelas" : "a pontuação"} do ${challenger}!`}
           </p>
           <Link to="/" className="mt-2 text-sm font-semibold text-primary hover:underline">
             <Home className="mr-1 inline h-4 w-4" /> Conhecer a Kidoz

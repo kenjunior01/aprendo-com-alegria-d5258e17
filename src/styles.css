@@ -1019,6 +1019,27 @@ iframe[src*="lovable.dev/badge"] {
 }
 .scene-zzz { animation: scene-zzz 2.6s ease-out infinite; }
 
+/* Borboletas da sala — voo em curva suave (transform/opacity p/ APK) */
+@keyframes scene-butterfly-a {
+  0% { transform: translate(0, 0) rotate(6deg); opacity: 0; }
+  8% { opacity: 0.95; }
+  30% { transform: translate(18vw, -5vh) rotate(-10deg); }
+  55% { transform: translate(36vw, 4vh) rotate(8deg); }
+  80% { transform: translate(58vw, -6vh) rotate(-6deg); }
+  92% { opacity: 0.9; }
+  100% { transform: translate(78vw, 2vh) rotate(4deg); opacity: 0; }
+}
+@keyframes scene-butterfly-b {
+  0% { transform: translate(0, 0) rotate(-8deg) scaleX(1); opacity: 0; }
+  10% { opacity: 0.8; }
+  35% { transform: translate(-14vw, -4vh) rotate(10deg) scaleX(1); }
+  60% { transform: translate(-32vw, 5vh) rotate(-6deg) scaleX(1); }
+  88% { opacity: 0.75; }
+  100% { transform: translate(-52vw, -2vh) rotate(6deg) scaleX(1); opacity: 0; }
+}
+.scene-butterfly-a { animation: scene-butterfly-a 26s linear infinite; }
+.scene-butterfly-b { animation: scene-butterfly-b 34s linear infinite; animation-delay: -12s; }
+
 /* ─── Route FX — transições de navegação (apenas transform/opacity, p/ APK) ─── */
 /* ⚠️ Apenas opacity: transform em #main-content criaria um containing block
    que quebra os filhos position:fixed (BottomNav, barras de resposta). */
