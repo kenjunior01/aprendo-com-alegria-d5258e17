@@ -297,6 +297,7 @@ function LessonPage() {
         durationSeconds={durationSeconds}
         bonusXp={bonusXp}
         maxCombo={maxCombo}
+        shareInfo={{ subjectId: subjectId, lessonId: lessonId }}
         onContinue={() => navigate({ to: "/app" })}
         onRetry={() => window.location.reload()}
         nextLesson={null}

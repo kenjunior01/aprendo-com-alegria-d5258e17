@@ -29,6 +29,7 @@ import {
   MapPin,
   Zap,
   Flame,
+  MessageCircle,
 } from "lucide-react";
 import { loadProfile, pullProfileFromCloud, type Profile } from "@/lib/storage";
 import { supabase } from "@/integrations/supabase/client";
@@ -46,6 +47,9 @@ import {
 } from "@/lib/challenges.functions";
 import { toast } from "sonner";
 import { LigasPanel } from "@/components/LigasPanel";
+import { ChallengeShareSheet } from "@/components/ChallengeShareSheet";
+import type { ChallengePayload } from "@/lib/challengeShare";
+import { haptic } from "@/lib/haptics";
 import { cn } from "@/lib/utils";
 import { RouteError } from "@/components/RouteError";
 import { KidLoader } from "@/components/KidLoader";
@@ -77,6 +81,9 @@ function DesafiosPage() {
   });
   const [friends, setFriends] = useState<Awaited<ReturnType<typeof listFriends>>["friends"]>([]);
   const [loading, setLoading] = useState(true);
+  const [expressOpen, setExpressOpen] = useState(false);
+  const [sharePayload, setSharePayload] = useState<ChallengePayload | null>(null);
+  const [shareTitle, setShareTitle] = useState<string | undefined>(undefined);
 
   const fnList = useServerFn(listMyChallenges);
   const fnAi = useServerFn(getOrCreateDailyAiChallenge);
@@ -209,6 +216,38 @@ function DesafiosPage() {
             <Zap className="h-5 w-5 fill-current" />
           </div>
         </Link>
+
+        {/* Desafio Expresso via WhatsApp */}
+        <motion.section
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="group relative mb-8 flex items-center gap-4 overflow-hidden rounded-3xl border-2 border-[#25D366]/60 bg-gradient-to-r from-[#25D366]/10 via-white to-white p-4 transition-all hover:scale-[1.01] active:scale-[0.99]"
+        >
+          <div className="pointer-events-none absolute -right-6 -top-6 text-[7rem] opacity-10 select-none">
+            💬
+          </div>
+          <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-[#25D366] text-white shadow-lg">
+            <MessageCircle className="h-8 w-8" />
+          </div>
+          <div className="flex-1">
+            <h2 className="font-display text-xl font-bold leading-tight text-slate-900">
+              Desafio Expresso por WhatsApp
+            </h2>
+            <p className="text-sm text-slate-600">
+              Escolhe uma lição e envia o link a um amigo — ele joga na hora, sem conta!
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => {
+              haptic("tap");
+              setExpressOpen(true);
+            }}
+            className="shrink-0 rounded-2xl bg-[#25D366] px-4 py-3 font-display text-sm font-black text-white shadow-md transition active:scale-95"
+          >
+            CRIAR ⚡
+          </button>
+        </motion.section>
 
         {!myUserId && !loading && (
           <motion.div
@@ -478,6 +517,28 @@ function DesafiosPage() {
           </AnimatePresence>
         </Tabs>
       </main>
+
+      {/* Diálogo de criação de Desafio Expresso */}
+      <ExpressChallengeDialog
+        open={expressOpen}
+        onOpenChange={setExpressOpen}
+        profileName={profile.name}
+        myGrade={profile.grade}
+        onReady={(payload, title) => {
+          setSharePayload(payload);
+          setShareTitle(title);
+          setExpressOpen(false);
+        }}
+      />
+
+      {/* Sheet de partilha (WhatsApp/copiar/nativo) */}
+      <ChallengeShareSheet
+        open={!!sharePayload}
+        onClose={() => setSharePayload(null)}
+        payload={sharePayload}
+        title={shareTitle}
+      />
+
       <BottomNav />
     </div>
   );
@@ -970,5 +1031,124 @@ function Section({
         })}
       </div>
     </div>
+  );
+}
+
+/**
+ * Desafio Expresso — cria um desafio por link (sem backend):
+ * escolhe matéria + lição → gera payload → abre o sheet de partilha.
+ */
+function ExpressChallengeDialog({
+  open,
+  onOpenChange,
+  profileName,
+  myGrade,
+  onReady,
+}: {
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+  profileName: string;
+  myGrade: number;
+  onReady: (payload: ChallengePayload, title: string) => void;
+}) {
+  const [subjectId, setSubjectId] = useState<string>("matematica");
+  const subject = useMemo(() => getSubject(subjectId), [subjectId]);
+  const lessons = useMemo(
+    () =>
+      subject?.lessons.filter((l) => l.grade === myGrade).length
+        ? subject.lessons.filter((l) => l.grade === myGrade)
+        : (subject?.lessons ?? []),
+    [subject, myGrade],
+  );
+  const [lessonId, setLessonId] = useState<string>(lessons[0]?.id ?? "");
+
+  useEffect(() => {
+    setLessonId(lessons[0]?.id ?? "");
+  }, [lessons]);
+
+  const lesson = lessons.find((l) => l.id === lessonId) ?? lessons[0];
+
+  const create = () => {
+    if (!lesson || !subject) return;
+    haptic("success");
+    const payload: ChallengePayload = {
+      k: "lesson",
+      s: subject.id,
+      l: lesson.id,
+      n: profileName,
+    };
+    onReady(payload, `${subject.emoji} ${lesson.title} (${subject.name})`);
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-[28rem] rounded-[2rem]">
+        <DialogHeader>
+          <DialogTitle className="font-display text-2xl">⚡ Desafio Expresso</DialogTitle>
+          <DialogDescription className="text-sm text-muted-foreground">
+            Gera um link de desafio e envia pelo WhatsApp. O teu amigo joga sem criar conta!
+          </DialogDescription>
+        </DialogHeader>
+        <div className="space-y-6 pt-2">
+          <div>
+            <label className="mb-3 block text-xs font-black uppercase tracking-widest text-slate-500">
+              Escolhe a Disciplina
+            </label>
+            <div className="grid grid-cols-3 gap-2">
+              {SUBJECTS.map((s) => (
+                <button
+                  key={s.id}
+                  type="button"
+                  onClick={() => {
+                    haptic("tap");
+                    setSubjectId(s.id);
+                  }}
+                  className={cn(
+                    "flex flex-col items-center gap-1 rounded-2xl border-2 p-3 transition-all",
+                    subjectId === s.id
+                      ? "border-emerald-500 bg-emerald-50 shadow-md scale-[1.05]"
+                      : "border-slate-100 bg-slate-50 hover:bg-white",
+                  )}
+                >
+                  <div className="text-3xl">{s.emoji}</div>
+                  <div className="font-display text-[10px] font-bold uppercase tracking-tight text-slate-800">
+                    {s.name}
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+          <div>
+            <label className="mb-2 block text-xs font-black uppercase tracking-widest text-slate-500">
+              Qual a Lição?
+            </label>
+            <select
+              value={lessonId}
+              onChange={(e) => setLessonId(e.target.value)}
+              className="w-full rounded-2xl border-2 border-slate-100 bg-slate-50 px-4 py-3 text-sm font-bold outline-none focus:border-emerald-500 focus:bg-white"
+            >
+              {lessons.map((l) => (
+                <option key={l.id} value={l.id}>
+                  {l.emoji} {l.title} ({l.grade}.º ano)
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+        <DialogFooter className="pt-4">
+          <Button variant="ghost" onClick={() => onOpenChange(false)} className="rounded-xl">
+            Voltar
+          </Button>
+          <Button
+            disabled={!lessonId}
+            className="h-12 rounded-xl bg-[#25D366] px-8 font-black shadow-lg hover:bg-[#1fb857]"
+            onClick={create}
+          >
+            <MessageCircle className="mr-1.5 h-4 w-4" />
+            GERAR LINK ⚡
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }

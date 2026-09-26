@@ -121,6 +121,21 @@ export function playLevelUp() {
   tone(1046.5, 0.32, "triangle", 0.26, 0.24);
 }
 
+/** Nota solta (xilofone da sala, gato, etc.) — respeita o mudo. */
+export function playNote(freq: number, duration = 0.55, vol = 0.24) {
+  if (muted) return;
+  tone(freq, duration, "triangle", vol, 0);
+  // brilho harmónico leve por cima
+  tone(freq * 2, duration * 0.6, "sine", vol * 0.35, 0);
+}
+
+/** Miado sintético do gato da sala (dois tons deslizantes). */
+export function playMeow() {
+  if (muted) return;
+  tone(760, 0.16, "sine", 0.2, 0);
+  tone(560, 0.22, "sine", 0.18, 0.14);
+}
+
 // ===== Web Speech (TTS) =====
 
 let voicesLoaded = false;

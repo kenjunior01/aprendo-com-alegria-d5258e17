@@ -17,6 +17,8 @@ import {
 import { getMascot, type MascotId } from "@/lib/mascots";
 import { type Achievement } from "@/lib/achievements";
 import { haptic } from "@/lib/haptics";
+import { loadProfile } from "@/lib/storage";
+import { shareChallenge } from "@/lib/challengeShare";
 import {
   Check,
   Coins,
@@ -28,6 +30,7 @@ import {
   Star,
   Clock,
   Target,
+  MessageCircle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -62,6 +65,8 @@ interface LessonCompleteScreenProps {
   nextLesson?: { subjectId: string; lessonId: string } | null;
   /** Chapter name for context */
   chapterName?: string;
+  /** Info para "Desafiar amigo" (lição atual) */
+  shareInfo?: { subjectId: string; lessonId: string } | null;
 }
 
 export function LessonCompleteScreen({
@@ -80,6 +85,7 @@ export function LessonCompleteScreen({
   onRetry,
   nextLesson,
   chapterName,
+  shareInfo,
 }: LessonCompleteScreenProps) {
   const mascot = getMascot(mascotId);
   const accuracy = total > 0 ? Math.round((correct / total) * 100) : 0;
@@ -87,6 +93,11 @@ export function LessonCompleteScreen({
   const [showAchievements, setShowAchievements] = useState(false);
   const [showConfetti, setShowConfetti] = useState(true);
   const [showFloatingReward, setShowFloatingReward] = useState(true);
+
+  const childName = useMemo(() => {
+    if (typeof window === "undefined") return "Um campeão";
+    return loadProfile()?.name || "Um campeão";
+  }, []);
 
   // Staggered reveal: stats after 1s, achievements after 2s
   useEffect(() => {
@@ -392,6 +403,27 @@ export function LessonCompleteScreen({
               Repetir
             </ChunkyButton>
           </div>
+
+          {/* Desafiar um amigo (WhatsApp) — a pontuação viaja no link! */}
+          {shareInfo && (
+            <button
+              type="button"
+              onClick={() => {
+                haptic("tap");
+                void shareChallenge({
+                  k: "lesson",
+                  s: shareInfo.subjectId,
+                  l: shareInfo.lessonId,
+                  n: childName,
+                  c: accuracy,
+                });
+              }}
+              className="flex w-full items-center justify-center gap-2 rounded-2xl bg-[#25D366] py-3 font-display text-base font-bold text-white shadow-md transition active:scale-[0.98]"
+            >
+              <MessageCircle className="h-5 w-5" />
+              Desafiar um amigo no WhatsApp ({accuracy}%)
+            </button>
+          )}
         </motion.div>
       </div>
     </main>

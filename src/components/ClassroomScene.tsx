@@ -1,13 +1,24 @@
 import { useEffect, useMemo, useState, type CSSProperties, type ReactNode } from "react";
-import { motion, useMotionValue, useSpring, useTransform, type MotionValue } from "framer-motion";
+import { createPortal } from "react-dom";
+import {
+  AnimatePresence,
+  motion,
+  useMotionValue,
+  useSpring,
+  useTransform,
+  type MotionValue,
+} from "framer-motion";
 import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
-import { Bird, Trophy } from "lucide-react";
+import { Bird, Trophy, X } from "lucide-react";
 import type { Profile } from "@/lib/storage";
+import { updateProfile } from "@/lib/storage";
 import { getNextMission } from "@/lib/nextMission";
-import { getMascot } from "@/lib/mascots";
+import { getMascot, MASCOTS, type MascotId } from "@/lib/mascots";
 import { haptic } from "@/lib/haptics";
-import { playCorrect, playTap } from "@/lib/audio";
+import { playCorrect, playTap, playNote, playMeow, playWrong } from "@/lib/audio";
+import { getRandomTriviaBoost, type TriviaQuestion } from "@/lib/triviaBoost";
+import { MascotLive } from "@/components/MascotLive";
 import { getRandomFact } from "@/lib/funFacts";
 import { getMozambiqueFact } from "@/lib/region";
 import { cn } from "@/lib/utils";
@@ -85,6 +96,161 @@ const BOOKS = [
   { to: "/leitura", label: "Leitura", short: "L", color: "#f0b429" },
 ] as const;
 
+// Xilofone da sala: 5 teclas afinadas (C5 D5 E5 G5 A5)
+const XYLOPHONE = [
+  { note: 523.25, color: "#ef476f", label: "dó" },
+  { note: 587.33, color: "#f78c6b", label: "ré" },
+  { note: 659.25, color: "#ffd166", label: "mi" },
+  { note: 783.99, color: "#06d6a0", label: "sol" },
+  { note: 880.0, color: "#118ab2", label: "lá" },
+];
+
+type Weather = "sun" | "cloud" | "rain";
+
+// Quiz relâmpago da maçã — 5 perguntas aleatórias, +2 moedas por acerto
+function LightningQuiz({
+  profile,
+  onClose,
+}: {
+  profile: Profile;
+  onClose: (earned: number) => void;
+}) {
+  const questions = useMemo<TriviaQuestion[]>(() => getRandomTriviaBoost(5), []);
+  const [idx, setIdx] = useState(0);
+  const [picked, setPicked] = useState<number | null>(null);
+  const [correct, setCorrect] = useState(0);
+  const q = questions[idx];
+  const done = idx >= questions.length;
+
+  useEffect(() => {
+    if (done && correct > 0) {
+      updateProfile({ coins: profile.coins + correct * 2 });
+    }
+  }, [done]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const pick = (i: number) => {
+    if (picked !== null) return;
+    setPicked(i);
+    if (i === q.answerIndex) {
+      setCorrect((c) => c + 1);
+      playCorrect();
+      haptic("success");
+    } else {
+      playWrong();
+      haptic("error");
+    }
+    setTimeout(() => {
+      setIdx((v) => v + 1);
+      setPicked(null);
+    }, 1100);
+  };
+
+  // Portal seguro: no SSR/edge cases sem document.body, não renderiza
+  if (typeof document === "undefined") return null;
+
+  return createPortal(
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="pointer-events-auto fixed inset-0 z-[90] flex items-center justify-center bg-black/45 p-4"
+    >
+      <motion.div
+        initial={{ scale: 0.85, y: 24 }}
+        animate={{ scale: 1, y: 0 }}
+        exit={{ scale: 0.9, y: 12 }}
+        transition={{ type: "spring", stiffness: 240, damping: 20 }}
+        className="w-full max-w-md rounded-3xl border-4 border-amber-200 bg-card p-5 shadow-2xl"
+      >
+        <div className="flex items-center justify-between">
+          <span className="font-display text-sm font-bold text-amber-600">
+            🍎 Pergunta Relâmpago · +2 moedas por acerto
+          </span>
+          <button
+            type="button"
+            onClick={() => {
+              haptic("tap");
+              onClose(correct * 2);
+            }}
+            aria-label="Fechar pergunta relâmpago"
+            className="rounded-full bg-muted p-1.5 text-muted-foreground transition hover:bg-muted/70"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+        {!done && q ? (
+          <>
+            <div className="mt-1 flex gap-1">
+              {questions.map((_, i) => (
+                <span
+                  key={i}
+                  className={cn(
+                    "h-1.5 flex-1 rounded-full",
+                    i < idx ? "bg-success" : i === idx ? "bg-amber-400" : "bg-muted",
+                  )}
+                />
+              ))}
+            </div>
+            <p className="mt-3 font-display text-lg font-bold">{q.prompt}</p>
+            <div className="mt-3 grid gap-2">
+              {q.options.map((opt, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  onClick={() => pick(i)}
+                  disabled={picked !== null}
+                  className={cn(
+                    "rounded-2xl border-2 px-4 py-2.5 text-left font-display text-sm font-semibold transition",
+                    picked === null &&
+                      "border-border bg-background hover:border-amber-300 active:scale-[0.98]",
+                    picked !== null &&
+                      i === q.answerIndex &&
+                      "border-success bg-success/15 text-success",
+                    picked !== null &&
+                      i === picked &&
+                      i !== q.answerIndex &&
+                      "border-destructive bg-destructive/10 text-destructive",
+                    picked !== null &&
+                      i !== q.answerIndex &&
+                      i !== picked &&
+                      "border-border opacity-50",
+                  )}
+                >
+                  {opt}
+                </button>
+              ))}
+            </div>
+            {q.hint && picked !== null && picked !== q.answerIndex && (
+              <p className="mt-2 text-xs text-muted-foreground">💡 {q.hint}</p>
+            )}
+          </>
+        ) : (
+          <div className="py-4 text-center">
+            <p className="font-display text-5xl">
+              {correct >= 4 ? "🏆" : correct >= 2 ? "🎉" : "🍎"}
+            </p>
+            <p className="mt-2 font-display text-2xl font-bold">{correct}/5 acertos!</p>
+            <p className="mt-1 text-sm text-muted-foreground">+{correct * 2} moedas ganhas 🪙</p>
+            <div className="mt-4 flex justify-center gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  haptic("tap");
+                  onClose(correct * 2);
+                }}
+                className="rounded-2xl bg-primary px-5 py-2.5 font-display font-bold text-primary-foreground active:scale-95"
+              >
+                Ótimo!
+              </button>
+            </div>
+          </div>
+        )}
+      </motion.div>
+    </motion.div>,
+    document.body,
+  );
+}
+
 interface Props {
   profile: Profile;
 }
@@ -120,8 +286,21 @@ export function ClassroomScene({ profile }: Props) {
   const [now, setNow] = useState(() => new Date());
   const [lampOn, setLampOn] = useState(false);
   const [spin, setSpin] = useState(0);
+  const [weather] = useState<Weather>(() => {
+    const r = Math.random();
+    return r < 0.55 ? "sun" : r < 0.8 ? "cloud" : "rain";
+  });
+  const [quizOpen, setQuizOpen] = useState(false);
+  const [meowHearts, setMeowHearts] = useState<{ id: number; x: number }[]>([]);
+  const [activeKey, setActiveKey] = useState<number | null>(null);
+  const [quizEarned, setQuizEarned] = useState(0);
 
   const mascot = getMascot(profile.mascot);
+  // O colega de banco é uma mascote DIFERENTE da do perfil — o amigo de turma!
+  const friendId = useMemo<MascotId>(
+    () => (MASCOTS.find((m) => m.id !== profile.mascot)?.id ?? "fox") as MascotId,
+    [profile.mascot],
+  );
   const next = useMemo(
     () => getNextMission(profile.completedLessons, profile.grade),
     [profile.completedLessons, profile.grade],
@@ -228,6 +407,27 @@ export function ClassroomScene({ profile }: Props) {
     haptic("tap");
     playTap();
     setLampOn((v) => !v);
+  };
+
+  const playXylo = (i: number) => {
+    haptic("tap");
+    playNote(XYLOPHONE[i].note);
+    setActiveKey(i);
+    setTimeout(() => setActiveKey((k) => (k === i ? null : k)), 320);
+  };
+
+  const petCat = () => {
+    haptic("tap");
+    playMeow();
+    const id = Date.now();
+    setMeowHearts((h) => [...h.slice(-4), { id, x: 10 + Math.round(Math.random() * 60) }]);
+    setTimeout(() => setMeowHearts((h) => h.filter((x) => x.id !== id)), 1300);
+  };
+
+  const openAppleQuiz = () => {
+    haptic("tap");
+    playTap();
+    setQuizOpen(true);
   };
 
   return (
@@ -343,12 +543,81 @@ export function ClassroomScene({ profile }: Props) {
               style={{ animationDelay: "3.5s" }}
             />
           )}
+          {/* Chuva (meteorologia aleatória da sessão) */}
+          {weather === "rain" && (
+            <>
+              {[
+                { l: "18%", d: "0s" },
+                { l: "32%", d: "0.4s" },
+                { l: "47%", d: "0.8s" },
+                { l: "61%", d: "0.2s" },
+                { l: "74%", d: "0.6s" },
+                { l: "86%", d: "1s" },
+              ].map((r, i) => (
+                <span
+                  key={i}
+                  className="scene-rain absolute top-0 h-3 w-[2px] rounded-full bg-white/70"
+                  style={{ left: r.l, animationDelay: r.d }}
+                />
+              ))}
+              <div
+                className="scene-drift-x absolute top-[10%] opacity-95"
+                style={{ "--dur": "26s", animationDelay: "-4s" } as CSSProperties}
+              >
+                <div className="relative h-6 w-20 rounded-full bg-slate-400/90">
+                  <div className="absolute -top-3 left-4 h-7 w-7 rounded-full bg-slate-400/90" />
+                  <div className="absolute -top-1.5 left-11 h-5 w-6 rounded-full bg-slate-300/90" />
+                </div>
+              </div>
+            </>
+          )}
+          {/* Nuvem extra quando está nublado */}
+          {weather === "cloud" && !p.isNight && (
+            <div
+              className="scene-drift-x absolute top-[12%]"
+              style={{ "--dur": "30s", animationDelay: "-10s" } as CSSProperties}
+            >
+              <div className="relative h-6 w-24 rounded-full bg-white">
+                <div className="absolute -top-3 left-5 h-8 w-8 rounded-full bg-white" />
+                <div className="absolute -top-2 left-12 h-6 w-7 rounded-full bg-white" />
+              </div>
+            </div>
+          )}
           {/* Barras da janela */}
           <div className="absolute inset-y-0 left-1/2 w-1 -translate-x-1/2 bg-white/95" />
           <div className="absolute inset-x-0 top-1/2 h-1 -translate-y-1/2 bg-white/95" />
         </div>
         {/* Peitoril */}
         <div className="absolute -bottom-2 -ml-[7%] h-2.5 w-[114%] rounded bg-white/95 shadow" />
+        {/* Gato da sala no peitoril — toca para lhe fazer festas! */}
+        <motion.button
+          type="button"
+          onClick={petCat}
+          whileTap={{ scale: 0.85 }}
+          animate={{ rotate: [0, -4, 4, -2, 0] }}
+          transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+          aria-label="Fazer festas ao gato da sala"
+          className="pointer-events-auto absolute -bottom-4 right-[8%] cursor-pointer text-2xl drop-shadow-md sm:text-3xl"
+        >
+          🐱
+        </motion.button>
+        {/* Corações das festas ao gato */}
+        <AnimatePresence>
+          {meowHearts.map((h) => (
+            <motion.span
+              key={h.id}
+              initial={{ opacity: 0, y: 0, scale: 0.4 }}
+              animate={{ opacity: 1, y: -30, scale: 1.1 }}
+              exit={{ opacity: 0, y: -46, scale: 0.5 }}
+              transition={{ duration: 1.15, ease: "easeOut" }}
+              className="pointer-events-none absolute -bottom-3 text-sm"
+              style={{ right: `${h.x}%` }}
+              aria-hidden
+            >
+              💗
+            </motion.span>
+          ))}
+        </AnimatePresence>
         {/* Cortinas */}
         <div className="absolute -left-2 -top-1 h-[104%] w-3.5 rounded-b-full bg-rose-300/85 shadow-sm" />
         <div className="absolute -right-2 -top-1 h-[104%] w-3.5 rounded-b-full bg-rose-300/85 shadow-sm" />
@@ -657,10 +926,20 @@ export function ClassroomScene({ profile }: Props) {
             <div className="absolute -top-5 left-[42%] h-1.5 w-12 rotate-6 rounded-full bg-amber-400 shadow-sm">
               <span className="absolute -right-1.5 top-0 h-0 w-0 border-y-[3px] border-l-[6px] border-y-transparent border-l-amber-200" />
             </div>
-            {/* Maçã */}
-            <div className="absolute -top-6 right-[20%] h-5 w-5 rounded-full bg-red-500 shadow-sm">
+            {/* Maçã — abre a Pergunta Relâmpago! */}
+            <motion.button
+              type="button"
+              onClick={openAppleQuiz}
+              whileTap={{ scale: 0.75, rotate: -12 }}
+              whileHover={{ scale: 1.15 }}
+              animate={{ scale: [1, 1.08, 1] }}
+              transition={{ duration: 2.6, repeat: Infinity }}
+              aria-label="Pergunta relâmpago: toca na maçã e ganha moedas"
+              className="pointer-events-auto absolute -top-7 right-[20%] h-6 w-6 cursor-pointer"
+            >
+              <span className="block h-5 w-5 rounded-full bg-red-500 shadow-sm" />
               <span className="absolute -top-1 left-1/2 h-2 w-0.5 -translate-x-1/2 rounded bg-amber-800" />
-            </div>
+            </motion.button>
           </div>
           {/* Tampo */}
           <div className="relative h-4 rounded-t-lg bg-amber-700 shadow-md">
@@ -672,6 +951,56 @@ export function ClassroomScene({ profile }: Props) {
             <span className="absolute right-[28%] top-1/2 h-1.5 w-8 -translate-y-1/2 rounded-full bg-amber-950/40" />
           </div>
         </div>
+      </ParallaxLayer>
+
+      {/* ═══ Xilofone mágico (5 notas reais) ═══ */}
+      <ParallaxLayer
+        depth={10}
+        sx={psx}
+        sy={psy}
+        className="absolute bottom-[27%] left-[16%] sm:left-[19%]"
+      >
+        <div className="pointer-events-auto flex items-end gap-[3px]">
+          {XYLOPHONE.map((k, i) => (
+            <motion.button
+              key={i}
+              type="button"
+              onClick={() => playXylo(i)}
+              animate={activeKey === i ? { scaleY: 0.6, scaleX: 1.15 } : { scaleY: 1, scaleX: 1 }}
+              transition={{ type: "spring", stiffness: 500, damping: 15 }}
+              whileHover={{ scale: 1.06 }}
+              aria-label={`Tocar nota ${k.label} no xilofone`}
+              className="w-2.5 origin-bottom rounded-t-sm shadow-sm sm:w-3"
+              style={{
+                height: `${26 + i * 4}px`,
+                backgroundColor: k.color,
+                transformOrigin: "bottom",
+              }}
+            />
+          ))}
+        </div>
+        <div className="mt-0 h-1 w-full rounded bg-amber-800/80" />
+      </ParallaxLayer>
+
+      {/* ═══ Colega de banco (mascote VIVA — acena, dorme à noite, reage a toques) ═══ */}
+      <ParallaxLayer
+        depth={7}
+        sx={psx}
+        sy={psy}
+        className="absolute bottom-[22%] left-[4%] sm:left-[7%]"
+      >
+        <MascotLive
+          mascotId={friendId}
+          size="sm"
+          isNight={p.isNight}
+          phrases={[
+            `Olá, ${profile.name}!`,
+            "Sou o teu colega!",
+            "A professora já chegou?",
+            "Que horas são?",
+            "Gosto da tua mochila! 🎒",
+          ]}
+        />
       </ParallaxLayer>
 
       {/* ═══ Tapete ═══ */}
@@ -692,6 +1021,31 @@ export function ClassroomScene({ profile }: Props) {
         className="absolute inset-0 bg-indigo-950/30 transition-opacity duration-700"
         style={{ opacity: p.isNight && !lampOn ? 1 : 0 }}
       />
+
+      {/* ═══ Pergunta Relâmpago (maçã) ═══ */}
+      <AnimatePresence>
+        {quizOpen && (
+          <LightningQuiz
+            profile={profile}
+            onClose={(earned) => {
+              setQuizOpen(false);
+              setQuizEarned(earned);
+              if (earned > 0) toast(`+${earned} moedas da maçã!`, { icon: "🪙", duration: 3000 });
+              setTimeout(() => setQuizEarned(0), 3000);
+            }}
+          />
+        )}
+      </AnimatePresence>
+      {quizEarned > 0 && (
+        <motion.span
+          initial={{ opacity: 0, y: 0, scale: 0.6 }}
+          animate={{ opacity: 1, y: -40, scale: 1.15 }}
+          exit={{ opacity: 0 }}
+          className="pointer-events-none absolute left-1/2 top-[46%] z-40 -translate-x-1/2 rounded-full bg-amber-400 px-4 py-1.5 font-display text-sm font-black text-amber-950 shadow-lg"
+        >
+          +{quizEarned} 🪙
+        </motion.span>
+      )}
     </div>
   );
 }

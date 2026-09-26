@@ -12,15 +12,15 @@ import {
 } from "@/components/ui/sheet";
 import { ShoppingCart, Minus, Plus, Trash2, ExternalLink, Loader2 } from "lucide-react";
 import { useCartStore } from "@/stores/cartStore";
-import { formatPrice } from "@/lib/shopify";
+import { formatPrice, type CartItem } from "@/lib/shopify";
 
 export function CartDrawer() {
   const [isOpen, setIsOpen] = useState(false);
   const { items, isLoading, isSyncing, updateQuantity, removeItem, getCheckoutUrl, syncCart } =
     useCartStore();
-  const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
+  const totalItems = items.reduce((sum: number, item: CartItem) => sum + item.quantity, 0);
   const totalPrice = items.reduce(
-    (sum, item) => sum + parseFloat(item.price.amount) * item.quantity,
+    (sum: number, item: CartItem) => sum + parseFloat(item.price.amount) * item.quantity,
     0,
   );
   const currencyCode = items[0]?.price.currencyCode || "EUR";
@@ -76,7 +76,7 @@ export function CartDrawer() {
             <>
               <div className="min-h-0 flex-1 overflow-y-auto pr-2">
                 <div className="space-y-4">
-                  {items.map((item) => (
+                  {items.map((item: CartItem) => (
                     <div
                       key={item.variantId}
                       className="flex gap-3 rounded-2xl border border-border bg-card p-3"
@@ -95,7 +95,7 @@ export function CartDrawer() {
                       <div className="min-w-0 flex-1">
                         <h4 className="truncate font-display font-semibold">{item.product.node.title}</h4>
                         <p className="text-xs text-muted-foreground">
-                          {item.selectedOptions.map((option) => option.value).join(" • ") || item.variantTitle}
+                          {item.selectedOptions.map((option: { name: string; value: string }) => option.value).join(" • ") || item.variantTitle}
                         </p>
                         <p className="mt-1 text-sm font-semibold">
                           {formatPrice(item.price.amount, item.price.currencyCode)}

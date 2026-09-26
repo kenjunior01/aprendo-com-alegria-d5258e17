@@ -30,9 +30,11 @@ import {
   Star,
   Trophy,
   Medal,
+  MessageCircle,
 } from "lucide-react";
 import { RouteError } from "@/components/RouteError";
 import { KidLoader } from "@/components/KidLoader";
+import { shareChallenge, type ChallengePayload } from "@/lib/challengeShare";
 
 export const Route = createFileRoute("/desafios/infinitos")({
   head: () => ({
@@ -262,6 +264,7 @@ function InfinitePage() {
             trackId={trackId}
             level={level}
             stars={progress.bestStars[`${trackId}:${level}`] ?? 0}
+            profileName={profile?.name ?? "Um campeão"}
             onNext={() => {
               setLevel(level + 1);
               setView("play");
@@ -421,6 +424,7 @@ function ResultView({
   trackId,
   level,
   stars,
+  profileName,
   onNext,
   onRetry,
   onBack,
@@ -428,12 +432,23 @@ function ResultView({
   trackId: TrackId;
   level: number;
   stars: number;
+  profileName: string;
   onNext: () => void;
   onRetry: () => void;
   onBack: () => void;
 }) {
   const track = TRACKS.find((t) => t.id === trackId)!;
   const advanced = stars >= 2;
+  const share = () => {
+    const payload: ChallengePayload = {
+      k: "infinite",
+      t: trackId,
+      l: level,
+      n: profileName,
+      s: stars,
+    };
+    void shareChallenge(payload);
+  };
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
@@ -458,6 +473,14 @@ function ResultView({
           ? "🚀 Próximo nível desbloqueado!"
           : "Tenta de novo para 2★ e desbloquear o próximo nível."}
       </p>
+      <button
+        type="button"
+        onClick={share}
+        className="mx-auto mt-4 flex items-center justify-center gap-2 rounded-2xl bg-[#25D366] px-5 py-2.5 font-display text-sm font-bold text-white shadow-md transition active:scale-95"
+      >
+        <MessageCircle className="h-4 w-4" />
+        Desafia um amigo no WhatsApp
+      </button>
       <div className="mt-5 flex flex-wrap justify-center gap-2">
         <ChunkyButton tone="ghost" onClick={onBack}>
           Níveis

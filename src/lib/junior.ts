@@ -14,7 +14,12 @@ export interface JuniorGame {
   garden: GardenId;
 }
 
-export type GardenId = "primeiros-passos" | "descobertas" | "preparacao" | "floresta-sonhos" | "estrela-imaginacao";
+export type GardenId =
+  | "primeiros-passos"
+  | "descobertas"
+  | "preparacao"
+  | "floresta-sonhos"
+  | "estrela-imaginacao";
 
 export interface JuniorGarden {
   id: GardenId;
@@ -23,117 +28,850 @@ export interface JuniorGarden {
   tagline: string;
   emoji: string;
   color: string;
-  level: number;          // 1..5 — etapa de progresso
+  level: number; // 1..5 — etapa de progresso
   unlockThreshold: number; // % do jardim anterior necessário (0-100)
 }
 
 export const GARDENS: JuniorGarden[] = [
-  { id: "primeiros-passos",  name: "Jardim dos Primeiros Passos", age: "2-3", tagline: "Cores, formas, sons e o meu corpo",                emoji: "🌱", color: "bg-pt-world/20",  level: 1, unlockThreshold: 0 },
-  { id: "descobertas",       name: "Ilha das Descobertas",        age: "3-4", tagline: "Letras, números e puzzles",                       emoji: "🏝️", color: "bg-secondary/30", level: 2, unlockThreshold: 60 },
-  { id: "preparacao",        name: "Vale da Preparação Escolar",  age: "4-5", tagline: "Pré-leitura, pré-escrita e pequenos cientistas", emoji: "🎓", color: "bg-primary/20",   level: 3, unlockThreshold: 60 },
-  { id: "floresta-sonhos",   name: "Floresta dos Sonhos",         age: "4-5", tagline: "Aventura, criatividade e arte",                  emoji: "🌳", color: "bg-accent/30",    level: 4, unlockThreshold: 60 },
-  { id: "estrela-imaginacao",name: "Estrela da Imaginação",       age: "4-5", tagline: "Pequenos exploradores do mundo",                 emoji: "🌟", color: "bg-xp/20",        level: 5, unlockThreshold: 70 },
+  {
+    id: "primeiros-passos",
+    name: "Jardim dos Primeiros Passos",
+    age: "2-3",
+    tagline: "Cores, formas, sons e o meu corpo",
+    emoji: "🌱",
+    color: "bg-pt-world/20",
+    level: 1,
+    unlockThreshold: 0,
+  },
+  {
+    id: "descobertas",
+    name: "Ilha das Descobertas",
+    age: "3-4",
+    tagline: "Letras, números e puzzles",
+    emoji: "🏝️",
+    color: "bg-secondary/30",
+    level: 2,
+    unlockThreshold: 60,
+  },
+  {
+    id: "preparacao",
+    name: "Vale da Preparação Escolar",
+    age: "4-5",
+    tagline: "Pré-leitura, pré-escrita e pequenos cientistas",
+    emoji: "🎓",
+    color: "bg-primary/20",
+    level: 3,
+    unlockThreshold: 60,
+  },
+  {
+    id: "floresta-sonhos",
+    name: "Floresta dos Sonhos",
+    age: "4-5",
+    tagline: "Aventura, criatividade e arte",
+    emoji: "🌳",
+    color: "bg-accent/30",
+    level: 4,
+    unlockThreshold: 60,
+  },
+  {
+    id: "estrela-imaginacao",
+    name: "Estrela da Imaginação",
+    age: "4-5",
+    tagline: "Pequenos exploradores do mundo",
+    emoji: "🌟",
+    color: "bg-xp/20",
+    level: 5,
+    unlockThreshold: 70,
+  },
 ];
 
 export const GAMES: JuniorGame[] = [
   // 🌱 Jardim dos Primeiros Passos (2-3)
-  { id: "jardim-cores",      title: "Jardim das Cores e Formas", emoji: "🌸", description: "Arrasta flores e frutas para o canteiro da cor certa.", benefits: ["Cores", "Formas", "Coordenação"], age: "2-3", garden: "primeiros-passos" },
-  { id: "orquestra-animais", title: "Orquestra dos Animais",     emoji: "🐮", description: "Toca nos animais para ouvir os seus sons e nomes.",      benefits: ["Vocabulário", "Audição"],         age: "2-3", garden: "primeiros-passos" },
-  { id: "conta-patinhos",    title: "Conta os Patinhos",         emoji: "🦆", description: "Aprende a contar de 1 a 5 com patinhos no lago.",        benefits: ["Números", "Contagem"],            age: "2-3", garden: "primeiros-passos" },
-  { id: "bolhas-sabao",      title: "Bolhas de Sabão",           emoji: "🫧", description: "Rebenta as bolhas e descobre as cores escondidas.",      benefits: ["Reflexos", "Cores"],              age: "2-3", garden: "primeiros-passos" },
-  { id: "meu-corpo",         title: "O Meu Corpo",               emoji: "👶", description: "Aponta as partes do corpo do Kido.",                     benefits: ["Vocabulário", "Esquema corporal"], age: "2-3", garden: "primeiros-passos" },
+  {
+    id: "jardim-cores",
+    title: "Jardim das Cores e Formas",
+    emoji: "🌸",
+    description: "Arrasta flores e frutas para o canteiro da cor certa.",
+    benefits: ["Cores", "Formas", "Coordenação"],
+    age: "2-3",
+    garden: "primeiros-passos",
+  },
+  {
+    id: "orquestra-animais",
+    title: "Orquestra dos Animais",
+    emoji: "🐮",
+    description: "Toca nos animais para ouvir os seus sons e nomes.",
+    benefits: ["Vocabulário", "Audição"],
+    age: "2-3",
+    garden: "primeiros-passos",
+  },
+  {
+    id: "conta-patinhos",
+    title: "Conta os Patinhos",
+    emoji: "🦆",
+    description: "Aprende a contar de 1 a 5 com patinhos no lago.",
+    benefits: ["Números", "Contagem"],
+    age: "2-3",
+    garden: "primeiros-passos",
+  },
+  {
+    id: "bolhas-sabao",
+    title: "Bolhas de Sabão",
+    emoji: "🫧",
+    description: "Rebenta as bolhas e descobre as cores escondidas.",
+    benefits: ["Reflexos", "Cores"],
+    age: "2-3",
+    garden: "primeiros-passos",
+  },
+  {
+    id: "meu-corpo",
+    title: "O Meu Corpo",
+    emoji: "👶",
+    description: "Aponta as partes do corpo do Kido.",
+    benefits: ["Vocabulário", "Esquema corporal"],
+    age: "2-3",
+    garden: "primeiros-passos",
+  },
 
   // 🏝️ Ilha das Descobertas (3-4)
-  { id: "rotinas-kido",      title: "Rotinas do Amigo Kido",     emoji: "🪥", description: "Ajuda o Kido nas suas rotinas diárias.",                 benefits: ["Sequências", "Higiene"],          age: "3-4", garden: "descobertas" },
-  { id: "memoria-animais",   title: "Memória dos Animais",       emoji: "🧠", description: "Encontra os pares de cartas com animais.",               benefits: ["Memória", "Concentração"],        age: "3-4", garden: "descobertas" },
-  { id: "letra-aventura",    title: "Aventura das Letras",       emoji: "🔤", description: "Descobre a letra que falta em cada palavra.",            benefits: ["Alfabeto", "Pré-leitura"],        age: "3-4", garden: "descobertas" },
-  { id: "formas-geo",        title: "Mestre das Formas",         emoji: "🔺", description: "Encaixa cada forma no sítio certo.",                     benefits: ["Geometria", "Lógica"],            age: "3-4", garden: "descobertas" },
-  { id: "frutas-mercado",    title: "Mercado das Frutas",        emoji: "🥭", description: "Conta e ordena frutas africanas no mercado.",            benefits: ["Números", "Cultura PALOP"],       age: "3-4", garden: "descobertas" },
+  {
+    id: "rotinas-kido",
+    title: "Rotinas do Amigo Kido",
+    emoji: "🪥",
+    description: "Ajuda o Kido nas suas rotinas diárias.",
+    benefits: ["Sequências", "Higiene"],
+    age: "3-4",
+    garden: "descobertas",
+  },
+  {
+    id: "memoria-animais",
+    title: "Memória dos Animais",
+    emoji: "🧠",
+    description: "Encontra os pares de cartas com animais.",
+    benefits: ["Memória", "Concentração"],
+    age: "3-4",
+    garden: "descobertas",
+  },
+  {
+    id: "letra-aventura",
+    title: "Aventura das Letras",
+    emoji: "🔤",
+    description: "Descobre a letra que falta em cada palavra.",
+    benefits: ["Alfabeto", "Pré-leitura"],
+    age: "3-4",
+    garden: "descobertas",
+  },
+  {
+    id: "formas-geo",
+    title: "Mestre das Formas",
+    emoji: "🔺",
+    description: "Encaixa cada forma no sítio certo.",
+    benefits: ["Geometria", "Lógica"],
+    age: "3-4",
+    garden: "descobertas",
+  },
+  {
+    id: "frutas-mercado",
+    title: "Mercado das Frutas",
+    emoji: "🥭",
+    description: "Conta e ordena frutas africanas no mercado.",
+    benefits: ["Números", "Cultura PALOP"],
+    age: "3-4",
+    garden: "descobertas",
+  },
 
   // 🎓 Vale da Preparação Escolar (4-5)
-  { id: "livro-magico",      title: "Livro Mágico de Histórias", emoji: "📖", description: "Escolhe o caminho da história e vê o que acontece.",     benefits: ["Linguagem", "Imaginação"],        age: "4-5", garden: "preparacao" },
-  { id: "soletrar",          title: "Soletrar com o Kido",       emoji: "✏️", description: "Arrasta as letras para formar palavras simples.",        benefits: ["Pré-escrita", "Fonética"],        age: "4-5", garden: "preparacao" },
-  { id: "matematica-magica", title: "Matemática Mágica",         emoji: "➕", description: "Resolve pequenas somas com objetos mágicos.",           benefits: ["Aritmética", "Lógica"],           age: "4-5", garden: "preparacao" },
-  { id: "pequeno-cientista", title: "Pequeno Cientista",         emoji: "🧪", description: "Mistura cores e descobre o que acontece.",               benefits: ["Ciência", "Causa-efeito"],        age: "4-5", garden: "preparacao" },
-  { id: "relogio-kido",      title: "Que Horas São?",            emoji: "⏰", description: "Aprende as horas certas e as rotinas do dia.",           benefits: ["Tempo", "Rotinas"],               age: "4-5", garden: "preparacao" },
-  { id: "mapa-palop",        title: "Viagem pela Lusofonia",     emoji: "🌍", description: "Conhece bandeiras e palavras dos países PALOP.",         benefits: ["Geografia", "Cultura"],           age: "4-5", garden: "preparacao" },
+  {
+    id: "livro-magico",
+    title: "Livro Mágico de Histórias",
+    emoji: "📖",
+    description: "Escolhe o caminho da história e vê o que acontece.",
+    benefits: ["Linguagem", "Imaginação"],
+    age: "4-5",
+    garden: "preparacao",
+  },
+  {
+    id: "soletrar",
+    title: "Soletrar com o Kido",
+    emoji: "✏️",
+    description: "Arrasta as letras para formar palavras simples.",
+    benefits: ["Pré-escrita", "Fonética"],
+    age: "4-5",
+    garden: "preparacao",
+  },
+  {
+    id: "matematica-magica",
+    title: "Matemática Mágica",
+    emoji: "➕",
+    description: "Resolve pequenas somas com objetos mágicos.",
+    benefits: ["Aritmética", "Lógica"],
+    age: "4-5",
+    garden: "preparacao",
+  },
+  {
+    id: "pequeno-cientista",
+    title: "Pequeno Cientista",
+    emoji: "🧪",
+    description: "Mistura cores e descobre o que acontece.",
+    benefits: ["Ciência", "Causa-efeito"],
+    age: "4-5",
+    garden: "preparacao",
+  },
+  {
+    id: "relogio-kido",
+    title: "Que Horas São?",
+    emoji: "⏰",
+    description: "Aprende as horas certas e as rotinas do dia.",
+    benefits: ["Tempo", "Rotinas"],
+    age: "4-5",
+    garden: "preparacao",
+  },
+  {
+    id: "mapa-palop",
+    title: "Viagem pela Lusofonia",
+    emoji: "🌍",
+    description: "Conhece bandeiras e palavras dos países PALOP.",
+    benefits: ["Geografia", "Cultura"],
+    age: "4-5",
+    garden: "preparacao",
+  },
 
   // 🌳 Floresta dos Sonhos (4-5)
-  { id: "pinta-desenho",     title: "Pinta o Desenho",           emoji: "🎨", description: "Toca para pintar cada parte do desenho.",                 benefits: ["Criatividade", "Cores"],          age: "4-5", garden: "floresta-sonhos" },
-  { id: "eco-som",           title: "Eco do Som",                emoji: "🎵", description: "Repete a sequência de sons dos animais.",                 benefits: ["Memória auditiva", "Sequências"], age: "4-5", garden: "floresta-sonhos" },
-  { id: "jardim-magico",     title: "Jardim Mágico",             emoji: "🌷", description: "Planta sementes, rega e vê-as crescer.",                  benefits: ["Causa-efeito", "Paciência"],      age: "4-5", garden: "floresta-sonhos" },
-  { id: "puzzle-kido",       title: "Quebra-Cabeças do Kido",    emoji: "🧩", description: "Reorganiza as peças para formar a imagem.",               benefits: ["Lógica espacial"],                age: "4-5", garden: "floresta-sonhos" },
+  {
+    id: "pinta-desenho",
+    title: "Pinta o Desenho",
+    emoji: "🎨",
+    description: "Toca para pintar cada parte do desenho.",
+    benefits: ["Criatividade", "Cores"],
+    age: "4-5",
+    garden: "floresta-sonhos",
+  },
+  {
+    id: "eco-som",
+    title: "Eco do Som",
+    emoji: "🎵",
+    description: "Repete a sequência de sons dos animais.",
+    benefits: ["Memória auditiva", "Sequências"],
+    age: "4-5",
+    garden: "floresta-sonhos",
+  },
+  {
+    id: "jardim-magico",
+    title: "Jardim Mágico",
+    emoji: "🌷",
+    description: "Planta sementes, rega e vê-as crescer.",
+    benefits: ["Causa-efeito", "Paciência"],
+    age: "4-5",
+    garden: "floresta-sonhos",
+  },
+  {
+    id: "puzzle-kido",
+    title: "Quebra-Cabeças do Kido",
+    emoji: "🧩",
+    description: "Reorganiza as peças para formar a imagem.",
+    benefits: ["Lógica espacial"],
+    age: "4-5",
+    garden: "floresta-sonhos",
+  },
 
   // 🌟 Estrela da Imaginação (4-5)
-  { id: "caca-tesouro",      title: "Caça ao Tesouro",           emoji: "💎", description: "Procura o tesouro escondido na ilha.",                    benefits: ["Atenção", "Exploração"],          age: "4-5", garden: "estrela-imaginacao" },
-  { id: "estacoes-ano",      title: "Estações do Ano",           emoji: "🍂", description: "Associa cada paisagem à sua estação.",                    benefits: ["Natureza", "Vocabulário"],        age: "4-5", garden: "estrela-imaginacao" },
-  { id: "emocoes-kido",      title: "Como te sentes?",           emoji: "😊", description: "Identifica as emoções nas caras do Kido.",                benefits: ["Emoções", "Empatia"],             age: "4-5", garden: "estrela-imaginacao" },
-  { id: "sombras",           title: "Associa a Sombra",          emoji: "🌑", description: "Encontra a sombra de cada animal.",                       benefits: ["Observação", "Memória visual"],   age: "3-4", garden: "descobertas" },
-  { id: "padroes",           title: "Completa o Padrão",         emoji: "🔁", description: "Que figura vem a seguir na sequência?",                   benefits: ["Lógica", "Sequências"],           age: "4-5", garden: "preparacao" },
-  { id: "labirinto",         title: "Labirinto do Ratinho",      emoji: "🐭", description: "Leva o ratinho até ao queijo sem bater nas paredes.",     benefits: ["Orientação", "Resolução"],        age: "4-5", garden: "floresta-sonhos" },
-  { id: "trivia-jr",         title: "Sabichão Júnior",           emoji: "❓", description: "Mini-trivia divertida sobre tudo!",                       benefits: ["Conhecimento geral"],             age: "4-5", garden: "estrela-imaginacao" },
+  {
+    id: "caca-tesouro",
+    title: "Caça ao Tesouro",
+    emoji: "💎",
+    description: "Procura o tesouro escondido na ilha.",
+    benefits: ["Atenção", "Exploração"],
+    age: "4-5",
+    garden: "estrela-imaginacao",
+  },
+  {
+    id: "estacoes-ano",
+    title: "Estações do Ano",
+    emoji: "🍂",
+    description: "Associa cada paisagem à sua estação.",
+    benefits: ["Natureza", "Vocabulário"],
+    age: "4-5",
+    garden: "estrela-imaginacao",
+  },
+  {
+    id: "emocoes-kido",
+    title: "Como te sentes?",
+    emoji: "😊",
+    description: "Identifica as emoções nas caras do Kido.",
+    benefits: ["Emoções", "Empatia"],
+    age: "4-5",
+    garden: "estrela-imaginacao",
+  },
+  {
+    id: "sombras",
+    title: "Associa a Sombra",
+    emoji: "🌑",
+    description: "Encontra a sombra de cada animal.",
+    benefits: ["Observação", "Memória visual"],
+    age: "3-4",
+    garden: "descobertas",
+  },
+  {
+    id: "padroes",
+    title: "Completa o Padrão",
+    emoji: "🔁",
+    description: "Que figura vem a seguir na sequência?",
+    benefits: ["Lógica", "Sequências"],
+    age: "4-5",
+    garden: "preparacao",
+  },
+  {
+    id: "labirinto",
+    title: "Labirinto do Ratinho",
+    emoji: "🐭",
+    description: "Leva o ratinho até ao queijo sem bater nas paredes.",
+    benefits: ["Orientação", "Resolução"],
+    age: "4-5",
+    garden: "floresta-sonhos",
+  },
+  {
+    id: "trivia-jr",
+    title: "Sabichão Júnior",
+    emoji: "❓",
+    description: "Mini-trivia divertida sobre tudo!",
+    benefits: ["Conhecimento geral"],
+    age: "4-5",
+    garden: "estrela-imaginacao",
+  },
 
   // ---- Novos (1.º–4.º ano) — disponíveis no Vale & Estrela
-  { id: "soma-rapida",       title: "Soma Rápida",               emoji: "⚡", description: "Quantas somas acertas em 1 minuto?",                       benefits: ["Cálculo mental", "Matemática"],   age: "4-5", garden: "preparacao" },
-  { id: "tabuada",           title: "Tabuada Express",           emoji: "✖️", description: "Treina a tabuada do 2 ao 9.",                              benefits: ["Multiplicação"],                  age: "4-5", garden: "preparacao" },
-  { id: "fracoes",           title: "Frações Visuais",           emoji: "🍕", description: "Identifica que fração da pizza está pintada.",            benefits: ["Frações", "Geometria"],           age: "4-5", garden: "preparacao" },
-  { id: "silabas",           title: "Caça-Sílabas",              emoji: "🔡", description: "Completa a sílaba que falta na palavra.",                  benefits: ["Pré-leitura"],                    age: "3-4", garden: "descobertas" },
-  { id: "forma-frase",       title: "Forma a Frase",             emoji: "✍️", description: "Ordena as palavras para formar uma frase.",                benefits: ["Sintaxe", "Leitura"],             age: "4-5", garden: "preparacao" },
-  { id: "antonimos",         title: "Antónimos",                 emoji: "↔️", description: "Encontra o oposto da palavra.",                            benefits: ["Vocabulário"],                    age: "4-5", garden: "preparacao" },
-  { id: "mapa-pt",           title: "Mapa de Portugal",          emoji: "🗺️", description: "Adivinha a região portuguesa pela pista.",                 benefits: ["Geografia"],                      age: "4-5", garden: "estrela-imaginacao" },
-  { id: "ciclo-agua",        title: "Ciclo da Água",             emoji: "💧", description: "Ordena as fases do ciclo da água.",                        benefits: ["Ciências"],                       age: "4-5", garden: "estrela-imaginacao" },
-  { id: "habitats",          title: "Animais & Habitats",        emoji: "🦁", description: "Onde vive cada animal?",                                    benefits: ["Ciências", "Natureza"],           age: "3-4", garden: "descobertas" },
-  { id: "bandeiras",         title: "Bandeiras do Mundo",        emoji: "🚩", description: "Reconhece bandeiras de países.",                            benefits: ["Geografia", "Cidadania"],         age: "4-5", garden: "estrela-imaginacao" },
-  { id: "spelling-en",       title: "Spelling EN",               emoji: "🔊", description: "Ouve a palavra em inglês e escreve-a.",                    benefits: ["Inglês", "Audição"],              age: "4-5", garden: "estrela-imaginacao" },
-  { id: "colors-en",         title: "Cores & Números EN",        emoji: "🎨", description: "Aprende cores e números em inglês.",                        benefits: ["Inglês"],                         age: "3-4", garden: "descobertas" },
-  { id: "simon",             title: "Memória Musical",           emoji: "🎹", description: "Repete a sequência (Simon Says).",                          benefits: ["Memória", "Música"],              age: "4-5", garden: "floresta-sonhos" },
-  { id: "logica",            title: "Quebra-Cabeças Lógico",     emoji: "🧠", description: "Pequenos puzzles de lógica e padrões.",                     benefits: ["Lógica"],                         age: "4-5", garden: "preparacao" },
-  { id: "trivia-online",     title: "Mega Trivia",               emoji: "🌐", description: "Perguntas dinâmicas (cache + offline).",                    benefits: ["Conhecimento geral"],             age: "4-5", garden: "estrela-imaginacao" },
+  {
+    id: "soma-rapida",
+    title: "Soma Rápida",
+    emoji: "⚡",
+    description: "Quantas somas acertas em 1 minuto?",
+    benefits: ["Cálculo mental", "Matemática"],
+    age: "4-5",
+    garden: "preparacao",
+  },
+  {
+    id: "tabuada",
+    title: "Tabuada Express",
+    emoji: "✖️",
+    description: "Treina a tabuada do 2 ao 9.",
+    benefits: ["Multiplicação"],
+    age: "4-5",
+    garden: "preparacao",
+  },
+  {
+    id: "fracoes",
+    title: "Frações Visuais",
+    emoji: "🍕",
+    description: "Identifica que fração da pizza está pintada.",
+    benefits: ["Frações", "Geometria"],
+    age: "4-5",
+    garden: "preparacao",
+  },
+  {
+    id: "silabas",
+    title: "Caça-Sílabas",
+    emoji: "🔡",
+    description: "Completa a sílaba que falta na palavra.",
+    benefits: ["Pré-leitura"],
+    age: "3-4",
+    garden: "descobertas",
+  },
+  {
+    id: "forma-frase",
+    title: "Forma a Frase",
+    emoji: "✍️",
+    description: "Ordena as palavras para formar uma frase.",
+    benefits: ["Sintaxe", "Leitura"],
+    age: "4-5",
+    garden: "preparacao",
+  },
+  {
+    id: "antonimos",
+    title: "Antónimos",
+    emoji: "↔️",
+    description: "Encontra o oposto da palavra.",
+    benefits: ["Vocabulário"],
+    age: "4-5",
+    garden: "preparacao",
+  },
+  {
+    id: "mapa-pt",
+    title: "Mapa de Portugal",
+    emoji: "🗺️",
+    description: "Adivinha a região portuguesa pela pista.",
+    benefits: ["Geografia"],
+    age: "4-5",
+    garden: "estrela-imaginacao",
+  },
+  {
+    id: "ciclo-agua",
+    title: "Ciclo da Água",
+    emoji: "💧",
+    description: "Ordena as fases do ciclo da água.",
+    benefits: ["Ciências"],
+    age: "4-5",
+    garden: "estrela-imaginacao",
+  },
+  {
+    id: "habitats",
+    title: "Animais & Habitats",
+    emoji: "🦁",
+    description: "Onde vive cada animal?",
+    benefits: ["Ciências", "Natureza"],
+    age: "3-4",
+    garden: "descobertas",
+  },
+  {
+    id: "bandeiras",
+    title: "Bandeiras do Mundo",
+    emoji: "🚩",
+    description: "Reconhece bandeiras de países.",
+    benefits: ["Geografia", "Cidadania"],
+    age: "4-5",
+    garden: "estrela-imaginacao",
+  },
+  {
+    id: "spelling-en",
+    title: "Spelling EN",
+    emoji: "🔊",
+    description: "Ouve a palavra em inglês e escreve-a.",
+    benefits: ["Inglês", "Audição"],
+    age: "4-5",
+    garden: "estrela-imaginacao",
+  },
+  {
+    id: "colors-en",
+    title: "Cores & Números EN",
+    emoji: "🎨",
+    description: "Aprende cores e números em inglês.",
+    benefits: ["Inglês"],
+    age: "3-4",
+    garden: "descobertas",
+  },
+  {
+    id: "simon",
+    title: "Memória Musical",
+    emoji: "🎹",
+    description: "Repete a sequência (Simon Says).",
+    benefits: ["Memória", "Música"],
+    age: "4-5",
+    garden: "floresta-sonhos",
+  },
+  {
+    id: "logica",
+    title: "Quebra-Cabeças Lógico",
+    emoji: "🧠",
+    description: "Pequenos puzzles de lógica e padrões.",
+    benefits: ["Lógica"],
+    age: "4-5",
+    garden: "preparacao",
+  },
+  {
+    id: "trivia-online",
+    title: "Mega Trivia",
+    emoji: "🌐",
+    description: "Perguntas dinâmicas (cache + offline).",
+    benefits: ["Conhecimento geral"],
+    age: "4-5",
+    garden: "estrela-imaginacao",
+  },
+  // V8 — jogos de qualidade
+  {
+    id: "memoria-frutas",
+    title: "Memória das Frutas",
+    emoji: "🧠",
+    description: "Vira as cartas e encontra os pares de frutas.",
+    benefits: ["Memória", "Concentração"],
+    age: "3-4",
+    garden: "descobertas",
+  },
+  {
+    id: "corrida-soma",
+    title: "Corrida de Soma",
+    emoji: "⚡",
+    description: "Quantas somas acertas em 60 segundos?",
+    benefits: ["Cálculo mental", "Velocidade"],
+    age: "4-5",
+    garden: "preparacao",
+  },
+  {
+    id: "verdade-falso",
+    title: "Verdade ou Falso",
+    emoji: "🤔",
+    description: "Frases malucas — é verdade ou mentira?",
+    benefits: ["Lógica", "Atenção"],
+    age: "4-5",
+    garden: "estrela-imaginacao",
+  },
+  {
+    id: "palavra-magica",
+    title: "Palavra Mágica",
+    emoji: "🔤",
+    description: "Toca nas letras pela ordem para formar palavras.",
+    benefits: ["Leitura", "Ortografia"],
+    age: "4-5",
+    garden: "preparacao",
+  },
+  {
+    id: "moedas-mz",
+    title: "Moedas de Moçambique",
+    emoji: "🪙",
+    description: "Conta meticais e paga as compras no mercado.",
+    benefits: ["Dinheiro", "Matemática"],
+    age: "4-5",
+    garden: "preparacao",
+  },
+  {
+    id: "salto-contar",
+    title: "Saltos de Contagem",
+    emoji: "🐸",
+    description: "O sapo salta de 2 em 2, 5 em 5… qual vem a seguir?",
+    benefits: ["Contagem", "Padrões"],
+    age: "4-5",
+    garden: "preparacao",
+  },
+  {
+    id: "quebra-emoji",
+    title: "Quebra-Emoji",
+    emoji: "🧩",
+    description: "Desliza as peças e ordena o quebra-cabeças.",
+    benefits: ["Lógica espacial", "Paciência"],
+    age: "4-5",
+    garden: "floresta-sonhos",
+  },
+  {
+    id: "par-ou-impar",
+    title: "Par ou Ímpar",
+    emoji: "🌓",
+    description: "O número é par ou ímpar? Responde depressa!",
+    benefits: ["Números", "Reflexos"],
+    age: "4-5",
+    garden: "preparacao",
+  },
 
   // ---- 🍼 Bebés/Toddlers (2-3) — toques grandes, narração e tutoriais
-  { id: "baloes",         title: "Balões da Cor",      emoji: "🎈", description: "Rebenta os balões da cor pedida.",          benefits: ["Cores", "Reflexos"],     age: "2-3", garden: "primeiros-passos" },
-  { id: "pares-jr",       title: "Encontra o Par",     emoji: "👀", description: "Toca no animal igual ao do topo.",          benefits: ["Atenção visual"],        age: "2-3", garden: "primeiros-passos" },
-  { id: "transportes",    title: "Sons dos Transportes", emoji: "🚗", description: "Que veículo faz este som?",                benefits: ["Audição", "Vocabulário"], age: "2-3", garden: "primeiros-passos" },
-  { id: "tamanho",        title: "Grande ou Pequeno",  emoji: "🐘", description: "Aprende grande e pequeno.",                  benefits: ["Conceitos básicos"],     age: "2-3", garden: "primeiros-passos" },
-  { id: "conta-dedos",    title: "Conta as Estrelas",  emoji: "⭐", description: "Conta de 1 a 5.",                            benefits: ["Contagem"],              age: "2-3", garden: "primeiros-passos" },
-  { id: "alimenta-bebe",  title: "Alimenta o Bebé",    emoji: "👶", description: "Dá ao bebé a fruta certa.",                  benefits: ["Vocabulário", "Empatia"],age: "2-3", garden: "primeiros-passos" },
-  { id: "onde-esta",      title: "Onde está a bola?",  emoji: "🥤", description: "Encontra a bola escondida no copo.",         benefits: ["Memória", "Atenção"],    age: "2-3", garden: "primeiros-passos" },
-  { id: "numeros-tap",    title: "Toca no Número",     emoji: "🔢", description: "Aprende a reconhecer números.",              benefits: ["Números"],               age: "2-3", garden: "primeiros-passos" },
-  { id: "formas-cor",     title: "Forma e Cor",        emoji: "🔴", description: "Identifica formas pela cor.",                benefits: ["Cores", "Formas"],       age: "2-3", garden: "primeiros-passos" },
-  { id: "imita-som",      title: "Imita o Som",        emoji: "🥁", description: "Adivinha de que é cada som.",                benefits: ["Audição"],               age: "2-3", garden: "primeiros-passos" },
+  {
+    id: "baloes",
+    title: "Balões da Cor",
+    emoji: "🎈",
+    description: "Rebenta os balões da cor pedida.",
+    benefits: ["Cores", "Reflexos"],
+    age: "2-3",
+    garden: "primeiros-passos",
+  },
+  {
+    id: "pares-jr",
+    title: "Encontra o Par",
+    emoji: "👀",
+    description: "Toca no animal igual ao do topo.",
+    benefits: ["Atenção visual"],
+    age: "2-3",
+    garden: "primeiros-passos",
+  },
+  {
+    id: "transportes",
+    title: "Sons dos Transportes",
+    emoji: "🚗",
+    description: "Que veículo faz este som?",
+    benefits: ["Audição", "Vocabulário"],
+    age: "2-3",
+    garden: "primeiros-passos",
+  },
+  {
+    id: "tamanho",
+    title: "Grande ou Pequeno",
+    emoji: "🐘",
+    description: "Aprende grande e pequeno.",
+    benefits: ["Conceitos básicos"],
+    age: "2-3",
+    garden: "primeiros-passos",
+  },
+  {
+    id: "conta-dedos",
+    title: "Conta as Estrelas",
+    emoji: "⭐",
+    description: "Conta de 1 a 5.",
+    benefits: ["Contagem"],
+    age: "2-3",
+    garden: "primeiros-passos",
+  },
+  {
+    id: "alimenta-bebe",
+    title: "Alimenta o Bebé",
+    emoji: "👶",
+    description: "Dá ao bebé a fruta certa.",
+    benefits: ["Vocabulário", "Empatia"],
+    age: "2-3",
+    garden: "primeiros-passos",
+  },
+  {
+    id: "onde-esta",
+    title: "Onde está a bola?",
+    emoji: "🥤",
+    description: "Encontra a bola escondida no copo.",
+    benefits: ["Memória", "Atenção"],
+    age: "2-3",
+    garden: "primeiros-passos",
+  },
+  {
+    id: "numeros-tap",
+    title: "Toca no Número",
+    emoji: "🔢",
+    description: "Aprende a reconhecer números.",
+    benefits: ["Números"],
+    age: "2-3",
+    garden: "primeiros-passos",
+  },
+  {
+    id: "formas-cor",
+    title: "Forma e Cor",
+    emoji: "🔴",
+    description: "Identifica formas pela cor.",
+    benefits: ["Cores", "Formas"],
+    age: "2-3",
+    garden: "primeiros-passos",
+  },
+  {
+    id: "imita-som",
+    title: "Imita o Som",
+    emoji: "🥁",
+    description: "Adivinha de que é cada som.",
+    benefits: ["Audição"],
+    age: "2-3",
+    garden: "primeiros-passos",
+  },
 
   // ---- 👶 2 anos (V6) — toques únicos, regras de 1 passo
-  { id: "tap-cor",            title: "Toca na Cor",          emoji: "🎨", description: "Toca só na cor que eu disser.",         benefits: ["Cores"],                  age: "2-3", garden: "primeiros-passos" },
-  { id: "anima-tap",          title: "Toca no Animal",       emoji: "🐶", description: "Encontra o animal pedido.",             benefits: ["Vocabulário"],            age: "2-3", garden: "primeiros-passos" },
-  { id: "num-tap-1-3",        title: "Números 1·2·3",        emoji: "🔢", description: "Aprende 1, 2 e 3.",                     benefits: ["Números"],                age: "2-3", garden: "primeiros-passos" },
-  { id: "grande-pequeno-tap", title: "Grande ou Pequeno",    emoji: "🐘", description: "Toca no grande ou no pequeno.",         benefits: ["Conceitos básicos"],      age: "2-3", garden: "primeiros-passos" },
-  { id: "fruta-tap",          title: "Toca na Fruta",        emoji: "🍎", description: "Encontra a fruta pedida.",              benefits: ["Vocabulário"],            age: "2-3", garden: "primeiros-passos" },
-  { id: "som-anima",          title: "Que Animal É?",        emoji: "🔊", description: "Que animal faz este som?",              benefits: ["Audição"],                age: "2-3", garden: "primeiros-passos" },
-  { id: "cor-roupa",          title: "Cor da Roupa",         emoji: "🧥", description: "Toca no casaco da cor pedida.",         benefits: ["Cores", "Rotinas"],       age: "2-3", garden: "primeiros-passos" },
-  { id: "anima-grande",       title: "Animal Grande/Pequeno",emoji: "🦁", description: "Toca no animal grande ou pequeno.",     benefits: ["Conceitos"],              age: "2-3", garden: "primeiros-passos" },
-  { id: "tap-pat-pat",        title: "Bate Palmas",          emoji: "👏", description: "Bate o ritmo no botão.",                benefits: ["Coordenação", "Ritmo"],   age: "2-3", garden: "primeiros-passos" },
-  { id: "estrelas-tap",       title: "Conta Estrelas",       emoji: "⭐", description: "Toca quantas estrelas eu disser.",      benefits: ["Contagem"],               age: "2-3", garden: "primeiros-passos" },
-  { id: "carro-cor",          title: "Carro da Cor",         emoji: "🚗", description: "Toca no carro da cor pedida.",          benefits: ["Cores"],                  age: "2-3", garden: "primeiros-passos" },
-  { id: "anima-casa",         title: "Onde Vive?",           emoji: "🏠", description: "Cada animal tem a sua casa.",           benefits: ["Natureza"],               age: "2-3", garden: "primeiros-passos" },
-  { id: "comida-tap",         title: "Toca na Comida",       emoji: "🍞", description: "Encontra a comida pedida.",             benefits: ["Vocabulário"],            age: "2-3", garden: "primeiros-passos" },
-  { id: "forma-redonda",      title: "Toca na Forma",        emoji: "⚪", description: "Reconhece círculo, quadrado, triângulo.",benefits: ["Formas"],                 age: "2-3", garden: "primeiros-passos" },
-  { id: "luz-tap",            title: "Acende as Luzes",      emoji: "💡", description: "Toca para acender. Causa e efeito.",    benefits: ["Causa-efeito"],           age: "2-3", garden: "primeiros-passos" },
+  {
+    id: "tap-cor",
+    title: "Toca na Cor",
+    emoji: "🎨",
+    description: "Toca só na cor que eu disser.",
+    benefits: ["Cores"],
+    age: "2-3",
+    garden: "primeiros-passos",
+  },
+  {
+    id: "anima-tap",
+    title: "Toca no Animal",
+    emoji: "🐶",
+    description: "Encontra o animal pedido.",
+    benefits: ["Vocabulário"],
+    age: "2-3",
+    garden: "primeiros-passos",
+  },
+  {
+    id: "num-tap-1-3",
+    title: "Números 1·2·3",
+    emoji: "🔢",
+    description: "Aprende 1, 2 e 3.",
+    benefits: ["Números"],
+    age: "2-3",
+    garden: "primeiros-passos",
+  },
+  {
+    id: "grande-pequeno-tap",
+    title: "Grande ou Pequeno",
+    emoji: "🐘",
+    description: "Toca no grande ou no pequeno.",
+    benefits: ["Conceitos básicos"],
+    age: "2-3",
+    garden: "primeiros-passos",
+  },
+  {
+    id: "fruta-tap",
+    title: "Toca na Fruta",
+    emoji: "🍎",
+    description: "Encontra a fruta pedida.",
+    benefits: ["Vocabulário"],
+    age: "2-3",
+    garden: "primeiros-passos",
+  },
+  {
+    id: "som-anima",
+    title: "Que Animal É?",
+    emoji: "🔊",
+    description: "Que animal faz este som?",
+    benefits: ["Audição"],
+    age: "2-3",
+    garden: "primeiros-passos",
+  },
+  {
+    id: "cor-roupa",
+    title: "Cor da Roupa",
+    emoji: "🧥",
+    description: "Toca no casaco da cor pedida.",
+    benefits: ["Cores", "Rotinas"],
+    age: "2-3",
+    garden: "primeiros-passos",
+  },
+  {
+    id: "anima-grande",
+    title: "Animal Grande/Pequeno",
+    emoji: "🦁",
+    description: "Toca no animal grande ou pequeno.",
+    benefits: ["Conceitos"],
+    age: "2-3",
+    garden: "primeiros-passos",
+  },
+  {
+    id: "tap-pat-pat",
+    title: "Bate Palmas",
+    emoji: "👏",
+    description: "Bate o ritmo no botão.",
+    benefits: ["Coordenação", "Ritmo"],
+    age: "2-3",
+    garden: "primeiros-passos",
+  },
+  {
+    id: "estrelas-tap",
+    title: "Conta Estrelas",
+    emoji: "⭐",
+    description: "Toca quantas estrelas eu disser.",
+    benefits: ["Contagem"],
+    age: "2-3",
+    garden: "primeiros-passos",
+  },
+  {
+    id: "carro-cor",
+    title: "Carro da Cor",
+    emoji: "🚗",
+    description: "Toca no carro da cor pedida.",
+    benefits: ["Cores"],
+    age: "2-3",
+    garden: "primeiros-passos",
+  },
+  {
+    id: "anima-casa",
+    title: "Onde Vive?",
+    emoji: "🏠",
+    description: "Cada animal tem a sua casa.",
+    benefits: ["Natureza"],
+    age: "2-3",
+    garden: "primeiros-passos",
+  },
+  {
+    id: "comida-tap",
+    title: "Toca na Comida",
+    emoji: "🍞",
+    description: "Encontra a comida pedida.",
+    benefits: ["Vocabulário"],
+    age: "2-3",
+    garden: "primeiros-passos",
+  },
+  {
+    id: "forma-redonda",
+    title: "Toca na Forma",
+    emoji: "⚪",
+    description: "Reconhece círculo, quadrado, triângulo.",
+    benefits: ["Formas"],
+    age: "2-3",
+    garden: "primeiros-passos",
+  },
+  {
+    id: "luz-tap",
+    title: "Acende as Luzes",
+    emoji: "💡",
+    description: "Toca para acender. Causa e efeito.",
+    benefits: ["Causa-efeito"],
+    age: "2-3",
+    garden: "primeiros-passos",
+  },
 
   // ---- 🎪 V7 — extra tap games (variedade para arcade)
-  { id: "instrumentos",   title: "Toca no Instrumento", emoji: "🎶", description: "Encontra o instrumento pedido.",         benefits: ["Música", "Vocabulário"], age: "2-3", garden: "primeiros-passos" },
-  { id: "tempo-meteo",    title: "Que tempo faz?",      emoji: "🌦️", description: "Sol, chuva, neve ou nuvem?",             benefits: ["Natureza"],              age: "2-3", garden: "primeiros-passos" },
-  { id: "profissoes",     title: "Profissões",          emoji: "🧑‍⚕️", description: "Quem é cada profissão?",                benefits: ["Vocabulário", "Sociedade"], age: "3-4", garden: "descobertas" },
-  { id: "parte-dia",      title: "Parte do Dia",        emoji: "🌅", description: "Manhã, meio-dia ou noite.",              benefits: ["Tempo", "Rotinas"],      age: "2-3", garden: "primeiros-passos" },
-  { id: "contrarios",     title: "Quente ou Frio",      emoji: "🔥", description: "Toca no quente ou no frio.",             benefits: ["Conceitos"],             age: "2-3", garden: "primeiros-passos" },
-  { id: "num-tap-4-6",    title: "Números 4·5·6",       emoji: "🔢", description: "Aprende 4, 5 e 6.",                       benefits: ["Números"],               age: "3-4", garden: "descobertas" },
-  { id: "forma-simples",  title: "Toca na Forma+",      emoji: "⭐", description: "Círculo, quadrado, triângulo, estrela.", benefits: ["Formas"],                age: "2-3", garden: "primeiros-passos" },
-  { id: "familia",        title: "A Minha Família",     emoji: "👪", description: "Mãe, pai, bebé, avô.",                    benefits: ["Vocabulário"],           age: "2-3", garden: "primeiros-passos" },
-  { id: "veiculos-tap",   title: "Veículos",            emoji: "🚗", description: "Carro, bicicleta, barco, avião.",        benefits: ["Vocabulário"],           age: "2-3", garden: "primeiros-passos" },
-  { id: "sons-natu",      title: "Sons da Natureza",    emoji: "🌳", description: "Trovão, vento ou onda.",                  benefits: ["Audição"],               age: "3-4", garden: "descobertas" },
+  {
+    id: "instrumentos",
+    title: "Toca no Instrumento",
+    emoji: "🎶",
+    description: "Encontra o instrumento pedido.",
+    benefits: ["Música", "Vocabulário"],
+    age: "2-3",
+    garden: "primeiros-passos",
+  },
+  {
+    id: "tempo-meteo",
+    title: "Que tempo faz?",
+    emoji: "🌦️",
+    description: "Sol, chuva, neve ou nuvem?",
+    benefits: ["Natureza"],
+    age: "2-3",
+    garden: "primeiros-passos",
+  },
+  {
+    id: "profissoes",
+    title: "Profissões",
+    emoji: "🧑‍⚕️",
+    description: "Quem é cada profissão?",
+    benefits: ["Vocabulário", "Sociedade"],
+    age: "3-4",
+    garden: "descobertas",
+  },
+  {
+    id: "parte-dia",
+    title: "Parte do Dia",
+    emoji: "🌅",
+    description: "Manhã, meio-dia ou noite.",
+    benefits: ["Tempo", "Rotinas"],
+    age: "2-3",
+    garden: "primeiros-passos",
+  },
+  {
+    id: "contrarios",
+    title: "Quente ou Frio",
+    emoji: "🔥",
+    description: "Toca no quente ou no frio.",
+    benefits: ["Conceitos"],
+    age: "2-3",
+    garden: "primeiros-passos",
+  },
+  {
+    id: "num-tap-4-6",
+    title: "Números 4·5·6",
+    emoji: "🔢",
+    description: "Aprende 4, 5 e 6.",
+    benefits: ["Números"],
+    age: "3-4",
+    garden: "descobertas",
+  },
+  {
+    id: "forma-simples",
+    title: "Toca na Forma+",
+    emoji: "⭐",
+    description: "Círculo, quadrado, triângulo, estrela.",
+    benefits: ["Formas"],
+    age: "2-3",
+    garden: "primeiros-passos",
+  },
+  {
+    id: "familia",
+    title: "A Minha Família",
+    emoji: "👪",
+    description: "Mãe, pai, bebé, avô.",
+    benefits: ["Vocabulário"],
+    age: "2-3",
+    garden: "primeiros-passos",
+  },
+  {
+    id: "veiculos-tap",
+    title: "Veículos",
+    emoji: "🚗",
+    description: "Carro, bicicleta, barco, avião.",
+    benefits: ["Vocabulário"],
+    age: "2-3",
+    garden: "primeiros-passos",
+  },
+  {
+    id: "sons-natu",
+    title: "Sons da Natureza",
+    emoji: "🌳",
+    description: "Trovão, vento ou onda.",
+    benefits: ["Audição"],
+    age: "3-4",
+    garden: "descobertas",
+  },
 ];
 
-export const getGardenGames = (gardenId: GardenId) =>
-  GAMES.filter((g) => g.garden === gardenId);
+export const getGardenGames = (gardenId: GardenId) => GAMES.filter((g) => g.garden === gardenId);
 
 // ----- Níveis / desbloqueio de jardins -----
 
@@ -171,13 +909,13 @@ export function currentLevel(progress: JuniorProgress): number {
 export interface JuniorChild {
   id: string;
   name: string;
-  age: number;          // 2-5
+  age: number; // 2-5
   mascot: MascotId;
-  createdAt: string;    // ISO
+  createdAt: string; // ISO
 }
 
 export interface JuniorMedal {
-  id: string;          // e.g. "first-game", "streak-3", "garden-1-complete"
+  id: string; // e.g. "first-game", "streak-3", "garden-1-complete"
   emoji: string;
   label: string;
   awardedAt: string;
@@ -200,13 +938,20 @@ export interface JuniorProgress {
 }
 
 const CHILDREN_KEY = "alegria-junior-children-v1";
-const ACTIVE_KEY   = "alegria-junior-active-v1";
+const ACTIVE_KEY = "alegria-junior-active-v1";
 const LEGACY_PROGRESS = "alegria-junior-progress-v1";
-const progressKey  = (childId: string) => `alegria-junior-progress::${childId}`;
+const progressKey = (childId: string) => `alegria-junior-progress::${childId}`;
 
 const emptyProgress = (): JuniorProgress => ({
-  playedGames: [], totalSessions: 0, lastPlayedAt: null, highlights: [],
-  points: 0, streak: 0, bestStreak: 0, lastDay: null, medals: [],
+  playedGames: [],
+  totalSessions: 0,
+  lastPlayedAt: null,
+  highlights: [],
+  points: 0,
+  streak: 0,
+  bestStreak: 0,
+  lastDay: null,
+  medals: [],
 });
 
 const ymd = (d = new Date()) => d.toISOString().slice(0, 10);
@@ -229,7 +974,8 @@ function addMedalsIfEarned(p: JuniorProgress): JuniorMedal[] {
 }
 
 const isBrowser = () => typeof window !== "undefined";
-const uid = () => (globalThis.crypto?.randomUUID?.() ?? `c_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`);
+const uid = () =>
+  globalThis.crypto?.randomUUID?.() ?? `c_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
 
 // ----- children CRUD -----
 
@@ -240,18 +986,33 @@ export function listJuniorChildren(): JuniorChild[] {
     const list: JuniorChild[] = raw ? JSON.parse(raw) : [];
     // Migração: se existir progresso legado mas nenhuma criança, cria "default"
     if (list.length === 0 && localStorage.getItem(LEGACY_PROGRESS)) {
-      const def: JuniorChild = { id: uid(), name: "A minha criança", age: 4, mascot: "fox", createdAt: new Date().toISOString() };
+      const def: JuniorChild = {
+        id: uid(),
+        name: "A minha criança",
+        age: 4,
+        mascot: "fox",
+        createdAt: new Date().toISOString(),
+      };
       localStorage.setItem(CHILDREN_KEY, JSON.stringify([def]));
-      localStorage.setItem(progressKey(def.id), localStorage.getItem(LEGACY_PROGRESS) ?? JSON.stringify(emptyProgress()));
+      localStorage.setItem(
+        progressKey(def.id),
+        localStorage.getItem(LEGACY_PROGRESS) ?? JSON.stringify(emptyProgress()),
+      );
       localStorage.setItem(ACTIVE_KEY, def.id);
       localStorage.removeItem(LEGACY_PROGRESS);
       return [def];
     }
     return list;
-  } catch { return []; }
+  } catch {
+    return [];
+  }
 }
 
-export function addJuniorChild(input: { name: string; age: number; mascot: MascotId }): JuniorChild {
+export function addJuniorChild(input: {
+  name: string;
+  age: number;
+  mascot: MascotId;
+}): JuniorChild {
   const child: JuniorChild = {
     id: uid(),
     name: input.name.trim().slice(0, 40) || "Criança",
@@ -285,7 +1046,10 @@ export function getActiveJuniorChildId(): string | null {
   const id = localStorage.getItem(ACTIVE_KEY);
   if (id && listJuniorChildren().some((c) => c.id === id)) return id;
   const first = listJuniorChildren()[0];
-  if (first) { localStorage.setItem(ACTIVE_KEY, first.id); return first.id; }
+  if (first) {
+    localStorage.setItem(ACTIVE_KEY, first.id);
+    return first.id;
+  }
   return null;
 }
 
@@ -303,10 +1067,16 @@ export function loadJuniorProgress(childId?: string | null): JuniorProgress {
     const raw = localStorage.getItem(progressKey(id));
     if (!raw) return emptyProgress();
     return { ...emptyProgress(), ...JSON.parse(raw) };
-  } catch { return emptyProgress(); }
+  } catch {
+    return emptyProgress();
+  }
 }
 
-export function recordJuniorPlay(gameId: string, note: string, childId?: string | null): JuniorProgress {
+export function recordJuniorPlay(
+  gameId: string,
+  note: string,
+  childId?: string | null,
+): JuniorProgress {
   const id = childId ?? getActiveJuniorChildId();
   if (!id) return emptyProgress();
   const p = loadJuniorProgress(id);

@@ -1,6 +1,6 @@
-// Trivia source com cache local + fallback offline para `triviaBank`.
+// Trivia source com cache local + fallback offline para `triviaBank` + `triviaBoost`.
 import { supabase } from "@/integrations/supabase/client";
-import { TRIVIA_BANK, type TriviaQuestion } from "@/lib/triviaBank";
+import { ALL_TRIVIA, type TriviaQuestion } from "@/lib/triviaBoost";
 
 const LS_PREFIX = "alegria.trivia.cache.v1::";
 const LS_TTL_MS = 6 * 3600 * 1000; // 6h client cache
@@ -20,18 +20,27 @@ function readLocal(key: string): RemoteTriviaQ[] | null {
     const { at, qs } = JSON.parse(raw) as { at: number; qs: RemoteTriviaQ[] };
     if (Date.now() - at > LS_TTL_MS) return null;
     return qs;
-  } catch { return null; }
+  } catch {
+    return null;
+  }
 }
 function writeLocal(key: string, qs: RemoteTriviaQ[]) {
-  try { localStorage.setItem(LS_PREFIX + key, JSON.stringify({ at: Date.now(), qs })); } catch {}
+  try {
+    localStorage.setItem(LS_PREFIX + key, JSON.stringify({ at: Date.now(), qs }));
+  } catch {
+    // storage cheio/indisponível — falha silenciosa OK para cache
+  }
 }
 
 function fallbackOffline(count: number, age?: number): RemoteTriviaQ[] {
-  const pool = TRIVIA_BANK.filter((q) => age == null || Math.abs(q.age - age) <= 2);
-  const src = pool.length ? pool : TRIVIA_BANK;
+  const pool = ALL_TRIVIA.filter((q) => age == null || Math.abs(q.age - age) <= 2);
+  const src = pool.length ? pool : ALL_TRIVIA;
   const shuffled = [...src].sort(() => Math.random() - 0.5).slice(0, count);
   return shuffled.map((q: TriviaQuestion) => ({
-    category: q.category, prompt: q.prompt, options: q.options, answerIndex: q.answerIndex,
+    category: q.category,
+    prompt: q.prompt,
+    options: q.options,
+    answerIndex: q.answerIndex,
   }));
 }
 
