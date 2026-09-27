@@ -53,6 +53,7 @@ import {
 } from "lucide-react";
 import { PurchaseHistoryPanel } from "@/components/PurchaseHistoryPanel";
 import { PortalParentReport } from "@/components/PortalParentReport";
+import { ParentPremiumCard } from "@/components/ParentPremiumCard";
 import { QuickChildSignup } from "@/components/QuickChildSignup";
 import { JuniorParentPanel } from "@/components/JuniorParentPanel";
 import { JuniorParentReport } from "@/components/JuniorParentReport";
@@ -655,6 +656,7 @@ function ParentDashboard() {
                       <PortalParentReport />
                     </div>
                     <aside className="space-y-5">
+                      <ParentPremiumCard />
                       {selectedChild && (
                         <ChildChallengesPanel
                           childId={selectedChild}

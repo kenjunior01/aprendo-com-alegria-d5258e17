@@ -18,6 +18,7 @@ import { getMascot, type MascotId } from "@/lib/mascots";
 import { type Achievement } from "@/lib/achievements";
 import { haptic } from "@/lib/haptics";
 import { loadProfile } from "@/lib/storage";
+import { PremiumUpsell } from "@/components/PremiumUpsell";
 import { shareChallenge } from "@/lib/challengeShare";
 import {
   Check,
@@ -365,6 +366,11 @@ export function LessonCompleteScreen({
             </motion.div>
           )}
         </AnimatePresence>
+
+        {/* ── 7.5 Upsell Premium (só não-premium, 1×/dia) ── */}
+        <div className="mt-6 flex w-full justify-center">
+          <PremiumUpsell />
+        </div>
 
         {/* ── 8. Action buttons ── */}
         <motion.div

@@ -16,6 +16,7 @@ import {
 import { loadProfile, type Profile } from "@/lib/storage";
 import { useAuth } from "@/hooks/useAuth";
 import { JoinClassCard } from "@/components/JoinClassCard";
+import { SchoolLeadForm } from "@/components/SchoolLeadForm";
 import { RouteError } from "@/components/RouteError";
 import {
   ArrowLeft,
@@ -353,6 +354,9 @@ function EscolasPage() {
             pagamento por transferência bancária, fala connosco.
           </p>
         </section>
+
+        {/* Lead capture estruturado (B2B) */}
+        <SchoolLeadForm />
 
         {/* Demo / valor para os pais */}
         <section className="mt-8 grid gap-3 sm:grid-cols-2">
