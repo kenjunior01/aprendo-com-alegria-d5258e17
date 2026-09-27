@@ -15,7 +15,9 @@ if (typeof window !== "undefined") {
 function getCtx(): AudioContext | null {
   if (typeof window === "undefined") return null;
   if (!ctx) {
-    const AC = window.AudioContext || (window as any).webkitAudioContext;
+    const AC =
+      window.AudioContext ||
+      (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
     if (!AC) return null;
     ctx = new AC();
   }
@@ -134,6 +136,49 @@ export function playMeow() {
   if (muted) return;
   tone(760, 0.16, "sine", 0.2, 0);
   tone(560, 0.22, "sine", 0.18, 0.14);
+}
+
+// ===== Mundo Kidoz Premium — SFX mágicos =====
+
+/** Portal a abrir: varrimento ascendente mágico. */
+export function playPortal() {
+  if (muted) return;
+  tone(196, 0.5, "sine", 0.16, 0);
+  tone(392, 0.5, "sine", 0.14, 0.08);
+  tone(523.25, 0.4, "triangle", 0.16, 0.18);
+  tone(783.99, 0.55, "triangle", 0.2, 0.3);
+  tone(1046.5, 0.6, "sine", 0.14, 0.42);
+}
+
+/** Escudo a absorver um erro: "clang" metálico suave. */
+export function playShield() {
+  if (muted) return;
+  tone(880, 0.1, "square", 0.1, 0);
+  tone(440, 0.22, "triangle", 0.16, 0.05);
+  tone(587.33, 0.3, "sine", 0.12, 0.1);
+}
+
+/** Estrela conquistada: sininho brilhante. */
+export function playStar() {
+  if (muted) return;
+  tone(1567.98, 0.22, "sine", 0.18, 0);
+  tone(2093, 0.3, "sine", 0.12, 0.07);
+}
+
+/** Perigo (lava alta, combustível crítico, último coração): aviso suave. */
+export function playDanger() {
+  if (muted) return;
+  tone(220, 0.22, "sawtooth", 0.07, 0);
+  tone(233.08, 0.22, "sawtooth", 0.07, 0.22);
+  tone(220, 0.26, "sawtooth", 0.07, 0.44);
+}
+
+/** Compra no Bazar: moedas a cair. */
+export function playCoins() {
+  if (muted) return;
+  tone(987.77, 0.09, "square", 0.09, 0);
+  tone(1318.51, 0.09, "square", 0.09, 0.07);
+  tone(1567.98, 0.16, "square", 0.1, 0.14);
 }
 
 // ===== Web Speech (TTS) =====

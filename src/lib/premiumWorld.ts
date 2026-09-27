@@ -7,6 +7,7 @@
 
 import { generateQuestions, type GenQuestion, type TrackId } from "./infiniteChallenges";
 import { loadProfile, updateProfile, type Profile } from "./storage";
+import { recordPortalEvent } from "./portalDaily";
 
 export type RealmId = "vulcao" | "galaxia" | "lab" | "castelo" | "dragao";
 
@@ -377,6 +378,15 @@ export function finishRealm(
   }
   savePortalState(state);
 
+  // Missões diárias do Portal: alimenta o progresso de hoje.
+  recordPortalEvent({
+    answersCorrect: correct,
+    gameCompleted: true,
+    stars: starsEarned,
+    crystals,
+    perfect,
+  });
+
   const p = loadProfile();
   const profile = p ? updateProfile({ coins: p.coins + coins, xp: p.xp + xp }) : null;
 
@@ -429,6 +439,14 @@ export function equipCreature(id: string | null): PortalState {
 export function consumeSupply(key: SupplyKey): PortalState {
   const state = loadPortalState();
   state.supplies[key] = Math.max(0, (state.supplies[key] ?? 0) - 1);
+  savePortalState(state);
+  return state;
+}
+
+/** Adiciona cristais (ex.: recompensa de missões diárias do Portal). */
+export function addCrystals(n: number): PortalState {
+  const state = loadPortalState();
+  state.crystals += n;
   savePortalState(state);
   return state;
 }

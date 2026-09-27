@@ -275,6 +275,46 @@ function EscolaPage() {
     return { totalMin, totalSess, avgAcc, active };
   }, [students]);
 
+  /** Resumo semanal da turma por WhatsApp — um toque para partilhar com pais/direção. */
+  const sendWeeklySummary = () => {
+    if (!selectedClass || students.length === 0) {
+      toast.info("A turma ainda não tem alunos — o resumo aparece quando houver atividade!");
+      return;
+    }
+    const s = summary;
+    const top3 = rankingAll
+      .slice(0, 3)
+      .map(
+        (e, i) =>
+          `${["\ud83e\udd47", "\ud83e\udd48", "\ud83e\udd49"][i]} ${e.name} (${e.xp} XP · ${e.accuracy}%)`,
+      )
+      .join("\n");
+    const period =
+      daysFilter === 7
+        ? "os últimos 7 dias"
+        : daysFilter === 30
+          ? "os últimos 30 dias"
+          : daysFilter === 90
+            ? "o último trimestre"
+            : `os últimos ${daysFilter} dias`;
+    const msg = [
+      `\ud83d\udcca Resumo da Turma — ${selectedClass.name} (Kidoz)`,
+      `Período: ${period}`,
+      "",
+      `\ud83d\udc65 ${students.length} alunos · ${s?.active ?? 0} ativos`,
+      `\ud83c\udfaf Precis\u00e3o média: ${s?.avgAcc ?? 0}%`,
+      `\u23f1\ufe0f ${s?.totalMin ?? 0} minutos praticados (${s?.totalSess ?? 0} sess\u00f5es)`,
+      "",
+      top3 ? `\ud83c\udfc6 Destaques:\n${top3}` : "",
+      "",
+      "Relat\u00f3rio gerado no Painel da Escola Kidoz \ud83d\udc9c",
+    ]
+      .filter(Boolean)
+      .join("\n");
+    const ok = openWhatsApp(msg);
+    if (!ok) toast.error("N\u00e3o foi poss\u00edvel abrir o WhatsApp");
+  };
+
   if (!profile) return <KidLoader />;
   if (loading) {
     return (
@@ -522,6 +562,15 @@ function EscolaPage() {
                     <Button variant="outline" size="sm" onClick={exportRankingCsv}>
                       <Download className="mr-1 h-4 w-4" />
                       CSV ranking
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={sendWeeklySummary}
+                      title="Partilhar resumo da turma por WhatsApp"
+                    >
+                      <Share2 className="mr-1 h-4 w-4" />
+                      Resumo WhatsApp
                     </Button>
                   </div>
                 </div>

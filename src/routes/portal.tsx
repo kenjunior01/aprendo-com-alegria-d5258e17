@@ -8,6 +8,8 @@ import { Mascot } from "@/components/Mascot";
 import { loadProfile, pullProfileFromCloud, type Profile } from "@/lib/storage";
 import { getMascot } from "@/lib/mascots";
 import { haptic } from "@/lib/haptics";
+import { playPortal, playLevelUp } from "@/lib/audio";
+import { cn } from "@/lib/utils";
 import { isPremiumActive, premiumDaysLeft } from "@/lib/premium";
 import {
   REALMS,
@@ -22,11 +24,13 @@ import {
   consumeSupply,
   equipCreature,
   getCreature,
+  addCrystals,
   type PortalState,
   type RealmDef,
   type SupplyKey,
   type CreatureDef,
 } from "@/lib/premiumWorld";
+import { claimPortalQuest, todayQuests, type PortalQuest } from "@/lib/portalDaily";
 import { RealmGame } from "@/components/portal/RealmGames";
 import { CrystalBazaar } from "@/components/portal/CrystalBazaar";
 import { ConfettiCelebration } from "@/components/ConfettiCelebration";
@@ -63,6 +67,7 @@ function PortalPage() {
   const navigate = useNavigate();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [state, setState] = useState<PortalState>(() => loadPortalState());
+  const [daily, setDaily] = useState(() => todayQuests());
   const [activeRealm, setActiveRealm] = useState<RealmDef | null>(null);
   const [activeLevel, setActiveLevel] = useState(0);
   const [gameSeed, setGameSeed] = useState(0);
@@ -84,6 +89,7 @@ function PortalPage() {
       setProfile(p);
       if (!localStorage.getItem("kidoz-portal-seen")) {
         setFirstVisit(true);
+        playPortal();
         localStorage.setItem("kidoz-portal-seen", "1");
         setTimeout(() => setFirstVisit(false), 4200);
       }
@@ -95,6 +101,8 @@ function PortalPage() {
 
   const premium = useMemo(() => isPremiumActive(profile), [profile]);
   const canTour = useMemo(() => tourAvailable(), []);
+  const dailyAllClaimed =
+    daily.quests.length > 0 && daily.quests.every((q) => daily.state.claimed.includes(q.id));
 
   if (!profile) return <KidLoader />;
   const mascot = getMascot(profile.mascot);
@@ -102,6 +110,7 @@ function PortalPage() {
 
   const play = (realm: RealmDef, levelIdx = 0, demo = false) => {
     haptic(demo ? "tap" : "celebrate");
+    playPortal();
     if (demo) setDemoRealm(realm);
     else {
       setActiveRealm(realm);
@@ -116,6 +125,28 @@ function PortalPage() {
     setDemoRealm(null);
     setState(loadPortalState());
     setProfile(loadProfile());
+    setDaily(todayQuests()); // refresca o progresso das missões de hoje
+  };
+
+  const doClaim = (quest: PortalQuest) => {
+    const r = claimPortalQuest(quest.id);
+    if (r.ok) {
+      haptic("celebrate");
+      playLevelUp();
+      if (r.reward) setState(addCrystals(r.reward));
+      setDaily(todayQuests());
+      toast.success(`+${r.reward} ✦ — missão cumprida!`);
+      if (r.allDone) {
+        setTimeout(
+          () => toast.success("🔥 Todas as missões de hoje concluídas!", { duration: 4000 }),
+          900,
+        );
+      }
+    } else if (r.reason === "claimed") {
+      toast.info("Já reclamaste esta missão hoje!");
+    } else {
+      toast.info("Termina a missão primeiro — joga um reino! ✦");
+    }
   };
 
   const nextLevel = () => {
@@ -129,14 +160,17 @@ function PortalPage() {
 
   const doBuySupply = (key: SupplyKey, price: number) => {
     const r = buySupply(key, price);
-    if (r.ok) setState(r.state);
-    else toast.error("Não tens cristais suficientes — joga um reino! ✦");
+    if (r.ok) {
+      setState(r.state);
+      setDaily(todayQuests()); // missão "Visita ao Bazar" atualiza já
+    } else toast.error("Não tens cristais suficientes — joga um reino! ✦");
   };
 
   const doBuyCreature = (c: CreatureDef) => {
     const r = buyCreature(c);
     if (r.ok) {
       setState(r.state);
+      setDaily(todayQuests());
       toast.success(`${c.emoji} ${c.name} juntou-se à tua aventura!`);
     } else if (r.reason === "nocredits") {
       toast.error("Não tens cristais suficientes — joga um reino! ✦");
@@ -161,6 +195,8 @@ function PortalPage() {
           startShield: getCreature(state.equippedCreature)?.perkKey === "startShield",
           freeHint: getCreature(state.equippedCreature)?.perkKey === "freeHint",
         }}
+        mascotId={profile.mascot}
+        creatureEmoji={getCreature(state.equippedCreature)?.emoji ?? null}
         onUseSupply={useSupply}
         onExit={exitGame}
         onNextLevel={nextLevel}
@@ -176,6 +212,8 @@ function PortalPage() {
         levelIdx={0}
         seed={0}
         demo
+        mascotId={profile.mascot}
+        creatureEmoji={getCreature(state.equippedCreature)?.emoji ?? null}
         onExit={exitGame}
       />
     );
@@ -333,7 +371,10 @@ function PortalPage() {
                 { n: `⭐ ${totalStars(state)}`, l: "estrelas" },
                 {
                   n: String(
-                    REALMS.filter((r) => (state.stars[r.id] ?? []).every((s) => s >= 1)).length,
+                    REALMS.filter((r) => {
+                      const st = state.stars[r.id] ?? [];
+                      return st.length === 3 && st.every((s) => s >= 1);
+                    }).length,
                   ),
                   l: "reinos 100%",
                 },
@@ -384,9 +425,76 @@ function PortalPage() {
             )}
             <p className="text-sm text-white/85">
               {premium
-                ? `${mascot.encourage} Escolhe um reino e boa sorte! ✦`
+                ? dailyAllClaimed
+                  ? "Missões de hoje concluídas — és incrível! Volta amanhã por mais! 🔥"
+                  : "As Missões de Hoje esperam por ti. Escolhe um reino! ✦"
                 : "Toca numa ilha para experimentares a Visita Guiada grátis! 👇"}
             </p>
+          </section>
+
+          {/* Missões Diárias do Portal */}
+          <section className="mt-4 rounded-3xl border border-white/15 bg-white/5 p-4 backdrop-blur">
+            <div className="flex items-center justify-between gap-2">
+              <h2 className="font-display text-lg text-white">🎯 Missões de Hoje</h2>
+              <span className="inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-orange-500/30 to-amber-400/30 px-3 py-1 font-display text-xs text-amber-200">
+                🔥 {daily.state.streak} dia{daily.state.streak === 1 ? "" : "s"} seguidos
+              </span>
+            </div>
+            <p className="mt-1 text-xs text-white/60">
+              Volta todos os dias — missões novas à meia-noite e a chama 🔥 cresce!
+            </p>
+            <div className="mt-3 grid gap-2">
+              {daily.quests.map((q) => {
+                const prog = Math.min(daily.state.progress[q.id] ?? 0, q.target);
+                const done = prog >= q.target;
+                const claimed = daily.state.claimed.includes(q.id);
+                return (
+                  <div
+                    key={q.id}
+                    className={cn(
+                      "flex items-center gap-3 rounded-2xl border p-3 transition-colors",
+                      claimed
+                        ? "border-emerald-300/40 bg-emerald-400/10"
+                        : done
+                          ? "border-amber-300/50 bg-amber-400/10"
+                          : "border-white/15 bg-white/5",
+                    )}
+                  >
+                    <span className="shrink-0 text-2xl">{q.emoji}</span>
+                    <div className="min-w-0 flex-1">
+                      <p className="font-display text-sm text-white">{q.title}</p>
+                      <p className="text-[11px] text-white/60">{q.desc}</p>
+                      <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-white/10">
+                        <motion.div
+                          initial={{ width: 0 }}
+                          animate={{ width: `${(prog / q.target) * 100}%` }}
+                          transition={{ duration: 0.5 }}
+                          className={cn(
+                            "h-full rounded-full",
+                            done
+                              ? "bg-gradient-to-r from-emerald-400 to-teal-300"
+                              : "bg-gradient-to-r from-violet-400 to-fuchsia-300",
+                          )}
+                        />
+                      </div>
+                    </div>
+                    {claimed ? (
+                      <span className="shrink-0 rounded-xl bg-emerald-400/20 px-2 py-1 font-display text-[10px] text-emerald-200">
+                        ✓ feito
+                      </span>
+                    ) : done ? (
+                      <ChunkyButton onClick={() => doClaim(q)} className="shrink-0 px-2.5 text-xs">
+                        +{q.reward} ✦
+                      </ChunkyButton>
+                    ) : (
+                      <span className="shrink-0 font-display text-[10px] tabular-nums text-white/50">
+                        {prog}/{q.target}
+                      </span>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
           </section>
 
           {/* Mapa dos reinos */}
@@ -490,20 +598,20 @@ function PortalPage() {
                               ? "Visita guiada grátis · sem prémios"
                               : "O Mundo completo tem os 3 níveis e prémios"}
                           </p>
-                          <Link to={premium ? "/portal" : "/premium"} className="shrink-0">
-                            {playable ? (
-                              <ChunkyButton
-                                onClick={() => play(realm, 0, true)}
-                                className="min-h-[42px] px-3 text-xs"
-                              >
-                                <Sparkles className="mr-1 inline h-3.5 w-3.5" /> Experimentar
-                              </ChunkyButton>
-                            ) : (
+                          {playable ? (
+                            <ChunkyButton
+                              onClick={() => play(realm, 0, true)}
+                              className="min-h-[42px] shrink-0 px-3 text-xs"
+                            >
+                              <Sparkles className="mr-1 inline h-3.5 w-3.5" /> Experimentar
+                            </ChunkyButton>
+                          ) : (
+                            <Link to="/premium" className="shrink-0">
                               <span className="inline-flex items-center gap-1 rounded-2xl border border-white/25 bg-white/10 px-3 py-2 font-display text-xs text-white/70">
                                 <Lock className="h-3.5 w-3.5" /> Bloqueado
                               </span>
-                            )}
-                          </Link>
+                            </Link>
+                          )}
                         </div>
                       )}
                     </div>
@@ -599,8 +707,9 @@ function PortalPage() {
           <section className="mt-8 rounded-3xl border border-white/15 bg-white/5 p-5 text-center backdrop-blur">
             <p className="font-display text-sm text-white/80">
               💜 <b>Para os pais:</b> os reinos do Mundo Premium usam o mesmo currículo do 1.º ciclo
-              — cada pergunta conta para o progresso, relatórios e conquistas da criança. Sem
-              anúncios, sempre seguro.
+              — cada pergunta conta para o progresso, relatórios e conquistas da criança. As missões
+              diárias criam o hábito de ~10 minutos de prática estruturada por dia. Sem anúncios,
+              sempre seguro.
             </p>
             <Link
               to="/premium"

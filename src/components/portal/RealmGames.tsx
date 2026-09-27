@@ -3,12 +3,25 @@
 // 🌋 lava que sobe · 🚀 viagem espacial · 🧪 poções · 🏰 janelas que acendem · 🐉 chefe final.
 // Suporta 3 níveis por reino (Bronze/Prata/Ouro), estrelas e power-ups
 // (🛡️ escudo · 💡 dica 50/50 · ✦×2 dobro) comprados no Bazar dos Cristais.
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Sparkles, Flame, Fuel, Heart, Shield, Lightbulb } from "lucide-react";
 import { ChunkyButton } from "@/components/ChunkyButton";
 import { haptic } from "@/lib/haptics";
 import { cn } from "@/lib/utils";
+import {
+  playCorrect,
+  playCoins,
+  playDanger,
+  playLevelUp,
+  playPortal,
+  playShield as playShieldSfx,
+  playStar,
+  playTap,
+  playWrong,
+} from "@/lib/audio";
+import { MascotActor, type ActorMood } from "@/components/MascotActor";
+import { getMascot, type MascotId } from "@/lib/mascots";
 import {
   finishRealm,
   markTourUsed,
@@ -16,6 +29,7 @@ import {
   realmQuestionCount,
   REALM_LEVELS,
   type RealmDef,
+  type RealmId,
   type SupplyKey,
 } from "@/lib/premiumWorld";
 import type { GenQuestion } from "@/lib/infiniteChallenges";
@@ -46,6 +60,10 @@ interface Props {
   onExit: () => void;
   /** jogar o nível seguinte do mesmo reino */
   onNextLevel?: () => void;
+  /** mascote da criança — treinadora viva do reino */
+  mascotId?: MascotId | null;
+  /** criatura equipada do Bazar (emoji) — reage às jogadas */
+  creatureEmoji?: string | null;
 }
 
 interface Finish {
@@ -71,6 +89,37 @@ const POTION_NAMES = [
   "Banha de Dragão",
 ];
 
+// ─── Falas da treinadora viva (por reino) ───
+const REALM_COACH: Record<RealmId, { intro: string; danger: string; win: string[] }> = {
+  vulcao: {
+    intro: "A lava sobe a cada erro — acerta para a arrefecer!",
+    danger: "A lava está a ficar QUENTE! Respira fundo! \ud83c\udf0b",
+    win: ["A lava baixou — que herói!", "Vulcão meio domado, continua!", "Esmagaste a erupção!"],
+  },
+  galaxia: {
+    intro: "Respostas certas são combustível. Boa viagem!",
+    danger: "Só resta 1 de combustível! Concentra-te! \ud83d\udef8",
+    win: ["Motor a toda a força!", "Meio universo visitado!", "Aterragem estelar!"],
+  },
+  lab: {
+    intro: "Cada acerto enche o frasco da poção mágica!",
+    danger: "A poção está a agitar-se! Cuidado! \ud83e\uddea",
+    win: ["A mistura borbulha bem!", "Metade do frasco cheio!", "Poção perfeita, alquimista!"],
+  },
+  castelo: {
+    intro: "Acerta para acender as janelas do castelo!",
+    danger: "O castelo está a escurecer outra vez! \ud83c\udff0",
+    win: ["Que luz tão bonita!", "Metade do castelo acesa!", "Castelo brilhante por completo!"],
+  },
+  dragao: {
+    intro: "O dragão guarda o tesouro — cada acerto é um golpe!",
+    danger: "O dragão está a atacar! Não falhes! \ud83d\udc09",
+    win: ["Direto ao dragão!", "O dragão fraqueja!", "Golpe de Lenda!"],
+  },
+};
+
+const CELEBRATE_LINES = ["Embalada! Não pares!", "És imparável!", "Ritmo de Lenda!"];
+
 export function RealmGame({
   realm,
   grade,
@@ -82,6 +131,8 @@ export function RealmGame({
   onUseSupply,
   onExit,
   onNextLevel,
+  mascotId,
+  creatureEmoji,
 }: Props) {
   const questions = useMemo<GenQuestion[]>(
     () =>
@@ -116,6 +167,45 @@ export function RealmGame({
   const q = questions[idx];
   const levelDef = REALM_LEVELS[levelIdx] ?? REALM_LEVELS[0];
 
+  // ── Treinadora viva (mascote + falas reativas) ──
+  const mascot = mascotId ? getMascot(mascotId) : null;
+  const [coach, setCoach] = useState<{ line: string; mood: ActorMood; k: number }>(() => ({
+    line: REALM_COACH[realm.id].intro,
+    mood: "neutral" as ActorMood,
+    k: 0,
+  }));
+  const [streak, setStreak] = useState(0);
+  const [creatureBurst, setCreatureBurst] = useState(0);
+  const dangerFlags = useRef({ lava: false, fuel: false, heart: false });
+  const say = (line: string, mood: ActorMood) => setCoach((c) => ({ line, mood, k: c.k + 1 }));
+
+  // Aviso de perigo (uma vez por limite) + som
+  const checkDanger = (ug: number) => {
+    const f = dangerFlags.current;
+    let hit = false;
+    if (realm.id === "vulcao" && !f.lava && 40 + ug * 12 - correct * 6 >= 70) {
+      f.lava = true;
+      hit = true;
+    }
+    if (realm.id === "galaxia" && !f.fuel && 4 - ug <= 1) {
+      f.fuel = true;
+      hit = true;
+    }
+    if (realm.id === "dragao" && !f.heart && 3 - ug <= 1) {
+      f.heart = true;
+      hit = true;
+    }
+    if (hit) {
+      playDanger();
+      say(REALM_COACH[realm.id].danger, "worried");
+    }
+  };
+
+  // Som de entrada do reino (o componente remonta por jogo)
+  useEffect(() => {
+    playPortal();
+  }, []);
+
   // ── estado por reino ──
   const lava = Math.max(0, Math.min(100, 40 + unguarded * 12 - correct * 6));
   const fuel = 4 - unguarded; // galáxia: erros gastam combustível
@@ -149,6 +239,9 @@ export function RealmGame({
         nextUnlocked: false,
         early,
       });
+      haptic("success");
+      playLevelUp();
+      say("Gostaste? O Mundo completo tem 5 reinos e criaturas mágicas!", "celebrate");
       return;
     }
     const discovery =
@@ -184,6 +277,16 @@ export function RealmGame({
       newTitle: r.newTitle,
     });
     haptic(finalCorrect >= total / 2 ? "celebrate" : "success");
+    playLevelUp();
+    for (let s = 0; s < r.starsEarned; s++) {
+      setTimeout(() => playStar(), 650 + s * 380);
+    }
+    if (early) {
+      say(mascot?.encourage ?? "Quase! Treina e volta mais forte!", "sad");
+    } else {
+      const wins = REALM_COACH[realm.id].win;
+      say(wins[finalCorrect % wins.length], r.starsEarned >= 2 ? "celebrate" : "happy");
+    }
   };
 
   const answer = (i: number) => {
@@ -192,20 +295,36 @@ export function RealmGame({
     const isRight = i === q.answerIndex;
     if (isRight) {
       haptic("success");
+      playCorrect();
+      const ns = streak + 1;
+      setStreak(ns);
+      setCreatureBurst((b) => b + 1);
+      if (ns % 3 === 0 && !finish) {
+        const wins = REALM_COACH[realm.id].win;
+        say(CELEBRATE_LINES[(Math.floor(ns / 3) - 1) % CELEBRATE_LINES.length], "celebrate");
+      } else {
+        setCoach((c) => ({ ...c, mood: "happy" as ActorMood }));
+      }
       const newCorrect = correct + 1;
       setCorrect(newCorrect);
       setTimeout(() => advance(newCorrect, false, false), 850);
     } else {
       haptic("error");
+      playWrong();
       setWrongShake((s) => s + 1);
+      setStreak(0);
       const hadShield = shieldsLeft > 0;
       if (hadShield) {
         // O escudo absorve o erro: sem penalização para o reino
         setShieldsLeft((n) => n - 1);
         onUseSupply?.("shield");
         setShieldFlash((f) => f + 1);
+        playShieldSfx();
+        say("\ud83d\udee1 Escudo ativado — erro absorvido!", "excited");
       } else {
         setUnguarded((u) => u + 1);
+        say(mascot?.encourage ?? "Errar faz parte! Vais conseguir!", "sad");
+        checkDanger(unguarded + 1);
       }
       const newCorrect = correct;
       setTimeout(() => advance(newCorrect, true, hadShield), 1150);
@@ -218,6 +337,7 @@ export function RealmGame({
     setHintsLeft((n) => n - 1);
     onUseSupply?.("hint");
     haptic("tap");
+    playTap();
     const wrongIdx = q.options.map((_, i) => i).filter((i) => i !== q.answerIndex);
     // embaralhar e tirar 2
     for (let i = wrongIdx.length - 1; i > 0; i--) {
@@ -234,6 +354,7 @@ export function RealmGame({
     onUseSupply?.("double");
     setDoubleActive(true);
     haptic("celebrate");
+    playCoins();
   };
 
   const advance = (newCorrect: number, wasWrong: boolean, hadShield: boolean) => {
@@ -341,6 +462,17 @@ export function RealmGame({
         {levelDef.key === "bronze" ? "🥉" : levelDef.key === "prata" ? "🥈" : "🥇"} Nível{" "}
         {levelDef.name}
       </p>
+
+      {/* Treinadora viva: mascote + criatura reagem em tempo real */}
+      {mascot && (
+        <RealmCoach
+          mascotId={mascot.id}
+          creatureEmoji={creatureEmoji ?? null}
+          line={coach.line}
+          mood={coach.mood}
+          burst={creatureBurst}
+        />
+      )}
 
       {/* Flash do escudo */}
       <AnimatePresence>
@@ -516,6 +648,50 @@ function Reward({ label, value }: { label: string; value: string }) {
     <div className="rounded-2xl bg-white/10 px-2 py-2">
       <p className="text-[10px] uppercase tracking-wider text-white/60">{label}</p>
       <p className="font-display text-sm text-white">{value}</p>
+    </div>
+  );
+}
+
+// ─── Treinadora viva: mascote emocional + criatura companheira ───
+function RealmCoach({
+  mascotId,
+  creatureEmoji,
+  line,
+  mood,
+  burst,
+}: {
+  mascotId: MascotId;
+  creatureEmoji: string | null;
+  line: string;
+  mood: ActorMood;
+  burst: number;
+}) {
+  return (
+    <div className="mx-auto mt-1.5 flex w-full max-w-[36rem] items-center gap-1.5 px-4">
+      <div className="-my-2 shrink-0 scale-[0.72]">
+        <MascotActor mascotId={mascotId} size="sm" mood={mood} calm />
+      </div>
+      {creatureEmoji && (
+        <motion.span
+          key={burst}
+          initial={false}
+          animate={burst > 0 ? { scale: [1, 1.4, 1], rotate: [0, 12, -8, 0] } : {}}
+          transition={{ duration: 0.5 }}
+          className="shrink-0 text-xl drop-shadow"
+          title="A tua criatura companheira"
+        >
+          {creatureEmoji}
+        </motion.span>
+      )}
+      <motion.p
+        key={line}
+        initial={{ opacity: 0, y: 6, scale: 0.97 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.25 }}
+        className="min-w-0 flex-1 rounded-2xl rounded-bl-sm border border-white/20 bg-white/10 px-3 py-1.5 font-display text-xs leading-snug text-white backdrop-blur"
+      >
+        {line}
+      </motion.p>
     </div>
   );
 }

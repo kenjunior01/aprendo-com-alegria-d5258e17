@@ -6,6 +6,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
 import { ChunkyButton } from "@/components/ChunkyButton";
 import { haptic } from "@/lib/haptics";
+import { playCoins, playTap } from "@/lib/audio";
+import { recordPortalEvent } from "@/lib/portalDaily";
 import { cn } from "@/lib/utils";
 import {
   CREATURES,
@@ -133,6 +135,8 @@ export function CrystalBazaar({
                         onClick={() => {
                           if (!canBuy) return;
                           haptic("success");
+                          playCoins();
+                          recordPortalEvent({ bazarUsed: true });
                           onBuySupply(s.key, price);
                         }}
                         disabled={!canBuy}
@@ -190,6 +194,7 @@ export function CrystalBazaar({
                           onClick={() => {
                             haptic(isEquipped ? "tap" : "success");
                             onEquip(isEquipped ? null : c.id);
+                            playTap();
                           }}
                           className="mt-2 w-full text-sm"
                         >
@@ -201,6 +206,8 @@ export function CrystalBazaar({
                             if (!canBuy) return;
                             haptic("celebrate");
                             onBuyCreature(c);
+                            playCoins();
+                            recordPortalEvent({ bazarUsed: true });
                           }}
                           disabled={!canBuy}
                           className={cn(
