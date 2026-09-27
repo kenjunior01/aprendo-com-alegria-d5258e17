@@ -2,8 +2,23 @@ import fox from "@/assets/mascot-fox.png";
 import owl from "@/assets/mascot-owl.png";
 import bunny from "@/assets/mascot-bunny.png";
 import turtle from "@/assets/mascot-turtle.png";
+import foxCelebrate from "@/assets/mascot-fox-celebrate.png";
+import owlCelebrate from "@/assets/mascot-owl-celebrate.png";
+import bunnyCelebrate from "@/assets/mascot-bunny-celebrate.png";
+import turtleCelebrate from "@/assets/mascot-turtle-celebrate.png";
+import foxSad from "@/assets/mascot-fox-sad.png";
+import owlSad from "@/assets/mascot-owl-sad.png";
+import bunnySad from "@/assets/mascot-bunny-sad.png";
+import turtleSad from "@/assets/mascot-turtle-sad.png";
+import foxSleep from "@/assets/mascot-fox-sleep.png";
+import owlSleep from "@/assets/mascot-owl-sleep.png";
+import bunnySleep from "@/assets/mascot-bunny-sleep.png";
+import turtleSleep from "@/assets/mascot-turtle-sleep.png";
 
 export type MascotId = "fox" | "owl" | "bunny" | "turtle";
+
+/** Sprites emocionais (renders 3D — identidade mantida entre poses). */
+export type MascotEmotion = "idle" | "celebrate" | "sad" | "sleep";
 
 export interface Mascot {
   id: MascotId;
@@ -11,6 +26,8 @@ export interface Mascot {
   /** Artigo definido correto para o nome ("a Faísca", "o Tito"). */
   article: "a" | "o";
   image: string;
+  /** Sprites por emoção — usados pelo MascotActor. */
+  emotions: Record<MascotEmotion, string>;
   greeting: string;
   encourage: string;
   color: string; // tailwind utility for accent bg
@@ -23,6 +40,7 @@ export const MASCOTS: Mascot[] = [
     name: "Faísca",
     article: "a",
     image: fox,
+    emotions: { idle: fox, celebrate: foxCelebrate, sad: foxSad, sleep: foxSleep },
     greeting: "Olá! Sou a Faísca. Vamos brincar a aprender?",
     encourage: "Tu consegues! Mais um desafio!",
     color: "bg-[oklch(0.92_0.1_50)]",
@@ -34,6 +52,7 @@ export const MASCOTS: Mascot[] = [
     name: "Mocha",
     article: "a",
     image: owl,
+    emotions: { idle: owl, celebrate: owlCelebrate, sad: owlSad, sleep: owlSleep },
     greeting: "Piu-piu! Sou a Mocha, a coruja sabichona.",
     encourage: "Sábio é quem nunca desiste!",
     color: "bg-[oklch(0.9_0.08_310)]",
@@ -45,6 +64,7 @@ export const MASCOTS: Mascot[] = [
     name: "Pipoca",
     article: "a",
     image: bunny,
+    emotions: { idle: bunny, celebrate: bunnyCelebrate, sad: bunnySad, sleep: bunnySleep },
     greeting: "Olá! Sou a Pipoca, vamos saltar para a aventura!",
     encourage: "Mais um saltinho e estás lá!",
     color: "bg-[oklch(0.94_0.05_15)]",
@@ -56,6 +76,7 @@ export const MASCOTS: Mascot[] = [
     name: "Tito",
     article: "o",
     image: turtle,
+    emotions: { idle: turtle, celebrate: turtleCelebrate, sad: turtleSad, sleep: turtleSleep },
     greeting: "Olá! Sou o Tito. Devagar e sempre, chegamos longe.",
     encourage: "Boa! Passinho a passinho.",
     color: "bg-[oklch(0.92_0.1_145)]",

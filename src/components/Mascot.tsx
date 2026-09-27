@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { getMascot, type MascotId } from "@/lib/mascots";
+import { getMascot, type MascotEmotion, type MascotId } from "@/lib/mascots";
 import { getItem } from "@/lib/shop";
 import { cn } from "@/lib/utils";
 
@@ -10,6 +10,8 @@ interface Props {
   className?: string;
   equippedItemId?: string | null;
   growthScale?: number;
+  /** Sprite emocional a renderizar (default: idle). */
+  emotion?: MascotEmotion;
 }
 
 const sizeMap = {
@@ -21,18 +23,48 @@ const sizeMap = {
 };
 
 const itemSize = {
-  xs: { hat: "text-base -top-1.5 -right-0.5", outfit: "text-xs bottom-0 -right-0.5", badge: "text-xs -bottom-1 -left-0.5" },
-  sm: { hat: "text-xl -top-2 -right-1", outfit: "text-base bottom-0 -right-1", badge: "text-sm -bottom-1 -left-1" },
-  md: { hat: "text-3xl -top-3 -right-2", outfit: "text-2xl bottom-0 -right-2", badge: "text-xl -bottom-1 -left-2" },
-  lg: { hat: "text-5xl -top-4 -right-3", outfit: "text-4xl bottom-1 -right-3", badge: "text-3xl -bottom-1 -left-3" },
-  xl: { hat: "text-6xl -top-5 -right-4", outfit: "text-5xl bottom-2 -right-4", badge: "text-4xl -bottom-2 -left-4" },
+  xs: {
+    hat: "text-base -top-1.5 -right-0.5",
+    outfit: "text-xs bottom-0 -right-0.5",
+    badge: "text-xs -bottom-1 -left-0.5",
+  },
+  sm: {
+    hat: "text-xl -top-2 -right-1",
+    outfit: "text-base bottom-0 -right-1",
+    badge: "text-sm -bottom-1 -left-1",
+  },
+  md: {
+    hat: "text-3xl -top-3 -right-2",
+    outfit: "text-2xl bottom-0 -right-2",
+    badge: "text-xl -bottom-1 -left-2",
+  },
+  lg: {
+    hat: "text-5xl -top-4 -right-3",
+    outfit: "text-4xl bottom-1 -right-3",
+    badge: "text-3xl -bottom-1 -left-3",
+  },
+  xl: {
+    hat: "text-6xl -top-5 -right-4",
+    outfit: "text-5xl bottom-2 -right-4",
+    badge: "text-4xl -bottom-2 -left-4",
+  },
 };
 
-export function Mascot({ id, size = "md", bouncing = false, className, equippedItemId, growthScale = 1 }: Props) {
+export function Mascot({
+  id,
+  size = "md",
+  bouncing = false,
+  className,
+  equippedItemId,
+  growthScale = 1,
+  emotion,
+}: Props) {
   const m = getMascot(id);
   const item = getItem(equippedItemId);
-  const isWearable = item && (item.type === "hat" || item.type === "outfit" || item.type === "badge");
+  const isWearable =
+    item && (item.type === "hat" || item.type === "outfit" || item.type === "badge");
   const itemPos = isWearable ? itemSize[size][item.type as "hat" | "outfit" | "badge"] : "";
+  const sprite = (emotion && m.emotions[emotion]) || m.image;
 
   return (
     <motion.div
@@ -42,7 +74,7 @@ export function Mascot({ id, size = "md", bouncing = false, className, equippedI
       className={cn("relative inline-flex", className)}
     >
       <img
-        src={m.image}
+        src={sprite}
         alt={`Mascote ${m.name} do Kidoz`}
         width={300}
         height={300}
