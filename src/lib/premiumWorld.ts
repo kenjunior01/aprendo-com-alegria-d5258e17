@@ -493,3 +493,110 @@ export function realmQuestions(
 }
 
 export const realmTitleFor = (id: RealmId): string => getRealm(id)?.name ?? "Reino misterioso";
+
+// ─── Conquistas do Mundo (locais, computadas do estado do Portal) ───
+// Aparecem em /conquistas como secção própria — sem backend, como o resto
+// do Portal. Cada badge tem progresso mensurável para a criança ver o caminho.
+export interface PortalBadgeProgress {
+  cur: number;
+  target: number;
+}
+export interface PortalBadge {
+  id: string;
+  emoji: string;
+  title: string;
+  desc: string;
+  progress: (s: PortalState, streak: number) => PortalBadgeProgress;
+}
+
+const starsIn = (s: PortalState, id: RealmId): number[] => s.stars[id] ?? [0, 0, 0];
+const playedRealms = (s: PortalState): number =>
+  REALMS.filter((r) => starsIn(s, r.id).some((st) => st > 0)).length;
+const legends = (s: PortalState): number =>
+  REALMS.filter((r) => starsIn(s, r.id).every((st) => st >= 1)).length;
+
+export const PORTAL_BADGES: PortalBadge[] = [
+  {
+    id: "pb-first-spark",
+    emoji: "🌋",
+    title: "Primeira Faísca",
+    desc: "Ganha a tua 1.ª estrela em qualquer reino.",
+    progress: (s) => {
+      const cur = totalStars(s);
+      return { cur: Math.min(cur, 1), target: 1 };
+    },
+  },
+  {
+    id: "pb-explorer",
+    emoji: "🗺️",
+    title: "Explorador dos Reinos",
+    desc: "Joga nos 5 reinos do Mundo Premium.",
+    progress: (s) => ({ cur: playedRealms(s), target: 5 }),
+  },
+  {
+    id: "pb-stars-15",
+    emoji: "⭐",
+    title: "Colecionador de Estrelas",
+    desc: "Acumula 15 estrelas nos reinos.",
+    progress: (s) => ({ cur: Math.min(totalStars(s), 15), target: 15 }),
+  },
+  {
+    id: "pb-stars-45",
+    emoji: "🌟",
+    title: "Céu Completo",
+    desc: "Conquista as 45 estrelas do Mundo (3★ × 3 níveis × 5 reinos).",
+    progress: (s) => ({ cur: Math.min(totalStars(s), 45), target: 45 }),
+  },
+  {
+    id: "pb-dragon",
+    emoji: "🐉",
+    title: "Caçador de Dragões",
+    desc: "Derrota o Guardião da Caverna do Dragão.",
+    progress: (s) => ({ cur: Math.min(s.dragonSlain, 1), target: 1 }),
+  },
+  {
+    id: "pb-golden-key",
+    emoji: "🔑",
+    title: "Cavaleiro Dourado",
+    desc: "Ilumina um castelo inteiro e recebe a Chave Dourada.",
+    progress: (s) => ({ cur: Math.min(s.keysGolden, 1), target: 1 }),
+  },
+  {
+    id: "pb-alchemist",
+    emoji: "🧪",
+    title: "Alquimista Curioso",
+    desc: "Descobre 5 poções no Laboratório Mágico.",
+    progress: (s) => ({ cur: Math.min(s.discoveries.length, 5), target: 5 }),
+  },
+  {
+    id: "pb-creatures",
+    emoji: "🐾",
+    title: "Guardião das Criaturas",
+    desc: "Adota 3 criaturas mágicas no Bazar dos Cristais.",
+    progress: (s) => ({ cur: Math.min(s.creatures.length, 3), target: 3 }),
+  },
+  {
+    id: "pb-legend",
+    emoji: "👑",
+    title: "Lenda Kidoz",
+    desc: "Dominar os 3 níveis dos 5 reinos — o título supremo.",
+    progress: (s) => ({ cur: legends(s), target: 5 }),
+  },
+  {
+    id: "pb-streak",
+    emoji: "🔥",
+    title: "Missões em Chamas",
+    desc: "Completa missões do Portal 7 dias seguidos.",
+    progress: (_s, streak) => ({ cur: Math.min(streak, 7), target: 7 }),
+  },
+];
+
+/** Estrelas/progresso atual para a badge (0..1). */
+export function portalBadgePct(
+  b: PortalBadge,
+  s: PortalState,
+  streak: number,
+): PortalBadgeProgress {
+  const p = b.progress(s, streak);
+  return { cur: Math.min(p.cur, p.target), target: p.target };
+}

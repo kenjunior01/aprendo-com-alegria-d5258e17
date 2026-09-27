@@ -107,6 +107,8 @@ function PortalPage() {
   if (!profile) return <KidLoader />;
   const mascot = getMascot(profile.mascot);
   const daysLeft = premiumDaysLeft(profile);
+  // Premium ganho por convites (não compra) a acabar → loop de renovação por convites.
+  const inviteExpiring = !profile.isPremium && premium && daysLeft > 0 && daysLeft <= 5;
 
   const play = (realm: RealmDef, levelIdx = 0, demo = false) => {
     haptic(demo ? "tap" : "celebrate");
@@ -431,6 +433,32 @@ function PortalPage() {
                 : "Toca numa ilha para experimentares a Visita Guiada grátis! 👇"}
             </p>
           </section>
+
+          {/* Renovação por convites: Premium de convite a acabar */}
+          {inviteExpiring && (
+            <motion.section
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mt-4 rounded-3xl border border-amber-300/40 bg-gradient-to-r from-amber-500/25 via-orange-400/20 to-rose-400/25 p-4 backdrop-blur"
+            >
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div className="min-w-0">
+                  <h2 className="font-display text-base text-white">
+                    ⏳ O teu Premium acaba em {daysLeft} dia{daysLeft === 1 ? "" : "s"}!
+                  </h2>
+                  <p className="mt-0.5 text-xs text-white/75">
+                    Convida mais amigos pelo WhatsApp e ganha +7 dias por cada 3 — o Mundo continua
+                    a abrir! 🎁
+                  </p>
+                </div>
+                <Link to="/convites">
+                  <ChunkyButton tone="primary" className="shrink-0">
+                    🎁 Convida & Ganha
+                  </ChunkyButton>
+                </Link>
+              </div>
+            </motion.section>
+          )}
 
           {/* Missões Diárias do Portal */}
           <section className="mt-4 rounded-3xl border border-white/15 bg-white/5 p-4 backdrop-blur">

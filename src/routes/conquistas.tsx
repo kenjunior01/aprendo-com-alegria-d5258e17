@@ -13,6 +13,8 @@ import {
   getPerfectLessons,
   type Achievement,
 } from "@/lib/achievements";
+import { PORTAL_BADGES, loadPortalState, type PortalBadge } from "@/lib/premiumWorld";
+import { loadPortalDaily } from "@/lib/portalDaily";
 import {
   Sparkles,
   BookOpen,
@@ -104,6 +106,8 @@ function AchievementsPage() {
   const [achievements, setAchievements] = useState<Achievement[]>([]);
   const [unlocked, setUnlocked] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
+  const [portalStreak, setPortalStreak] = useState(0);
+  const [portalState, setPortalState] = useState(() => loadPortalState());
 
   useEffect(() => {
     let cancelled = false;
@@ -122,9 +126,19 @@ function AchievementsPage() {
     };
   }, []);
 
+  useEffect(() => {
+    setPortalState(loadPortalState());
+    setPortalStreak(loadPortalDaily().streak);
+  }, []);
+
   const perfectLessons = getPerfectLessons();
   const unlockedCount = unlocked.size;
   const total = achievements.length;
+
+  const portalDone = PORTAL_BADGES.filter((b) => {
+    const p = b.progress(portalState, portalStreak);
+    return p.cur >= p.target;
+  }).length;
 
   const grouped = achievements.reduce<Record<string, Achievement[]>>((acc, a) => {
     (acc[a.category] = acc[a.category] ?? []).push(a);
@@ -223,6 +237,73 @@ function AchievementsPage() {
               </div>
             </section>
           ))}
+
+        <section className="mb-6 mt-8">
+          <div className="mb-3 flex items-center justify-between gap-2">
+            <h2 className="font-display text-lg sm:text-xl">🌍 Conquistas do Mundo Premium</h2>
+            <span className="rounded-full bg-amber-100 px-2.5 py-1 text-xs font-bold text-amber-700">
+              {portalDone} de {PORTAL_BADGES.length}
+            </span>
+          </div>
+          <div role="list" className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            {PORTAL_BADGES.map((b: PortalBadge) => {
+              const p = b.progress(portalState, portalStreak);
+              const isDone = p.cur >= p.target;
+              const pct = p.target ? Math.min(1, p.cur / p.target) : 0;
+              return (
+                <div
+                  key={b.id}
+                  role="listitem"
+                  className={`card-chunky rounded-2xl border-2 p-4 transition-transform ${
+                    isDone ? "border-amber-400 bg-card" : "border-border bg-muted/40 opacity-90"
+                  }`}
+                >
+                  <div className="flex items-start gap-3">
+                    <div
+                      className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl text-2xl ${
+                        isDone ? "bg-amber-100" : "bg-muted grayscale"
+                      }`}
+                    >
+                      {b.emoji}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <h3 className="truncate font-display text-base">{b.title}</h3>
+                      <p className="text-xs text-muted-foreground">{b.desc}</p>
+                      {!isDone && (
+                        <div className="mt-2 flex items-center gap-2">
+                          <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted">
+                            <div
+                              className="h-full bg-gradient-to-r from-amber-400 to-orange-500"
+                              style={{ width: `${pct * 100}%` }}
+                            />
+                          </div>
+                          <span className="text-[11px] font-bold text-muted-foreground">
+                            {p.cur}/{p.target}
+                          </span>
+                        </div>
+                      )}
+                      {isDone && (
+                        <p className="mt-1 text-[11px] font-bold text-amber-600">
+                          ✓ Conquistada no Mundo Premium
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          <p className="mt-3 text-center text-xs text-muted-foreground">
+            As conquistas do Mundo vivem no Portal —{" "}
+            <Link
+              to="/portal"
+              className="font-bold text-primary underline-offset-2 hover:underline"
+            >
+              visita o Portal Mágico
+            </Link>{" "}
+            para as desbloquear.
+          </p>
+        </section>
 
         <div className="mt-6">
           <Link to="/app">

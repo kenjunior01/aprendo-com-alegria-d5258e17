@@ -52,6 +52,7 @@ import {
   Filter,
 } from "lucide-react";
 import { PurchaseHistoryPanel } from "@/components/PurchaseHistoryPanel";
+import { PortalParentReport } from "@/components/PortalParentReport";
 import { QuickChildSignup } from "@/components/QuickChildSignup";
 import { JuniorParentPanel } from "@/components/JuniorParentPanel";
 import { JuniorParentReport } from "@/components/JuniorParentReport";
@@ -651,6 +652,7 @@ function ParentDashboard() {
                   <div className="grid gap-5 lg:grid-cols-3">
                     <div className="space-y-5 lg:col-span-2">
                       {dashboard ? <DashboardView data={dashboard} /> : <SkeletonCard />}
+                      <PortalParentReport />
                     </div>
                     <aside className="space-y-5">
                       {selectedChild && (
