@@ -460,6 +460,75 @@ function PremiumPage() {
           </div>
         </section>
 
+        {/* Âncora de valor — quanto custaria fora do Kidoz */}
+        <section className="card-chunky mt-8 rounded-3xl border-2 border-border bg-card p-5 sm:p-6">
+          <div className="flex items-center gap-2">
+            <Heart className="h-6 w-6 text-primary" />
+            <h2 className="font-display text-xl">Quanto custaria fora do Kidoz?</h2>
+          </div>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Compara com as alternativas comuns para o 1.º ciclo — o Premium sai por menos que uma
+            única hora de explicações por mês.
+          </p>
+          <div className="mt-4 space-y-2">
+            {[
+              {
+                i: "👩‍🏫",
+                t: "Explicações particulares",
+                d: "≈ 15–25€ por hora, uma vez por semana",
+                p: "≈ 80€/mês",
+                highlight: false,
+              },
+              {
+                i: "📚",
+                t: "Livros e cadernos de exercícios",
+                d: "2–3 livros por mês, sem correção nem feedback",
+                p: "≈ 12€/mês",
+                highlight: false,
+              },
+              {
+                i: "📱",
+                t: "Apps de estudo concorrentes",
+                d: "Assinaturas por criança — 2 filhos duplicam o custo",
+                p: "8–15€/mês",
+                highlight: false,
+              },
+              {
+                i: "👑",
+                t: "Kidoz Premium (anual)",
+                d: "Até 4 crianças · Tutor IA · Mundo Premium · relatórios",
+                p: "3,33€/mês",
+                highlight: true,
+              },
+            ].map((r) => (
+              <div
+                key={r.t}
+                className={`flex items-center gap-3 rounded-2xl border-2 p-3 ${
+                  r.highlight ? "border-primary bg-primary/10" : "border-border/70 bg-muted/40"
+                }`}
+              >
+                <span className="text-2xl" aria-hidden>
+                  {r.i}
+                </span>
+                <div className="min-w-0 flex-1">
+                  <p className="font-display text-sm">{r.t}</p>
+                  <p className="text-xs text-muted-foreground">{r.d}</p>
+                </div>
+                <p
+                  className={`shrink-0 font-display text-sm font-bold sm:text-base ${
+                    r.highlight ? "text-primary" : "text-foreground/70"
+                  }`}
+                >
+                  {r.p}
+                </p>
+              </div>
+            ))}
+          </div>
+          <p className="mt-3 text-center text-[11px] italic text-muted-foreground">
+            Valores médios de mercado em Portugal, apenas para comparação orientativa.
+          </p>
+        </section>
+
         <h2 id="planos" className="mt-8 scroll-mt-20 font-display text-2xl">
           Escolhe o teu plano
         </h2>
@@ -611,6 +680,21 @@ function PremiumPage() {
               </motion.figure>
             ))}
           </div>
+        </section>
+
+        {/* Cross-sell: Loja Kidoz — cumpre a promessa dos itens exclusivos */}
+        <section className="card-chunky mt-10 flex flex-col items-center gap-4 rounded-3xl border-2 border-secondary/50 bg-gradient-to-br from-secondary/15 via-accent/10 to-card p-5 sm:flex-row sm:text-left">
+          <Gift className="h-9 w-9 shrink-0 text-secondary-foreground" />
+          <div className="flex-1 text-center sm:text-left">
+            <p className="font-display text-lg">Loja Kidoz — a aventura continua fora do ecrã 🎁</p>
+            <p className="text-sm text-muted-foreground">
+              Os membros Família Anual e Vitalício recebem <b>itens exclusivos todos os meses</b> —
+              livros de atividades, materiais escolares e merchandising com as mascotes.
+            </p>
+          </div>
+          <Link to="/merch" className="shrink-0">
+            <ChunkyButton tone="secondary">Visitar a loja</ChunkyButton>
+          </Link>
         </section>
 
         {/* Demo highlights */}

@@ -181,6 +181,17 @@ function AppHome() {
               {isPremiumActive(profile) ? "Entrar 🌀" : "Convitar 🎁"}
             </Link>
           </div>
+          {!isPremiumActive(profile) && (
+            <p className="mt-3 text-center text-xs text-muted-foreground">
+              Preferes subscrever?{" "}
+              <Link
+                to="/premium"
+                className="font-display font-semibold text-primary underline underline-offset-2"
+              >
+                Planos desde 3,33€/mês →
+              </Link>
+            </p>
+          )}
         </motion.section>
 
         <SeasonalBanner region={profile.region ?? null} />

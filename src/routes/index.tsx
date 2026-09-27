@@ -264,6 +264,9 @@ function Landing() {
         {/* Testimonials */}
         <Testimonials />
 
+        {/* Premium — âncora de preço no topo do funil */}
+        <PremiumStrip />
+
         {/* FAQ — respostas rápidas para pais e professores (SEO) */}
         <FaqSection />
 
@@ -561,6 +564,60 @@ function FaqSection() {
           </details>
         ))}
       </div>
+    </section>
+  );
+}
+
+function PremiumStrip() {
+  const perks = [
+    { e: "🌀", t: "Mundo Premium — 5 reinos com dragão final" },
+    { e: "🤖", t: "Tutor Mocha IA que explica passo-a-passo" },
+    { e: "♾️", t: "Desafios Infinitos em todas as idades" },
+    { e: "🎁", t: "Itens exclusivos da loja todos os meses" },
+  ];
+  return (
+    <section
+      aria-labelledby="premium-heading"
+      className="card-chunky relative mt-12 w-full overflow-hidden rounded-3xl border-2 border-amber-400/50 bg-gradient-to-br from-amber-400/15 via-secondary/15 to-primary/15 p-5 sm:mt-16 sm:p-8"
+    >
+      <p className="text-center font-display text-[10px] font-black uppercase tracking-[0.3em] text-amber-600">
+        kidoz premium
+      </p>
+      <h2 id="premium-heading" className="mt-1 text-center font-display text-2xl sm:text-3xl">
+        Desbloqueia o mundo completo 👑
+      </h2>
+      <p className="mx-auto mt-2 max-w-[36rem] text-center text-sm text-muted-foreground sm:text-base">
+        Menos de 1 hora de explicações particulares por mês — e a aventura de aprender nunca acaba.
+        Sem fidelização, cancela quando quiseres.
+      </p>
+      <ul className="mx-auto mt-4 grid max-w-[40rem] gap-2 sm:grid-cols-2">
+        {perks.map((p) => (
+          <li
+            key={p.e}
+            className="flex items-center gap-2 rounded-2xl border border-border/70 bg-card/80 px-3 py-2 text-left text-xs sm:text-sm"
+          >
+            <span className="text-lg" aria-hidden>
+              {p.e}
+            </span>
+            <span>{p.t}</span>
+          </li>
+        ))}
+      </ul>
+      <div className="mt-5 flex flex-col items-center justify-center gap-3 sm:flex-row">
+        <Link to="/premium" className="w-full sm:w-auto">
+          <ChunkyButton tone="primary" className="min-h-[54px] w-full text-base">
+            Ver planos desde 3,33€/mês
+          </ChunkyButton>
+        </Link>
+        <Link to="/escolas" className="w-full sm:w-auto">
+          <ChunkyButton tone="ghost" className="min-h-[54px] w-full text-base">
+            🏫 Para escolas — 0,99€/aluno
+          </ChunkyButton>
+        </Link>
+      </div>
+      <p className="mt-3 text-center text-[11px] text-muted-foreground">
+        💳 Pagamento seguro · 🔒 Sem anúncios · 👪 Até 4 crianças
+      </p>
     </section>
   );
 }

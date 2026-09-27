@@ -8,6 +8,7 @@ import { useCartStore } from "@/stores/cartStore";
 import { fetchShopifyProducts, formatPrice, type ShopifyProduct } from "@/lib/shopify";
 import { AlegriaLogo } from "@/components/AlegriaLogo";
 import { KidLoader } from "@/components/KidLoader";
+import { MerchPremiumPerk, MerchTrustStrip } from "@/components/MerchPerks";
 
 export const Route = createFileRoute("/merch")({
   head: () => ({
@@ -69,7 +70,9 @@ function ProductCard({ product }: { product: ShopifyProduct }) {
               loading="lazy"
             />
           ) : (
-            <div className="flex h-full w-full items-center justify-center bg-accent/30 text-5xl">🎁</div>
+            <div className="flex h-full w-full items-center justify-center bg-accent/30 text-5xl">
+              🎁
+            </div>
           )}
         </div>
       </Link>
@@ -79,7 +82,9 @@ function ProductCard({ product }: { product: ShopifyProduct }) {
             {product.node.title}
           </h3>
         </Link>
-        <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">{product.node.description}</p>
+        <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
+          {product.node.description}
+        </p>
         <div className="mt-auto flex items-center justify-between gap-3 pt-4">
           <span className="font-display text-lg font-bold">
             {formatPrice(variant.price.amount, variant.price.currencyCode)}
@@ -145,21 +150,31 @@ function MerchPage() {
               Continua a aventura fora do ecrã
             </h1>
             <p className="mt-3 max-w-lg text-base text-foreground/80 sm:text-lg">
-              Merchandising educativo, livros de atividades e materiais escolares inspirados no universo
-              Kidoz.
+              Merchandising educativo, livros de atividades e materiais escolares inspirados no
+              universo Kidoz.
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
-              <Button asChild className="btn-chunky rounded-2xl bg-primary px-6 py-3 font-display font-semibold text-primary-foreground">
+              <Button
+                asChild
+                className="btn-chunky rounded-2xl bg-primary px-6 py-3 font-display font-semibold text-primary-foreground"
+              >
                 <a href="#produtos">
                   Ver produtos <ArrowRight className="ml-2 h-4 w-4" />
                 </a>
               </Button>
-              <Button asChild variant="outline" className="rounded-2xl px-6 py-3 font-display font-semibold">
+              <Button
+                asChild
+                variant="outline"
+                className="rounded-2xl px-6 py-3 font-display font-semibold"
+              >
                 <Link to="/">Voltar ao Kidoz</Link>
               </Button>
             </div>
           </div>
         </section>
+
+        {/* Vantagem Premium na loja — cross-sell do plano Família */}
+        <MerchPremiumPerk className="mt-6" />
 
         {/* Products grid */}
         <section id="produtos" className="mt-10 sm:mt-14">
@@ -178,8 +193,8 @@ function MerchPage() {
               <Package className="h-12 w-12 text-muted-foreground" />
               <h3 className="mt-4 font-display text-xl font-semibold">Ainda não há produtos</h3>
               <p className="mt-2 max-w-md text-muted-foreground">
-                A loja está pronta. Diz-me que produtos queres vender (por exemplo: livro de atividades,
-                t-shirt, mochila) e eu crio-os na Shopify.
+                A loja está pronta. Diz-me que produtos queres vender (por exemplo: livro de
+                atividades, t-shirt, mochila) e eu crio-os na Shopify.
               </p>
             </div>
           ) : (
@@ -190,6 +205,9 @@ function MerchPage() {
             </div>
           )}
         </section>
+
+        {/* Confiança na compra — sob os produtos, antes do footer */}
+        <MerchTrustStrip className="mt-10" />
       </main>
     </div>
   );

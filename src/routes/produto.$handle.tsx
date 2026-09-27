@@ -5,9 +5,15 @@ import { ArrowLeft, Check, Loader2, ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CartDrawer } from "@/components/CartDrawer";
 import { useCartStore } from "@/stores/cartStore";
-import { fetchShopifyProductByHandle, formatPrice, type ShopifyProduct, type ProductNode } from "@/lib/shopify";
+import {
+  fetchShopifyProductByHandle,
+  formatPrice,
+  type ShopifyProduct,
+  type ProductNode,
+} from "@/lib/shopify";
 import { AlegriaLogo } from "@/components/AlegriaLogo";
 import { KidLoader } from "@/components/KidLoader";
+import { MerchPremiumPerk, MerchTrustStrip } from "@/components/MerchPerks";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/produto/$handle")({
@@ -35,6 +41,8 @@ function ProductDetailPage() {
   const addItem = useCartStore((state) => state.addItem);
   const isLoading = useCartStore((state) => state.isLoading);
   const [added, setAdded] = useState(false);
+  const [selectedVariantId, setSelectedVariantId] = useState<string | null>(null);
+  const [selectedImageUrl, setSelectedImageUrl] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -68,8 +76,14 @@ function ProductDetailPage() {
     throw notFound();
   }
 
-  const [selectedVariant, setSelectedVariant] = useState(product.variants.edges[0]?.node);
-  const [selectedImage, setSelectedImage] = useState(product.images.edges[0]?.node);
+  // Seleção derivada por id/url: cai no primeiro disponível quando o produto muda
+  // ou quando ainda não houve escolha (evita hooks após early returns).
+  const selectedVariant =
+    product.variants.edges.find((e) => e.node.id === selectedVariantId)?.node ??
+    product.variants.edges[0]?.node;
+  const selectedImage =
+    product.images.edges.find((e) => e.node.url === selectedImageUrl)?.node ??
+    product.images.edges[0]?.node;
 
   const handleAdd = async () => {
     if (!selectedVariant) return;
@@ -98,7 +112,13 @@ function ProductDetailPage() {
       </header>
 
       <main id="main-content" className="mx-auto max-w-6xl px-4 py-6 sm:py-10">
-        <Button asChild variant="ghost" className="mb-4 -ml-2 rounded-full font-display font-semibold">
+        <MerchPremiumPerk className="mb-6" />
+
+        <Button
+          asChild
+          variant="ghost"
+          className="mb-4 -ml-2 rounded-full font-display font-semibold"
+        >
           <Link to="/merch">
             <ArrowLeft className="mr-1 h-4 w-4" /> Voltar à loja
           </Link>
@@ -115,7 +135,9 @@ function ProductDetailPage() {
                   className="h-full w-full object-cover"
                 />
               ) : (
-                <div className="flex h-full w-full items-center justify-center bg-accent/30 text-7xl">🎁</div>
+                <div className="flex h-full w-full items-center justify-center bg-accent/30 text-7xl">
+                  🎁
+                </div>
               )}
             </div>
             {product.images.edges.length > 1 && (
@@ -123,7 +145,7 @@ function ProductDetailPage() {
                 {product.images.edges.map(({ node }) => (
                   <button
                     key={node.url}
-                    onClick={() => setSelectedImage(node)}
+                    onClick={() => setSelectedImageUrl(node.url)}
                     className={cn(
                       "h-20 w-20 shrink-0 overflow-hidden rounded-2xl border-2 transition-colors",
                       selectedImage?.url === node.url ? "border-primary" : "border-border",
@@ -148,7 +170,9 @@ function ProductDetailPage() {
             className="flex flex-col"
           >
             <h1 className="font-display text-3xl font-bold sm:text-4xl">{product.title}</h1>
-            <p className="mt-4 text-base leading-relaxed text-foreground/80">{product.description}</p>
+            <p className="mt-4 text-base leading-relaxed text-foreground/80">
+              {product.description}
+            </p>
 
             {selectedVariant && (
               <p className="mt-6 font-display text-3xl font-bold text-primary">
@@ -165,7 +189,9 @@ function ProductDetailPage() {
                     <div className="mt-2 flex flex-wrap gap-2">
                       {option.values.map((value) => {
                         const variant = product.variants.edges.find((v) =>
-                          v.node.selectedOptions.some((o) => o.name === option.name && o.value === value),
+                          v.node.selectedOptions.some(
+                            (o) => o.name === option.name && o.value === value,
+                          ),
                         )?.node;
                         const isSelected = selectedVariant?.selectedOptions.some(
                           (o) => o.name === option.name && o.value === value,
@@ -173,7 +199,7 @@ function ProductDetailPage() {
                         return (
                           <button
                             key={value}
-                            onClick={() => variant && setSelectedVariant(variant)}
+                            onClick={() => variant && setSelectedVariantId(variant.id)}
                             disabled={!variant?.availableForSale}
                             className={cn(
                               "rounded-xl border px-4 py-2 font-display text-sm font-semibold transition-colors",
@@ -213,6 +239,7 @@ function ProductDetailPage() {
               {!selectedVariant?.availableForSale && (
                 <p className="mt-2 text-center text-sm text-muted-foreground">Produto esgotado</p>
               )}
+              <MerchTrustStrip className="mt-6" />
             </div>
           </motion.div>
         </div>
