@@ -35,6 +35,7 @@ import {
 import { RouteError } from "@/components/RouteError";
 import { KidLoader } from "@/components/KidLoader";
 import { shareChallenge, type ChallengePayload } from "@/lib/challengeShare";
+import { isPremiumActive } from "@/lib/premium";
 
 export const Route = createFileRoute("/desafios/infinitos")({
   head: () => ({
@@ -134,7 +135,7 @@ function InfinitePage() {
   }, [profile, filterScope, getWeeklyFn, getSeasonFn]);
 
   if (!profile) return <KidLoader />;
-  const isPremium = !!profile.isPremium;
+  const isPremium = isPremiumActive(profile);
   const age = profile.age || 7;
 
   const visibleTracks = TRACKS.filter((t) => age >= t.ageMin - 2);

@@ -15,6 +15,7 @@ import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as RaRouteImport } from './routes/ra'
 import { Route as PrivacidadeRouteImport } from './routes/privacidade'
 import { Route as PremiumRouteImport } from './routes/premium'
+import { Route as PortalRouteImport } from './routes/portal'
 import { Route as PerfilRouteImport } from './routes/perfil'
 import { Route as PaisRouteImport } from './routes/pais'
 import { Route as MundoRouteImport } from './routes/mundo'
@@ -28,6 +29,7 @@ import { Route as EscolaRouteImport } from './routes/escola'
 import { Route as DesafiosRouteImport } from './routes/desafios'
 import { Route as DesafioRouteImport } from './routes/desafio'
 import { Route as CrechesRouteImport } from './routes/creches'
+import { Route as ConvitesRouteImport } from './routes/convites'
 import { Route as ConquistasRouteImport } from './routes/conquistas'
 import { Route as ComecarRouteImport } from './routes/comecar'
 import { Route as AuthRouteImport } from './routes/auth'
@@ -79,6 +81,11 @@ const PrivacidadeRoute = PrivacidadeRouteImport.update({
 const PremiumRoute = PremiumRouteImport.update({
   id: '/premium',
   path: '/premium',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PortalRoute = PortalRouteImport.update({
+  id: '/portal',
+  path: '/portal',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PerfilRoute = PerfilRouteImport.update({
@@ -144,6 +151,11 @@ const DesafioRoute = DesafioRouteImport.update({
 const CrechesRoute = CrechesRouteImport.update({
   id: '/creches',
   path: '/creches',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ConvitesRoute = ConvitesRouteImport.update({
+  id: '/convites',
+  path: '/convites',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ConquistasRoute = ConquistasRouteImport.update({
@@ -269,6 +281,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/comecar': typeof ComecarRoute
   '/conquistas': typeof ConquistasRoute
+  '/convites': typeof ConvitesRoute
   '/creches': typeof CrechesRoute
   '/desafio': typeof DesafioRoute
   '/desafios': typeof DesafiosRouteWithChildren
@@ -282,6 +295,7 @@ export interface FileRoutesByFullPath {
   '/mundo': typeof MundoRoute
   '/pais': typeof PaisRoute
   '/perfil': typeof PerfilRoute
+  '/portal': typeof PortalRoute
   '/premium': typeof PremiumRoute
   '/privacidade': typeof PrivacidadeRoute
   '/ra': typeof RaRoute
@@ -312,6 +326,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/comecar': typeof ComecarRoute
   '/conquistas': typeof ConquistasRoute
+  '/convites': typeof ConvitesRoute
   '/creches': typeof CrechesRoute
   '/desafio': typeof DesafioRoute
   '/desafios': typeof DesafiosRouteWithChildren
@@ -325,6 +340,7 @@ export interface FileRoutesByTo {
   '/mundo': typeof MundoRoute
   '/pais': typeof PaisRoute
   '/perfil': typeof PerfilRoute
+  '/portal': typeof PortalRoute
   '/premium': typeof PremiumRoute
   '/privacidade': typeof PrivacidadeRoute
   '/ra': typeof RaRoute
@@ -356,6 +372,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/comecar': typeof ComecarRoute
   '/conquistas': typeof ConquistasRoute
+  '/convites': typeof ConvitesRoute
   '/creches': typeof CrechesRoute
   '/desafio': typeof DesafioRoute
   '/desafios': typeof DesafiosRouteWithChildren
@@ -369,6 +386,7 @@ export interface FileRoutesById {
   '/mundo': typeof MundoRoute
   '/pais': typeof PaisRoute
   '/perfil': typeof PerfilRoute
+  '/portal': typeof PortalRoute
   '/premium': typeof PremiumRoute
   '/privacidade': typeof PrivacidadeRoute
   '/ra': typeof RaRoute
@@ -401,6 +419,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/comecar'
     | '/conquistas'
+    | '/convites'
     | '/creches'
     | '/desafio'
     | '/desafios'
@@ -414,6 +433,7 @@ export interface FileRouteTypes {
     | '/mundo'
     | '/pais'
     | '/perfil'
+    | '/portal'
     | '/premium'
     | '/privacidade'
     | '/ra'
@@ -444,6 +464,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/comecar'
     | '/conquistas'
+    | '/convites'
     | '/creches'
     | '/desafio'
     | '/desafios'
@@ -457,6 +478,7 @@ export interface FileRouteTypes {
     | '/mundo'
     | '/pais'
     | '/perfil'
+    | '/portal'
     | '/premium'
     | '/privacidade'
     | '/ra'
@@ -487,6 +509,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/comecar'
     | '/conquistas'
+    | '/convites'
     | '/creches'
     | '/desafio'
     | '/desafios'
@@ -500,6 +523,7 @@ export interface FileRouteTypes {
     | '/mundo'
     | '/pais'
     | '/perfil'
+    | '/portal'
     | '/premium'
     | '/privacidade'
     | '/ra'
@@ -531,6 +555,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   ComecarRoute: typeof ComecarRoute
   ConquistasRoute: typeof ConquistasRoute
+  ConvitesRoute: typeof ConvitesRoute
   CrechesRoute: typeof CrechesRoute
   DesafioRoute: typeof DesafioRoute
   DesafiosRoute: typeof DesafiosRouteWithChildren
@@ -544,6 +569,7 @@ export interface RootRouteChildren {
   MundoRoute: typeof MundoRoute
   PaisRoute: typeof PaisRoute
   PerfilRoute: typeof PerfilRoute
+  PortalRoute: typeof PortalRoute
   PremiumRoute: typeof PremiumRoute
   PrivacidadeRoute: typeof PrivacidadeRoute
   RaRoute: typeof RaRoute
@@ -606,6 +632,13 @@ declare module '@tanstack/react-router' {
       path: '/premium'
       fullPath: '/premium'
       preLoaderRoute: typeof PremiumRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/portal': {
+      id: '/portal'
+      path: '/portal'
+      fullPath: '/portal'
+      preLoaderRoute: typeof PortalRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/perfil': {
@@ -697,6 +730,13 @@ declare module '@tanstack/react-router' {
       path: '/creches'
       fullPath: '/creches'
       preLoaderRoute: typeof CrechesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/convites': {
+      id: '/convites'
+      path: '/convites'
+      fullPath: '/convites'
+      preLoaderRoute: typeof ConvitesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/conquistas': {
@@ -878,6 +918,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   ComecarRoute: ComecarRoute,
   ConquistasRoute: ConquistasRoute,
+  ConvitesRoute: ConvitesRoute,
   CrechesRoute: CrechesRoute,
   DesafioRoute: DesafioRoute,
   DesafiosRoute: DesafiosRouteWithChildren,
@@ -891,6 +932,7 @@ const rootRouteChildren: RootRouteChildren = {
   MundoRoute: MundoRoute,
   PaisRoute: PaisRoute,
   PerfilRoute: PerfilRoute,
+  PortalRoute: PortalRoute,
   PremiumRoute: PremiumRoute,
   PrivacidadeRoute: PrivacidadeRoute,
   RaRoute: RaRoute,

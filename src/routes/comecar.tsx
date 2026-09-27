@@ -5,11 +5,18 @@ import { Mascot } from "@/components/Mascot";
 import { AlegriaLogo } from "@/components/AlegriaLogo";
 import { ChunkyButton } from "@/components/ChunkyButton";
 import { MASCOTS, type MascotId } from "@/lib/mascots";
-import { defaultProfile, saveProfile } from "@/lib/storage";
+import { defaultProfile, saveProfile, type Profile } from "@/lib/storage";
+import { applyWelcomeBonus, REF_CODE_RE } from "@/lib/referral";
 import { cn } from "@/lib/utils";
 import { RouteError } from "@/components/RouteError";
 
 export const Route = createFileRoute("/comecar")({
+  validateSearch: (search: Record<string, unknown>): { ref?: string } => {
+    if (typeof search.ref === "string" && REF_CODE_RE.test(search.ref.toUpperCase())) {
+      return { ref: search.ref.toUpperCase() };
+    }
+    return {};
+  },
   head: () => ({
     meta: [
       { title: "Começar — Kidoz" },
@@ -38,6 +45,9 @@ type Track = "junior" | "child" | "parent";
 
 function Onboarding() {
   const navigate = useNavigate();
+  const search = Route.useSearch();
+  const refCode =
+    search.ref && REF_CODE_RE.test(search.ref.toUpperCase()) ? search.ref.toUpperCase() : null;
   const [step, setStep] = useState(0);
   const [track, setTrack] = useState<Track>("child");
   const [name, setName] = useState("");
@@ -50,7 +60,7 @@ function Onboarding() {
   const finish = () => {
     const finalAge = track === "junior" ? 4 : age;
     const finalGrade = track === "junior" ? 0 : grade;
-    const p = {
+    const p: Profile = {
       ...defaultProfile(),
       role,
       name: name.trim() || (track === "parent" ? "Adulto" : "Amigo"),
@@ -59,6 +69,8 @@ function Onboarding() {
       mascot,
     };
     saveProfile(p);
+    // Bónus de boas-vindas por convite (+120 moedas, +2 gemas)
+    if (refCode) applyWelcomeBonus(refCode);
     if (track === "parent") navigate({ to: "/pais" });
     else if (track === "junior") navigate({ to: "/junior" });
     else navigate({ to: "/app" });
@@ -81,6 +93,15 @@ function Onboarding() {
   return (
     <main id="main-content" className="bg-paper min-h-[100dvh] px-4 py-6 sm:py-10">
       <div className="mx-auto max-w-[32rem]">
+        {refCode && (
+          <motion.div
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-4 rounded-2xl border-2 border-primary/50 bg-primary/10 px-4 py-2.5 text-center font-display text-sm text-primary"
+          >
+            🎁 Foste convidado! Vais receber <b>+120 moedas</b> e <b>+2 gemas</b> ao criar o perfil.
+          </motion.div>
+        )}
         <div className="mb-4 flex justify-center">
           <AlegriaLogo priority className="h-12 w-auto sm:h-14" />
         </div>

@@ -25,6 +25,8 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { loadProfile, pullProfileFromCloud, type Profile } from "@/lib/storage";
+import { copyLink, openWhatsApp } from "@/lib/challengeShare";
+import { Share2 } from "lucide-react";
 import {
   becomeTeacher,
   listMySchools,
@@ -349,8 +351,11 @@ function EscolaPage() {
                     <div className="mb-3 flex items-center justify-between gap-2">
                       <div>
                         <p className="font-display text-lg">{s.name}</p>
-                        <p className="text-xs text-muted-foreground">
-                          Convite: <code className="rounded bg-muted px-1">{s.invite_code}</code>
+                        <p className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                          <span>
+                            Convite: <code className="rounded bg-muted px-1">{s.invite_code}</code>
+                          </span>
+                          <InviteShare code={s.invite_code} name={s.name} kind="escola" />
                         </p>
                       </div>
                       <Badge variant="secondary">{schoolClasses.length} turma(s)</Badge>
@@ -571,6 +576,13 @@ function EscolaPage() {
                     <code className="rounded bg-muted px-1">{selectedClass.invite_code}</code> para
                     se juntarem.
                   </p>
+                  <div className="mt-3 flex justify-center">
+                    <InviteShare
+                      code={selectedClass.invite_code}
+                      name={selectedClass.name}
+                      kind="turma"
+                    />
+                  </div>
                 </div>
               ) : (
                 <div className="overflow-x-auto rounded-2xl border-2 border-border">
@@ -1001,8 +1013,11 @@ function ClassCard({
         <p className="font-display">
           {cls.name} <span className="text-xs text-muted-foreground">· {cls.grade}.º ano</span>
         </p>
-        <p className="text-xs text-muted-foreground">
-          Código: <code className="rounded bg-muted px-1">{cls.invite_code}</code>
+        <p className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+          <span>
+            Código: <code className="rounded bg-muted px-1">{cls.invite_code}</code>
+          </span>
+          <InviteShare code={cls.invite_code} name={cls.name} kind="turma" />
         </p>
       </button>
       <Button size="icon" variant="ghost" onClick={() => setEditing(true)} aria-label="Editar">
@@ -1012,5 +1027,39 @@ function ClassCard({
         <Trash2 className="h-4 w-4 text-destructive" />
       </Button>
     </li>
+  );
+}
+
+/** Partilha um código de convite da escola/turma por WhatsApp ou copia-o. */
+function InviteShare({
+  code,
+  name,
+  kind,
+}: {
+  code: string;
+  name: string;
+  kind: "escola" | "turma";
+}) {
+  const share = () => {
+    const msg = [
+      `🏫 Convite para o Kidoz — ${kind === "escola" ? name : `turma ${name}`}`,
+      "Aprender brincando do 1.º ao 4.º ano, com mascotes e relatórios para professores.",
+      `🔑 Usa o código: ${code}`,
+      "",
+      "▶️ Entrar: https://kidoz.online/comecar",
+    ].join("\n");
+    const ok = openWhatsApp(msg);
+    if (!ok) void copyLink(`${code}`).then(() => toast.success("Código copiado!"));
+  };
+  return (
+    <button
+      type="button"
+      onClick={share}
+      title="Partilhar convite por WhatsApp"
+      className="inline-flex items-center gap-1 rounded-full border border-border bg-muted px-2 py-0.5 text-[11px] font-display text-foreground transition-transform active:scale-95 hover:bg-accent"
+    >
+      <Share2 className="h-3 w-3" />
+      Partilhar
+    </button>
   );
 }

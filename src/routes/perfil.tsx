@@ -20,6 +20,7 @@ import { PremiumStatusPanel } from "@/components/PremiumStatusPanel";
 import { RegionInterestsPanel } from "@/components/RegionInterestsPanel";
 import { CertificateButton } from "@/components/CertificateButton";
 import { Cloud, CloudOff, LogOut } from "lucide-react";
+import { isPremiumActive } from "@/lib/premium";
 import { RouteError } from "@/components/RouteError";
 import { KidLoader } from "@/components/KidLoader";
 
@@ -217,6 +218,11 @@ function ProfilePage() {
               🏆 Ver conquistas
             </ChunkyButton>
           </Link>
+          <Link to="/convites">
+            <ChunkyButton tone="secondary" className="w-full">
+              🎁 Convitar amigos — ganha Premium!
+            </ChunkyButton>
+          </Link>
           <Link to="/loja">
             <ChunkyButton tone="secondary" className="w-full">
               🛍️ Ir à loja
@@ -227,6 +233,13 @@ function ProfilePage() {
               {profile.isPremium ? "💎 Gerir Premium" : "💎 Conhecer o Premium"}
             </ChunkyButton>
           </Link>
+          {isPremiumActive(profile) && (
+            <Link to="/portal">
+              <ChunkyButton tone="primary" className="w-full">
+                🌀 Entrar no Mundo Premium
+              </ChunkyButton>
+            </Link>
+          )}
           {completed >= total && total > 0 && user && (
             <CertificateButton
               childName={profile.name}

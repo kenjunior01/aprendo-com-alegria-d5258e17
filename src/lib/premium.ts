@@ -1,5 +1,6 @@
 // Estrutura Freemium — sem pagamentos reais ainda.
 // Marca features/conteúdos como premium e expõe helpers para verificar acesso.
+// Suporta Premium temporário (ganho por convites de amigos) via premiumUntil.
 
 import { loadProfile, updateProfile, type Profile } from "./storage";
 
@@ -60,6 +61,44 @@ export const PLANS: PremiumPlan[] = [
 
 export const isPremium = (p?: Profile | null): boolean => Boolean(p?.isPremium);
 
+/** Premium permanente OU temporário (prémio de convites) ainda válido. */
+export const isPremiumActive = (p?: Profile | null): boolean => {
+  if (!p) return false;
+  if (p.isPremium) return true;
+  if (!p.premiumUntil) return false;
+  try {
+    return new Date(p.premiumUntil).getTime() > Date.now();
+  } catch {
+    return false;
+  }
+};
+
+/** Dias restantes do Premium temporário (0 se não aplicável). */
+export const premiumDaysLeft = (p?: Profile | null): number => {
+  if (!p?.premiumUntil) return 0;
+  try {
+    const ms = new Date(p.premiumUntil).getTime() - Date.now();
+    return Math.max(0, Math.ceil(ms / 86_400_000));
+  } catch {
+    return 0;
+  }
+};
+
+/** Oferece N dias de Premium (convites, eventos, prémios). Não encolhe o prazo atual. */
+export const grantPremiumDays = (days: number): Profile => {
+  const current = loadProfile();
+  if (!current) return updateProfile({ isPremium: true });
+  const base =
+    current.premiumUntil && new Date(current.premiumUntil).getTime() > Date.now()
+      ? new Date(current.premiumUntil).getTime()
+      : Date.now();
+  const until = new Date(base + days * 86_400_000).toISOString();
+  return updateProfile({ premiumUntil: until });
+};
+
+/** Atalho para o hook de gating em toda a app. */
+export const hasPremiumAccess = (): boolean => isPremiumActive(loadProfile());
+
 // Activa a assinatura simulada (sem pagamento real).
 // Em produção, isto seria feito por um webhook do Paddle/Stripe.
 export const startTrialPremium = (): Profile => {
@@ -69,5 +108,3 @@ export const startTrialPremium = (): Profile => {
 export const cancelPremium = (): Profile => {
   return updateProfile({ isPremium: false });
 };
-
-export const hasPremiumAccess = (): boolean => isPremium(loadProfile());

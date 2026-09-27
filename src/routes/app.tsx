@@ -8,6 +8,7 @@ import { MascotVoiceTutor } from "@/components/MascotVoiceTutor";
 import { CHAPTERS, type Chapter, type Mission } from "@/lib/chapters";
 import { loadProfile, pullProfileFromCloud, type Profile } from "@/lib/storage";
 import { getMascot } from "@/lib/mascots";
+import { isPremiumActive } from "@/lib/premium";
 import { AdaptiveTip } from "@/components/AdaptiveTip";
 import { MissionOfTheDay } from "@/components/MissionOfTheDay";
 import { SeasonalBanner } from "@/components/SeasonalBanner";
@@ -140,6 +141,44 @@ function AppHome() {
                   NOVO
                 </span>
               </div>
+            </Link>
+          </div>
+        </motion.section>
+
+        {/* Mundo Premium — entrada para o portal */}
+        <motion.section
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.05 }}
+          className="relative mb-5 overflow-hidden rounded-[2.5rem] border-2 border-violet-400/40 bg-gradient-to-br from-violet-600/15 via-fuchsia-500/10 to-amber-400/15 p-5 shadow-xl"
+          aria-label="Mundo Kidoz Premium"
+        >
+          <div className="flex flex-col items-center gap-3 text-center sm:flex-row sm:text-left">
+            <motion.div
+              animate={{ scale: [1, 1.12, 1], rotate: [0, 10, -10, 0] }}
+              transition={{ duration: 4, repeat: Infinity }}
+              className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-[conic-gradient(from_0deg,#8b5cf6,#ec4899,#f59e0b,#10b981,#8b5cf6)] text-3xl shadow-lg"
+            >
+              🌀
+            </motion.div>
+            <div className="min-w-0 flex-1">
+              <p className="font-display text-lg leading-tight">
+                {isPremiumActive(profile)
+                  ? "O Mundo Premium espera por ti!"
+                  : "Convida 3 amigos → 7 dias de Premium grátis!"}
+              </p>
+              <p className="text-sm text-muted-foreground">
+                {isPremiumActive(profile)
+                  ? "Vulcão, Galáxia, Laboratório, Castelo e o Dragão — 5 reinos exclusivos."
+                  : "Desbloqueia o Mundo Premium sem pagar um cêntimo."}
+              </p>
+            </div>
+            <Link
+              to={isPremiumActive(profile) ? "/portal" : "/convites"}
+              onClick={() => haptic("celebrate")}
+              className="btn-chunky shrink-0 rounded-full bg-gradient-to-r from-violet-600 to-fuchsia-500 px-6 py-3 font-display text-sm text-white shadow-lg"
+            >
+              {isPremiumActive(profile) ? "Entrar 🌀" : "Convitar 🎁"}
             </Link>
           </div>
         </motion.section>

@@ -10,6 +10,7 @@ import { buyItem, equipItem, loadProfile, pullProfileFromCloud, type Profile } f
 import { Coins, Lock, Check, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { playCorrect, playWrong } from "@/lib/audio";
+import { isPremiumActive } from "@/lib/premium";
 import { RouteError } from "@/components/RouteError";
 import { KidLoader } from "@/components/KidLoader";
 
@@ -72,7 +73,7 @@ function ShopPage() {
   };
 
   const onBuy = (item: ShopItem) => {
-    if (item.premium && !profile.isPremium) {
+    if (item.premium && !isPremiumActive(profile)) {
       flash("err", "Este item é só para Premium ✨");
       playWrong();
       return;
@@ -162,7 +163,7 @@ function ShopPage() {
           {items.map((item) => {
             const owned = profile.ownedItems.includes(item.id);
             const equipped = profile.equippedItem === item.id;
-            const lockedPremium = item.premium && !profile.isPremium;
+            const lockedPremium = item.premium && !isPremiumActive(profile);
             const canAfford = profile.coins >= item.price;
 
             return (

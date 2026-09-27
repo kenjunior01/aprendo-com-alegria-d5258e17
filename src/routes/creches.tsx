@@ -6,7 +6,13 @@ import { BottomNav } from "@/components/BottomNav";
 import { ChunkyButton } from "@/components/ChunkyButton";
 import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
 import { StripeEmbeddedCheckout } from "@/components/StripeEmbeddedCheckout";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { loadProfile, type Profile } from "@/lib/storage";
 import { useAuth } from "@/hooks/useAuth";
 import { ArrowLeft, Check, Sparkles, Building2, GraduationCap, Crown } from "lucide-react";
@@ -21,15 +27,17 @@ export const Route = createFileRoute("/creches")({
         content:
           "Kidoz Júnior para creches e jardins de infância. Planos Básico, Premium e Institucional com gestão de turmas, portefólios digitais e Kidoz Pro.",
       },
-      { property: "og:title", content: 'Kidoz para Creches e Jardins de Infância (2-5 anos)' },
-      { property: "og:description", content: 'Kidoz Júnior para creches e jardins de infância. Planos Básico, Premium e Institucional com gestão de turmas, portefólios digitais e Kidoz Pro.' },
+      { property: "og:title", content: "Kidoz para Creches e Jardins de Infância (2-5 anos)" },
+      {
+        property: "og:description",
+        content:
+          "Kidoz Júnior para creches e jardins de infância. Planos Básico, Premium e Institucional com gestão de turmas, portefólios digitais e Kidoz Pro.",
+      },
       { property: "og:url", content: "https://kidoz.online/creches" },
       { property: "og:image", content: "https://kidoz.online/og-image.jpg" },
       { name: "twitter:image", content: "https://kidoz.online/og-image.jpg" },
     ],
-    links: [
-      { rel: "canonical", href: "https://kidoz.online/creches" },
-    ],
+    links: [{ rel: "canonical", href: "https://kidoz.online/creches" }],
   }),
   component: CrechesPage,
   errorComponent: RouteError,
@@ -100,10 +108,15 @@ function CrechesPage() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [checkoutTier, setCheckoutTier] = useState<Tier | null>(null);
 
-  useEffect(() => { setProfile(loadProfile()); }, []);
+  useEffect(() => {
+    setProfile(loadProfile());
+  }, []);
 
   const subscribe = (tier: Tier) => {
-    if (!user) { navigate({ to: "/auth" }); return; }
+    if (!user) {
+      navigate({ to: "/auth" });
+      return;
+    }
     setCheckoutTier(tier);
   };
 
@@ -113,7 +126,10 @@ function CrechesPage() {
       {profile && <TopBar profile={profile} />}
 
       <main id="main-content" className="mx-auto max-w-6xl px-5 py-6 sm:py-10">
-        <Link to="/" className="mb-4 inline-flex items-center gap-1 text-sm font-display text-muted-foreground hover:text-foreground">
+        <Link
+          to="/"
+          className="mb-4 inline-flex items-center gap-1 text-sm font-display text-muted-foreground hover:text-foreground"
+        >
           <ArrowLeft className="h-4 w-4" /> Início
         </Link>
 
@@ -127,13 +143,19 @@ function CrechesPage() {
           </div>
           <h1 className="mt-3 font-display text-3xl sm:text-4xl">Kidoz para Creches</h1>
           <p className="mx-auto mt-3 max-w-[48rem] text-base text-muted-foreground sm:text-lg">
-            Kidoz Júnior (2-5 anos) integrado no teu jardim de infância, com painel Kidoz Pro
-            para educadores e portal seguro de comunicação com as famílias.
+            Kidoz Júnior (2-5 anos) integrado no teu jardim de infância, com painel Kidoz Pro para
+            educadores e portal seguro de comunicação com as famílias.
           </p>
           <div className="mt-4 flex flex-wrap items-center justify-center gap-2 text-xs">
-            <span className="rounded-full bg-card px-3 py-1 font-display">🌱 Jardim dos Primeiros Passos</span>
-            <span className="rounded-full bg-card px-3 py-1 font-display">🏝️ Ilha das Descobertas</span>
-            <span className="rounded-full bg-card px-3 py-1 font-display">🎓 Vale da Preparação Escolar</span>
+            <span className="rounded-full bg-card px-3 py-1 font-display">
+              🌱 Jardim dos Primeiros Passos
+            </span>
+            <span className="rounded-full bg-card px-3 py-1 font-display">
+              🏝️ Ilha das Descobertas
+            </span>
+            <span className="rounded-full bg-card px-3 py-1 font-display">
+              🎓 Vale da Preparação Escolar
+            </span>
           </div>
         </motion.section>
 
@@ -180,10 +202,22 @@ function CrechesPage() {
           })}
         </section>
 
-        <section className="mt-10 rounded-2xl border border-dashed border-border bg-muted/40 p-5 text-center text-sm">
-          Precisas de uma proposta personalizada para uma rede de jardins?{" "}
-          <a href="mailto:creches@kidoz.online" className="font-display text-primary underline">
-            creches@kidoz.online
+        <section className="mt-10 grid gap-3 sm:grid-cols-2">
+          <div className="rounded-2xl border border-dashed border-border bg-muted/40 p-5 text-center text-sm">
+            Precisas de uma proposta personalizada para uma rede de jardins?{" "}
+            <a href="mailto:creches@kidoz.online" className="font-display text-primary underline">
+              creches@kidoz.online
+            </a>
+          </div>
+          <a
+            href={`https://wa.me/?text=${encodeURIComponent(
+              "Olá! Tenho interesse no Kidoz para Creches e Jardins de Infância. A minha instituição chama-se…",
+            )}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex min-h-[56px] items-center justify-center gap-2 rounded-2xl border-2 border-success/50 bg-success/15 px-5 font-display text-base text-success hover:bg-success/25"
+          >
+            💬 Falar pelo WhatsApp
           </a>
         </section>
 
@@ -201,7 +235,9 @@ function CrechesPage() {
         <DialogContent className="max-h-[90vh] max-w-[48rem] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Subscrição Kidoz Creches — {checkoutTier?.name}</DialogTitle>
-            <DialogDescription className="text-sm text-muted-foreground">Checkout seguro para a subscrição do plano Creches.</DialogDescription>
+            <DialogDescription className="text-sm text-muted-foreground">
+              Checkout seguro para a subscrição do plano Creches.
+            </DialogDescription>
           </DialogHeader>
           {user && checkoutTier && (
             <StripeEmbeddedCheckout

@@ -16,12 +16,14 @@ import {
 import { loadProfile, type Profile } from "@/lib/storage";
 import { useAuth } from "@/hooks/useAuth";
 import { useSubscription } from "@/hooks/useSubscription";
+import { isPremiumActive } from "@/lib/premium";
 import {
   ArrowLeft,
   Brain,
   Check,
   Crown,
   Gamepad2,
+  Gift,
   Globe2,
   GraduationCap,
   Heart,
@@ -126,6 +128,7 @@ const PLANS: Plan[] = [
     priceLabel: "/mês",
     perks: [
       "Tudo grátis incluído",
+      "🌀 O MUNDO PREMIUM — 5 reinos mágicos exclusivos",
       "♾️ Desafios Infinitos (todos os níveis)",
       "🤖 Tutor Mocha IA com explicações detalhadas",
       "🥽 Realidade Aumentada com mascotes",
@@ -182,6 +185,11 @@ const FEATURES: Feature[] = [
     icon: InfinityIcon,
     title: "Desafios Infinitos",
     desc: "Milhares de níveis procedurais em 12 disciplinas. Aritmética, álgebra, geometria, gramática, vocabulário, geografia, história, lógica e mais — sem fim.",
+  },
+  {
+    icon: Globe2,
+    title: "O Mundo Premium",
+    desc: "5 reinos que não existem em mais nenhum jogo: Vulcão dos Números, Galáxia do Saber, Laboratório Mágico, Castelo das Palavras e a Caverna do Dragão.",
   },
   {
     icon: GraduationCap,
@@ -262,6 +270,8 @@ function PremiumPage() {
 
   if (!profile) return <KidLoader />;
 
+  const premiumNow = isActive || isPremiumActive(profile);
+
   const handleSubscribe = (priceId: string) => {
     if (!user) {
       navigate({ to: "/auth" });
@@ -297,6 +307,11 @@ function PremiumPage() {
               <Sparkles className="h-4 w-4" /> Premium ativo
             </div>
           )}
+          {!isActive && isPremiumActive(profile) && (
+            <div className="mt-4 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-amber-400/30 to-yellow-300/30 px-4 py-1.5 font-display text-sm text-amber-600">
+              <Crown className="h-4 w-4" /> Premium ativo (prémio de convites!)
+            </div>
+          )}
           <div className="mt-5 grid grid-cols-3 gap-2 text-center text-[11px] sm:text-xs">
             {[
               { n: "12", l: "disciplinas" },
@@ -310,6 +325,84 @@ function PremiumPage() {
             ))}
           </div>
         </motion.section>
+
+        {/* O MUNDO PREMIUM — showpiece */}
+        <section className="card-chunky relative mt-8 overflow-hidden rounded-3xl border-2 border-violet-400/50 bg-gradient-to-br from-violet-600/20 via-fuchsia-500/15 to-amber-400/20 p-6 text-center sm:p-8">
+          <motion.div
+            animate={{ scale: [1, 1.1, 1], rotate: [0, 8, -8, 0] }}
+            transition={{ duration: 6, repeat: Infinity }}
+            className="mx-auto h-20 w-20 rounded-full bg-[conic-gradient(from_0deg,#8b5cf6,#ec4899,#f59e0b,#10b981,#8b5cf6)] p-1 shadow-[0_0_45px_12px_rgba(139,92,246,0.4)]"
+          >
+            <div className="flex h-full w-full items-center justify-center rounded-full bg-background">
+              <span className="text-3xl">🌀</span>
+            </div>
+          </motion.div>
+          <p className="mt-3 font-display text-[10px] font-black uppercase tracking-[0.3em] text-violet-500">
+            exclusivo premium
+          </p>
+          <h2 className="mt-1 font-display text-2xl sm:text-3xl">O Mundo Premium 🌀</h2>
+          <p className="mx-auto mt-2 max-w-[40rem] text-sm text-muted-foreground sm:text-base">
+            Um mundo que não existe em mais nenhum jogo de aprendizagem: cinco reinos que juntam
+            quiz, coleção, construção e aventura — com cristais, recordes e um dragão final.
+          </p>
+          <div className="mx-auto mt-4 grid max-w-[42rem] grid-cols-2 gap-2 text-left sm:grid-cols-5">
+            {[
+              { e: "🌋", n: "Vulcão dos Números", d: "A lava sobe a cada erro!" },
+              { e: "🚀", n: "Galáxia do Saber", d: "Viaja de planeta em planeta" },
+              { e: "🧪", n: "Laboratório Mágico", d: "Poções e descobertas" },
+              { e: "🏰", n: "Castelo das Palavras", d: "Acende todas as janelas" },
+              { e: "🐉", n: "Caverna do Dragão", d: "O chefe final de tudo" },
+            ].map((r) => (
+              <div key={r.n} className="rounded-2xl border border-border/70 bg-card/80 p-2.5">
+                <p className="text-2xl">{r.e}</p>
+                <p className="font-display text-xs leading-tight">{r.n}</p>
+                <p className="text-[10px] leading-tight text-muted-foreground">{r.d}</p>
+              </div>
+            ))}
+          </div>
+          <div className="mt-5 flex flex-col items-center justify-center gap-2 sm:flex-row">
+            {premiumNow ? (
+              <Link to="/portal">
+                <ChunkyButton className="min-h-[54px] text-base">
+                  <Sparkles className="mr-1 inline h-5 w-5" /> Entrar no Mundo Premium
+                </ChunkyButton>
+              </Link>
+            ) : (
+              <>
+                <Link to="/portal">
+                  <ChunkyButton tone="secondary" className="min-h-[54px]">
+                    <Sparkles className="mr-1 inline h-5 w-5" /> Visita guiada grátis
+                  </ChunkyButton>
+                </Link>
+                <button
+                  type="button"
+                  onClick={() =>
+                    document.getElementById("planos")?.scrollIntoView({ behavior: "smooth" })
+                  }
+                >
+                  <ChunkyButton className="min-h-[54px]">
+                    <Crown className="mr-1 inline h-5 w-5" /> Quero o Mundo completo
+                  </ChunkyButton>
+                </button>
+              </>
+            )}
+          </div>
+        </section>
+
+        {/* Sem pagar? Convita! */}
+        <section className="card-chunky mt-5 flex flex-col items-center gap-3 rounded-3xl border-2 border-secondary/50 bg-gradient-to-br from-secondary/15 to-accent/10 p-5 text-center sm:flex-row sm:text-left">
+          <Gift className="h-9 w-9 shrink-0 text-secondary-foreground" />
+          <div className="flex-1">
+            <p className="font-display text-lg">Sem pagar um cêntimo? Convita e ganha! 🎁</p>
+            <p className="text-sm text-muted-foreground">
+              Convida amigos pelo WhatsApp: eles ganham moedas de boas-vindas e tu ganhas prémios —
+              com <b>3 convites</b> recebes <b>7 dias de Premium grátis</b> para abrir o Mundo!
+            </p>
+          </div>
+          <Link to="/convites" className="shrink-0">
+            <ChunkyButton tone="secondary">Convitar amigos</ChunkyButton>
+          </Link>
+        </section>
 
         <section className="mt-8">
           <h2 className="font-display text-2xl">Tudo o que recebes</h2>
@@ -366,7 +459,9 @@ function PremiumPage() {
           </div>
         </section>
 
-        <h2 className="mt-8 font-display text-2xl">Escolhe o teu plano</h2>
+        <h2 id="planos" className="mt-8 scroll-mt-20 font-display text-2xl">
+          Escolhe o teu plano
+        </h2>
         <div className="mt-3 grid gap-4 md:grid-cols-3">
           {PLANS.map((plan) => {
             const isCurrent = isActive && subscription?.price_id === plan.priceId;
@@ -434,7 +529,68 @@ function PremiumPage() {
           })}
         </section>
 
-        {/* Testimonials */}
+        {/* Para os pais — valor educativo */}
+        <section className="card-chunky mt-10 rounded-3xl border-2 border-border bg-card p-5 sm:p-6">
+          <div className="flex items-center gap-2">
+            <Heart className="h-6 w-6 text-primary" />
+            <h2 className="font-display text-xl">Aos olhos dos pais (e das escolas)</h2>
+          </div>
+          <p className="mt-2 text-sm text-muted-foreground">
+            O Premium foi desenhado com pedagogos para que diversão tenha resultado real:
+          </p>
+          <div className="mt-4 grid gap-2.5 sm:grid-cols-2">
+            {[
+              {
+                i: "📊",
+                t: "Relatórios semanais",
+                d: "Precisão, minutos e disciplinas mais trabalhadas — diretos no painel de pais.",
+              },
+              {
+                i: "🎯",
+                t: "Currículo nacional",
+                d: "Alinhado com as Aprendizagens Essenciais (PT) e currículos de Angola, Moçambique, Cabo Verde e Brasil.",
+              },
+              {
+                i: "⏱️",
+                t: "Controlo de tempo",
+                d: "Limites diários e hora de dormir configuráveis pelos pais, com PIN.",
+              },
+              {
+                i: "🛡️",
+                t: "Seguro por defeito",
+                d: "Sem anúncios, sem chat aberto, dados protegidos e conformidade RGPD/COPPA.",
+              },
+              {
+                i: "🧠",
+                t: "Tutor que ensina a pensar",
+                d: "O Mocha explica passo-a-passo em linguagem de criança — não dá só a resposta.",
+              },
+              {
+                i: "🏫",
+                t: "Para instituições",
+                d: "Painel de turma, exportação CSV e preço por aluno a partir de 0,99€/mês.",
+              },
+            ].map((c) => (
+              <div
+                key={c.t}
+                className="flex items-start gap-3 rounded-2xl border border-border/70 bg-muted/40 p-3"
+              >
+                <span className="text-2xl">{c.i}</span>
+                <div>
+                  <p className="font-display text-sm">{c.t}</p>
+                  <p className="text-xs text-muted-foreground">{c.d}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+          <Link
+            to="/escolas"
+            className="mt-3 inline-block font-display text-sm text-primary underline underline-offset-2"
+          >
+            É professor ou representa uma escola? Ver plano Escolas →
+          </Link>
+        </section>
+
         <section className="mt-10">
           <h2 className="font-display text-2xl">O que dizem famílias e professores</h2>
           <div className="mt-3 grid gap-3 sm:grid-cols-3">

@@ -6,7 +6,13 @@ import { BottomNav } from "@/components/BottomNav";
 import { ChunkyButton } from "@/components/ChunkyButton";
 import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
 import { StripeEmbeddedCheckout } from "@/components/StripeEmbeddedCheckout";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { loadProfile, type Profile } from "@/lib/storage";
 import { useAuth } from "@/hooks/useAuth";
 import { RouteError } from "@/components/RouteError";
@@ -20,6 +26,8 @@ import {
   Headphones,
   Minus,
   Plus,
+  MessageCircle,
+  Sparkles,
 } from "lucide-react";
 
 export const Route = createFileRoute("/escolas")({
@@ -31,15 +39,17 @@ export const Route = createFileRoute("/escolas")({
         content:
           "Plano dedicado para escolas e instituições: 0,99€ por aluno/mês, mínimo 20 alunos. Painel de turmas, relatórios de progresso e suporte dedicado.",
       },
-      { property: "og:title", content: 'Plano Escolas Kidoz — 0,99€/aluno/mês' },
-      { property: "og:description", content: 'Plano dedicado para escolas e instituições, painel de turmas e relatórios de progresso.' },
+      { property: "og:title", content: "Plano Escolas Kidoz — 0,99€/aluno/mês" },
+      {
+        property: "og:description",
+        content:
+          "Plano dedicado para escolas e instituições, painel de turmas e relatórios de progresso.",
+      },
       { property: "og:url", content: "https://kidoz.online/escolas" },
       { property: "og:image", content: "https://kidoz.online/og-image.jpg" },
       { name: "twitter:image", content: "https://kidoz.online/og-image.jpg" },
     ],
-    links: [
-      { rel: "canonical", href: "https://kidoz.online/escolas" },
-    ],
+    links: [{ rel: "canonical", href: "https://kidoz.online/escolas" }],
   }),
   component: EscolasPage,
   errorComponent: RouteError,
@@ -70,6 +80,47 @@ const FEATURES: { icon: typeof SchoolIcon; title: string; desc: string }[] = [
     icon: Headphones,
     title: "Suporte dedicado",
     desc: "Onboarding com a tua equipa, formação inicial e canal direto para escolas.",
+  },
+];
+
+const STEPS = [
+  {
+    n: "1",
+    title: "Cria a escola e as turmas",
+    desc: "Em 2 minutos tens o painel pronto: escolas, turmas e códigos de convite.",
+  },
+  {
+    n: "2",
+    title: "Os alunos entram com um código",
+    desc: "Sem emails nem passwords complicadas: cada aluno usa o código da turma e escolhe a mascote.",
+  },
+  {
+    n: "3",
+    title: "Acompanha e exporta",
+    desc: "Vê precisão, minutos e evolução semanal. Exporta CSV para reuniões e conselhos de turma.",
+  },
+];
+
+const SCHOOL_FAQS: Array<{ q: string; a: string }> = [
+  {
+    q: "Os alunos precisam de telemóvel próprio?",
+    a: "Não. Funciona em tablets partilhados, computadores da sala ou telemóveis — o progresso fica guardado na conta de cada aluno.",
+  },
+  {
+    q: "Funciona sem internet na escola?",
+    a: "Parcialmente: as lições e jogos funcionam offline e sincronizam quando houver ligação. Ideal para escolas com internet instável.",
+  },
+  {
+    q: "Que disciplinas estão incluídas?",
+    a: "Português, Matemática e Estudo do Meio do 1.º ao 4.º ano (expansão até à 7.ª classe), mais Desafios Infinitos e o modo Júnior (2–5 anos) para pré-escolar.",
+  },
+  {
+    q: "Podemos pagar por transferência bancária ou processo administrativo?",
+    a: "Sim. Fala connosco em escolas@kidoz.online e enviamos proposta com referência Multibanco/transferência e fatura com NIF da instituição.",
+  },
+  {
+    q: "Os dados dos alunos estão protegidos?",
+    a: "Sim. Sem anúncios, sem partilha com terceiros, painel com PIN e conformidade RGPD. Os pais podem ver e apagar dados a qualquer momento.",
   },
 ];
 
@@ -127,12 +178,10 @@ function EscolasPage() {
           <div className="mx-auto inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-secondary text-secondary-foreground shadow-elegant">
             <SchoolIcon className="h-7 w-7" />
           </div>
-          <h1 className="mt-3 font-display text-3xl sm:text-4xl">
-            Kidoz para Escolas
-          </h1>
+          <h1 className="mt-3 font-display text-3xl sm:text-4xl">Kidoz para Escolas</h1>
           <p className="mx-auto mt-3 max-w-[48rem] text-base text-muted-foreground sm:text-lg">
-            Uma plataforma de aprendizagem lúdica para a tua escola, adaptada à
-            realidade dos países lusófonos. Paga apenas pelos alunos que usam.
+            Uma plataforma de aprendizagem lúdica para a tua escola, adaptada à realidade dos países
+            lusófonos. Paga apenas pelos alunos que usam.
           </p>
           <div className="mt-5 inline-flex items-baseline gap-2">
             <span className="font-display text-5xl text-primary">0,99€</span>
@@ -141,7 +190,43 @@ function EscolasPage() {
           <p className="mt-1 text-xs text-muted-foreground">
             Mínimo {MIN_STUDENTS} alunos · faturação mensal · IVA incluído
           </p>
+          <div className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-4">
+            {[
+              { n: "300+", l: "exercícios" },
+              { n: "∞", l: "desafios" },
+              { n: "5", l: "mascotes vivas" },
+              { n: "CSV", l: "exportação" },
+            ].map((s) => (
+              <div key={s.l} className="rounded-2xl border border-white/40 bg-card/60 p-2">
+                <p className="font-display text-xl text-primary">{s.n}</p>
+                <p className="text-[11px] text-muted-foreground">{s.l}</p>
+              </div>
+            ))}
+          </div>
         </motion.section>
+
+        {/* Como funciona */}
+        <section className="mt-8">
+          <h2 className="text-center font-display text-2xl">Como funciona</h2>
+          <p className="mt-1 text-center text-sm text-muted-foreground">
+            Da inscrição ao primeiro relatório em menos de uma semana.
+          </p>
+          <div className="mt-4 grid gap-3 sm:grid-cols-3">
+            {STEPS.map((s) => (
+              <motion.div
+                key={s.n}
+                whileHover={{ y: -3 }}
+                className="card-chunky relative rounded-2xl border-2 border-border bg-card p-4"
+              >
+                <span className="absolute -left-2 -top-2 flex h-8 w-8 items-center justify-center rounded-full bg-primary font-display text-sm font-black text-primary-foreground shadow">
+                  {s.n}
+                </span>
+                <p className="font-display text-base">{s.title}</p>
+                <p className="mt-1 text-sm text-muted-foreground">{s.desc}</p>
+              </motion.div>
+            ))}
+          </div>
+        </section>
 
         {/* Features grid */}
         <section className="mt-8 grid gap-4 sm:grid-cols-2">
@@ -204,9 +289,7 @@ function EscolasPage() {
             </div>
 
             <div className="flex-1 rounded-2xl bg-muted/60 p-4 text-center sm:text-left">
-              <p className="text-xs uppercase tracking-wider text-muted-foreground">
-                Total mensal
-              </p>
+              <p className="text-xs uppercase tracking-wider text-muted-foreground">Total mensal</p>
               <p className="font-display text-3xl text-primary">
                 {monthly.toLocaleString("pt-PT", {
                   style: "currency",
@@ -239,10 +322,7 @@ function EscolasPage() {
           </ul>
 
           <div className="mt-6 flex flex-col items-stretch gap-3 sm:flex-row">
-            <ChunkyButton
-              onClick={handleSubscribe}
-              className="min-h-[56px] flex-1 text-base"
-            >
+            <ChunkyButton onClick={handleSubscribe} className="min-h-[56px] flex-1 text-base">
               Subscrever {students} alunos
             </ChunkyButton>
             <a
@@ -251,12 +331,71 @@ function EscolasPage() {
             >
               Falar com vendas
             </a>
+            <a
+              href={`https://wa.me/?text=${encodeURIComponent(
+                "Olá! Tenho interesse no plano Kidoz para Escolas (0,99€/aluno/mês). A minha instituição chama-se…",
+              )}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex min-h-[56px] flex-1 items-center justify-center gap-2 rounded-2xl border-2 border-success/50 bg-success/15 px-5 font-display text-base text-success hover:bg-success/25"
+            >
+              <MessageCircle className="h-5 w-5" />
+              WhatsApp
+            </a>
           </div>
 
           <p className="mt-4 text-center text-xs text-muted-foreground">
-            🔒 Pagamento seguro processado pela Stripe. IVA calculado automaticamente
-            por país. Para pagamento por transferência bancária, fala connosco.
+            🔒 Pagamento seguro processado pela Stripe. IVA calculado automaticamente por país. Para
+            pagamento por transferência bancária, fala connosco.
           </p>
+        </section>
+
+        {/* Demo / valor para os pais */}
+        <section className="mt-8 grid gap-3 sm:grid-cols-2">
+          <div className="card-chunky rounded-3xl border-2 border-primary/40 bg-gradient-to-br from-primary/10 to-accent/15 p-5">
+            <Sparkles className="h-7 w-7 text-primary" />
+            <p className="mt-2 font-display text-lg">Experimenta antes de decidir</p>
+            <p className="text-sm text-foreground/80">
+              Cria um perfil de teste em 1 minuto: joga uma lição, vê o painel e percebe porque é
+              que as crianças voltam todos os dias.
+            </p>
+            <Link
+              to="/comecar"
+              className="mt-3 inline-block font-display text-sm text-primary underline underline-offset-2 hover:underline"
+            >
+              Criar perfil de demonstração →
+            </Link>
+          </div>
+          <div className="card-chunky rounded-3xl border-2 border-secondary/50 bg-gradient-to-br from-secondary/15 to-primary/10 p-5">
+            <ShieldCheck className="h-7 w-7 text-pt-world" />
+            <p className="mt-2 font-display text-lg">Que os pais também aprovam</p>
+            <p className="text-sm text-foreground/80">
+              Relatórios claros, controlo de tempo de ecrã, sem anúncios e dados protegidos — a
+              escola ganha a confiança das famílias.
+            </p>
+            <Link
+              to="/pais"
+              className="mt-3 inline-block font-display text-sm text-primary underline underline-offset-2 hover:underline"
+            >
+              Ver o painel de pais →
+            </Link>
+          </div>
+        </section>
+
+        {/* FAQ */}
+        <section className="mt-8">
+          <h2 className="font-display text-2xl">Perguntas frequentes das escolas</h2>
+          <div className="mt-3 grid gap-2 sm:grid-cols-2">
+            {SCHOOL_FAQS.map((f) => (
+              <details
+                key={f.q}
+                className="card-chunky rounded-2xl border-2 border-border bg-card p-4"
+              >
+                <summary className="cursor-pointer font-display text-base">{f.q}</summary>
+                <p className="mt-2 text-sm text-muted-foreground">{f.a}</p>
+              </details>
+            ))}
+          </div>
         </section>
 
         {/* Already a teacher */}
@@ -273,10 +412,10 @@ function EscolasPage() {
       <Dialog open={checkoutOpen} onOpenChange={setCheckoutOpen}>
         <DialogContent className="max-h-[90vh] max-w-[48rem] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>
-              Subscrição Escolas — {students} alunos
-            </DialogTitle>
-            <DialogDescription className="text-sm text-muted-foreground">Checkout seguro para a subscrição do plano Escolas.</DialogDescription>
+            <DialogTitle>Subscrição Escolas — {students} alunos</DialogTitle>
+            <DialogDescription className="text-sm text-muted-foreground">
+              Checkout seguro para a subscrição do plano Escolas.
+            </DialogDescription>
           </DialogHeader>
           {user && (
             <StripeEmbeddedCheckout

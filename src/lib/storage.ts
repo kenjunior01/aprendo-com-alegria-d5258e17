@@ -33,6 +33,11 @@ export interface Profile {
   pushToken?: string | null;
   lastDailyGift?: string | null; // YYYY-MM-DD
   unlockedStickers: string[]; // IDs dos cromos colecionados
+  // Premium temporário (prémio de convites) — ISO date até quando dura
+  premiumUntil?: string | null;
+  // Sistema de convites
+  refCode?: string | null; // código único deste perfil (6 chars)
+  invitedBy?: string | null; // código de quem convidou este perfil
 }
 
 const KEY = "kidoz-profile-v2";
@@ -65,6 +70,9 @@ export const defaultProfile = (): Profile => ({
   knowledge: 50,
   lastDailyGift: null,
   unlockedStickers: [],
+  premiumUntil: null,
+  refCode: null,
+  invitedBy: null,
 });
 
 export const loadProfile = (): Profile | null => {
@@ -213,6 +221,9 @@ async function syncProfileToCloud(p: Profile) {
       push_token: p.pushToken ?? null,
       last_daily_gift: p.lastDailyGift ?? null,
       unlocked_stickers: p.unlockedStickers,
+      premium_until: p.premiumUntil ?? null,
+      ref_code: p.refCode ?? null,
+      invited_by: p.invitedBy ?? null,
     };
     await supabase.from("profiles").upsert({
       id: user.id,
@@ -277,6 +288,15 @@ export async function pullProfileFromCloud(): Promise<Profile | null> {
       .eq("id", user.id)
       .maybeSingle();
     if (error || !data) return null;
+    type ProfileRow = typeof data & {
+      push_token?: string | null;
+      last_daily_gift?: string | null;
+      unlocked_stickers?: string[];
+      premium_until?: string | null;
+      ref_code?: string | null;
+      invited_by?: string | null;
+    };
+    const row = data as ProfileRow;
     const cloudProfile: Profile = {
       name: data.name ?? "",
       age: data.age ?? 7,
@@ -303,9 +323,12 @@ export async function pullProfileFromCloud(): Promise<Profile | null> {
       energy: (data as { energy?: number }).energy ?? 100,
       fun: (data as { fun?: number }).fun ?? 90,
       knowledge: (data as { knowledge?: number }).knowledge ?? 50,
-      pushToken: (data as any).push_token ?? null,
-      lastDailyGift: (data as any).last_daily_gift ?? null,
-      unlockedStickers: (data as any).unlocked_stickers ?? [],
+      pushToken: row.push_token ?? null,
+      lastDailyGift: row.last_daily_gift ?? null,
+      unlockedStickers: row.unlocked_stickers ?? [],
+      premiumUntil: row.premium_until ?? null,
+      refCode: row.ref_code ?? null,
+      invitedBy: row.invited_by ?? null,
     };
     const local = loadProfile();
     const merged = mergeProfiles(local, cloudProfile);
@@ -353,6 +376,16 @@ function mergeProfiles(local: Profile | null, cloud: Profile): Profile {
     unlockedStickers: Array.from(
       new Set([...(local.unlockedStickers ?? []), ...(cloud.unlockedStickers ?? [])]),
     ),
+    premiumUntil:
+      (cloud.premiumUntil && new Date(cloud.premiumUntil).getTime() > Date.now()
+        ? cloud.premiumUntil
+        : null) ??
+      (local.premiumUntil && new Date(local.premiumUntil).getTime() > Date.now()
+        ? local.premiumUntil
+        : null) ??
+      null,
+    refCode: cloud.refCode || local.refCode || null,
+    invitedBy: cloud.invitedBy || local.invitedBy || null,
   };
 }
 
