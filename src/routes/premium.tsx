@@ -128,7 +128,7 @@ const PLANS: Plan[] = [
     priceLabel: "/mês",
     perks: [
       "Tudo grátis incluído",
-      "🌀 O MUNDO PREMIUM — 5 reinos mágicos exclusivos",
+      "🌀 O MUNDO PREMIUM — 5 reinos × 3 níveis, criaturas e Bazar de Cristais",
       "♾️ Desafios Infinitos (todos os níveis)",
       "🤖 Tutor Mocha IA com explicações detalhadas",
       "🥽 Realidade Aumentada com mascotes",
@@ -189,7 +189,7 @@ const FEATURES: Feature[] = [
   {
     icon: Globe2,
     title: "O Mundo Premium",
-    desc: "5 reinos que não existem em mais nenhum jogo: Vulcão dos Números, Galáxia do Saber, Laboratório Mágico, Castelo das Palavras e a Caverna do Dragão.",
+    desc: "5 reinos que não existem em mais nenhum jogo — Vulcão dos Números, Galáxia do Saber, Laboratório Mágico, Castelo das Palavras e a Caverna do Dragão — agora com 3 níveis cada (Bronze→Ouro), estrelas para colecionar e o Bazar dos Cristais, onde gastas ✦ em power-ups e criaturas mágicas que te acompanham.",
   },
   {
     icon: GraduationCap,

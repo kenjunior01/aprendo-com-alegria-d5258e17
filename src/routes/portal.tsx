@@ -11,16 +11,29 @@ import { haptic } from "@/lib/haptics";
 import { isPremiumActive, premiumDaysLeft } from "@/lib/premium";
 import {
   REALMS,
+  REALM_LEVELS,
+  CREATURES,
   loadPortalState,
   tourAvailable,
+  levelUnlocked,
+  totalStars,
+  buySupply,
+  buyCreature,
+  consumeSupply,
+  equipCreature,
+  getCreature,
   type PortalState,
   type RealmDef,
+  type SupplyKey,
+  type CreatureDef,
 } from "@/lib/premiumWorld";
 import { RealmGame } from "@/components/portal/RealmGames";
+import { CrystalBazaar } from "@/components/portal/CrystalBazaar";
 import { ConfettiCelebration } from "@/components/ConfettiCelebration";
 import { Crown, Sparkles, Lock, ArrowLeft, Gift } from "lucide-react";
 import { RouteError } from "@/components/RouteError";
 import { KidLoader } from "@/components/KidLoader";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/portal")({
   head: () => ({
@@ -51,7 +64,10 @@ function PortalPage() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [state, setState] = useState<PortalState>(() => loadPortalState());
   const [activeRealm, setActiveRealm] = useState<RealmDef | null>(null);
+  const [activeLevel, setActiveLevel] = useState(0);
+  const [gameSeed, setGameSeed] = useState(0);
   const [demoRealm, setDemoRealm] = useState<RealmDef | null>(null);
+  const [bazaarOpen, setBazaarOpen] = useState(false);
   const [gameKey, setGameKey] = useState(0);
   const [firstVisit, setFirstVisit] = useState(false);
 
@@ -84,11 +100,13 @@ function PortalPage() {
   const mascot = getMascot(profile.mascot);
   const daysLeft = premiumDaysLeft(profile);
 
-  const play = (realm: RealmDef, demo = false) => {
+  const play = (realm: RealmDef, levelIdx = 0, demo = false) => {
     haptic(demo ? "tap" : "celebrate");
     if (demo) setDemoRealm(realm);
     else {
       setActiveRealm(realm);
+      setActiveLevel(levelIdx);
+      setGameSeed(Math.floor(Math.random() * 100_000));
       setGameKey((k) => k + 1);
     }
   };
@@ -100,12 +118,67 @@ function PortalPage() {
     setProfile(loadProfile());
   };
 
+  const nextLevel = () => {
+    if (!activeRealm) return;
+    play(activeRealm, Math.min(2, activeLevel + 1));
+  };
+
+  const useSupply = (kind: SupplyKey) => {
+    setState(consumeSupply(kind));
+  };
+
+  const doBuySupply = (key: SupplyKey, price: number) => {
+    const r = buySupply(key, price);
+    if (r.ok) setState(r.state);
+    else toast.error("Não tens cristais suficientes — joga um reino! ✦");
+  };
+
+  const doBuyCreature = (c: CreatureDef) => {
+    const r = buyCreature(c);
+    if (r.ok) {
+      setState(r.state);
+      toast.success(`${c.emoji} ${c.name} juntou-se à tua aventura!`);
+    } else if (r.reason === "nocredits") {
+      toast.error("Não tens cristais suficientes — joga um reino! ✦");
+    }
+  };
+
+  const doEquip = (id: string | null) => {
+    setState(equipCreature(id));
+  };
+
   // ── Jogo ativo (full-screen overlay) ──
   if (activeRealm) {
-    return <RealmGame key={gameKey} realm={activeRealm} grade={profile.grade} onExit={exitGame} />;
+    return (
+      <RealmGame
+        key={gameKey}
+        realm={activeRealm}
+        grade={profile?.grade ?? 1}
+        levelIdx={activeLevel}
+        seed={gameSeed}
+        supplies={state.supplies}
+        perks={{
+          startShield: getCreature(state.equippedCreature)?.perkKey === "startShield",
+          freeHint: getCreature(state.equippedCreature)?.perkKey === "freeHint",
+        }}
+        onUseSupply={useSupply}
+        onExit={exitGame}
+        onNextLevel={nextLevel}
+      />
+    );
   }
   if (demoRealm) {
-    return <RealmGame key="demo" realm={demoRealm} grade={profile.grade} demo onExit={exitGame} />;
+    return (
+      <RealmGame
+        key="demo"
+        realm={demoRealm}
+        grade={profile?.grade ?? 1}
+        levelIdx={0}
+        seed={0}
+        demo
+        onExit={exitGame}
+      />
+    );
   }
 
   return (
@@ -246,28 +319,69 @@ function PortalPage() {
               </div>
             )}
 
+            {/* Título ativo */}
+            {state.activeTitle && (
+              <p className="mt-1 font-display text-sm text-violet-300">
+                🏅 <b>{state.activeTitle}</b>
+              </p>
+            )}
+
             {/* Contadores do Passaporte */}
-            <div className="mt-5 grid grid-cols-4 gap-2 text-center">
+            <div className="mt-5 grid grid-cols-5 gap-1.5 text-center sm:gap-2">
               {[
                 { n: `✦ ${state.crystals}`, l: "cristais" },
+                { n: `⭐ ${totalStars(state)}`, l: "estrelas" },
                 {
-                  n: String(REALMS.filter((r) => (state.best[r.id] ?? 0) >= r.questions).length),
+                  n: String(
+                    REALMS.filter((r) => (state.stars[r.id] ?? []).every((s) => s >= 1)).length,
+                  ),
                   l: "reinos 100%",
                 },
                 { n: `🐉 ${state.dragonSlain}`, l: "dragões" },
-                { n: `🔑 ${state.keysGolden}`, l: "chaves" },
+                { n: `🐾 ${state.creatures.length}/${CREATURES.length}`, l: "criaturas" },
               ].map((s) => (
                 <div key={s.l} className="rounded-2xl border border-white/15 bg-white/5 p-2">
-                  <p className="font-display text-base text-amber-200 sm:text-lg">{s.n}</p>
-                  <p className="text-[10px] text-white/60">{s.l}</p>
+                  <p className="font-display text-sm text-amber-200 sm:text-lg">{s.n}</p>
+                  <p className="text-[9px] text-white/60 sm:text-[10px]">{s.l}</p>
                 </div>
               ))}
             </div>
+
+            {/* Bazar dos Cristais */}
+            <div className="mt-4 flex justify-center">
+              <ChunkyButton
+                tone="secondary"
+                onClick={() => {
+                  haptic("tap");
+                  setBazaarOpen(true);
+                }}
+                className="min-h-[48px] px-5"
+              >
+                💎 Bazar dos Cristais
+                <span className="ml-1 rounded-full bg-black/30 px-2 py-0.5 text-xs text-amber-200">
+                  {state.crystals} ✦
+                </span>
+              </ChunkyButton>
+            </div>
           </motion.section>
 
-          {/* Mascote guia */}
+          {/* Mascote guia + criatura companheira */}
           <section className="mt-4 flex items-center gap-3 rounded-3xl border border-white/15 bg-white/5 p-3 backdrop-blur">
             <Mascot id={profile.mascot} size="md" bouncing equippedItemId={profile.equippedItem} />
+            {getCreature(state.equippedCreature) && (
+              <motion.span
+                initial={{ scale: 0, rotate: -20 }}
+                animate={{ scale: 1, rotate: 0, y: [0, -5, 0] }}
+                transition={{
+                  scale: { type: "spring", stiffness: 260, damping: 14 },
+                  y: { duration: 2, repeat: Infinity },
+                }}
+                title={getCreature(state.equippedCreature)!.name}
+                className="text-3xl drop-shadow-lg"
+              >
+                {getCreature(state.equippedCreature)!.emoji}
+              </motion.span>
+            )}
             <p className="text-sm text-white/85">
               {premium
                 ? `${mascot.encourage} Escolhe um reino e boa sorte! ✦`
@@ -279,8 +393,8 @@ function PortalPage() {
           <section aria-label="Mapa dos reinos" className="relative mt-6">
             <div className="mx-auto grid max-w-[34rem] gap-5">
               {REALMS.map((realm, i) => {
-                const best = state.best[realm.id] ?? 0;
-                const mastered = best >= realm.questions;
+                const stars = state.stars[realm.id] ?? [0, 0, 0];
+                const allMastered = stars.every((s) => s >= 1);
                 const offset = [
                   "md:-translate-x-6",
                   "md:translate-x-6",
@@ -300,10 +414,10 @@ function PortalPage() {
                   >
                     <div
                       className={`card-chunky relative overflow-hidden rounded-3xl border-2 bg-gradient-to-br p-4 sm:p-5 ${realm.gradient} ${
-                        mastered ? "border-amber-300/60" : "border-white/25"
+                        allMastered ? "border-amber-300/60" : "border-white/25"
                       } backdrop-blur-xl`}
                     >
-                      {mastered && (
+                      {allMastered && (
                         <span className="absolute right-3 top-3 rounded-full bg-amber-400/90 px-2 py-0.5 font-display text-[10px] font-black text-amber-950">
                           ★ DOMADO
                         </span>
@@ -324,45 +438,161 @@ function PortalPage() {
                           <p className="mt-1 text-sm text-white/80">{realm.desc}</p>
                         </div>
                       </div>
-                      <div className="mt-3 flex items-center justify-between gap-2">
-                        <div className="flex items-center gap-1">
-                          {[...Array(realm.questions)].map((_, j) => (
-                            <span
-                              key={j}
-                              className={`h-1.5 w-4 rounded-full ${
-                                j < best ? "bg-amber-300" : "bg-white/20"
+                      {/* Seletor de níveis Bronze / Prata / Ouro */}
+                      <div className="mt-3 grid grid-cols-3 gap-2">
+                        {REALM_LEVELS.map((lvl, li) => {
+                          const unlocked = levelUnlocked(state, realm, li);
+                          const st = stars[li] ?? 0;
+                          const emoji = li === 0 ? "🥉" : li === 1 ? "🥈" : "🥇";
+                          return (
+                            <button
+                              key={lvl.key}
+                              onClick={() => {
+                                if (!premium) {
+                                  if (playable) play(realm, 0, true);
+                                  return;
+                                }
+                                if (!unlocked) {
+                                  haptic("error");
+                                  toast.info(
+                                    li === 1
+                                      ? "Ganha pelo menos 1 ★ no Bronze para abrir o Prata!"
+                                      : "Ganha pelo menos 1 ★ no Prata para abrir o Ouro!",
+                                  );
+                                  return;
+                                }
+                                play(realm, li);
+                              }}
+                              className={`relative rounded-2xl border-2 px-2 py-2 text-center backdrop-blur transition-transform active:scale-95 ${
+                                unlocked && (premium || playable)
+                                  ? "border-white/40 bg-white/15 hover:bg-white/25"
+                                  : "border-white/15 bg-white/5"
                               }`}
-                            />
-                          ))}
-                          <span className="ml-1 font-display text-[11px] text-white/70">
-                            recorde {best}/{realm.questions}
-                          </span>
-                        </div>
-                        {premium ? (
-                          <ChunkyButton
-                            onClick={() => play(realm)}
-                            className="min-h-[46px] shrink-0 px-4 text-sm"
-                          >
-                            <Sparkles className="mr-1 inline h-4 w-4" /> Jogar
-                          </ChunkyButton>
-                        ) : playable ? (
-                          <ChunkyButton
-                            onClick={() => play(realm, true)}
-                            className="min-h-[46px] shrink-0 px-3 text-sm"
-                          >
-                            <Sparkles className="mr-1 inline h-4 w-4" /> Visita guiada
-                          </ChunkyButton>
-                        ) : (
-                          <span className="inline-flex shrink-0 items-center gap-1 rounded-2xl border border-white/25 bg-white/10 px-3 py-2 font-display text-xs text-white/70">
-                            <Lock className="h-3.5 w-3.5" /> Bloqueado
-                          </span>
-                        )}
+                            >
+                              <p className="font-display text-xs text-white">
+                                {emoji} {lvl.name}
+                              </p>
+                              <p className="text-[10px] tracking-wide text-amber-200">
+                                {"★".repeat(st)}
+                                {"☆".repeat(3 - st)}
+                              </p>
+                              {!unlocked && (
+                                <Lock className="absolute right-1.5 top-1.5 h-3 w-3 text-white/50" />
+                              )}
+                            </button>
+                          );
+                        })}
                       </div>
+                      {!premium && (
+                        <div className="mt-3 flex items-center justify-between gap-2">
+                          <p className="text-xs text-white/70">
+                            {playable
+                              ? "Visita guiada grátis · sem prémios"
+                              : "O Mundo completo tem os 3 níveis e prémios"}
+                          </p>
+                          <Link to={premium ? "/portal" : "/premium"} className="shrink-0">
+                            {playable ? (
+                              <ChunkyButton
+                                onClick={() => play(realm, 0, true)}
+                                className="min-h-[42px] px-3 text-xs"
+                              >
+                                <Sparkles className="mr-1 inline h-3.5 w-3.5" /> Experimentar
+                              </ChunkyButton>
+                            ) : (
+                              <span className="inline-flex items-center gap-1 rounded-2xl border border-white/25 bg-white/10 px-3 py-2 font-display text-xs text-white/70">
+                                <Lock className="h-3.5 w-3.5" /> Bloqueado
+                              </span>
+                            )}
+                          </Link>
+                        </div>
+                      )}
                     </div>
                   </motion.div>
                 );
               })}
             </div>
+          </section>
+
+          {/* Álbum do Aventureiro */}
+          <section className="mt-8 rounded-3xl border border-white/15 bg-white/5 p-5 backdrop-blur">
+            <h2 className="text-center font-display text-xl text-white">📖 Álbum do Aventureiro</h2>
+            <p className="mt-1 text-center text-xs text-white/60">
+              Tudo o que já conquistaste no Mundo Premium
+            </p>
+            <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
+              <div className="rounded-2xl border border-white/15 bg-white/5 p-3 text-center">
+                <p className="font-display text-xl text-amber-200">⭐ {totalStars(state)}/45</p>
+                <p className="text-[10px] text-white/60">estrelas</p>
+              </div>
+              <div className="rounded-2xl border border-white/15 bg-white/5 p-3 text-center">
+                <p className="font-display text-xl text-emerald-200">
+                  🧪 {state.discoveries.length}/6
+                </p>
+                <p className="text-[10px] text-white/60">poções</p>
+              </div>
+              <div className="rounded-2xl border border-white/15 bg-white/5 p-3 text-center">
+                <p className="font-display text-xl text-sky-200">🔑 {state.keysGolden}</p>
+                <p className="text-[10px] text-white/60">chaves douradas</p>
+              </div>
+              <div className="rounded-2xl border border-white/15 bg-white/5 p-3 text-center">
+                <p className="font-display text-xl text-rose-200">🐉 {state.dragonSlain}</p>
+                <p className="text-[10px] text-white/60">dragões</p>
+              </div>
+            </div>
+            {/* Poções descobertas */}
+            <p className="mt-4 font-display text-sm text-white/80">Diário do Laboratório 🧪</p>
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              {state.discoveries.length === 0 && (
+                <p className="text-xs text-white/50">
+                  Ainda sem poções — acerta em 60% das perguntas do Laboratório!
+                </p>
+              )}
+              {state.discoveries.map((d) => (
+                <span
+                  key={d}
+                  className="rounded-full border border-emerald-300/40 bg-emerald-400/15 px-3 py-1 font-display text-xs text-emerald-100"
+                >
+                  {d}
+                </span>
+              ))}
+            </div>
+            {/* Criaturas */}
+            <p className="mt-4 font-display text-sm text-white/80">Criaturas 🐾</p>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {CREATURES.map((c) => {
+                const owned = state.creatures.includes(c.id);
+                return (
+                  <span
+                    key={c.id}
+                    title={owned ? `${c.name} — ${c.perk}` : `${c.name}? Adota-a no Bazar!`}
+                    className={`inline-flex items-center gap-1 rounded-2xl border px-2.5 py-1 text-xs ${
+                      owned
+                        ? "border-amber-300/50 bg-amber-400/15 text-amber-100"
+                        : "border-white/10 bg-white/5 text-white/40 grayscale"
+                    }`}
+                  >
+                    <span className="text-base">{c.emoji}</span>
+                    {owned ? c.name : "???"}
+                  </span>
+                );
+              })}
+            </div>
+            {/* Títulos */}
+            {state.titles.length > 0 && (
+              <>
+                <p className="mt-4 font-display text-sm text-white/80">Títulos 🏅</p>
+                <div className="mt-2 flex flex-wrap gap-1.5">
+                  {state.titles.map((t) => (
+                    <span
+                      key={t}
+                      className="rounded-full border border-violet-300/40 bg-violet-400/15 px-3 py-1 font-display text-xs text-violet-100"
+                    >
+                      {t}
+                    </span>
+                  ))}
+                </div>
+              </>
+            )}
           </section>
 
           {/* Rodapé para pais */}
@@ -382,6 +612,16 @@ function PortalPage() {
         </main>
         <BottomNav />
       </div>
+
+      {/* Bazar dos Cristais */}
+      <CrystalBazaar
+        open={bazaarOpen}
+        onClose={() => setBazaarOpen(false)}
+        state={state}
+        onBuySupply={doBuySupply}
+        onBuyCreature={doBuyCreature}
+        onEquip={doEquip}
+      />
 
       {/* Confetti na entrada */}
       {firstVisit && <ConfettiCelebration show durationMs={3800} type="chapter-complete" />}

@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/dialog";
 import { loadProfile, type Profile } from "@/lib/storage";
 import { useAuth } from "@/hooks/useAuth";
+import { JoinClassCard } from "@/components/JoinClassCard";
 import { RouteError } from "@/components/RouteError";
 import {
   ArrowLeft,
@@ -204,6 +205,9 @@ function EscolasPage() {
             ))}
           </div>
         </motion.section>
+
+        {/* Entrada do aluno na turma (fecha o ciclo institucional) */}
+        <JoinClassCard />
 
         {/* Como funciona */}
         <section className="mt-8">

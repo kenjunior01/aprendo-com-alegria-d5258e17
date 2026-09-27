@@ -200,10 +200,18 @@ function genArith(rng: () => number, level: number): GenQuestion {
   const a = intBetween(rng, 1, cap);
   const b = intBetween(rng, 1, cap);
   const op = level < 3 ? "+" : pick(rng, ["+", "+", "-", "-"]);
-  const ans = op === "+" ? a + b : a - b;
-  const ds = [ans + 1, ans - 1, ans + intBetween(rng, 2, 10)].map(String);
+  // Subtração nunca tem resultado negativo (1.º ciclo)
+  const big = Math.max(a, b);
+  const small = Math.min(a, b);
+  const ans = op === "+" ? a + b : big - small;
+  const lhs = op === "+" ? `${a} ${op} ${b}` : `${big} ${op} ${small}`;
+  const ds = [
+    ans + 1,
+    Math.max(0, ans - 1),
+    ans + intBetween(rng, 2, 10),
+  ].map(String);
   const { options, answerIndex } = shuffleOptions(rng, String(ans), ds);
-  return { prompt: `${a} ${op} ${b} = ?`, options, answerIndex };
+  return { prompt: `${lhs} = ?`, options, answerIndex };
 }
 function genTables(rng: () => number, level: number): GenQuestion {
   const maxFactor = Math.min(2 + level, 12);
@@ -307,8 +315,15 @@ function genLogic(rng: () => number, level: number): GenQuestion {
   return { prompt: `Que número continua a sequência?  ${seq.join(", ")}, ?`, options, answerIndex };
 }
 
-export function generateQuestions(track: TrackId, level: number, count = 8): GenQuestion[] {
-  const rng = mulberry32((level + 1) * 9973 + track.length * 131);
+export function generateQuestions(
+  track: TrackId,
+  level: number,
+  count = 8,
+  seed = 0,
+): GenQuestion[] {
+  // seed ≠ 0 muda a sequência do rng (reinos do portal usam-no para
+  // cada tentativa ter perguntas novas).
+  const rng = mulberry32((level + 1) * 9973 + track.length * 131 + seed * 7919);
   const out: GenQuestion[] = [];
   for (let i = 0; i < count; i++) {
     switch (track) {

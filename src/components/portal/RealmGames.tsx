@@ -1,21 +1,51 @@
 // RealmGames.tsx — Os 5 reinos do Mundo Kidoz Premium.
 // Um motor de quiz partilhado com "cenas" visuais por reino:
 // 🌋 lava que sobe · 🚀 viagem espacial · 🧪 poções · 🏰 janelas que acendem · 🐉 chefe final.
+// Suporta 3 níveis por reino (Bronze/Prata/Ouro), estrelas e power-ups
+// (🛡️ escudo · 💡 dica 50/50 · ✦×2 dobro) comprados no Bazar dos Cristais.
 import { useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Sparkles, Flame, Fuel, Heart } from "lucide-react";
+import { X, Sparkles, Flame, Fuel, Heart, Shield, Lightbulb } from "lucide-react";
 import { ChunkyButton } from "@/components/ChunkyButton";
 import { haptic } from "@/lib/haptics";
 import { cn } from "@/lib/utils";
-import { finishRealm, markTourUsed, realmQuestions, type RealmDef } from "@/lib/premiumWorld";
+import {
+  finishRealm,
+  markTourUsed,
+  realmQuestions,
+  realmQuestionCount,
+  REALM_LEVELS,
+  type RealmDef,
+  type SupplyKey,
+} from "@/lib/premiumWorld";
 import type { GenQuestion } from "@/lib/infiniteChallenges";
+
+export interface GameSupplies {
+  shield: number;
+  hint: number;
+  double: number;
+}
+
+export interface GamePerks {
+  startShield: boolean;
+  freeHint: boolean;
+}
 
 interface Props {
   realm: RealmDef;
   grade: number;
+  /** 0 = Bronze, 1 = Prata, 2 = Ouro */
+  levelIdx: number;
+  /** seed da tentativa — cada jogo tem perguntas novas */
+  seed?: number;
   /** modo visita guiada (não-premium): 3 perguntas, sem recompensas reais */
   demo?: boolean;
+  supplies?: GameSupplies;
+  perks?: GamePerks;
+  onUseSupply?: (kind: SupplyKey) => void;
   onExit: () => void;
+  /** jogar o nível seguinte do mesmo reino */
+  onNextLevel?: () => void;
 }
 
 interface Finish {
@@ -25,8 +55,11 @@ interface Finish {
   coins: number;
   xp: number;
   perfect: boolean;
+  stars: number;
+  nextUnlocked: boolean;
   early?: string; // motivo do fim antecipado
   bonusTitle?: string;
+  newTitle?: string | null;
 }
 
 const POTION_NAMES = [
@@ -38,10 +71,25 @@ const POTION_NAMES = [
   "Banha de Dragão",
 ];
 
-export function RealmGame({ realm, grade, demo, onExit }: Props) {
+export function RealmGame({
+  realm,
+  grade,
+  levelIdx,
+  seed = 0,
+  demo,
+  supplies,
+  perks,
+  onUseSupply,
+  onExit,
+  onNextLevel,
+}: Props) {
   const questions = useMemo<GenQuestion[]>(
-    () => realmQuestions(realm, grade).slice(0, demo ? 3 : realm.questions),
-    [realm, grade, demo],
+    () =>
+      realmQuestions(realm, grade, levelIdx, seed).slice(
+        0,
+        demo ? 3 : realmQuestionCount(realm, levelIdx),
+      ),
+    [realm, grade, levelIdx, seed, demo],
   );
   const [idx, setIdx] = useState(0);
   const [correct, setCorrect] = useState(0);
@@ -50,12 +98,27 @@ export function RealmGame({ realm, grade, demo, onExit }: Props) {
   const [wrongShake, setWrongShake] = useState(0);
   const endedRef = useRef(false);
 
+  // ── Power-ups (inventário local de esta jogada) ──
+  const [hintsLeft, setHintsLeft] = useState(
+    demo ? 0 : (supplies?.hint ?? 0) + (perks?.freeHint ? 1 : 0),
+  );
+  const [shieldsLeft, setShieldsLeft] = useState(
+    demo ? 0 : (supplies?.shield ?? 0) + (perks?.startShield ? 1 : 0),
+  );
+  const [doublesLeft, setDoublesLeft] = useState(demo ? 0 : (supplies?.double ?? 0));
+  const [doubleActive, setDoubleActive] = useState(false);
+  const [removed, setRemoved] = useState<number[]>([]);
+  const [shieldFlash, setShieldFlash] = useState(0);
+  /** erros NÃO absorvidos por escudo — é isto que sobe a lava / gasta combustível */
+  const [unguarded, setUnguarded] = useState(0);
+
   const total = questions.length;
   const q = questions[idx];
+  const levelDef = REALM_LEVELS[levelIdx] ?? REALM_LEVELS[0];
 
   // ── estado por reino ──
-  const lava = Math.max(0, Math.min(100, 40 + (idx - correct) * 12 - correct * 6));
-  const fuel = 4 - (idx - correct); // galáxia: erros gastam combustível
+  const lava = Math.max(0, Math.min(100, 40 + unguarded * 12 - correct * 6));
+  const fuel = 4 - unguarded; // galáxia: erros gastam combustível
   const windowsLit = correct; // castelo
   const dragonHP = Math.max(0, total - correct);
 
@@ -75,6 +138,15 @@ export function RealmGame({ realm, grade, demo, onExit }: Props) {
         coins: 0,
         xp: 0,
         perfect: finalCorrect >= total,
+        stars:
+          finalCorrect >= total
+            ? 3
+            : finalCorrect >= Math.ceil(total * 0.8)
+              ? 2
+              : finalCorrect >= Math.ceil(total * 0.6)
+                ? 1
+                : 0,
+        nextUnlocked: false,
         early,
       });
       return;
@@ -86,7 +158,12 @@ export function RealmGame({ realm, grade, demo, onExit }: Props) {
     const goldenKey = realm.id === "castelo" && (extras?.goldenKey || finalCorrect >= total);
     const slain =
       realm.id === "dragao" && (extras?.dragonSlain || finalCorrect >= Math.ceil(total * 0.7));
-    const r = finishRealm(realm, finalCorrect, { discovery, goldenKey, dragonSlain: slain });
+    const r = finishRealm(realm, levelIdx, finalCorrect, {
+      discovery,
+      goldenKey,
+      dragonSlain: slain,
+      doubled: doubleActive,
+    });
     setFinish({
       correct: finalCorrect,
       total,
@@ -94,6 +171,8 @@ export function RealmGame({ realm, grade, demo, onExit }: Props) {
       coins: r.coins,
       xp: r.xp,
       perfect: r.perfect,
+      stars: r.starsEarned,
+      nextUnlocked: r.nextUnlocked,
       early,
       bonusTitle: slain
         ? "🐉 Dragão derrotado — és uma Lenda Kidoz!"
@@ -102,6 +181,7 @@ export function RealmGame({ realm, grade, demo, onExit }: Props) {
           : discovery
             ? `📖 Descoberta registada: ${discovery}`
             : undefined,
+      newTitle: r.newTitle,
     });
     haptic(finalCorrect >= total / 2 ? "celebrate" : "success");
   };
@@ -114,32 +194,65 @@ export function RealmGame({ realm, grade, demo, onExit }: Props) {
       haptic("success");
       const newCorrect = correct + 1;
       setCorrect(newCorrect);
-      setTimeout(() => advance(newCorrect), 850);
+      setTimeout(() => advance(newCorrect, false, false), 850);
     } else {
       haptic("error");
       setWrongShake((s) => s + 1);
-      setTimeout(() => advance(correct), 1150);
+      const hadShield = shieldsLeft > 0;
+      if (hadShield) {
+        // O escudo absorve o erro: sem penalização para o reino
+        setShieldsLeft((n) => n - 1);
+        onUseSupply?.("shield");
+        setShieldFlash((f) => f + 1);
+      } else {
+        setUnguarded((u) => u + 1);
+      }
+      const newCorrect = correct;
+      setTimeout(() => advance(newCorrect, true, hadShield), 1150);
     }
   };
 
-  const advance = (newCorrect: number) => {
+  const useHint = () => {
+    if (demo || picked !== null || finish || !q) return;
+    if (hintsLeft <= 0) return;
+    setHintsLeft((n) => n - 1);
+    onUseSupply?.("hint");
+    haptic("tap");
+    const wrongIdx = q.options.map((_, i) => i).filter((i) => i !== q.answerIndex);
+    // embaralhar e tirar 2
+    for (let i = wrongIdx.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [wrongIdx[i], wrongIdx[j]] = [wrongIdx[j], wrongIdx[i]];
+    }
+    setRemoved(wrongIdx.slice(0, Math.min(2, wrongIdx.length - 1)));
+  };
+
+  const useDouble = () => {
+    if (demo || doubleActive || finish) return;
+    if (doublesLeft <= 0) return;
+    setDoublesLeft((n) => n - 1);
+    onUseSupply?.("double");
+    setDoubleActive(true);
+    haptic("celebrate");
+  };
+
+  const advance = (newCorrect: number, wasWrong: boolean, hadShield: boolean) => {
     const nextIdx = idx + 1;
-    // Fins antecipados por reino
+    setRemoved([]);
+    // Erros efetivos (só os não absorvidos por escudo penalizam)
+    const effectiveWrong = unguarded + (wasWrong && !hadShield ? 1 : 0);
     if (realm.id === "vulcao") {
-      const nextLava = Math.max(
-        0,
-        Math.min(100, 40 + (nextIdx - newCorrect) * 12 - newCorrect * 6),
-      );
+      const nextLava = Math.max(0, Math.min(100, 40 + effectiveWrong * 12 - newCorrect * 6));
       if (nextLava >= 100) {
         endRun(newCorrect, "A lava transbordou! 🌋");
         return;
       }
     }
-    if (realm.id === "galaxia" && 4 - (nextIdx - newCorrect) <= 0) {
+    if (realm.id === "galaxia" && 4 - effectiveWrong <= 0) {
       endRun(newCorrect, "Sem combustível! 🛸");
       return;
     }
-    if (realm.id === "dragao" && 3 - (nextIdx - newCorrect) <= 0) {
+    if (realm.id === "dragao" && 3 - effectiveWrong <= 0) {
       endRun(newCorrect, "O dragão afastou-te da caverna! 🐉");
       return;
     }
@@ -166,18 +279,88 @@ export function RealmGame({ realm, grade, demo, onExit }: Props) {
           <X className="h-5 w-5" strokeWidth={3} />
         </button>
         <div className="flex items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-3 py-1.5 backdrop-blur">
-          <Sparkles className="h-4 w-4 text-amber-300" />
+          <Sparkles
+            className={cn("h-4 w-4", doubleActive ? "text-fuchsia-300" : "text-amber-300")}
+          />
           <span className="font-display text-sm text-white tabular-nums">
-            {finish ? finish.crystals : correct * 2} ✦
+            {finish ? finish.crystals : correct * 2} ✦{doubleActive && !finish ? " ×2" : ""}
           </span>
         </div>
-        <div className="rounded-full border border-white/20 bg-white/10 px-3 py-1.5 font-display text-xs text-white/90 tabular-nums">
-          {Math.min(idx + (finish ? 0 : 1), total)}/{total}
+        <div className="flex items-center gap-1.5">
+          {/* Power-ups */}
+          {!demo && !finish && (
+            <>
+              <button
+                onClick={useHint}
+                disabled={hintsLeft <= 0}
+                aria-label="Usar dica mágica"
+                className={cn(
+                  "relative flex h-11 w-11 items-center justify-center rounded-2xl border backdrop-blur transition-transform active:scale-90",
+                  hintsLeft > 0
+                    ? "border-amber-300/60 bg-amber-400/25 text-amber-100"
+                    : "border-white/15 bg-white/5 text-white/30",
+                )}
+              >
+                <Lightbulb className="h-5 w-5" />
+                {hintsLeft > 0 && (
+                  <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-amber-400 px-1 font-display text-[10px] font-black text-amber-950">
+                    {hintsLeft}
+                  </span>
+                )}
+              </button>
+              <button
+                onClick={useDouble}
+                disabled={doublesLeft <= 0 || doubleActive}
+                aria-label="Ativar dobro de cristais"
+                className={cn(
+                  "relative flex h-11 min-w-11 items-center justify-center rounded-2xl border px-1.5 font-display text-xs backdrop-blur transition-transform active:scale-90",
+                  doubleActive
+                    ? "border-fuchsia-300 bg-fuchsia-400/40 text-white"
+                    : doublesLeft > 0
+                      ? "border-fuchsia-300/60 bg-fuchsia-400/20 text-fuchsia-100"
+                      : "border-white/15 bg-white/5 text-white/30",
+                )}
+              >
+                ×2
+                {doublesLeft > 0 && !doubleActive && (
+                  <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-fuchsia-400 px-1 font-display text-[10px] font-black text-fuchsia-950">
+                    {doublesLeft}
+                  </span>
+                )}
+              </button>
+            </>
+          )}
+          <div className="rounded-full border border-white/20 bg-white/10 px-3 py-1.5 font-display text-xs text-white/90 tabular-nums">
+            {Math.min(idx + (finish ? 0 : 1), total)}/{total}
+          </div>
         </div>
       </div>
 
+      {/* Nível atual */}
+      <p className="mt-2 text-center font-display text-[11px] uppercase tracking-[0.25em] text-white/50">
+        {levelDef.key === "bronze" ? "🥉" : levelDef.key === "prata" ? "🥈" : "🥇"} Nível{" "}
+        {levelDef.name}
+      </p>
+
+      {/* Flash do escudo */}
+      <AnimatePresence>
+        {shieldFlash > 0 && !finish && (
+          <motion.div
+            key={shieldFlash}
+            initial={{ opacity: 0, y: -8, scale: 0.8 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -14 }}
+            className="pointer-events-none absolute left-1/2 top-16 z-10 -translate-x-1/2"
+          >
+            <span className="inline-flex items-center gap-1 rounded-full border border-sky-300/60 bg-sky-400/30 px-3 py-1 font-display text-sm text-sky-100 backdrop-blur">
+              <Shield className="h-4 w-4" /> Escudo absorveu o erro!
+            </span>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Cena do reino */}
-      <div className="px-4 pt-4">
+      <div className="px-4 pt-2">
         <RealmScene
           realm={realm}
           picked={picked}
@@ -188,6 +371,7 @@ export function RealmGame({ realm, grade, demo, onExit }: Props) {
           fuel={fuel}
           windowsLit={windowsLit}
           dragonHP={dragonHP}
+          unguarded={unguarded}
           shake={wrongShake}
           idx={idx}
         />
@@ -215,18 +399,22 @@ export function RealmGame({ realm, grade, demo, onExit }: Props) {
                   const isAnswer = i === q.answerIndex;
                   const isPicked = picked === i;
                   const revealed = picked !== null;
+                  const hidden = removed.includes(i) && !revealed;
                   return (
                     <motion.button
                       key={`${idx}-${i}`}
-                      whileTap={picked === null ? { scale: 0.96 } : undefined}
+                      whileTap={picked === null && !hidden ? { scale: 0.96 } : undefined}
                       animate={picked === i && isAnswer === false ? { x: [0, -8, 8, -5, 0] } : {}}
                       transition={{ duration: 0.4 }}
                       onClick={() => answer(i)}
-                      disabled={revealed}
+                      disabled={revealed || hidden}
                       className={cn(
                         "min-h-[58px] rounded-2xl border-2 px-4 py-3 text-left font-display text-base transition-colors",
                         !revealed &&
+                          !hidden &&
                           "border-white/25 bg-white/10 text-white hover:border-white/50 hover:bg-white/20",
+                        hidden &&
+                          "border-white/5 bg-white/[0.03] text-white/20 line-through opacity-50",
                         revealed && isAnswer && "border-success bg-success/25 text-white",
                         revealed &&
                           isPicked &&
@@ -261,12 +449,35 @@ export function RealmGame({ realm, grade, demo, onExit }: Props) {
             >
               {finish.perfect ? "🏆" : finish.correct >= total / 2 ? "🎉" : "💪"}
             </motion.div>
-            <p className="mt-2 font-display text-2xl text-white">
+            {/* Estrelas */}
+            <div className="mt-1 flex justify-center gap-1">
+              {[0, 1, 2].map((s) => (
+                <motion.span
+                  key={s}
+                  initial={{ scale: 0, rotate: -30 }}
+                  animate={
+                    s < finish.stars
+                      ? { scale: 1, rotate: 0 }
+                      : { scale: 1, rotate: 0, opacity: 0.25 }
+                  }
+                  transition={{ delay: 0.3 + s * 0.25, type: "spring", stiffness: 260 }}
+                  className={cn("text-3xl", s < finish.stars ? "grayscale-0" : "grayscale")}
+                >
+                  ⭐
+                </motion.span>
+              ))}
+            </div>
+            <p className="mt-1 font-display text-2xl text-white">
               {finish.correct}/{finish.total} acertos
             </p>
             {finish.early && <p className="mt-1 text-sm text-white/70">{finish.early}</p>}
             {finish.bonusTitle && (
               <p className="mt-1 font-display text-sm text-amber-300">{finish.bonusTitle}</p>
+            )}
+            {finish.newTitle && (
+              <p className="mt-1 font-display text-sm text-violet-300">
+                🏅 Novo título: <b>{finish.newTitle}</b>
+              </p>
             )}
             <div className="mt-4 grid grid-cols-3 gap-2">
               <Reward label="Cristais" value={`✦ ${finish.crystals}`} />
@@ -276,7 +487,7 @@ export function RealmGame({ realm, grade, demo, onExit }: Props) {
             {demo && (
               <div className="mt-4 rounded-2xl border border-amber-300/40 bg-amber-400/15 p-3">
                 <p className="font-display text-sm text-amber-200">
-                  👑 Gostaste? O Mundo completo tem 5 reinos, cristais a sério e prémios!
+                  👑 Gostaste? O Mundo completo tem 5 reinos × 3 níveis, criaturas e prémios!
                 </p>
                 <ChunkyButton onClick={onExit} className="mt-2 w-full">
                   Desbloquear o Mundo Premium
@@ -284,6 +495,11 @@ export function RealmGame({ realm, grade, demo, onExit }: Props) {
               </div>
             )}
             <div className="mt-4 flex flex-col gap-2 sm:flex-row">
+              {!demo && finish.nextUnlocked && onNextLevel && (
+                <ChunkyButton onClick={onNextLevel} className="flex-1">
+                  ⬆️ Nível seguinte
+                </ChunkyButton>
+              )}
               <ChunkyButton tone="secondary" onClick={onExit} className="flex-1">
                 Voltar ao Portal
               </ChunkyButton>
@@ -315,6 +531,7 @@ function RealmScene({
   fuel,
   windowsLit,
   dragonHP,
+  unguarded,
   shake,
   idx,
 }: {
@@ -327,6 +544,7 @@ function RealmScene({
   fuel: number;
   windowsLit: number;
   dragonHP: number;
+  unguarded: number;
   shake: number;
   idx: number;
 }) {
@@ -510,7 +728,7 @@ function RealmScene({
             key={i}
             className={cn(
               "h-5 w-5",
-              i < 3 - (idx - correct) ? "fill-red-500 text-red-400" : "text-white/20",
+              i < 3 - unguarded ? "fill-red-500 text-red-400" : "text-white/20",
             )}
           />
         ))}

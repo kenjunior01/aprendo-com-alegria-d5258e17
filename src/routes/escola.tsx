@@ -573,8 +573,9 @@ function EscolaPage() {
                   <p className="mb-2">Ainda sem alunos ou sem atividade neste período.</p>
                   <p className="text-sm text-muted-foreground">
                     Partilha o código{" "}
-                    <code className="rounded bg-muted px-1">{selectedClass.invite_code}</code> para
-                    se juntarem.
+                    <code className="rounded bg-muted px-1">{selectedClass.invite_code}</code> — os
+                    alunos criam a conta e inserem-no em{" "}
+                    <code className="rounded bg-muted px-1">kidoz.online/escolas</code>.
                   </p>
                   <div className="mt-3 flex justify-center">
                     <InviteShare
@@ -1046,10 +1047,14 @@ function InviteShare({
       "Aprender brincando do 1.º ao 4.º ano, com mascotes e relatórios para professores.",
       `🔑 Usa o código: ${code}`,
       "",
-      "▶️ Entrar: https://kidoz.online/comecar",
+      "▶️ Entrar na turma: https://kidoz.online/escolas",
+      "(cria a conta grátis e insere o código no cartão “És aluno? Entra na tua turma”)",
     ].join("\n");
     const ok = openWhatsApp(msg);
-    if (!ok) void copyLink(`${code}`).then(() => toast.success("Código copiado!"));
+    if (!ok)
+      void copyLink("https://kidoz.online/escolas").then(() =>
+        toast.success("Link de entrada copiado! O código da turma é: " + code),
+      );
   };
   return (
     <button
