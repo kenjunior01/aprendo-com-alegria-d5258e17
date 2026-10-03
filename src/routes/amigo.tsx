@@ -1,7 +1,8 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { MascotRoom } from "@/components/MascotRoom";
-import { loadProfile, pullProfileFromCloud, type Profile } from "@/lib/storage";
+import { loadProfile, type Profile } from "@/lib/storage";
+import { localProfile, refreshProfile } from "@/lib/profileFast";
 import { ArrowLeft } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { RouteError } from "@/components/RouteError";
@@ -25,17 +26,26 @@ function AmigoMode() {
 
   useEffect(() => {
     let cancelled = false;
-    const init = async () => {
-      const cloud = await pullProfileFromCloud();
-      if (cancelled) return;
-      const p = cloud ?? loadProfile();
+    const apply = (p: Profile | null) => {
       if (!p || !p.name) {
         navigate({ to: "/comecar" });
         return;
       }
       setProfile(p);
     };
-    init();
+    // Local-first: render imediato; cloud reconcilia em background.
+    const local = localProfile();
+    if (local) {
+      apply(local);
+      void refreshProfile().then((cloud) => {
+        if (!cancelled && cloud && cloud.name) apply(cloud);
+      });
+    } else {
+      void refreshProfile().then((cloud) => {
+        if (cancelled) return;
+        apply(cloud ?? loadProfile());
+      });
+    }
     return () => {
       cancelled = true;
     };

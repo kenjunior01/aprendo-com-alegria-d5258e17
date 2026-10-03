@@ -5,7 +5,8 @@ import { TopBar } from "@/components/TopBar";
 import { BottomNav } from "@/components/BottomNav";
 import { ChunkyButton } from "@/components/ChunkyButton";
 import { Mascot } from "@/components/Mascot";
-import { loadProfile, pullProfileFromCloud, type Profile } from "@/lib/storage";
+import { loadProfile, type Profile } from "@/lib/storage";
+import { localProfile, refreshProfile } from "@/lib/profileFast";
 import { getMascot } from "@/lib/mascots";
 import { haptic } from "@/lib/haptics";
 import { playPortal, playLevelUp } from "@/lib/audio";
@@ -78,13 +79,10 @@ function PortalPage() {
 
   useEffect(() => {
     let cancelled = false;
-    (async () => {
-      const cloud = await pullProfileFromCloud();
-      if (cancelled) return;
-      const p = cloud ?? loadProfile();
+    const apply = (p: Profile | null) => {
       if (!p || !p.name) {
         navigate({ to: "/comecar" });
-        return;
+        return false;
       }
       setProfile(p);
       if (!localStorage.getItem("kidoz-portal-seen")) {
@@ -93,7 +91,21 @@ function PortalPage() {
         localStorage.setItem("kidoz-portal-seen", "1");
         setTimeout(() => setFirstVisit(false), 4200);
       }
-    })();
+      return true;
+    };
+    // Local-first: render imediato; cloud reconcilia em background.
+    const local = localProfile();
+    if (local) {
+      apply(local);
+      void refreshProfile().then((cloud) => {
+        if (!cancelled && cloud && cloud.name) apply(cloud);
+      });
+    } else {
+      void refreshProfile().then((cloud) => {
+        if (cancelled) return;
+        apply(cloud ?? loadProfile());
+      });
+    }
     return () => {
       cancelled = true;
     };

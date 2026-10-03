@@ -31,7 +31,8 @@ import {
   Flame,
   MessageCircle,
 } from "lucide-react";
-import { loadProfile, pullProfileFromCloud, type Profile } from "@/lib/storage";
+import type { Profile } from "@/lib/storage";
+import { localProfile, refreshProfile } from "@/lib/profileFast";
 import { supabase } from "@/integrations/supabase/client";
 import type { MascotId } from "@/lib/mascots";
 import { SUBJECTS, getSubject } from "@/lib/curriculum";
@@ -100,12 +101,11 @@ function DesafiosPage() {
 
   useEffect(() => {
     (async () => {
-      try {
-        const cloud = await pullProfileFromCloud();
-        setProfile(cloud ?? loadProfile());
-      } catch {
-        setProfile(loadProfile());
-      }
+      // Local-first: render imediato; cloud reconcilia em background.
+      setProfile(localProfile());
+      void refreshProfile().then((cloud) => {
+        if (cloud) setProfile(cloud);
+      });
       const { data: u } = await supabase.auth.getUser();
       const uid = u.user?.id ?? "";
       setMyUserId(uid);

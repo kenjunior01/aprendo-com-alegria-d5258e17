@@ -6,7 +6,8 @@ import { BottomNav } from "@/components/BottomNav";
 import { Mascot } from "@/components/Mascot";
 import { ChunkyButton } from "@/components/ChunkyButton";
 import { SHOP_FALLBACK, TYPE_LABEL, type ItemType, type ShopItem } from "@/lib/shop";
-import { buyItem, equipItem, loadProfile, pullProfileFromCloud, type Profile } from "@/lib/storage";
+import { buyItem, equipItem, loadProfile, type Profile } from "@/lib/storage";
+import { localProfile, refreshProfile } from "@/lib/profileFast";
 import { Coins, Lock, Check, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { playCorrect, playWrong } from "@/lib/audio";
@@ -47,17 +48,26 @@ function ShopPage() {
 
   useEffect(() => {
     let cancelled = false;
-    const init = async () => {
-      const cloud = await pullProfileFromCloud();
-      if (cancelled) return;
-      const p = cloud ?? loadProfile();
+    const apply = (p: Profile | null) => {
       if (!p || !p.name) {
         navigate({ to: "/comecar" });
         return;
       }
       setProfile(p);
     };
-    init();
+    // Local-first: render imediato; cloud reconcilia em background.
+    const local = localProfile();
+    if (local) {
+      apply(local);
+      void refreshProfile().then((cloud) => {
+        if (!cancelled && cloud && cloud.name) apply(cloud);
+      });
+    } else {
+      void refreshProfile().then((cloud) => {
+        if (cancelled) return;
+        apply(cloud ?? loadProfile());
+      });
+    }
     return () => {
       cancelled = true;
     };

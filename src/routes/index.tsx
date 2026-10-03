@@ -4,7 +4,7 @@ import { Mascot } from "@/components/Mascot";
 import { ChunkyButton } from "@/components/ChunkyButton";
 import { AlegriaLogo } from "@/components/AlegriaLogo";
 import { MASCOTS } from "@/lib/mascots";
-import { loadProfile, pullProfileFromCloud } from "@/lib/storage";
+import { localProfile, refreshProfile } from "@/lib/profileFast";
 import { useEffect, useState } from "react";
 import { detectRegion, regionBadgeText, type RegionInfo } from "@/lib/region";
 import { RouteError } from "@/components/RouteError";
@@ -105,16 +105,18 @@ function Landing() {
 
   useEffect(() => {
     setRegion(detectRegion());
+    // Local-first: com perfil em cache o redirect é imediato (sem esperar pela rede).
+    const local = localProfile();
+    if (local) {
+      navigate({ to: "/app" });
+      return;
+    }
     let cancelled = false;
-    const check = async () => {
-      const cloud = await pullProfileFromCloud();
-      if (cancelled) return;
-      const p = cloud ?? loadProfile();
-      if (p && p.name) {
+    void refreshProfile().then((cloud) => {
+      if (!cancelled && cloud && cloud.name) {
         navigate({ to: "/app" });
       }
-    };
-    check();
+    });
     return () => {
       cancelled = true;
     };

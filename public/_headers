@@ -1,0 +1,20 @@
+# Cache de assets estáticos — Cloudflare Workers respeita _headers.
+# Assets com hash no nome são imutáveis: cache máximo → visitas seguintes instantâneas.
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# Ícones, imagens partilhadas e manifest — 7 dias (mudam raramente)
+/icon-*.png
+  Cache-Control: public, max-age=604800
+/apple-touch-icon.png
+  Cache-Control: public, max-age=604800
+/favicon.ico
+  Cache-Control: public, max-age=604800
+/og-image.jpg
+  Cache-Control: public, max-age=604800
+/manifest.webmanifest
+  Cache-Control: public, max-age=86400
+
+# sw.js e HTML NUNCA cacheados a longo prazo (precisam de atualizar sempre)
+/sw.js
+  Cache-Control: no-cache

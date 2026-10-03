@@ -5,13 +5,8 @@ import { BottomNav } from "@/components/BottomNav";
 import { Mascot } from "@/components/Mascot";
 import { ChunkyButton } from "@/components/ChunkyButton";
 import { MASCOTS, type MascotId } from "@/lib/mascots";
-import {
-  loadProfile,
-  pullProfileFromCloud,
-  resetProfile,
-  updateProfile,
-  type Profile,
-} from "@/lib/storage";
+import { loadProfile, resetProfile, updateProfile, type Profile } from "@/lib/storage";
+import { localProfile, refreshProfile } from "@/lib/profileFast";
 import { totalMissions } from "@/lib/chapters";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -48,17 +43,26 @@ function ProfilePage() {
 
   useEffect(() => {
     let cancelled = false;
-    const init = async () => {
-      const cloud = await pullProfileFromCloud();
-      if (cancelled) return;
-      const p = cloud ?? loadProfile();
+    const apply = (p: Profile | null) => {
       if (!p || !p.name) {
         navigate({ to: "/comecar" });
         return;
       }
       setProfile(p);
     };
-    init();
+    // Local-first: render imediato; cloud reconcilia em background.
+    const local = localProfile();
+    if (local) {
+      apply(local);
+      void refreshProfile().then((cloud) => {
+        if (!cancelled && cloud && cloud.name) apply(cloud);
+      });
+    } else {
+      void refreshProfile().then((cloud) => {
+        if (cancelled) return;
+        apply(cloud ?? loadProfile());
+      });
+    }
     return () => {
       cancelled = true;
     };

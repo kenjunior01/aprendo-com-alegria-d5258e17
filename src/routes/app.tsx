@@ -6,9 +6,10 @@ import { BottomNav } from "@/components/BottomNav";
 import { Mascot } from "@/components/Mascot";
 import { MascotVoiceTutor } from "@/components/MascotVoiceTutor";
 import { CHAPTERS, type Chapter, type Mission } from "@/lib/chapters";
-import { loadProfile, pullProfileFromCloud, type Profile } from "@/lib/storage";
+import type { Profile } from "@/lib/storage";
 import { getMascot } from "@/lib/mascots";
 import { isPremiumActive } from "@/lib/premium";
+import { useFastProfile } from "@/hooks/useFastProfile";
 import { AdaptiveTip } from "@/components/AdaptiveTip";
 import { MissionOfTheDay } from "@/components/MissionOfTheDay";
 import { SeasonalBanner } from "@/components/SeasonalBanner";
@@ -45,28 +46,21 @@ export const Route = createFileRoute("/app")({
 function AppHome() {
   const navigate = useNavigate();
   const [profile, setProfile] = useState<Profile | null>(null);
+  // Local-first: render imediato com o perfil em cache; cloud reconcilia em background.
+  const { profile: fastProfile, loading } = useFastProfile();
 
   useEffect(() => {
-    let cancelled = false;
-    const init = async () => {
-      const cloud = await pullProfileFromCloud();
-      if (cancelled) return;
-      const p = cloud ?? loadProfile();
-      if (!p || !p.name) {
-        navigate({ to: "/comecar" });
-        return;
-      }
-      if (p.role === "parent") {
-        navigate({ to: "/pais" });
-        return;
-      }
-      setProfile(p);
-    };
-    init();
-    return () => {
-      cancelled = true;
-    };
-  }, [navigate]);
+    if (loading) return;
+    if (!fastProfile || !fastProfile.name) {
+      navigate({ to: "/comecar" });
+      return;
+    }
+    if (fastProfile.role === "parent") {
+      navigate({ to: "/pais" });
+      return;
+    }
+    setProfile(fastProfile);
+  }, [fastProfile, loading, navigate]);
 
   if (!profile) return <KidLoader />;
   const mascot = getMascot(profile.mascot);
