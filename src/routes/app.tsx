@@ -7,7 +7,7 @@ import { Mascot } from "@/components/Mascot";
 import { MascotVoiceTutor } from "@/components/MascotVoiceTutor";
 import { CHAPTERS, type Chapter, type Mission } from "@/lib/chapters";
 import type { Profile } from "@/lib/storage";
-import { getMascot } from "@/lib/mascots";
+import { getMascot, prewarmMascotEmotions } from "@/lib/mascots";
 import { isPremiumActive } from "@/lib/premium";
 import { useFastProfile } from "@/hooks/useFastProfile";
 import { AdaptiveTip } from "@/components/AdaptiveTip";
@@ -60,9 +60,11 @@ function AppHome() {
       return;
     }
     setProfile(fastProfile);
+    // Sprites emocionais prontos antes de a criança entrar numa missão.
+    prewarmMascotEmotions(fastProfile.mascot);
   }, [fastProfile, loading, navigate]);
 
-  if (!profile) return <KidLoader />;
+  if (!profile) return <KidLoader mascotId={fastProfile?.mascot ?? null} />;
   const mascot = getMascot(profile.mascot);
 
   const visibleChapters = CHAPTERS.filter((c) => c.grade <= Math.min(4, profile.grade + 1));

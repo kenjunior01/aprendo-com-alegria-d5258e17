@@ -15,7 +15,7 @@ import { LessonCompleteScreen } from "@/components/LessonCompleteScreen";
 import { ComboTracker, ComboPopup } from "@/components/ComboTracker";
 import { getLesson, getSubject } from "@/lib/curriculum";
 import { completeLesson, loadProfile, updateProfile, type Profile } from "@/lib/storage";
-import { getMascot } from "@/lib/mascots";
+import { getMascot, prewarmMascotEmotions } from "@/lib/mascots";
 import { playCorrect, playWrong, playLevelUp, speak, stopSpeech, ttsAvailable } from "@/lib/audio";
 import { checkAndUnlockAchievements, type Achievement } from "@/lib/achievements";
 import { useVoiceMatch, isVoiceAvailable } from "@/lib/voice";
@@ -107,6 +107,8 @@ function LessonPage() {
     setProfile(p);
     setHearts(p.hearts);
     startTimeRef.current = Date.now();
+    // Reacções da mascote (celebrar/triste) prontas antes da 1.ª resposta.
+    prewarmMascotEmotions(p.mascot);
   }, [navigate]);
 
   const total = lesson?.questions.length ?? 0;

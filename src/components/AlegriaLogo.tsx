@@ -1,4 +1,4 @@
-import logoSrc from "@/assets/kidoz-logo.png";
+import logoSrc from "@/assets/kidoz-logo.webp";
 
 type Props = {
   className?: string;
@@ -20,8 +20,8 @@ export function AlegriaLogo({
     <img
       src={logoSrc}
       alt={alt}
-      width={1536}
-      height={1024}
+      width={672}
+      height={448}
       loading={priority ? "eager" : "lazy"}
       fetchPriority={priority ? "high" : "auto"}
       decoding="async"

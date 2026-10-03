@@ -60,6 +60,10 @@ export const getRouter = () => {
     routeTree,
     context: {},
     scrollRestoration: true,
+    // Pré-carrega o chunk da rota mal o dedo toca/hover num link — as
+    // navegações dentro do jogo (app → lição) ficam instantâneas.
+    defaultPreload: "intent",
+    defaultPreloadDelay: 50,
     defaultPreloadStaleTime: 0,
     defaultErrorComponent: DefaultErrorComponent,
   });

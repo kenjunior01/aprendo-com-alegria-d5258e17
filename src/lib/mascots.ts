@@ -1,19 +1,19 @@
-import fox from "@/assets/mascot-fox.png";
-import owl from "@/assets/mascot-owl.png";
-import bunny from "@/assets/mascot-bunny.png";
-import turtle from "@/assets/mascot-turtle.png";
-import foxCelebrate from "@/assets/mascot-fox-celebrate.png";
-import owlCelebrate from "@/assets/mascot-owl-celebrate.png";
-import bunnyCelebrate from "@/assets/mascot-bunny-celebrate.png";
-import turtleCelebrate from "@/assets/mascot-turtle-celebrate.png";
-import foxSad from "@/assets/mascot-fox-sad.png";
-import owlSad from "@/assets/mascot-owl-sad.png";
-import bunnySad from "@/assets/mascot-bunny-sad.png";
-import turtleSad from "@/assets/mascot-turtle-sad.png";
-import foxSleep from "@/assets/mascot-fox-sleep.png";
-import owlSleep from "@/assets/mascot-owl-sleep.png";
-import bunnySleep from "@/assets/mascot-bunny-sleep.png";
-import turtleSleep from "@/assets/mascot-turtle-sleep.png";
+import fox from "@/assets/mascot-fox.webp";
+import owl from "@/assets/mascot-owl.webp";
+import bunny from "@/assets/mascot-bunny.webp";
+import turtle from "@/assets/mascot-turtle.webp";
+import foxCelebrate from "@/assets/mascot-fox-celebrate.webp";
+import owlCelebrate from "@/assets/mascot-owl-celebrate.webp";
+import bunnyCelebrate from "@/assets/mascot-bunny-celebrate.webp";
+import turtleCelebrate from "@/assets/mascot-turtle-celebrate.webp";
+import foxSad from "@/assets/mascot-fox-sad.webp";
+import owlSad from "@/assets/mascot-owl-sad.webp";
+import bunnySad from "@/assets/mascot-bunny-sad.webp";
+import turtleSad from "@/assets/mascot-turtle-sad.webp";
+import foxSleep from "@/assets/mascot-fox-sleep.webp";
+import owlSleep from "@/assets/mascot-owl-sleep.webp";
+import bunnySleep from "@/assets/mascot-bunny-sleep.webp";
+import turtleSleep from "@/assets/mascot-turtle-sleep.webp";
 
 export type MascotId = "fox" | "owl" | "bunny" | "turtle";
 
@@ -87,6 +87,21 @@ export const MASCOTS: Mascot[] = [
 
 export const getMascot = (id: MascotId | null | undefined): Mascot =>
   MASCOTS.find((m) => m.id === id) ?? MASCOTS[0];
+
+/**
+ * Pré-carrega em background os sprites emocionais da mascote do perfil.
+ * Chamado no arranque do /app e ao abrir uma lição, para que as reacções
+ * (celebrar, triste, dormir) apareçam instantaneamente a meio do jogo.
+ */
+export function prewarmMascotEmotions(id: MascotId | null | undefined): void {
+  if (typeof window === "undefined") return;
+  const m = getMascot(id);
+  for (const src of Object.values(m.emotions)) {
+    const img = new Image();
+    img.decoding = "async";
+    img.src = src;
+  }
+}
 
 export type GrowthStage = "bebé" | "júnior" | "aventureiro" | "mestre";
 
