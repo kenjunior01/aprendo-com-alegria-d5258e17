@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { ShoppingBag, ArrowRight, Package } from "lucide-react";
+import { ShoppingBag, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CartDrawer } from "@/components/CartDrawer";
 import { useCartStore } from "@/stores/cartStore";
@@ -9,6 +9,7 @@ import { fetchShopifyProducts, formatPrice, type ShopifyProduct } from "@/lib/sh
 import { AlegriaLogo } from "@/components/AlegriaLogo";
 import { KidLoader } from "@/components/KidLoader";
 import { MerchPremiumPerk, MerchTrustStrip } from "@/components/MerchPerks";
+import { MerchComingSoon } from "@/components/MerchComingSoon";
 
 export const Route = createFileRoute("/merch")({
   head: () => ({
@@ -189,14 +190,7 @@ function MerchPage() {
               <p className="mt-1 text-sm">{error}</p>
             </div>
           ) : products.length === 0 ? (
-            <div className="mt-8 flex flex-col items-center justify-center rounded-3xl border border-dashed border-border bg-card p-10 text-center">
-              <Package className="h-12 w-12 text-muted-foreground" />
-              <h3 className="mt-4 font-display text-xl font-semibold">Ainda não há produtos</h3>
-              <p className="mt-2 max-w-md text-muted-foreground">
-                A loja está pronta. Diz-me que produtos queres vender (por exemplo: livro de
-                atividades, t-shirt, mochila) e eu crio-os na Shopify.
-              </p>
-            </div>
+            <MerchComingSoon />
           ) : (
             <div className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
               {products.map((product) => (
