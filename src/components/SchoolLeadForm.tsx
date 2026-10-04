@@ -18,9 +18,13 @@ const TIPOS = [
 // Momento preferido para a demo — qualifica o lead e poupa um ciclo de emails.
 const MOMENTOS = ["Qualquer momento", "Manhã (9h–12h)", "Tarde (14h–17h)"] as const;
 
+// País da instituição — encaminha para o especialista certo e prioriza o roteiro.
+const PAISES = ["Portugal", "Moçambique", "Angola", "Cabo Verde", "Brasil", "Outro país"] as const;
+
 interface LeadData {
   inst: string;
   tipo: string;
+  pais: string;
   alunos: string;
   responsavel: string;
   contacto: string;
@@ -31,6 +35,7 @@ interface LeadData {
 const EMPTY: LeadData = {
   inst: "",
   tipo: TIPOS[0],
+  pais: PAISES[0],
   alunos: "",
   responsavel: "",
   contacto: "",
@@ -44,6 +49,7 @@ function buildMessage(d: LeadData): string {
     "",
     `• Instituição: ${d.inst}`,
     `• Tipo: ${d.tipo}`,
+    `• País: ${d.pais}`,
     `• N.º de alunos: ${d.alunos}`,
     d.responsavel ? `• Responsável: ${d.responsavel}` : null,
     `• Contacto: ${d.contacto}`,
@@ -133,6 +139,22 @@ export function SchoolLeadForm() {
                 {TIPOS.map((t) => (
                   <option key={t} value={t}>
                     {t}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label>
+              <span className="text-xs font-bold uppercase tracking-wide text-muted-foreground">
+                País
+              </span>
+              <select
+                value={d.pais}
+                onChange={set("pais")}
+                className="mt-1 w-full rounded-2xl border-2 border-border bg-card px-3 py-2.5 text-sm outline-none focus:border-primary"
+              >
+                {PAISES.map((p) => (
+                  <option key={p} value={p}>
+                    {p}
                   </option>
                 ))}
               </select>

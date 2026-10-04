@@ -10,8 +10,9 @@ import { z } from "zod";
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
 
 const Input = z.object({
-  tipo: z.enum(["adicao", "subtracao", "multiplicacao", "sequencias"]),
+  tipo: z.enum(["adicao", "subtracao", "multiplicacao", "sequencias", "dinheiro"]),
   nivel: z.number().int().min(1).max(3),
+  pais: z.enum(["pt", "mz", "ao", "cv", "br"]).default("pt"),
 });
 
 const TIPO_LABEL: Record<string, string> = {
@@ -19,6 +20,45 @@ const TIPO_LABEL: Record<string, string> = {
   subtracao: "Subtracao",
   multiplicacao: "Multiplicacao",
   sequencias: "Sequencias",
+  dinheiro: "Dinheiro",
+};
+
+// Configuração por país: naming do ano/classe + moeda local.
+// A ficha adapta-se ao sistema de cada país — mesmo exercício, realidade local.
+const PAIS: Record<
+  string,
+  { nome: string; moeda: string; antes: (s: string) => string; classe: (n: number) => string }
+> = {
+  pt: {
+    nome: "Portugal",
+    moeda: "\u20ac",
+    antes: (s) => `${s} \u20ac`,
+    classe: (n) => (n === 3 ? "3.o-4.o ano" : `${n}.o ano`),
+  },
+  mz: {
+    nome: "Mocambique",
+    moeda: "MT",
+    antes: (s) => `${s} MT`,
+    classe: (n) => (n === 3 ? "3.a-4.a classe" : `${n}.a classe`),
+  },
+  ao: {
+    nome: "Angola",
+    moeda: "Kz",
+    antes: (s) => `${s} Kz`,
+    classe: (n) => (n === 3 ? "3.a-4.a classe" : `${n}.a classe`),
+  },
+  cv: {
+    nome: "Cabo Verde",
+    moeda: "Esc",
+    antes: (s) => `${s} Esc`,
+    classe: (n) => (n === 3 ? "3.o-4.o ano" : `${n}.o ano`),
+  },
+  br: {
+    nome: "Brasil",
+    moeda: "R$",
+    antes: (s) => `R$ ${s}`,
+    classe: (n) => (n === 3 ? "3.o-4.o ano" : `${n}.o ano`),
+  },
 };
 
 const NIVEL_LABEL: Record<number, string> = {
@@ -36,7 +76,12 @@ function rnd(min: number, max: number): number {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-function genExercises(tipo: string, nivel: number): Ex[] {
+function moneyStr(v: number, moeda: string, antes: (s: string) => string): string {
+  const s = v % 1 === 0 ? String(v) : v.toFixed(2).replace(".", ",");
+  return antes(s);
+}
+
+function genExercises(tipo: string, nivel: number, pais: string): Ex[] {
   const exs: Ex[] = [];
   for (let i = 0; i < 20; i++) {
     if (tipo === "adicao") {
@@ -55,6 +100,22 @@ function genExercises(tipo: string, nivel: number): Ex[] {
       const a = rnd(2, aMax);
       const b = rnd(2, bMax);
       exs.push({ text: `${a} × ${b} =`, answer: String(a * b) });
+    } else if (tipo === "dinheiro") {
+      // Preços na moeda local — soma e subtração de dinheiro do dia a dia.
+      const cfg = PAIS[pais];
+      const max = nivel === 1 ? 9 : nivel === 2 ? 20 : 45;
+      let a = rnd(2, max) + (nivel === 3 && Math.random() < 0.4 ? 0.5 : 0);
+      let b =
+        rnd(1, Math.max(2, Math.min(max, nivel === 1 ? 9 : 20))) +
+        (nivel === 3 && Math.random() < 0.4 ? 0.5 : 0);
+      if (b > a) [a, b] = [b, a];
+      // 60% somas; se a soma ultrapassar o teto do nível, fica subtração
+      const plus = Math.random() < 0.6 && a + b <= (nivel === 1 ? 18 : nivel === 2 ? 20 : 100);
+      const res = plus ? a + b : a - b;
+      const op = plus ? "+" : "-";
+      const ta = moneyStr(a, cfg.moeda, cfg.antes);
+      const tb = moneyStr(b, cfg.moeda, cfg.antes);
+      exs.push({ text: `${ta} ${op} ${tb} =`, answer: moneyStr(res, cfg.moeda, cfg.antes) });
     } else {
       const steps = nivel === 1 ? [1, 2] : nivel === 2 ? [2, 3, 5] : [3, 4, 6, 7, 25];
       const step = steps[rnd(0, steps.length - 1)];
@@ -81,8 +142,9 @@ export const generateWorksheet = createServerFn({ method: "POST" })
     if (inFlight > 24) return { error: "Muitos pedidos agora. Tenta em instantes." as const };
     inFlight++;
     try {
-      const { tipo, nivel } = data;
-      const exs = genExercises(tipo, nivel);
+      const { tipo, nivel, pais } = data;
+      const cfg = PAIS[pais];
+      const exs = genExercises(tipo, nivel, pais);
 
       // ─── PDF A4 ───────────────────────────────────────────────────────
       const pdf = await PDFDocument.create();
@@ -108,13 +170,16 @@ export const generateWorksheet = createServerFn({ method: "POST" })
         font: titleFont,
         color: dark,
       });
-      p1.drawText(`${NIVEL_LABEL[nivel]}  ·  kidoz.online - aprender com alegria`, {
-        x: M,
-        y: H - 72,
-        size: 10,
-        font: bodyFont,
-        color: muted,
-      });
+      p1.drawText(
+        `${NIVEL_LABEL[nivel]}  ·  ${cfg.classe(nivel)}  ·  ${cfg.nome}  ·  kidoz.online`,
+        {
+          x: M,
+          y: H - 72,
+          size: 10,
+          font: bodyFont,
+          color: muted,
+        },
+      );
 
       p1.drawText("Nome: ______________________________", {
         x: M,
@@ -193,13 +258,16 @@ export const generateWorksheet = createServerFn({ method: "POST" })
         font: titleFont,
         color: dark,
       });
-      p2.drawText(`Ficha de Matematica - ${TIPO_LABEL[tipo]} - ${NIVEL_LABEL[nivel]}`, {
-        x: M,
-        y: H - 90,
-        size: 10,
-        font: bodyFont,
-        color: muted,
-      });
+      p2.drawText(
+        `Ficha de Matematica - ${TIPO_LABEL[tipo]} - ${NIVEL_LABEL[nivel]} - ${cfg.nome}`,
+        {
+          x: M,
+          y: H - 90,
+          size: 10,
+          font: bodyFont,
+          color: muted,
+        },
+      );
 
       exs.forEach((ex, i) => {
         const col = i % 4;
@@ -231,7 +299,7 @@ export const generateWorksheet = createServerFn({ method: "POST" })
       });
 
       const pdfBase64 = await pdf.saveAsBase64();
-      const fileName = `kidoz-ficha-${tipo}-nivel${nivel}.pdf`;
+      const fileName = `kidoz-ficha-${tipo}-nivel${nivel}-${pais}.pdf`;
       return { pdfBase64, fileName };
     } finally {
       inFlight--;

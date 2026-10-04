@@ -21,6 +21,7 @@ import { TeacherPanelPreview } from "@/components/TeacherPanelPreview";
 import { TurmaAoVivoDemo } from "@/components/TurmaAoVivoDemo";
 import { DiretorKit } from "@/components/DiretorKit";
 import { WorksheetKit } from "@/components/WorksheetKit";
+import { PaisesSection } from "@/components/PaisesSection";
 import { RouteError } from "@/components/RouteError";
 import {
   ArrowLeft,
@@ -45,7 +46,7 @@ export const Route = createFileRoute("/escolas")({
       {
         name: "description",
         content:
-          "Plano dedicado para escolas e instituições: 0,99€ por aluno/mês, mínimo 20 alunos. Vê o painel do professor e o modo turma ao vivo sem registo, descarrega fichas grátis e leva a proposta pronta à direção.",
+          "Plano para escolas em Portugal, Moçambique, Angola, Cabo Verde e Brasil: 0,99€/aluno/mês, mínimo 20 alunos. Fichas grátis com a moeda local, painel do professor e modo turma ao vivo sem registo.",
       },
       {
         property: "og:title",
@@ -142,6 +143,10 @@ const SCHOOL_FAQS: Array<{ q: string; a: string }> = [
   {
     q: "Os dados dos alunos estão protegidos?",
     a: "Sim. Sem anúncios, sem partilha com terceiros, painel com PIN e conformidade RGPD. Os pais podem ver e apagar dados a qualquer momento.",
+  },
+  {
+    q: "O Kidoz funciona fora de Portugal?",
+    a: "Sim — há variantes para Portugal, Moçambique, Angola, Cabo Verde e Brasil: naming das classes de cada sistema, moeda local nas fichas de dinheiro (€, MT, Kz, Esc, R$) e cultura local nos desafios. Novos países: fala connosco em escolas@kidoz.online — abrimos por procura das escolas.",
   },
   {
     q: "Como funciona o Programa de Escolas Fundadoras?",
@@ -325,6 +330,9 @@ function EscolasPage() {
 
         {/* Fichas grátis: valor tangível antes de pagar (lead magnet offline-first) */}
         <WorksheetKit />
+
+        {/* Um produto, cinco realidades: PT/MZ/AO/CV/BR — sistema, moeda e cultura locais */}
+        <PaisesSection />
 
         {/* Features grid */}
         <section className="mt-8 grid gap-4 sm:grid-cols-2">

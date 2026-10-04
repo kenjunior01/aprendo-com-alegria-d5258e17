@@ -15,26 +15,64 @@ const TIPOS = [
   { id: "subtracao", label: "Subtração", emoji: "➖" },
   { id: "multiplicacao", label: "Multiplicação", emoji: "✖️" },
   { id: "sequencias", label: "Sequências", emoji: "🔢" },
+  { id: "dinheiro", label: "Dinheiro", emoji: "🪙" },
+] as const;
+
+// Países suportados — naming do ano/classe + moeda local nas fichas
+const PAISES = [
+  {
+    id: "pt",
+    flag: "🇵🇹",
+    nome: "Portugal",
+    ano: (n: number) => (n === 3 ? "3.º–4.º ano" : `${n}.º ano`),
+  },
+  {
+    id: "mz",
+    flag: "🇲🇿",
+    nome: "Moçambique",
+    ano: (n: number) => (n === 3 ? "3.ª–4.ª classe" : `${n}.ª classe`),
+  },
+  {
+    id: "ao",
+    flag: "🇦🇴",
+    nome: "Angola",
+    ano: (n: number) => (n === 3 ? "3.ª–4.ª classe" : `${n}.ª classe`),
+  },
+  {
+    id: "cv",
+    flag: "🇨🇻",
+    nome: "Cabo Verde",
+    ano: (n: number) => (n === 3 ? "3.º–4.º ano" : `${n}.º ano`),
+  },
+  {
+    id: "br",
+    flag: "🇧🇷",
+    nome: "Brasil",
+    ano: (n: number) => (n === 3 ? "3.º–4.º ano" : `${n}.º ano`),
+  },
 ] as const;
 
 const NIVEIS = [
-  { n: 1, label: "Até 10", hint: "1.º ano" },
-  { n: 2, label: "Até 20", hint: "2.º ano" },
-  { n: 3, label: "Até 100", hint: "3.º–4.º ano" },
+  { n: 1, label: "Até 10" },
+  { n: 2, label: "Até 20" },
+  { n: 3, label: "Até 100" },
 ] as const;
 
 type TipoId = (typeof TIPOS)[number]["id"];
+type PaisId = (typeof PAISES)[number]["id"];
 
 export function WorksheetKit() {
   const [tipo, setTipo] = useState<TipoId>("adicao");
   const [nivel, setNivel] = useState<number>(1);
+  const [pais, setPais] = useState<PaisId>("pt");
   const [busy, setBusy] = useState(false);
   const [downloads, setDownloads] = useState(0);
+  const paisCfg = PAISES.find((p) => p.id === pais) ?? PAISES[0];
 
   const download = async () => {
     setBusy(true);
     try {
-      const r = await generateWorksheet({ data: { tipo, nivel } });
+      const r = await generateWorksheet({ data: { tipo, nivel, pais } });
       if ("error" in r || !r.pdfBase64) {
         toast.error("error" in r ? r.error : "Não foi possível gerar agora.");
         setBusy(false);
@@ -73,9 +111,29 @@ export function WorksheetKit() {
           </div>
           <p className="mt-1 text-sm text-muted-foreground">
             Gera uma ficha A4 com 20 exercícios e soluções — pronta a imprimir para os dias sem
-            internet ou para o caderno diário. Prova o que o Kidoz prepara para a tua escola.
+            internet ou para o caderno diário. Adaptada ao currículo e à moeda do teu país.
           </p>
         </div>
+      </div>
+
+      {/* País */}
+      <p className="mt-4 text-xs font-bold uppercase tracking-wide text-muted-foreground">País</p>
+      <div className="mt-2 flex flex-wrap gap-2">
+        {PAISES.map((p) => (
+          <button
+            key={p.id}
+            type="button"
+            onClick={() => setPais(p.id)}
+            aria-pressed={pais === p.id}
+            className={`rounded-xl border-2 px-3 py-2 font-display text-sm transition-colors ${
+              pais === p.id
+                ? "border-primary bg-primary/15 text-primary"
+                : "border-border bg-muted text-muted-foreground hover:bg-muted/70"
+            }`}
+          >
+            <span aria-hidden="true">{p.flag}</span> {p.nome}
+          </button>
+        ))}
       </div>
 
       {/* Matéria */}
@@ -116,7 +174,9 @@ export function WorksheetKit() {
             }`}
           >
             {nv.label}
-            <span className="ml-1.5 text-[11px] font-normal text-muted-foreground">{nv.hint}</span>
+            <span className="ml-1.5 text-[11px] font-normal text-muted-foreground">
+              {paisCfg.ano(nv.n)}
+            </span>
           </button>
         ))}
       </div>
@@ -128,7 +188,9 @@ export function WorksheetKit() {
               <Loader2 className="mr-1 inline h-5 w-5 animate-spin" /> A gerar…
             </>
           ) : (
-            <>🖨️ Descarregar ficha (PDF)</>
+            <>
+              🖨️ Descarregar ficha (PDF) · {paisCfg.flag} {paisCfg.nome}
+            </>
           )}
         </ChunkyButton>
         <p className="text-center text-xs text-muted-foreground sm:max-w-[16rem] sm:text-left">
@@ -150,7 +212,7 @@ export function WorksheetKit() {
         className="mt-4 rounded-2xl bg-primary/8 px-4 py-3 text-center text-sm sm:text-left"
       >
         Gostaste? No Kidoz completo, as fichas são infinitas <em>e</em> o progresso de cada aluno
-        fica registado no painel.{" "}
+        fica registado no painel — com exercícios, vozes e cultura do teu país.{" "}
         <a
           href="#fundador"
           className="font-display font-bold text-primary underline underline-offset-2"
