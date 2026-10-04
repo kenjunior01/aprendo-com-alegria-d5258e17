@@ -17,6 +17,8 @@ import { loadProfile, type Profile } from "@/lib/storage";
 import { useAuth } from "@/hooks/useAuth";
 import { JoinClassCard } from "@/components/JoinClassCard";
 import { SchoolLeadForm } from "@/components/SchoolLeadForm";
+import { TeacherPanelPreview } from "@/components/TeacherPanelPreview";
+import { DiretorKit } from "@/components/DiretorKit";
 import { RouteError } from "@/components/RouteError";
 import {
   ArrowLeft,
@@ -41,7 +43,7 @@ export const Route = createFileRoute("/escolas")({
       {
         name: "description",
         content:
-          "Plano dedicado para escolas e instituições: 0,99€ por aluno/mês, mínimo 20 alunos. Funciona com internet instável, relatórios em PDF para conselhos de turma e ponte com famílias por WhatsApp.",
+          "Plano dedicado para escolas e instituições: 0,99€ por aluno/mês, mínimo 20 alunos. Vê o painel do professor sem registo, funciona com internet instável, relatórios em PDF e kit de proposta pronto para a direção.",
       },
       {
         property: "og:title",
@@ -313,6 +315,9 @@ function EscolasPage() {
           </div>
         </section>
 
+        {/* Painel à vista: demo interativa do que o professor vai usar */}
+        <TeacherPanelPreview />
+
         {/* Features grid */}
         <section className="mt-8 grid gap-4 sm:grid-cols-2">
           {FEATURES.map((f) => {
@@ -434,6 +439,9 @@ function EscolasPage() {
             pagamento por transferência bancária, fala connosco.
           </p>
         </section>
+
+        {/* Kit do diretor: o professor convence o conselho com uma proposta pronta */}
+        <DiretorKit />
 
         {/* Lead capture estruturado (B2B) */}
         <SchoolLeadForm />

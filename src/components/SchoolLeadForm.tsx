@@ -15,12 +15,16 @@ const TIPOS = [
   "Outro",
 ] as const;
 
+// Momento preferido para a demo — qualifica o lead e poupa um ciclo de emails.
+const MOMENTOS = ["Qualquer momento", "Manhã (9h–12h)", "Tarde (14h–17h)"] as const;
+
 interface LeadData {
   inst: string;
   tipo: string;
   alunos: string;
   responsavel: string;
   contacto: string;
+  momento: string;
   nota: string;
 }
 
@@ -30,6 +34,7 @@ const EMPTY: LeadData = {
   alunos: "",
   responsavel: "",
   contacto: "",
+  momento: MOMENTOS[0],
   nota: "",
 };
 
@@ -42,6 +47,7 @@ function buildMessage(d: LeadData): string {
     `• N.º de alunos: ${d.alunos}`,
     d.responsavel ? `• Responsável: ${d.responsavel}` : null,
     `• Contacto: ${d.contacto}`,
+    d.momento !== MOMENTOS[0] ? `• Melhor momento para a demo: ${d.momento}` : null,
     d.nota ? `• Nota: ${d.nota}` : null,
     "",
     `Custo estimado: ${(Number(d.alunos) * 0.99).toLocaleString("pt-PT", {
@@ -166,6 +172,22 @@ export function SchoolLeadForm() {
                 placeholder="Ex.: 912 345 678"
                 className="mt-1 w-full rounded-2xl border-2 border-border bg-card px-3 py-2.5 text-sm outline-none focus:border-primary"
               />
+            </label>
+            <label>
+              <span className="text-xs font-bold uppercase tracking-wide text-muted-foreground">
+                Melhor momento para a demo
+              </span>
+              <select
+                value={d.momento}
+                onChange={set("momento")}
+                className="mt-1 w-full rounded-2xl border-2 border-border bg-card px-3 py-2.5 text-sm outline-none focus:border-primary"
+              >
+                {MOMENTOS.map((m) => (
+                  <option key={m} value={m}>
+                    {m}
+                  </option>
+                ))}
+              </select>
             </label>
             <label className="sm:col-span-2">
               <span className="text-xs font-bold uppercase tracking-wide text-muted-foreground">
