@@ -73,7 +73,10 @@ export function SchoolLeadForm() {
   )}&body=${encodeURIComponent(message)}`;
 
   return (
-    <section className="card-chunky mt-8 overflow-hidden rounded-3xl border-2 border-success/40 bg-gradient-to-br from-success/10 to-emerald-400/10">
+    <section
+      id="fundador"
+      className="card-chunky mt-8 overflow-hidden rounded-3xl border-2 border-success/40 bg-gradient-to-br from-success/10 to-emerald-400/10"
+    >
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}

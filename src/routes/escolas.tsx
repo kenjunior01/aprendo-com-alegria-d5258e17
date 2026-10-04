@@ -23,25 +23,30 @@ import {
   Check,
   School as SchoolIcon,
   Users,
-  BarChart3,
   ShieldCheck,
   Headphones,
   Minus,
   Plus,
   MessageCircle,
   Sparkles,
+  WifiOff,
+  FileText,
+  BadgeCheck,
 } from "lucide-react";
 
 export const Route = createFileRoute("/escolas")({
   head: () => ({
     meta: [
-      { title: "Plano Escolas Kidoz — 0,99€ por aluno/mês" },
+      { title: "Kidoz para Escolas — 0,99€/aluno/mês, funciona offline" },
       {
         name: "description",
         content:
-          "Plano dedicado para escolas e instituições: 0,99€ por aluno/mês, mínimo 20 alunos. Painel de turmas, relatórios de progresso e suporte dedicado.",
+          "Plano dedicado para escolas e instituições: 0,99€ por aluno/mês, mínimo 20 alunos. Funciona com internet instável, relatórios em PDF para conselhos de turma e ponte com famílias por WhatsApp.",
       },
-      { property: "og:title", content: "Plano Escolas Kidoz — 0,99€/aluno/mês" },
+      {
+        property: "og:title",
+        content: "Kidoz para Escolas — aprendizagem sem depender da internet",
+      },
       {
         property: "og:description",
         content:
@@ -66,17 +71,27 @@ const FEATURES: { icon: typeof SchoolIcon; title: string; desc: string }[] = [
   {
     icon: Users,
     title: "Gestão de turmas",
-    desc: "Criar turmas, adicionar alunos por código, organizar por ano/turma.",
+    desc: "Criar turmas, adicionar alunos por código, organizar por ano/turma — em 2 minutos.",
   },
   {
-    icon: BarChart3,
-    title: "Relatórios de progresso",
-    desc: "Métricas por aluno, por disciplina, evolução semanal e ranking interno.",
+    icon: WifiOff,
+    title: "Funciona com internet instável",
+    desc: "Lições e jogos continuam offline e sincronizam quando houver rede. Feito para a realidade das nossas escolas.",
+  },
+  {
+    icon: FileText,
+    title: "Relatórios em PDF",
+    desc: "Um clique gera o relatório de turma com precisão, minutos e alunos que precisam de apoio — pronto para conselhos de turma.",
+  },
+  {
+    icon: MessageCircle,
+    title: "Ponte com as famílias",
+    desc: "Envia o resumo de cada aluno ao encarregado de educação por WhatsApp, sem sair do painel.",
   },
   {
     icon: ShieldCheck,
     title: "Conteúdo regional",
-    desc: "Currículo adaptado ao 1.º ciclo (1.ª–7.ª classe), com variantes PT/MZ/AO/CV/BR.",
+    desc: "Currículo do 1.º ciclo (1.ª–7.ª classe) com variantes PT/MZ/AO/CV/BR e vozes em português.",
   },
   {
     icon: Headphones,
@@ -98,8 +113,8 @@ const STEPS = [
   },
   {
     n: "3",
-    title: "Acompanha e exporta",
-    desc: "Vê precisão, minutos e evolução semanal. Exporta CSV para reuniões e conselhos de turma.",
+    title: "Acompanha, imprime e partilha",
+    desc: "Vê precisão, minutos e evolução semanal. Exporta CSV, gera PDF para o conselho de turma e envia resumos aos pais.",
   },
 ];
 
@@ -110,7 +125,7 @@ const SCHOOL_FAQS: Array<{ q: string; a: string }> = [
   },
   {
     q: "Funciona sem internet na escola?",
-    a: "Parcialmente: as lições e jogos funcionam offline e sincronizam quando houver ligação. Ideal para escolas com internet instável.",
+    a: "Sim — é um dos nossos maiores diferenciais. As lições e jogos funcionam offline e sincronizam automaticamente quando houver ligação. Funciona bem em tablets partilhados, computadores antigos e redes instáveis.",
   },
   {
     q: "Que disciplinas estão incluídas?",
@@ -123,6 +138,14 @@ const SCHOOL_FAQS: Array<{ q: string; a: string }> = [
   {
     q: "Os dados dos alunos estão protegidos?",
     a: "Sim. Sem anúncios, sem partilha com terceiros, painel com PIN e conformidade RGPD. Os pais podem ver e apagar dados a qualquer momento.",
+  },
+  {
+    q: "Como funciona o Programa de Escolas Fundadoras?",
+    a: "As primeiras 20 instituições recebem 50% de desconto no 1.º ano (aplicado na fatura, sem checkout), certificado de Escola Fundadora e voto no roteiro. Candidata-te pelo formulário ou WhatsApp desta página.",
+  },
+  {
+    q: "Que relatórios recebe o professor?",
+    a: "Painel com precisão, minutos, XP e sequência por aluno; evolução semanal em gráfico; alertas de alunos em risco; exportação CSV; e um relatório de turma em PDF de um clique, pronto para conselhos de turma e reuniões de pais.",
   },
 ];
 
@@ -180,17 +203,24 @@ function EscolasPage() {
           <div className="mx-auto inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-secondary text-secondary-foreground shadow-elegant">
             <SchoolIcon className="h-7 w-7" />
           </div>
-          <h1 className="mt-3 font-display text-3xl sm:text-4xl">Kidoz para Escolas</h1>
+          <p className="font-display text-[10px] font-black uppercase tracking-[0.3em] text-primary/70">
+            Kidoz para Escolas
+          </p>
+          <h1 className="mt-2 font-display text-3xl sm:text-4xl">
+            A escola inteira a aprender — mesmo com internet fraca
+          </h1>
           <p className="mx-auto mt-3 max-w-[48rem] text-base text-muted-foreground sm:text-lg">
-            Uma plataforma de aprendizagem lúdica para a tua escola, adaptada à realidade dos países
-            lusófonos. Paga apenas pelos alunos que usam.
+            Lições adaptativas prontas para o 1.º ciclo, painel do professor e relatórios para os
+            pais. Funciona em tablets partilhados e continua offline quando a rede falha. Pagas
+            apenas pelos alunos que usam.
           </p>
           <div className="mt-5 inline-flex items-baseline gap-2">
             <span className="font-display text-5xl text-primary">0,99€</span>
             <span className="text-base text-muted-foreground">/ aluno · mês</span>
           </div>
           <p className="mt-1 text-xs text-muted-foreground">
-            Mínimo {MIN_STUDENTS} alunos · faturação mensal · IVA incluído
+            Mínimo {MIN_STUDENTS} alunos · faturação mensal · IVA incluído · menos de 5 cêntimos por
+            dia útil por aluno
           </p>
           <div className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-4">
             {[
@@ -209,6 +239,56 @@ function EscolasPage() {
 
         {/* Entrada do aluno na turma (fecha o ciclo institucional) */}
         <JoinClassCard />
+
+        {/* Programa de Escolas Fundadoras — urgência honesta, sem inventar números */}
+        <section className="mt-8 overflow-hidden rounded-3xl border-2 border-amber-400/60 bg-gradient-to-br from-amber-400/15 via-card to-secondary/20 p-6 sm:p-8">
+          <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center">
+            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-amber-400/25">
+              <BadgeCheck className="h-7 w-7 text-amber-600" />
+            </div>
+            <div className="flex-1">
+              <p className="font-display text-[10px] font-black uppercase tracking-[0.25em] text-amber-600">
+                Edição limitada — primeiras 20 instituições
+              </p>
+              <h2 className="mt-1 font-display text-2xl">Programa de Escolas Fundadoras 🏅</h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                As instituições que entram primeiro moldam o produto — e travam condições especiais.
+              </p>
+            </div>
+          </div>
+          <ul className="mt-4 grid gap-2 text-sm sm:grid-cols-2">
+            {[
+              "50% de desconto no 1.º ano, aplicado diretamente na fatura da escola",
+              "Certificado digital de Escola Fundadora Kidoz para a recepção",
+              "Voto direto no roteiro: novas matérias, relatórios e idiomas",
+              "Formação inicial e onboarding gratuitos para os professores",
+            ].map((p) => (
+              <li key={p} className="flex items-start gap-2">
+                <Check className="mt-0.5 h-4 w-4 shrink-0 text-success" />
+                <span>{p}</span>
+              </li>
+            ))}
+          </ul>
+          <div className="mt-5 flex flex-col gap-2 sm:flex-row">
+            <a
+              href="#fundador"
+              className="inline-flex min-h-[52px] items-center justify-center rounded-2xl bg-primary px-6 font-display text-base font-semibold text-primary-foreground shadow-lg transition-transform active:scale-95"
+            >
+              Quero ser Escola Fundadora →
+            </a>
+            <a
+              href={`https://wa.me/?text=${encodeURIComponent(
+                "Olá! Somos uma instituição de ensino e queremos candidatar-nos ao Programa de Escolas Fundadoras do Kidoz. Chamamo-nos…",
+              )}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex min-h-[52px] items-center justify-center gap-2 rounded-2xl border-2 border-success/50 bg-success/15 px-6 font-display text-base text-success hover:bg-success/25"
+            >
+              <MessageCircle className="h-5 w-5" />
+              Candidatar por WhatsApp
+            </a>
+          </div>
+        </section>
 
         {/* Como funciona */}
         <section className="mt-8">

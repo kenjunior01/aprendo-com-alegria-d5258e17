@@ -22,6 +22,8 @@ import {
   Bell,
   RotateCcw,
   X,
+  FileText,
+  MessageCircle,
 } from "lucide-react";
 import { toast } from "sonner";
 import { loadProfile, pullProfileFromCloud, type Profile } from "@/lib/storage";
@@ -50,6 +52,7 @@ import {
   type TeacherAlert,
 } from "@/lib/school.functions";
 import type { MascotId } from "@/lib/mascots";
+import { generateClassReport } from "@/lib/classReport.functions";
 import {
   LineChart,
   Line,
@@ -124,6 +127,8 @@ function EscolaPage() {
   const fnRemoveMember = useServerFn(removeClassMember);
   const fnStudent = useServerFn(getStudentDetails);
   const fnAlerts = useServerFn(getTeacherAlerts);
+  const fnReport = useServerFn(generateClassReport);
+  const [reportLoading, setReportLoading] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -147,6 +152,66 @@ function EscolaPage() {
     setSchools(s.schools);
     const c = await fnClasses({ data: {} });
     setClasses(c.classes);
+  };
+
+  /** Relatório de turma em PDF — para conselhos de turma e reuniões. */
+  const downloadClassReport = async () => {
+    if (!selectedClass) return;
+    setReportLoading(true);
+    try {
+      const r = await fnReport({
+        data: { classId: selectedClass.id, days: daysFilter },
+      });
+      if ("error" in r) {
+        toast.error(r.error);
+        return;
+      }
+      const bin = atob(r.pdfBase64);
+      const bytes = new Uint8Array(bin.length);
+      for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+      const blob = new Blob([bytes], { type: "application/pdf" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = r.fileName;
+      a.click();
+      URL.revokeObjectURL(url);
+      toast.success("Relatório PDF pronto! 📄");
+    } catch (e) {
+      console.error(e);
+      toast.error("Não foi possível gerar o relatório agora.");
+    } finally {
+      setReportLoading(false);
+    }
+  };
+
+  /** Ponte escola-família: resumo do aluno pronto a enviar ao encarregado. */
+  const studentReportMessage = (d: StudentDetails): string => {
+    const entries = Object.entries(d.bySubject).filter(([, v]) => v.sessions > 0);
+    const best = entries.sort((a, b) => b[1].accuracy - a[1].accuracy)[0];
+    const worst = entries.length > 1 ? entries[entries.length - 1] : undefined;
+    const periodLabel =
+      daysFilter === 7
+        ? "os últimos 7 dias"
+        : daysFilter === 30
+          ? "os últimos 30 dias"
+          : `os últimos ${daysFilter} dias`;
+    const lines = [
+      `📘 *Relatório Kidoz — ${d.name}*`,
+      `Período: ${periodLabel}`,
+      "",
+      `• Sessões de prática: ${d.totals.sessions}`,
+      `• Precisão: ${d.totals.accuracy}%`,
+      `• Minutos de aprendizagem: ${d.totals.minutes}`,
+      `• Sequência atual: ${d.streak} dia(s) seguidos`,
+      best ? `• Mais forte: ${SUBJECT_LABELS[best[0]] ?? best[0]} (${best[1].accuracy}%)` : null,
+      worst
+        ? `• A reforçar: ${SUBJECT_LABELS[worst[0]] ?? worst[0]} (${worst[1].accuracy}%)`
+        : null,
+      "",
+      "Acompanha em casa no kidoz.online — 5 a 10 minutos por dia fazem toda a diferença! 🚀",
+    ].filter(Boolean);
+    return lines.join("\n");
   };
 
   const reloadAll = async (
@@ -566,6 +631,16 @@ function EscolaPage() {
                     <Button
                       variant="outline"
                       size="sm"
+                      onClick={downloadClassReport}
+                      disabled={reportLoading}
+                      title="Relatório de turma em PDF para reuniões e conselhos"
+                    >
+                      <FileText className="mr-1 h-4 w-4" />
+                      {reportLoading ? "A gerar…" : "PDF turma"}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
                       onClick={sendWeeklySummary}
                       title="Partilhar resumo da turma por WhatsApp"
                     >
@@ -861,6 +936,20 @@ function EscolaPage() {
                     <Stat label="Minutos" value={String(openStudent.totals.minutes)} />
                     <Stat label="Moedas" value={String(openStudent.totals.coins)} />
                   </div>
+                  {openStudent.totals.sessions > 0 && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="mb-3 border-success/50 bg-success/10 text-success hover:bg-success/20"
+                      onClick={() => {
+                        const ok = openWhatsApp(studentReportMessage(openStudent));
+                        if (ok) toast.success("Relatório aberto no WhatsApp 📱");
+                      }}
+                    >
+                      <MessageCircle className="mr-1 h-4 w-4" />
+                      Enviar relatório ao encarregado
+                    </Button>
+                  )}
                   {Object.keys(openStudent.bySubject).length > 0 && (
                     <div className="mb-3 grid gap-1 sm:grid-cols-3">
                       {Object.entries(openStudent.bySubject).map(([sid, v]) => (
