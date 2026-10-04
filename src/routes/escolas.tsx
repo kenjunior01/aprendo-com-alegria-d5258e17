@@ -158,17 +158,106 @@ const SCHOOL_FAQS: Array<{ q: string; a: string }> = [
   },
 ];
 
+// Moedas de referência para a calculadora (cobrança continua em EUR via Stripe;
+// o equivalente local é aproximado, câmbio de referência, para diretores pensarem
+// na moeda do seu país — o mesmo espírito das fichas por país).
+// Formatação: valores pequenos (per-capita) com 2 decimais, grandes arredondados.
+const fmtLocal = (v: number): string =>
+  v >= 20 ? Math.round(v).toLocaleString("pt-PT") : v.toFixed(2).replace(".", ",");
+
+const FX_CALC: Record<
+  string,
+  { nome: string; nomeMoeda: string; taxa: number; fmt: (v: number) => string }
+> = {
+  mz: {
+    nome: "meticais",
+    nomeMoeda: "MT",
+    taxa: 69,
+    fmt: (v) => `${fmtLocal(v)} MT`,
+  },
+  ao: {
+    nome: "kwanzas",
+    nomeMoeda: "Kz",
+    taxa: 1000,
+    fmt: (v) => `${fmtLocal(v)} Kz`,
+  },
+  cv: {
+    nome: "escudos",
+    nomeMoeda: "Esc",
+    taxa: 110,
+    fmt: (v) => `${fmtLocal(v)} Esc`,
+  },
+  br: {
+    nome: "reais",
+    nomeMoeda: "R$",
+    taxa: 6,
+    fmt: (v) => `R$ ${fmtLocal(v)}`,
+  },
+};
+
+const PAISES_CALC = [
+  { id: "pt", flag: "🇵🇹", nome: "Portugal" },
+  { id: "mz", flag: "🇲🇿", nome: "Moçambique" },
+  { id: "ao", flag: "🇦🇴", nome: "Angola" },
+  { id: "cv", flag: "🇨🇻", nome: "Cabo Verde" },
+  { id: "br", flag: "🇧🇷", nome: "Brasil" },
+] as const;
+
+type PaisCalcId = (typeof PAISES_CALC)[number]["id"];
+
+// Comparação honesta papel vs. Kidoz — fala a linguagem da direção e do dia-a-dia.
+const COMPARE = [
+  {
+    label: "Fichas e exercícios",
+    antigo: "Fotocópias limitadas, correção à mão, horas de preparação",
+    kidoz: "Infinitas e grátis, com soluções incluídas e moeda do teu país",
+  },
+  {
+    label: "Progresso dos alunos",
+    antigo: "Registos num caderno, impossíveis de cruzar por turma",
+    kidoz: "Automático: precisão, minutos e sequência de cada aluno, ao vivo",
+  },
+  {
+    label: "Relatórios para o conselho",
+    antigo: "Noites a fazer tabelas no Word para conselhos de turma",
+    kidoz: "PDF de turma num clique + exportação CSV para o conselho pedagógico",
+  },
+  {
+    label: "Quando a internet cai",
+    antigo: "A aula digital para — e o plano B é improvisar",
+    kidoz: "Lições e jogos continuam offline e sincronizam quando a rede volta",
+  },
+];
+
 function EscolasPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [students, setStudents] = useState<number>(MIN_STUDENTS);
+  const [paisCalc, setPaisCalc] = useState<PaisCalcId>("pt");
   const [checkoutOpen, setCheckoutOpen] = useState(false);
 
   useEffect(() => {
     const p = loadProfile();
     setProfile(p);
+    // País partilhado com a home (kidoz-pais): a calculadora abre na moeda certa
+    try {
+      const saved = localStorage.getItem("kidoz-pais");
+      const id = saved?.toLowerCase();
+      if (id && PAISES_CALC.some((px) => px.id === id)) setPaisCalc(id as PaisCalcId);
+    } catch {
+      /* noop */
+    }
   }, []);
+
+  const escolherPaisCalc = (id: PaisCalcId) => {
+    setPaisCalc(id);
+    try {
+      localStorage.setItem("kidoz-pais", id.toUpperCase());
+    } catch {
+      /* noop */
+    }
+  };
 
   const monthly = useMemo(() => students * PRICE_PER_STUDENT, [students]);
   const yearly = useMemo(() => monthly * 12, [monthly]);
@@ -357,8 +446,34 @@ function EscolasPage() {
         <section className="mt-8 card-chunky rounded-3xl border-2 border-border bg-card p-6 sm:p-8">
           <h2 className="font-display text-2xl">Calcula o teu plano</h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            Ajusta o número de alunos e vê o investimento mensal.
+            Ajusta o número de alunos e vê o investimento mensal — na moeda do teu país.
           </p>
+
+          {/* País da calculadora (partilhado com a home) */}
+          <div
+            className="mt-4 flex flex-wrap gap-1.5"
+            role="group"
+            aria-label="Moeda da calculadora"
+          >
+            {PAISES_CALC.map((p) => {
+              const ativo = paisCalc === p.id;
+              return (
+                <button
+                  key={p.id}
+                  type="button"
+                  onClick={() => escolherPaisCalc(p.id)}
+                  aria-pressed={ativo}
+                  className={`rounded-full border px-3 py-1.5 font-display text-xs transition-colors ${
+                    ativo
+                      ? "border-primary bg-primary/15 font-semibold text-primary"
+                      : "border-border bg-muted text-muted-foreground hover:bg-muted/70"
+                  }`}
+                >
+                  <span aria-hidden="true">{p.flag}</span> {p.nome}
+                </button>
+              );
+            })}
+          </div>
 
           <div className="mt-5 flex flex-col items-stretch gap-5 sm:flex-row sm:items-center">
             <div className="flex items-center justify-center gap-3">
@@ -404,6 +519,18 @@ function EscolasPage() {
               </p>
               <p className="mt-1 text-xs text-muted-foreground">
                 ≈{" "}
+                {paisCalc !== "pt" && FX_CALC[paisCalc]
+                  ? `${FX_CALC[paisCalc].fmt(
+                      (monthly * FX_CALC[paisCalc].taxa) / students / 21,
+                    )} por aluno por dia útil`
+                  : `${((monthly / students / 21) * 100).toFixed(0)} cêntimos por aluno por dia útil`}
+              </p>
+              {paisCalc !== "pt" && FX_CALC[paisCalc] && (
+                <p className="mt-1 font-display text-lg font-bold">
+                  ≈ {FX_CALC[paisCalc].fmt(monthly * FX_CALC[paisCalc].taxa)} por mês
+                </p>
+              )}
+              <p className="mt-1 text-xs text-muted-foreground">
                 {yearly.toLocaleString("pt-PT", {
                   style: "currency",
                   currency: "EUR",
@@ -412,6 +539,12 @@ function EscolasPage() {
               </p>
             </div>
           </div>
+
+          <p className="mt-3 text-center text-xs text-muted-foreground sm:text-left">
+            {paisCalc === "pt"
+              ? "Cobramos em euros (€) — IVA calculado automaticamente por país."
+              : `Cobramos em euros (€) — o equivalente em ${FX_CALC[paisCalc].nome} é aproximado (câmbio de referência), para facilitares a decisão.`}
+          </p>
 
           <ul className="mt-5 grid gap-2 text-sm sm:grid-cols-2">
             {[
@@ -454,6 +587,32 @@ function EscolasPage() {
             🔒 Pagamento seguro processado pela Stripe. IVA calculado automaticamente por país. Para
             pagamento por transferência bancária, fala connosco.
           </p>
+        </section>
+
+        {/* O fim das fotocópias: comparação honesta que a direção entende */}
+        <section className="mt-8">
+          <h2 className="text-center font-display text-2xl">O fim das fotocópias</h2>
+          <p className="mt-1 text-center text-sm text-muted-foreground">
+            A comparação honesta: à moda antiga vs. com o Kidoz.
+          </p>
+          <div className="mt-4 grid gap-3 sm:grid-cols-2">
+            {COMPARE.map((r) => (
+              <div
+                key={r.label}
+                className="card-chunky rounded-2xl border-2 border-border bg-card p-4"
+              >
+                <p className="font-display text-base">{r.label}</p>
+                <div className="mt-2 space-y-1.5 text-sm">
+                  <p className="text-muted-foreground">
+                    <span className="font-semibold">À moda antiga:</span> {r.antigo}
+                  </p>
+                  <p>
+                    <span className="font-semibold text-success">Com o Kidoz:</span> {r.kidoz}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
         </section>
 
         {/* Kit do diretor: o professor convence o conselho com uma proposta pronta */}

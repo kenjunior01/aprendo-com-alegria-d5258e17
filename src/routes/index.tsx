@@ -6,7 +6,7 @@ import { AlegriaLogo } from "@/components/AlegriaLogo";
 import { MASCOTS } from "@/lib/mascots";
 import { localProfile, refreshProfile } from "@/lib/profileFast";
 import { useEffect, useState } from "react";
-import { detectRegion, regionBadgeText, type RegionInfo } from "@/lib/region";
+import { detectRegion, regionBadgeText, REGIONS, type RegionInfo } from "@/lib/region";
 import { RouteError } from "@/components/RouteError";
 
 export const Route = createFileRoute("/")({
@@ -16,13 +16,13 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "App de aprendizagem infantil estilo Duolingo, para o 1.º ciclo em Portugal. Português, Matemática e Estudo do Meio com mascotes divertidas.",
+          "App de aprendizagem infantil estilo Duolingo para o 1.º ciclo: Portugal, Moçambique, Angola, Cabo Verde e Brasil. Português, Matemática e Estudo do Meio com mascotes divertidas — e funciona offline.",
       },
       { property: "og:title", content: "Kidoz — Aprender a brincar | App educativa para crianças" },
       {
         property: "og:description",
         content:
-          "App de aprendizagem infantil estilo Duolingo, para o 1.º ciclo em Portugal. Português, Matemática e Estudo do Meio com mascotes divertidas.",
+          "App de aprendizagem infantil estilo Duolingo para o 1.º ciclo em 5 países lusófonos. Português, Matemática e Estudo do Meio com mascotes divertidas — e funciona offline.",
       },
       { property: "og:url", content: "https://kidoz.online/" },
       {
@@ -99,12 +99,37 @@ const stagger: { container: Variants; item: Variants } = {
   },
 };
 
+// Seletor de país da home — adapta badge, currículo e Estudo do Meio.
+// Guardado em localStorage (partilhado com /escolas: calculadora multi-moeda).
+const PAISES_HOME = [
+  { code: "PT", flag: "🇵🇹", nome: "Portugal" },
+  { code: "MZ", flag: "🇲🇿", nome: "Moçambique" },
+  { code: "AO", flag: "🇦🇴", nome: "Angola" },
+  { code: "CV", flag: "🇨🇻", nome: "Cabo Verde" },
+  { code: "BR", flag: "🇧🇷", nome: "Brasil" },
+] as const;
+
+type PaisHomeCode = (typeof PAISES_HOME)[number]["code"];
+const PAIS_KEY = "kidoz-pais";
+const PAIS_CODIGOS = new Set<string>(PAISES_HOME.map((p) => p.code));
+
+function paisInicial(): PaisHomeCode {
+  try {
+    const saved = localStorage.getItem(PAIS_KEY);
+    if (saved && PAIS_CODIGOS.has(saved)) return saved as PaisHomeCode;
+  } catch {
+    /* noop */
+  }
+  const det = detectRegion();
+  return PAIS_CODIGOS.has(det.code) ? (det.code as PaisHomeCode) : "PT";
+}
+
 function Landing() {
   const navigate = useNavigate();
   const [region, setRegion] = useState<RegionInfo | null>(null);
 
   useEffect(() => {
-    setRegion(detectRegion());
+    setRegion(REGIONS[paisInicial()]);
     // Local-first: com perfil em cache o redirect é imediato (sem esperar pela rede).
     const local = localProfile();
     if (local) {
@@ -121,6 +146,15 @@ function Landing() {
       cancelled = true;
     };
   }, [navigate]);
+
+  const escolherPais = (code: PaisHomeCode) => {
+    setRegion(REGIONS[code]);
+    try {
+      localStorage.setItem(PAIS_KEY, code);
+    } catch {
+      /* noop */
+    }
+  };
 
   return (
     <main id="main-content" className="bg-sky-island relative min-h-[100dvh] overflow-hidden">
@@ -149,6 +183,36 @@ function Landing() {
           className="mb-3 inline-flex items-center gap-2 rounded-full bg-card px-4 py-1.5 font-display text-xs font-semibold text-primary shadow-sm sm:text-sm"
         >
           {region ? regionBadgeText(region) : "🇵🇹 Feito para o 1.º ciclo em Portugal"}
+        </motion.div>
+
+        {/* País: muda o currículo, os exemplos e a moeda em toda a página */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.25 }}
+          role="group"
+          aria-label="Escolhe o teu país"
+          className="mb-4 flex flex-wrap items-center justify-center gap-1.5"
+        >
+          {PAISES_HOME.map((p) => {
+            const ativo = region?.code === p.code;
+            return (
+              <button
+                key={p.code}
+                type="button"
+                onClick={() => escolherPais(p.code)}
+                aria-pressed={ativo}
+                className={`rounded-full border px-2.5 py-1 font-display text-[11px] transition-colors sm:text-xs ${
+                  ativo
+                    ? "border-primary bg-primary/15 font-semibold text-primary"
+                    : "border-border bg-card/80 text-muted-foreground hover:bg-card"
+                }`}
+              >
+                <span aria-hidden="true">{p.flag}</span>
+                <span className="ml-1">{p.nome}</span>
+              </button>
+            );
+          })}
         </motion.div>
 
         {/* Hero heading */}
@@ -224,7 +288,7 @@ function Landing() {
           {[
             "🔒 Seguro para crianças",
             "🚫 Sem anúncios",
-            "🇵🇹 Programa nacional",
+            region ? `${region.flag} Programa de ${region.country}` : "🇵🇹 Programa nacional",
             "👪 Painel de pais",
           ].map((t) => (
             <li
@@ -250,7 +314,11 @@ function Landing() {
             <FeatureCard emoji="➕" title="Matemática" text="Tabuada, divisões, frações" />
           </motion.div>
           <motion.div variants={stagger.item}>
-            <FeatureCard emoji="🌍" title="Estudo do Meio" text="Portugal, história, ambiente" />
+            <FeatureCard
+              emoji="🌍"
+              title="Estudo do Meio"
+              text={`${region?.country ?? "Portugal"}, história, ambiente`}
+            />
           </motion.div>
         </motion.div>
 
@@ -268,6 +336,9 @@ function Landing() {
 
         {/* Premium — âncora de preço no topo do funil */}
         <PremiumStrip />
+
+        {/* Escolas — segunda fonte de receita, teaser B2B */}
+        <SchoolsTeaser />
 
         {/* FAQ — respostas rápidas para pais e professores (SEO) */}
         <FaqSection />
@@ -620,6 +691,74 @@ function PremiumStrip() {
       <p className="mt-3 text-center text-[11px] text-muted-foreground">
         💳 Pagamento seguro · 🔒 Sem anúncios · 👪 Até 4 crianças
       </p>
+    </section>
+  );
+}
+
+function SchoolsTeaser() {
+  const cards = [
+    {
+      e: "📊",
+      t: "Painel do professor",
+      d: "Precisão, minutos e evolução de cada aluno — e um relatório de turma em PDF, pronto para conselhos de turma.",
+    },
+    {
+      e: "🎬",
+      t: "Modo Turma ao vivo",
+      d: "A turma inteira joga no projetor com um código PIN. Vê a demonstração sem registo na página de escolas.",
+    },
+    {
+      e: "🖨️",
+      t: "Fichas para imprimir",
+      d: "Matemática e Português com a moeda e as palavras do teu país (capulana, candongueiro…) — grátis, sem registo.",
+    },
+  ];
+  return (
+    <section aria-labelledby="escolas-heading" className="mt-12 w-full sm:mt-16">
+      <div className="text-center">
+        <p className="font-display text-[10px] font-black uppercase tracking-[0.3em] text-primary/70">
+          Para escolas e instituições
+        </p>
+        <h2 id="escolas-heading" className="mt-1 font-display text-2xl sm:text-3xl">
+          A escola inteira a aprender — mesmo sem internet
+        </h2>
+        <p className="mx-auto mt-2 max-w-[40rem] text-sm text-muted-foreground sm:text-base">
+          Em 5 países: Portugal, Moçambique, Angola, Cabo Verde e Brasil. Cada aluno custa menos de
+          5 cêntimos por dia útil — e os Fundadores travam 50% de desconto no 1.º ano.
+        </p>
+      </div>
+      <div className="mt-4 grid gap-3 md:grid-cols-3">
+        {cards.map((c) => (
+          <div
+            key={c.t}
+            className="card-chunky rounded-3xl border border-border bg-card p-4 text-left sm:p-5"
+          >
+            <div
+              aria-hidden
+              className="grid h-12 w-12 place-items-center rounded-2xl bg-secondary/40 text-2xl"
+            >
+              {c.e}
+            </div>
+            <h3 className="mt-3 font-display text-lg">{c.t}</h3>
+            <p className="mt-1 text-sm text-muted-foreground">{c.d}</p>
+          </div>
+        ))}
+      </div>
+      <div className="card-chunky mt-4 flex flex-col items-center gap-3 rounded-3xl border-2 border-primary/30 bg-gradient-to-br from-primary/10 to-secondary/10 p-5 sm:flex-row sm:justify-between">
+        <div className="text-center sm:text-left">
+          <p className="font-display text-2xl text-primary">
+            0,99€ <span className="text-sm font-normal text-muted-foreground">/ aluno · mês</span>
+          </p>
+          <p className="text-xs text-muted-foreground">
+            Mínimo 20 alunos · funciona em tablets partilhados · faturação com NIF
+          </p>
+        </div>
+        <Link to="/escolas" className="w-full sm:w-auto">
+          <ChunkyButton tone="primary" className="min-h-[52px] w-full text-base sm:w-auto">
+            Ver o plano para escolas →
+          </ChunkyButton>
+        </Link>
+      </div>
     </section>
   );
 }
