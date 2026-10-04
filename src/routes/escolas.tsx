@@ -46,7 +46,7 @@ export const Route = createFileRoute("/escolas")({
       {
         name: "description",
         content:
-          "Plano para escolas em Portugal, Moçambique, Angola, Cabo Verde e Brasil: 0,99€/aluno/mês, mínimo 20 alunos. Fichas grátis com a moeda local, painel do professor e modo turma ao vivo sem registo.",
+          "Plano para escolas em Portugal, Moçambique, Angola, Cabo Verde e Brasil: 0,99€/aluno/mês, mínimo 20 alunos. Fichas grátis de matemática e português com a moeda e as palavras locais, painel do professor e modo turma ao vivo sem registo.",
       },
       {
         property: "og:title",
@@ -146,7 +146,7 @@ const SCHOOL_FAQS: Array<{ q: string; a: string }> = [
   },
   {
     q: "O Kidoz funciona fora de Portugal?",
-    a: "Sim — há variantes para Portugal, Moçambique, Angola, Cabo Verde e Brasil: naming das classes de cada sistema, moeda local nas fichas de dinheiro (€, MT, Kz, Esc, R$) e cultura local nos desafios. Novos países: fala connosco em escolas@kidoz.online — abrimos por procura das escolas.",
+    a: "Sim — há variantes para Portugal, Moçambique, Angola, Cabo Verde e Brasil: naming das classes de cada sistema, moeda local nas fichas de dinheiro (€, MT, Kz, Esc, R$) e fichas de português com palavras da realidade de cada país (capulana em Moçambique, candongueiro em Angola, coladeira em Cabo Verde). Novos países: fala connosco em escolas@kidoz.online — abrimos por procura das escolas.",
   },
   {
     q: "Como funciona o Programa de Escolas Fundadoras?",

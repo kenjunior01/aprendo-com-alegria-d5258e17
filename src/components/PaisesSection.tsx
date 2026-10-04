@@ -19,6 +19,8 @@ interface PaisInfo {
   moeda: string;
   exemplo: string;
   exemploRes: string;
+  exemploPort: string;
+  exemploPortRes: string;
   cultura: string;
   culturaAtivo: boolean;
 }
@@ -32,6 +34,8 @@ const PAISES: Record<PaisId, PaisInfo> = {
     moeda: "€ (euro)",
     exemplo: "3 € + 4 € =",
     exemploRes: "7 €",
+    exemploPort: "telemóvel",
+    exemploPortRes: "te-le-mó-vel",
     cultura: "Termos e contexto português em todos os exercícios",
     culturaAtivo: true,
   },
@@ -43,6 +47,8 @@ const PAISES: Record<PaisId, PaisInfo> = {
     moeda: "MT (metical)",
     exemplo: "5 MT + 4 MT =",
     exemploRes: "9 MT",
+    exemploPort: "capulana",
+    exemploPortRes: "ca-pu-la-na",
     cultura: "50+ perguntas de cultura moçambicana nos Desafios",
     culturaAtivo: true,
   },
@@ -54,6 +60,8 @@ const PAISES: Record<PaisId, PaisInfo> = {
     moeda: "Kz (kwanza)",
     exemplo: "10 Kz + 15 Kz =",
     exemploRes: "25 Kz",
+    exemploPort: "candongueiro",
+    exemploPortRes: "can-don-guei-ro",
     cultura: "Contexto angolano nos exercícios e desafios",
     culturaAtivo: false,
   },
@@ -65,6 +73,8 @@ const PAISES: Record<PaisId, PaisInfo> = {
     moeda: "Esc (escudo)",
     exemplo: "100 Esc + 50 Esc =",
     exemploRes: "150 Esc",
+    exemploPort: "coladeira",
+    exemploPortRes: "co-la-dei-ra",
     cultura: "Contexto cabo-verdiano nos exercícios e desafios",
     culturaAtivo: false,
   },
@@ -76,6 +86,8 @@ const PAISES: Record<PaisId, PaisInfo> = {
     moeda: "R$ (real)",
     exemplo: "R$ 4 + R$ 3 =",
     exemploRes: "R$ 7",
+    exemploPort: "ônibus",
+    exemploPortRes: "ô-ni-bus",
     cultura: "Contexto brasileiro nos exercícios e desafios",
     culturaAtivo: false,
   },
@@ -95,8 +107,8 @@ export function PaisesSection() {
         </p>
         <h2 className="mt-1 font-display text-2xl">Um só produto, cinco realidades</h2>
         <p className="mx-auto mt-1 max-w-[42rem] text-sm text-muted-foreground">
-          O Kidoz adapta-se ao sistema de ensino, à moeda e à cultura de cada país — as fichas acima
-          já saem com a realidade da tua escola. Escolhe e vê como.
+          O Kidoz adapta-se ao sistema de ensino, à moeda, às palavras e à cultura de cada país — as
+          fichas acima já saem com a realidade da tua escola. Escolhe e vê como.
         </p>
       </div>
 
@@ -185,9 +197,9 @@ export function PaisesSection() {
               </div>
             </div>
 
-            {/* Amostra de ficha */}
-            <div className="flex flex-col items-center justify-center">
-              <div className="w-full max-w-[13rem] rounded-xl border-2 border-border bg-white p-4 text-[#111827] shadow-md">
+            {/* Amostras de fichas (dinheiro + português) */}
+            <div className="flex flex-col items-center justify-center gap-3">
+              <div className="w-full max-w-[13rem] rounded-xl border-2 border-border bg-white p-3.5 text-[#111827] shadow-md">
                 <p className="text-[9px] font-bold text-gray-500">AMOSTRA · FICHA DE DINHEIRO</p>
                 <p className="mt-0.5 text-[9px] text-gray-500">{p.nome} · kidoz.online</p>
                 <div className="mt-2 rounded-lg border border-gray-300 p-3 text-center">
@@ -199,6 +211,20 @@ export function PaisesSection() {
                 </div>
                 <p className="mt-2 text-center text-[8px] text-gray-400">
                   20 exercícios por ficha · soluções incluídas
+                </p>
+              </div>
+              <div className="w-full max-w-[13rem] rounded-xl border-2 border-border bg-white p-3.5 text-[#111827] shadow-md">
+                <p className="text-[9px] font-bold text-gray-500">AMOSTRA · FICHA DE PORTUGUÊS</p>
+                <p className="mt-0.5 text-[9px] text-gray-500">Sílabas · {p.nome}</p>
+                <div className="mt-2 rounded-lg border border-gray-300 p-3 text-center">
+                  <p className="font-display text-lg font-bold">{p.exemploPort}</p>
+                  <div className="mt-3 border-b border-gray-400" />
+                  <p className="mt-1 text-right text-[9px] text-gray-400">
+                    solução: {p.exemploPortRes}
+                  </p>
+                </div>
+                <p className="mt-2 text-center text-[8px] text-gray-400">
+                  Palavras da rua do teu país nas fichas
                 </p>
               </div>
             </div>

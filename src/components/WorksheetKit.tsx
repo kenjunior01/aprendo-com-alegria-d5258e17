@@ -10,12 +10,22 @@ import { ChunkyButton } from "@/components/ChunkyButton";
 import { generateWorksheet } from "@/lib/worksheet.functions";
 import { toast } from "sonner";
 
-const TIPOS = [
+const DISCIPLINAS = [
+  { id: "mat", label: "Matemática", emoji: "🧮" },
+  { id: "port", label: "Português", emoji: "📖" },
+] as const;
+
+const TIPOS_MAT = [
   { id: "adicao", label: "Adição", emoji: "➕" },
   { id: "subtracao", label: "Subtração", emoji: "➖" },
   { id: "multiplicacao", label: "Multiplicação", emoji: "✖️" },
   { id: "sequencias", label: "Sequências", emoji: "🔢" },
   { id: "dinheiro", label: "Dinheiro", emoji: "🪙" },
+] as const;
+
+const TIPOS_PORT = [
+  { id: "silabas", label: "Sílabas", emoji: "🔤" },
+  { id: "palavras", label: "Palavras", emoji: "🧩" },
 ] as const;
 
 // Países suportados — naming do ano/classe + moeda local nas fichas
@@ -52,22 +62,73 @@ const PAISES = [
   },
 ] as const;
 
-const NIVEIS = [
+const NIVEIS_MAT = [
   { n: 1, label: "Até 10" },
   { n: 2, label: "Até 20" },
   { n: 3, label: "Até 100" },
 ] as const;
 
-type TipoId = (typeof TIPOS)[number]["id"];
+const NIVEIS_PORT = [
+  { n: 1, label: "Palavras curtas" },
+  { n: 2, label: "Palavras longas" },
+  { n: 3, label: "Palavras gigantes" },
+] as const;
+
+type DiscId = (typeof DISCIPLINAS)[number]["id"];
+type TipoId = (typeof TIPOS_MAT)[number]["id"] | (typeof TIPOS_PORT)[number]["id"];
 type PaisId = (typeof PAISES)[number]["id"];
 
+// Exemplo tangível por tipo — moeda e palavras mudam com o país.
+const EXEMPLO_DINHEIRO: Record<PaisId, string> = {
+  pt: "3 € + 4 € =",
+  mz: "5 MT + 4 MT =",
+  ao: "10 Kz + 15 Kz =",
+  cv: "100 Esc + 50 Esc =",
+  br: "R$ 4 + R$ 3 =",
+};
+
+const EXEMPLO_SILABAS: Record<PaisId, string> = {
+  pt: "telemóvel → te-le-mó-vel",
+  mz: "capulana → ca-pu-la-na",
+  ao: "candongueiro → can-don-guei-ro",
+  cv: "coladeira → co-la-dei-ra",
+  br: "ônibus → ô-ni-bus",
+};
+
+function exemploDe(tipo: TipoId, pais: PaisId): string {
+  switch (tipo) {
+    case "adicao":
+      return "12 + 5 =";
+    case "subtracao":
+      return "14 - 6 =";
+    case "multiplicacao":
+      return "7 × 3 =";
+    case "sequencias":
+      return "2, 4, 6, __";
+    case "dinheiro":
+      return EXEMPLO_DINHEIRO[pais];
+    case "silabas":
+      return EXEMPLO_SILABAS[pais];
+    case "palavras":
+      return "te · ta · pe → tapete";
+  }
+}
+
 export function WorksheetKit() {
+  const [disc, setDisc] = useState<DiscId>("mat");
   const [tipo, setTipo] = useState<TipoId>("adicao");
   const [nivel, setNivel] = useState<number>(1);
   const [pais, setPais] = useState<PaisId>("pt");
   const [busy, setBusy] = useState(false);
   const [downloads, setDownloads] = useState(0);
   const paisCfg = PAISES.find((p) => p.id === pais) ?? PAISES[0];
+  const tipos = disc === "mat" ? TIPOS_MAT : TIPOS_PORT;
+  const niveis = disc === "mat" ? NIVEIS_MAT : NIVEIS_PORT;
+
+  const mudarDisc = (d: DiscId) => {
+    setDisc(d);
+    setTipo(d === "mat" ? "adicao" : "silabas");
+  };
 
   const download = async () => {
     setBusy(true);
@@ -111,7 +172,8 @@ export function WorksheetKit() {
           </div>
           <p className="mt-1 text-sm text-muted-foreground">
             Gera uma ficha A4 com 20 exercícios e soluções — pronta a imprimir para os dias sem
-            internet ou para o caderno diário. Adaptada ao currículo e à moeda do teu país.
+            internet ou para o caderno diário. Adaptada ao currículo, à moeda e às palavras do teu
+            país.
           </p>
         </div>
       </div>
@@ -136,12 +198,34 @@ export function WorksheetKit() {
         ))}
       </div>
 
-      {/* Matéria */}
+      {/* Disciplina */}
       <p className="mt-4 text-xs font-bold uppercase tracking-wide text-muted-foreground">
-        Matéria
+        Disciplina
       </p>
       <div className="mt-2 flex flex-wrap gap-2">
-        {TIPOS.map((t) => (
+        {DISCIPLINAS.map((d) => (
+          <button
+            key={d.id}
+            type="button"
+            onClick={() => mudarDisc(d.id)}
+            aria-pressed={disc === d.id}
+            className={`rounded-xl border-2 px-4 py-2 font-display text-sm transition-colors ${
+              disc === d.id
+                ? "border-primary bg-primary/15 text-primary"
+                : "border-border bg-muted text-muted-foreground hover:bg-muted/70"
+            }`}
+          >
+            <span aria-hidden="true">{d.emoji}</span> {d.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Tipo de exercício */}
+      <p className="mt-3 text-xs font-bold uppercase tracking-wide text-muted-foreground">
+        Exercícios
+      </p>
+      <div className="mt-2 flex flex-wrap gap-2">
+        {tipos.map((t) => (
           <button
             key={t.id}
             type="button"
@@ -157,11 +241,15 @@ export function WorksheetKit() {
           </button>
         ))}
       </div>
+      <p className="mt-2 text-xs text-muted-foreground">
+        Exemplo:{" "}
+        <span className="font-display font-bold text-foreground">{exemploDe(tipo, pais)}</span>
+      </p>
 
       {/* Nível */}
       <p className="mt-3 text-xs font-bold uppercase tracking-wide text-muted-foreground">Nível</p>
       <div className="mt-2 flex flex-wrap gap-2">
-        {NIVEIS.map((nv) => (
+        {niveis.map((nv) => (
           <button
             key={nv.n}
             type="button"
