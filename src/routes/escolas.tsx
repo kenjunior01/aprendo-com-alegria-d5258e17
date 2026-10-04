@@ -19,6 +19,7 @@ import { JoinClassCard } from "@/components/JoinClassCard";
 import { SchoolLeadForm } from "@/components/SchoolLeadForm";
 import { TeacherPanelPreview } from "@/components/TeacherPanelPreview";
 import { DiretorKit } from "@/components/DiretorKit";
+import { WorksheetKit } from "@/components/WorksheetKit";
 import { RouteError } from "@/components/RouteError";
 import {
   ArrowLeft,
@@ -317,6 +318,9 @@ function EscolasPage() {
 
         {/* Painel à vista: demo interativa do que o professor vai usar */}
         <TeacherPanelPreview />
+
+        {/* Fichas grátis: valor tangível antes de pagar (lead magnet offline-first) */}
+        <WorksheetKit />
 
         {/* Features grid */}
         <section className="mt-8 grid gap-4 sm:grid-cols-2">
