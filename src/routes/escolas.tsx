@@ -22,6 +22,7 @@ import { TurmaAoVivoDemo } from "@/components/TurmaAoVivoDemo";
 import { DiretorKit } from "@/components/DiretorKit";
 import { WorksheetKit } from "@/components/WorksheetKit";
 import { PaisesSection } from "@/components/PaisesSection";
+import { CopiasCalc } from "@/components/CopiasCalc";
 import { RouteError } from "@/components/RouteError";
 import {
   ArrowLeft,
@@ -614,6 +615,9 @@ function EscolasPage() {
             ))}
           </div>
         </section>
+
+        {/* ROI para a direção: quanto custam as fotocópias hoje? */}
+        <CopiasCalc />
 
         {/* Kit do diretor: o professor convence o conselho com uma proposta pronta */}
         <DiretorKit />

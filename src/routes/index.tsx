@@ -8,6 +8,7 @@ import { localProfile, refreshProfile } from "@/lib/profileFast";
 import { useEffect, useState } from "react";
 import { detectRegion, regionBadgeText, REGIONS, type RegionInfo } from "@/lib/region";
 import { RouteError } from "@/components/RouteError";
+import { HomeMiniDemo } from "@/components/HomeMiniDemo";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -79,7 +80,7 @@ export const Route = createFileRoute("/")({
               name: "Está alinhado com o programa escolar?",
               acceptedAnswer: {
                 "@type": "Answer",
-                text: "O conteúdo segue o programa nacional português de Português, Matemática e Estudo do Meio, com adaptações para PALOP (Moçambique, Angola, Cabo Verde).",
+                text: "O conteúdo segue o programa de Português, Matemática e Estudo do Meio, com adaptações para Portugal, Moçambique, Angola, Cabo Verde e Brasil — moeda, palavras e naming das classes de cada país.",
               },
             },
           ],
@@ -328,6 +329,9 @@ function Landing() {
         {/* How it works */}
         <HowItWorks />
 
+        {/* Mini-experimento: o visitante prova o produto sem registo — adaptado ao país */}
+        <HomeMiniDemo key={region?.code ?? "PT"} pais={region?.code ?? "PT"} />
+
         {/* Learning path */}
         <LessonPathPreview />
 
@@ -337,8 +341,8 @@ function Landing() {
         {/* Premium — âncora de preço no topo do funil */}
         <PremiumStrip />
 
-        {/* Escolas — segunda fonte de receita, teaser B2B */}
-        <SchoolsTeaser />
+        {/* Escolas — segunda fonte de receita, teaser B2B (preço na moeda do país) */}
+        <SchoolsTeaser pais={region?.code ?? "PT"} />
 
         {/* FAQ — respostas rápidas para pais e professores (SEO) */}
         <FaqSection />
@@ -565,7 +569,7 @@ function StatsStrip() {
   const stats = [
     { n: "30+", label: "lições" },
     { n: "300+", label: "exercícios" },
-    { n: "∞", label: "desafios gerados" },
+    { n: "5", label: "países adaptados" },
     { n: "5 min", label: "por dia chega" },
   ];
   return (
@@ -605,7 +609,7 @@ const FAQS = [
   },
   {
     q: "Está alinhado com o programa escolar?",
-    a: "O conteúdo segue o programa nacional português de Português, Matemática e Estudo do Meio, com adaptações para PALOP (Moçambique, Angola, Cabo Verde).",
+    a: "O conteúdo segue o programa de Português, Matemática e Estudo do Meio, com adaptações para Portugal, Moçambique, Angola, Cabo Verde e Brasil — moeda, palavras e naming das classes de cada país.",
   },
 ];
 
@@ -695,7 +699,17 @@ function PremiumStrip() {
   );
 }
 
-function SchoolsTeaser() {
+// Câmbio de referência por país (mesmo modelo da calculadora de /escolas):
+// a cobrança é sempre em EUR, o equivalente local ajuda a decisão.
+const FX_TEASER: Record<string, { taxa: number; fmt: (v: number) => string }> = {
+  MZ: { taxa: 69, fmt: (v) => `${Math.round(v)} MT` },
+  AO: { taxa: 1000, fmt: (v) => `${Math.round(v)} Kz` },
+  CV: { taxa: 110, fmt: (v) => `${Math.round(v)} Esc` },
+  BR: { taxa: 6, fmt: (v) => `R$ ${v.toFixed(2).replace(".", ",")}` },
+};
+
+function SchoolsTeaser({ pais }: { pais: string }) {
+  const fx = FX_TEASER[pais];
   const cards = [
     {
       e: "📊",
@@ -750,7 +764,9 @@ function SchoolsTeaser() {
             0,99€ <span className="text-sm font-normal text-muted-foreground">/ aluno · mês</span>
           </p>
           <p className="text-xs text-muted-foreground">
-            Mínimo 20 alunos · funciona em tablets partilhados · faturação com NIF
+            {fx
+              ? `≈ ${fx.fmt(0.99 * fx.taxa)} por aluno/mês · câmbio de referência, cobrança em euros`
+              : "Mínimo 20 alunos · funciona em tablets partilhados · faturação com NIF"}
           </p>
         </div>
         <Link to="/escolas" className="w-full sm:w-auto">
