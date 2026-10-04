@@ -18,6 +18,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { JoinClassCard } from "@/components/JoinClassCard";
 import { SchoolLeadForm } from "@/components/SchoolLeadForm";
 import { TeacherPanelPreview } from "@/components/TeacherPanelPreview";
+import { TurmaAoVivoDemo } from "@/components/TurmaAoVivoDemo";
 import { DiretorKit } from "@/components/DiretorKit";
 import { WorksheetKit } from "@/components/WorksheetKit";
 import { RouteError } from "@/components/RouteError";
@@ -44,7 +45,7 @@ export const Route = createFileRoute("/escolas")({
       {
         name: "description",
         content:
-          "Plano dedicado para escolas e instituições: 0,99€ por aluno/mês, mínimo 20 alunos. Vê o painel do professor sem registo, funciona com internet instável, relatórios em PDF e kit de proposta pronto para a direção.",
+          "Plano dedicado para escolas e instituições: 0,99€ por aluno/mês, mínimo 20 alunos. Vê o painel do professor e o modo turma ao vivo sem registo, descarrega fichas grátis e leva a proposta pronta à direção.",
       },
       {
         property: "og:title",
@@ -318,6 +319,9 @@ function EscolasPage() {
 
         {/* Painel à vista: demo interativa do que o professor vai usar */}
         <TeacherPanelPreview />
+
+        {/* Modo Turma ao vivo: simulação da sala projetada — energia + antecipação honesta */}
+        <TurmaAoVivoDemo />
 
         {/* Fichas grátis: valor tangível antes de pagar (lead magnet offline-first) */}
         <WorksheetKit />
