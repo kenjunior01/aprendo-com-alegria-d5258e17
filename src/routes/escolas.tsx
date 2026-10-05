@@ -23,6 +23,7 @@ import { TorneiosKit } from "@/components/TorneiosKit";
 import { DesafiosTurmas } from "@/components/DesafiosTurmas";
 import { MuralEstrelas } from "@/components/MuralEstrelas";
 import { DiretorKit } from "@/components/DiretorKit";
+import { Pagamentos } from "@/components/Pagamentos";
 import { WorksheetKit } from "@/components/WorksheetKit";
 import { PaisesSection } from "@/components/PaisesSection";
 import { CopiasCalc } from "@/components/CopiasCalc";
@@ -157,8 +158,12 @@ const SCHOOL_FAQS: Array<{ q: string; a: string }> = [
     a: "Português, Matemática e Estudo do Meio do 1.º ao 4.º ano (expansão até à 7.ª classe), mais Desafios Infinitos e o modo Júnior (2–5 anos) para pré-escolar.",
   },
   {
+    q: "Que formas de pagamento aceitam?",
+    a: "Cartão (checkout seguro Stripe, ativação imediata), PayPal — com saldo ou cartão Visa/Mastercard, mesmo sem conta PayPal —, transferência bancária com referência gerada na própria página e fatura com NIF para instituições. PayPal e transferência são ativados no mesmo dia útil; o cartão ativa de imediato.",
+  },
+  {
     q: "Podemos pagar por transferência bancária ou processo administrativo?",
-    a: "Sim. Fala connosco em escolas@kidoz.online e enviamos proposta com referência Multibanco/transferência e fatura com NIF da instituição.",
+    a: "Sim. A página tem uma secção de pagamento que gera a referência da escola (sempre a mesma, fácil de conciliar) e pede os dados bancários por email ou WhatsApp. Emitimos fatura com NIF da instituição e adaptamo-nos a processos administrativos oficiais.",
   },
   {
     q: "Os dados dos alunos estão protegidos?",
@@ -613,10 +618,20 @@ function EscolasPage() {
           </div>
 
           <p className="mt-4 text-center text-xs text-muted-foreground">
-            🔒 Pagamento seguro processado pela Stripe. IVA calculado automaticamente por país. Para
-            pagamento por transferência bancária, fala connosco.
+            🔒 Pagamento seguro processado pela Stripe. IVA calculado automaticamente por país.
+            Também aceitamos{" "}
+            <a
+              href="#pagamentos"
+              className="font-semibold underline underline-offset-2 hover:text-foreground"
+            >
+              PayPal, transferência bancária e fatura com NIF
+            </a>
+            .
           </p>
         </section>
+
+        {/* Formas de pagamento: PayPal, transferência com referência e fatura — sincronizado com a calculadora */}
+        <Pagamentos alunos={students} pais={paisCalc} onEscolherPais={escolherPaisCalc} />
 
         {/* O fim das fotocópias: comparação honesta que a direção entende */}
         <section className="mt-8">
@@ -729,6 +744,25 @@ function EscolasPage() {
               returnUrl={`${window.location.origin}/checkout/return?session_id={CHECKOUT_SESSION_ID}`}
             />
           )}
+          <p className="text-center text-xs text-muted-foreground">
+            Prefere PayPal, transferência ou fatura com NIF?{" "}
+            <button
+              type="button"
+              onClick={() => {
+                setCheckoutOpen(false);
+                setTimeout(
+                  () =>
+                    document
+                      .getElementById("pagamentos")
+                      ?.scrollIntoView({ behavior: "smooth", block: "start" }),
+                  120,
+                );
+              }}
+              className="font-semibold text-primary underline underline-offset-2"
+            >
+              Ver outras formas de pagamento
+            </button>
+          </p>
         </DialogContent>
       </Dialog>
 

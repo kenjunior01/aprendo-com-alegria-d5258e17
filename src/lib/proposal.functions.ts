@@ -152,6 +152,13 @@ export const generateProposal = createServerFn({ method: "POST" })
         9.5,
         bodyFont,
         muted,
+        18,
+      );
+      line(
+        "Pagamento flexível: PayPal (cartão ou saldo, mesmo sem conta PayPal), transferência bancária com referência da escola ou fatura mensal com NIF.",
+        9.5,
+        bodyFont,
+        muted,
         22,
       );
 
