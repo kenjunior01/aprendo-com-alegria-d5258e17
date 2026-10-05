@@ -21,6 +21,7 @@ const TIPOS_MAT = [
   { id: "multiplicacao", label: "Multiplicação", emoji: "✖️" },
   { id: "sequencias", label: "Sequências", emoji: "🔢" },
   { id: "dinheiro", label: "Dinheiro", emoji: "🪙" },
+  { id: "problemas", label: "Problemas", emoji: "📝" },
 ] as const;
 
 const TIPOS_PORT = [
@@ -95,6 +96,15 @@ const EXEMPLO_SILABAS: Record<PaisId, string> = {
   br: "ônibus → ô-ni-bus",
 };
 
+// Transporte local nos problemas — o dia-a-dia de cada país entra na ficha.
+const EXEMPLO_PROBLEMAS: Record<PaisId, string> = {
+  pt: "O autocarro leva 8 sentados e 2 de pé. Quantos vão?",
+  mz: "O chapa leva 5 sentados e 3 de pé. Quantos vão?",
+  ao: "O candongueiro leva 8 sentados e 2 de pé. Quantos vão?",
+  cv: "O aluguer leva 6 sentados e 2 de pé. Quantos vão?",
+  br: "O ônibus leva 8 sentados e 2 de pé. Quantos vão?",
+};
+
 function exemploDe(tipo: TipoId, pais: PaisId): string {
   switch (tipo) {
     case "adicao":
@@ -107,6 +117,8 @@ function exemploDe(tipo: TipoId, pais: PaisId): string {
       return "2, 4, 6, __";
     case "dinheiro":
       return EXEMPLO_DINHEIRO[pais];
+    case "problemas":
+      return EXEMPLO_PROBLEMAS[pais];
     case "silabas":
       return EXEMPLO_SILABAS[pais];
     case "palavras":

@@ -22,6 +22,7 @@ const Input = z.object({
     "multiplicacao",
     "sequencias",
     "dinheiro",
+    "problemas",
     "silabas",
     "palavras",
   ]),
@@ -35,6 +36,7 @@ const DISC: Record<string, "mat" | "port"> = {
   multiplicacao: "mat",
   sequencias: "mat",
   dinheiro: "mat",
+  problemas: "mat",
   silabas: "port",
   palavras: "port",
 };
@@ -50,6 +52,7 @@ const TIPO_LABEL: Record<string, string> = {
   multiplicacao: "Multiplicação",
   sequencias: "Sequências",
   dinheiro: "Dinheiro",
+  problemas: "Problemas",
   silabas: "Sílabas",
   palavras: "Palavras",
 };
@@ -309,6 +312,253 @@ function genPalavras(nivel: number, pais: string): Ex[] {
   return exs;
 }
 
+// Quebra de texto simples por palavras (problemas ocupam 4 linhas no máximo).
+function wrapText(text: string, maxChars: number): string[] {
+  const words = text.split(" ");
+  const lines: string[] = [];
+  let cur = "";
+  for (const w of words) {
+    const cand = cur ? `${cur} ${w}` : w;
+    if (cand.length > maxChars && cur) {
+      lines.push(cur);
+      cur = w;
+    } else {
+      cur = cand;
+    }
+  }
+  if (cur) lines.push(cur);
+  return lines;
+}
+
+// Problemas com contexto local: transporte autêntico de cada país
+// (autocarro PT, chapa MZ, candongueiro AO, aluguer CV, ônibus BR) —
+// a realidade do dia-a-dia das crianças entra na matemática.
+const PROB_TRANSPORTE: Record<string, string> = {
+  pt: "autocarro",
+  mz: "chapa",
+  ao: "candongueiro",
+  cv: "aluguer",
+  br: "ônibus",
+};
+
+const NOMES_PROB = ["Ana", "João", "Maria", "Luís", "Sofia", "Pedro", "Rita", "Tomás"];
+
+// Matemática — problemas: 8 problemas de texto (contexto e moeda locais),
+// 2 colunas × 4 linhas no PDF com quebra de linha automática.
+function genProblemas(nivel: number, pais: string): Ex[] {
+  const cfg = PAIS[pais];
+  const transp = PROB_TRANSPORTE[pais];
+  const nomes = shuffle(NOMES_PROB);
+  const m = (v: number) => moneyStr(v, cfg.moeda, cfg.antes);
+  const exs: Ex[] = [];
+  // geradores por nível — cada índice produz um problema com estrutura diferente
+  for (let i = 0; i < 8; i++) {
+    const N = nomes[i % nomes.length];
+    if (nivel === 1) {
+      const t = [
+        () => {
+          const a = rnd(3, 8);
+          const b = rnd(1, 6);
+          return {
+            t: `${N} tem ${a} ${cfg.moeda} e ganha mais ${b}. Quantos ${cfg.moeda} tem agora?`,
+            r: String(a + b),
+          };
+        },
+        () => {
+          const a = rnd(5, 8);
+          const b = rnd(1, 3);
+          return {
+            t: `O ${transp} leva ${a} crianças sentadas e ${b} de pé. Quantas crianças vão?`,
+            r: String(a + b),
+          };
+        },
+        () => {
+          const a = rnd(5, 10);
+          const b = rnd(1, a - 1);
+          return {
+            t: `${N} tinha ${a} bolinhas e perdeu ${b}. Com quantas ficou?`,
+            r: String(a - b),
+          };
+        },
+        () => {
+          const b = rnd(2, 4);
+          const k = rnd(2, 3);
+          return {
+            t: `A professora reparte ${b * k} livros por ${b} mesas, igualmente. Quantos livros ficam em cada mesa?`,
+            r: String(k),
+          };
+        },
+        () => {
+          const p = rnd(2, 5);
+          const k = rnd(2, 3);
+          return { t: `Um lápis custa ${m(p)}. Quantos custam ${k} lápis?`, r: m(p * k) };
+        },
+        () => {
+          const a = rnd(2, 7);
+          const b = a + rnd(1, 5);
+          return { t: `${N} paga ${m(a)} com ${m(b)}. Quanto recebe de troco?`, r: m(b - a) };
+        },
+        () => {
+          const a = rnd(3, 7);
+          const b = rnd(2, 6);
+          return {
+            t: `Na fila há ${a} meninas e ${b} meninos. Quantas crianças há na fila?`,
+            r: String(a + b),
+          };
+        },
+        () => {
+          const a = rnd(6, 10);
+          const b = rnd(1, 4);
+          return {
+            t: `Na caixa havia ${a} bolos; ${N} comeu ${b}. Quantos bolos ficam?`,
+            r: String(a - b),
+          };
+        },
+      ];
+      const p = t[i % t.length]();
+      exs.push({ text: p.t, answer: p.r });
+    } else if (nivel === 2) {
+      const t = [
+        () => {
+          const p = rnd(8, 20);
+          const k = rnd(2, 4);
+          return { t: `Um caderno custa ${m(p)}. Quantos custam ${k} cadernos?`, r: m(p * k) };
+        },
+        () => {
+          const a = rnd(8, 15);
+          const b = rnd(3, 9);
+          return {
+            t: `No ${transp} vão ${a} adultos e ${b} crianças. Quantas pessoas vão?`,
+            r: String(a + b),
+          };
+        },
+        () => {
+          const b = rnd(3, 5);
+          const k = rnd(3, 6);
+          return {
+            t: `${b * k} bolinhas repartidas por ${b} crianças, igualmente. Quantas recebe cada uma?`,
+            r: String(k),
+          };
+        },
+        () => {
+          const a = rnd(15, 25);
+          const b = rnd(5, a - 3);
+          return {
+            t: `Um livro custa ${m(a)} e ${N} já tem ${m(b)}. Quanto falta juntar?`,
+            r: m(a - b),
+          };
+        },
+        () => {
+          const k = rnd(3, 5);
+          const a = rnd(4, 9);
+          return {
+            t: `Uma caixa tem ${k} fileiras com ${a} bolinhas em cada. Quantas bolinhas há?`,
+            r: String(k * a),
+          };
+        },
+        () => {
+          const a = rnd(6, 15);
+          const b = rnd(4, 12);
+          return {
+            t: `${N} fez ${a} exercícios na 2.ª-feira e ${b} na 4.ª. Quantos fez ao todo?`,
+            r: String(a + b),
+          };
+        },
+        () => {
+          const p = rnd(6, 12);
+          const k = rnd(3, 6);
+          return {
+            t: `Um copo de leite custa ${m(p)}. Quanto se gasta em ${k} dias, um por dia?`,
+            r: m(p * k),
+          };
+        },
+        () => {
+          const a = rnd(15, 30);
+          const b = rnd(5, a - 4);
+          return {
+            t: `Um livro tem ${a} páginas; ${N} já leu ${b}. Quantas faltam?`,
+            r: String(a - b),
+          };
+        },
+      ];
+      const p = t[i % t.length]();
+      exs.push({ text: p.t, answer: p.r });
+    } else {
+      const t = [
+        () => {
+          const p = rnd(25, 60);
+          const q = rnd(10, 25);
+          return {
+            t: `Um caderno custa ${m(p)} e um lápis ${m(q)}. Quanto custam os dois juntos?`,
+            r: m(p + q),
+          };
+        },
+        () => {
+          const p = rnd(15, 35);
+          const k = rnd(2, 4);
+          const n = p * k + rnd(10, 50);
+          return {
+            t: `${N} compra ${k} cadernos de ${m(p)} e paga com ${m(n)}. Quanto recebe de troco?`,
+            r: m(n - p * k),
+          };
+        },
+        () => {
+          const k = rnd(3, 6);
+          const c = rnd(8, 15);
+          return {
+            t: `O ${transp} faz ${k} viagens com ${c} crianças cada uma. Quantas crianças viajam ao todo?`,
+            r: String(k * c),
+          };
+        },
+        () => {
+          const b = rnd(3, 5);
+          const k = rnd(20, 40);
+          return {
+            t: `Repartir ${m(b * k)} por ${b} irmãos, em partes iguais. Quanto recebe cada um?`,
+            r: m(k),
+          };
+        },
+        () => {
+          const a = rnd(35, 70);
+          const b = rnd(20, 45);
+          return {
+            t: `Na 1.ª semana a turma juntou ${a} estrelas; na 2.ª juntou ${b}. Quantas estrelas têm no total?`,
+            r: String(a + b),
+          };
+        },
+        () => {
+          const a = rnd(60, 120);
+          const b = rnd(25, 55);
+          return {
+            t: `A escola tem ${a} alunos e ${b} já usam o Kidoz. Quantos alunos faltam começar?`,
+            r: String(a - b),
+          };
+        },
+        () => {
+          const k = rnd(3, 5);
+          const a = rnd(12, 20);
+          const b = rnd(5, 15);
+          return {
+            t: `Uma caixa tem ${k} fileiras de ${a} bolinhas e mais ${b} soltas. Quantas bolinhas há?`,
+            r: String(k * a + b),
+          };
+        },
+        () => {
+          const p = rnd(20, 45);
+          const k = rnd(3, 6);
+          return {
+            t: `O bilhete do passeio custa ${m(p)}. Quanto pagam ${k} bilhetes?`,
+            r: m(p * k),
+          };
+        },
+      ];
+      const p = t[i % t.length]();
+      exs.push({ text: p.t, answer: p.r });
+    }
+  }
+  return exs;
+}
+
 function genExercises(tipo: string, nivel: number, pais: string): Ex[] {
   const exs: Ex[] = [];
   for (let i = 0; i < 20; i++) {
@@ -378,7 +628,9 @@ export const generateWorksheet = createServerFn({ method: "POST" })
           ? genSilabas(nivel, pais)
           : tipo === "palavras"
             ? genPalavras(nivel, pais)
-            : genExercises(tipo, nivel, pais);
+            : tipo === "problemas"
+              ? genProblemas(nivel, pais)
+              : genExercises(tipo, nivel, pais);
 
       // ─── PDF A4 ───────────────────────────────────────────────────────
       const pdf = await PDFDocument.create();
@@ -430,11 +682,12 @@ export const generateWorksheet = createServerFn({ method: "POST" })
         color: dark,
       });
 
-      const cols = 4;
-      const rows = 5;
+      // Problemas: 8 células largas (2×4) com texto quebrado; restantes: 20 (4×5).
+      const prob = tipo === "problemas";
+      const cols = prob ? 2 : 4;
       const gap = 10;
       const cw = (W - M * 2 - gap * (cols - 1)) / cols;
-      const ch = 92;
+      const ch = prob ? 128 : 92;
       const topY = H - 152;
 
       exs.forEach((ex, i) => {
@@ -459,13 +712,26 @@ export const generateWorksheet = createServerFn({ method: "POST" })
           font: bodyFont,
           color: muted,
         });
-        p1.drawText(ex.text, {
-          x: x + 8,
-          y: y - 44,
-          size: ex.text.length > 12 ? 11 : 14,
-          font: titleFont,
-          color: dark,
-        });
+        if (prob) {
+          const linhas = wrapText(ex.text, 44).slice(0, 4);
+          linhas.forEach((ln, k) => {
+            p1.drawText(ln, {
+              x: x + 8,
+              y: y - 26 - k * 13,
+              size: 10.5,
+              font: bodyFont,
+              color: dark,
+            });
+          });
+        } else {
+          p1.drawText(ex.text, {
+            x: x + 8,
+            y: y - 44,
+            size: ex.text.length > 12 ? 11 : 14,
+            font: titleFont,
+            color: dark,
+          });
+        }
         p1.drawLine({
           start: { x: x + 8, y: y - ch + 14 },
           end: { x: x + cw - 8, y: y - ch + 14 },

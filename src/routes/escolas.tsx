@@ -19,6 +19,7 @@ import { JoinClassCard } from "@/components/JoinClassCard";
 import { SchoolLeadForm } from "@/components/SchoolLeadForm";
 import { TeacherPanelPreview } from "@/components/TeacherPanelPreview";
 import { TurmaAoVivoDemo } from "@/components/TurmaAoVivoDemo";
+import { TorneiosKit } from "@/components/TorneiosKit";
 import { DiretorKit } from "@/components/DiretorKit";
 import { WorksheetKit } from "@/components/WorksheetKit";
 import { PaisesSection } from "@/components/PaisesSection";
@@ -47,7 +48,7 @@ export const Route = createFileRoute("/escolas")({
       {
         name: "description",
         content:
-          "Plano para escolas em Portugal, Moçambique, Angola, Cabo Verde e Brasil: 0,99€/aluno/mês, mínimo 20 alunos. Fichas grátis de matemática e português com a moeda e as palavras locais, painel do professor e modo turma ao vivo sem registo.",
+          "Plano para escolas em Portugal, Moçambique, Angola, Cabo Verde e Brasil: 0,99€/aluno/mês, mínimo 20 alunos. Fichas grátis de matemática e português com a moeda e as palavras locais, painel do professor, modo turma ao vivo e torneios entre turmas sem registo.",
       },
       {
         property: "og:title",
@@ -125,6 +126,10 @@ const STEPS = [
 ];
 
 const SCHOOL_FAQS: Array<{ q: string; a: string }> = [
+  {
+    q: "Podemos organizar torneios entre turmas?",
+    a: "Sim — o Kit de Torneios gera um quadro imprimível (mata-mata 4/8 ou liga 4-6 equipas) com as regras, folha de registo e diplomas do pódio. Cada ronda joga-se no Modo Turma ao vivo ou com fichas imprimíveis. Grátis e sem registo.",
+  },
   {
     q: "Os alunos precisam de telemóvel próprio?",
     a: "Não. Funciona em tablets partilhados, computadores da sala ou telemóveis — o progresso fica guardado na conta de cada aluno.",
@@ -417,6 +422,9 @@ function EscolasPage() {
 
         {/* Modo Turma ao vivo: simulação da sala projetada — energia + antecipação honesta */}
         <TurmaAoVivoDemo />
+
+        {/* Torneios entre turmas: quadro imprimível + diplomas — único no nicho */}
+        <TorneiosKit />
 
         {/* Fichas grátis: valor tangível antes de pagar (lead magnet offline-first) */}
         <WorksheetKit />

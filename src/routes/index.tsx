@@ -719,7 +719,7 @@ function SchoolsTeaser({ pais }: { pais: string }) {
     {
       e: "🎬",
       t: "Modo Turma ao vivo",
-      d: "A turma inteira joga no projetor com um código PIN. Vê a demonstração sem registo na página de escolas.",
+      d: "A turma inteira joga no projetor com um código PIN — e organiza torneios entre turmas com quadro e diplomas. Demonstração sem registo na página de escolas.",
     },
     {
       e: "🖨️",
