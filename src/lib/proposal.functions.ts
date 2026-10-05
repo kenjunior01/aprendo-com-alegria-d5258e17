@@ -52,6 +52,7 @@ export const generateProposal = createServerFn({ method: "POST" })
       const monthly = alunos * 0.99;
       const yearly = monthly * 12;
       const fundador = yearly * 0.5;
+      const anualComGratis = monthly * 10; // plano anual: 10 meses pagos, 12 gozados
 
       const pdf = await PDFDocument.create();
       const titleFont = await pdf.embedFont(StandardFonts.HelveticaBold);
@@ -156,6 +157,13 @@ export const generateProposal = createServerFn({ method: "POST" })
       );
       line(
         "Pagamento flexível: PayPal (cartão ou saldo, mesmo sem conta PayPal), transferência bancária com referência da escola ou fatura mensal com NIF.",
+        9.5,
+        bodyFont,
+        muted,
+        18,
+      );
+      line(
+        `Plano anual com 2 meses grátis: ${eur(anualComGratis)}/ano com ${alunos} alunos (cobrança única).`,
         9.5,
         bodyFont,
         muted,

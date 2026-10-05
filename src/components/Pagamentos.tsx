@@ -16,6 +16,7 @@ import {
   ExternalLink,
   Mail,
   MessageCircle,
+  CalendarCheck,
 } from "lucide-react";
 import {
   PAYMENTS,
@@ -24,6 +25,8 @@ import {
   paisSeguro,
   paypalMeLink,
   referenciaPagamento,
+  totalAnualEur,
+  mensalEquivalenteAnualEur,
   type PaisPagId,
 } from "@/lib/payments";
 
@@ -50,8 +53,13 @@ export function Pagamentos({ alunos, pais, onEscolherPais }: PagamentosProps) {
   const p = paisSeguro(pais);
   const [escola, setEscola] = useState("");
   const [copiado, setCopiado] = useState(false);
+  const [plano, setPlano] = useState<"mensal" | "anual">("mensal");
 
   const monthly = Math.max(1, alunos) * PRECO_POR_ALUNO_EUR;
+  const anual = totalAnualEur(alunos);
+  const mensalAnual = mensalEquivalenteAnualEur(alunos);
+  const valor = plano === "anual" ? anual : monthly;
+  const sufixo = plano === "anual" ? "por ano" : "/mês";
   const fx = FX_PAG[p];
 
   const referencia = useMemo(() => referenciaPagamento(escola || "Instituição"), [escola]);
@@ -70,17 +78,17 @@ export function Pagamentos({ alunos, pais, onEscolherPais }: PagamentosProps) {
   const mailTransferencia = `mailto:${PAYMENTS.emailFaturacao}?subject=${encodeURIComponent(
     `Transferência bancária — referência ${referencia}`,
   )}&body=${encodeURIComponent(
-    `Olá!\n\nQuero pagar a subscrição Escolas do Kidoz por transferência bancária.\n\nInstituição: ${escola || "…"}\nAlunos: ${alunos}\nTotal mensal: ${eur(monthly)}\nReferência: ${referencia}\n\nEnvio os dados bancários (IBAN) e a fatura com NIF, por favor.\n\nObrigado!`,
+    `Olá!\n\nQuero pagar a subscrição Escolas do Kidoz por transferência bancária (plano ${plano}).\n\nInstituição: ${escola || "…"}\nAlunos: ${alunos}\nTotal: ${eur(valor)} ${sufixo}\nReferência: ${referencia}\n\nEnvio os dados bancários (IBAN) e a fatura com NIF, por favor.\n\nObrigado!`,
   )}`;
 
   const mailFatura = `mailto:${PAYMENTS.emailFaturacao}?subject=${encodeURIComponent(
     "Fatura com NIF / processo administrativo — Kidoz Escolas",
   )}&body=${encodeURIComponent(
-    `Olá!\n\nSomos uma instituição de ensino e precisamos de fatura com NIF (pagamento anual ou processo administrativo oficial).\n\nInstituição: …\nNIF: …\nAlunos: ${alunos}\nTotal mensal estimado: ${eur(monthly)}\n\nComo podemos avançar?\n\nObrigado!`,
+    `Olá!\n\nSomos uma instituição de ensino e precisamos de fatura com NIF (plano ${plano}, pagamento ${plano === "anual" ? "anual" : "mensal ou anual"}).\n\nInstituição: …\nNIF: …\nAlunos: ${alunos}\nTotal estimado: ${eur(valor)} ${sufixo}\n\nComo podemos avançar?\n\nObrigado!`,
   )}`;
 
   const waPaypal = `https://wa.me/?text=${encodeURIComponent(
-    `Olá! Quero pagar o plano Kidoz Escolas por PayPal (${eur(monthly)}/mês, ${alunos} alunos). Podem enviar o link de pagamento?`,
+    `Olá! Quero pagar o plano Kidoz Escolas por PayPal (${eur(valor)} ${sufixo}, ${alunos} alunos). Podem enviar o link de pagamento?`,
   )}`;
 
   return (
@@ -127,11 +135,50 @@ export function Pagamentos({ alunos, pais, onEscolherPais }: PagamentosProps) {
         })}
       </div>
 
+      {/* Plano: mensal ou anual (10 meses pagos, 12 gozados) */}
+      <div className="mt-4 flex flex-wrap gap-1.5" role="group" aria-label="Plano de pagamento">
+        {(
+          [
+            { id: "mensal", label: "Mensal" },
+            { id: "anual", label: "Anual · 2 meses grátis" },
+          ] as const
+        ).map((op) => {
+          const ativo = plano === op.id;
+          return (
+            <button
+              key={op.id}
+              type="button"
+              onClick={() => setPlano(op.id)}
+              aria-pressed={ativo}
+              className={`inline-flex items-center gap-1.5 rounded-full border-2 px-3.5 py-1.5 font-display text-xs transition-colors ${
+                ativo
+                  ? "border-primary bg-primary/15 font-semibold text-primary"
+                  : "border-border bg-muted text-muted-foreground hover:bg-muted/70"
+              }`}
+            >
+              {op.id === "anual" && <CalendarCheck className="h-4 w-4" aria-hidden="true" />}
+              {op.label}
+            </button>
+          );
+        })}
+      </div>
+
       <div className="mt-3 rounded-2xl bg-primary/10 px-4 py-2.5 text-center text-sm font-bold text-primary">
-        {eur(monthly)}/mês · 0,99€ × {alunos} alunos · IVA incluído
+        {plano === "anual" ? (
+          <>
+            {eur(anual)} por ano · 0,99€ × {alunos} alunos × 10 meses (2 grátis) · IVA incluído
+            <span className="mt-0.5 block text-xs font-semibold text-primary/80">
+              ≡ {eur(mensalAnual)}/mês — o mesmo produto, com 2 meses de presentes
+            </span>
+          </>
+        ) : (
+          <>
+            {eur(monthly)}/mês · 0,99€ × {alunos} alunos · IVA incluído
+          </>
+        )}
         {p !== "pt" && (
           <span className="mt-0.5 block text-xs font-semibold text-primary/80">
-            ≈ {fx.fmt(monthly * fx.taxa)} por mês (câmbio de referência — a cobrança é feita em
+            ≈ {fx.fmt(valor * fx.taxa)} {sufixo} (câmbio de referência — a cobrança é feita em
             euros)
           </span>
         )}
@@ -157,12 +204,12 @@ export function Pagamentos({ alunos, pais, onEscolherPais }: PagamentosProps) {
         </p>
         <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center">
           <a
-            href={paypalMeLink(monthly)}
+            href={paypalMeLink(valor)}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex min-h-[52px] flex-1 items-center justify-center gap-2 rounded-2xl bg-[#003087] px-5 font-display text-base font-semibold text-white shadow-lg transition-colors hover:bg-[#002460] active:scale-[0.98]"
           >
-            Pagar {eur(monthly)} com PayPal
+            Pagar {eur(valor)} {sufixo} com PayPal
             <ExternalLink className="h-5 w-5" aria-hidden="true" />
           </a>
           <a
@@ -176,8 +223,9 @@ export function Pagamentos({ alunos, pais, onEscolherPais }: PagamentosProps) {
           </a>
         </div>
         <p className="mt-2 text-[11px] text-muted-foreground">
-          Pagas à Kidoz ({PAYMENTS.beneficiario}) com proteção do comprador PayPal. Se preferires
-          que enviemos o link por email:{" "}
+          {plano === "anual"
+            ? "O anual é pago numa única tranche com proteção do comprador PayPal — 12 meses de acesso de imediato. Dúvidas: "
+            : `Pagas à Kidoz (${PAYMENTS.beneficiario}) com proteção do comprador PayPal. Se preferires que enviemos o link por email: `}
           <a
             href={`mailto:${PAYMENTS.emailFaturacao}?subject=${encodeURIComponent("Link de pagamento PayPal — Kidoz Escolas")}`}
             className="underline underline-offset-2"

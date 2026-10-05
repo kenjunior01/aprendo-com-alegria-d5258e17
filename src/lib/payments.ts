@@ -28,6 +28,25 @@ export const PAYMENTS = {
 export const PRECO_POR_ALUNO_EUR = 0.99;
 
 /**
+ * Plano anual: 10 meses pagos por 12 gozados (2 meses grátis).
+ * Honestidade em primeiro lugar: o anual é pago numa única tranche via
+ * PayPal/transferência/fatura — o checkout de cartão continua mensal.
+ */
+export const MESES_PAGOS_ANUAL = 10;
+
+/** Total anual por aluno (0,99€ × 10 = 9,90€). Arredondado a cêntimos. */
+export function totalAnualEur(alunos: number): number {
+  const v = Math.max(1, Math.floor(alunos)) * PRECO_POR_ALUNO_EUR * MESES_PAGOS_ANUAL;
+  return Math.round(v * 100) / 100;
+}
+
+/** Equivalente mensal do plano anual (total ÷ 12) — para o banner honesto. */
+export function mensalEquivalenteAnualEur(alunos: number): number {
+  const v = totalAnualEur(alunos) / 12;
+  return Math.round(v * 100) / 100;
+}
+
+/**
  * Link paypal.me com o valor pré-preenchido em EUR.
  * Robusto: clampa o valor a [1, 100 000]€, arredonda a 2 casas e valida o
  * username ( PayPal.me só aceita letras, números, hífen e underscore ).

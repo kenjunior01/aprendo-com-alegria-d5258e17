@@ -7,9 +7,10 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { Copy, Mail, Check, FileSignature, Download, LoaderCircle } from "lucide-react";
+import { Copy, Mail, Check, FileSignature, Download, LoaderCircle, PenLine } from "lucide-react";
 import { ChunkyButton } from "@/components/ChunkyButton";
 import { generateProposal } from "@/lib/proposal.functions";
+import { generateCartaFundadora } from "@/lib/certificado.functions";
 
 const PRESETS = [
   { label: "1 turma", alunos: 24 },
@@ -46,6 +47,8 @@ export function DiretorKit() {
   const [busy, setBusy] = useState(false);
   const [pdfOk, setPdfOk] = useState(0);
   const [erro, setErro] = useState<string | null>(null);
+  const [cartaBusy, setCartaBusy] = useState(false);
+  const [cartaOk, setCartaOk] = useState(false);
 
   // País partilhado com a home e a calculadora (kidoz-pais)
   useEffect(() => {
@@ -150,6 +153,45 @@ export function DiretorKit() {
   const mailHref = `mailto:?subject=${encodeURIComponent(
     "Proposta Kidoz para a nossa escola",
   )}&body=${encodeURIComponent(proposta)}`;
+
+  // Carta de adesão fundadora: exige nome da escola (é o documento que a
+  // direção assina — sem nome não faz sentido).
+  const descarregarCarta = async () => {
+    if (escola.trim().length < 2) {
+      setErro("Escreve o nome da escola — a carta de adesão é assinada em nome dela.");
+      return;
+    }
+    setCartaBusy(true);
+    setErro(null);
+    try {
+      const r = await generateCartaFundadora({ data: { escola: escola.trim(), alunos, pais } });
+      if ("error" in r && r.error) {
+        setErro(r.error);
+        return;
+      }
+      if (!r.pdfBase64) {
+        setErro("Não foi possível gerar a carta — tenta outra vez.");
+        return;
+      }
+      const bin = atob(r.pdfBase64);
+      const bytes = new Uint8Array(bin.length);
+      for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+      const blob = new Blob([bytes], { type: "application/pdf" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = r.fileName;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      setCartaOk(true);
+    } catch {
+      setErro("Não foi possível gerar a carta — tenta outra vez.");
+    } finally {
+      setCartaBusy(false);
+    }
+  };
 
   const fx = FX_PROPOSTA[pais];
 
@@ -314,6 +356,39 @@ export function DiretorKit() {
           <Mail className="h-5 w-5" />
           Abrir no meu email
         </a>
+      </div>
+
+      {/* Carta de adesão ao Programa Fundador — o papel que a direção assina */}
+      <div className="mt-3 rounded-2xl border-2 border-dashed border-secondary/60 bg-secondary/10 p-4">
+        <p className="font-display text-sm">
+          Já convenceu a direção? Formaliza a adesão ao Programa de Escolas Fundadoras:
+        </p>
+        <ChunkyButton
+          onClick={descarregarCarta}
+          disabled={cartaBusy}
+          tone={cartaOk && !cartaBusy ? "success" : "secondary"}
+          className="mt-2 min-h-[48px] w-full sm:w-auto"
+        >
+          {cartaBusy ? (
+            <>
+              <LoaderCircle className="mr-1 inline h-5 w-5 animate-spin" /> A gerar a carta…
+            </>
+          ) : cartaOk ? (
+            <>
+              <Check className="mr-1 inline h-5 w-5" /> Carta pronta · gerar outra vez
+            </>
+          ) : (
+            <>
+              <PenLine className="mr-1 inline h-5 w-5" /> Carta de adesão fundadora (PDF para
+              assinar)
+            </>
+          )}
+        </ChunkyButton>
+        <p className="mt-1.5 text-[11px] text-muted-foreground">
+          Documento com benefícios (50% no 1.º ano — poupança de {eur(alunos * 0.99 * 6)}),
+          condições honestas e linhas de assinatura — pronto para o conselho aprovar e devolver
+          assinado.
+        </p>
       </div>
       <p className="mt-2 text-center text-[11px] text-muted-foreground">
         O PDF sai com o nome da escola, a moeda do teu país e o Programa Fundador — pronto a

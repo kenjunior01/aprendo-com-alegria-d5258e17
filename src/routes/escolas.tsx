@@ -25,6 +25,7 @@ import { MuralEstrelas } from "@/components/MuralEstrelas";
 import { DiretorKit } from "@/components/DiretorKit";
 import { Pagamentos } from "@/components/Pagamentos";
 import { WorksheetKit } from "@/components/WorksheetKit";
+import { PlanificadorSemanal } from "@/components/PlanificadorSemanal";
 import { PaisesSection } from "@/components/PaisesSection";
 import { CopiasCalc } from "@/components/CopiasCalc";
 import { RouteError } from "@/components/RouteError";
@@ -453,6 +454,9 @@ function EscolasPage() {
 
         {/* Fichas grátis: valor tangível antes de pagar (lead magnet offline-first) */}
         <WorksheetKit />
+
+        {/* Plano semanal do professor: domingo à noite devolvido — diferencial único */}
+        <PlanificadorSemanal />
 
         {/* Um produto, cinco realidades: PT/MZ/AO/CV/BR — sistema, moeda e cultura locais */}
         <PaisesSection />
