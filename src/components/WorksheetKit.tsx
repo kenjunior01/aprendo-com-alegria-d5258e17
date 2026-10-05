@@ -13,12 +13,14 @@ import { toast } from "sonner";
 const DISCIPLINAS = [
   { id: "mat", label: "Matemática", emoji: "🧮" },
   { id: "port", label: "Português", emoji: "📖" },
+  { id: "em", label: "Estudo do Meio", emoji: "🌍" },
 ] as const;
 
 const TIPOS_MAT = [
   { id: "adicao", label: "Adição", emoji: "➕" },
   { id: "subtracao", label: "Subtração", emoji: "➖" },
   { id: "multiplicacao", label: "Multiplicação", emoji: "✖️" },
+  { id: "divisao", label: "Divisão", emoji: "➗" },
   { id: "sequencias", label: "Sequências", emoji: "🔢" },
   { id: "dinheiro", label: "Dinheiro", emoji: "🪙" },
   { id: "problemas", label: "Problemas", emoji: "📝" },
@@ -27,7 +29,10 @@ const TIPOS_MAT = [
 const TIPOS_PORT = [
   { id: "silabas", label: "Sílabas", emoji: "🔤" },
   { id: "palavras", label: "Palavras", emoji: "🧩" },
+  { id: "ditado", label: "Ditado", emoji: "🗣️" },
 ] as const;
+
+const TIPOS_EM = [{ id: "estudo", label: "Descobre o teu país", emoji: "🔎" }] as const;
 
 // Países suportados — naming do ano/classe + moeda local nas fichas
 const PAISES = [
@@ -75,8 +80,17 @@ const NIVEIS_PORT = [
   { n: 3, label: "Palavras gigantes" },
 ] as const;
 
+const NIVEIS_EM = [
+  { n: 1, label: "Com pistas" },
+  { n: 2, label: "Sozinho" },
+  { n: 3, label: "Explorador" },
+] as const;
+
 type DiscId = (typeof DISCIPLINAS)[number]["id"];
-type TipoId = (typeof TIPOS_MAT)[number]["id"] | (typeof TIPOS_PORT)[number]["id"];
+type TipoId =
+  | (typeof TIPOS_MAT)[number]["id"]
+  | (typeof TIPOS_PORT)[number]["id"]
+  | (typeof TIPOS_EM)[number]["id"];
 type PaisId = (typeof PAISES)[number]["id"];
 
 // Exemplo tangível por tipo — moeda e palavras mudam com o país.
@@ -105,6 +119,15 @@ const EXEMPLO_PROBLEMAS: Record<PaisId, string> = {
   br: "O ônibus leva 8 sentados e 2 de pé. Quantos vão?",
 };
 
+// Estudo do Meio — a ficha pergunta sobre o próprio país do aluno.
+const EXEMPLO_ESTUDO: Record<PaisId, string> = {
+  pt: "A capital de Portugal é ______ (Lisboa ou Porto)",
+  mz: "A capital de Moçambique é ______ (Maputo ou Beira)",
+  ao: "A capital de Angola é ______ (Luanda ou Benguela)",
+  cv: "A capital de Cabo Verde é ______ (Praia ou Mindelo)",
+  br: "A capital do Brasil é ______ (Brasília ou Rio)",
+};
+
 function exemploDe(tipo: TipoId, pais: PaisId): string {
   switch (tipo) {
     case "adicao":
@@ -113,6 +136,8 @@ function exemploDe(tipo: TipoId, pais: PaisId): string {
       return "14 - 6 =";
     case "multiplicacao":
       return "7 × 3 =";
+    case "divisao":
+      return "28 ÷ 4 =";
     case "sequencias":
       return "2, 4, 6, __";
     case "dinheiro":
@@ -123,6 +148,10 @@ function exemploDe(tipo: TipoId, pais: PaisId): string {
       return EXEMPLO_SILABAS[pais];
     case "palavras":
       return "te · ta · pe → tapete";
+    case "ditado":
+      return "O professor lê «capulana» → o aluno escreve";
+    case "estudo":
+      return EXEMPLO_ESTUDO[pais];
   }
 }
 
@@ -134,12 +163,12 @@ export function WorksheetKit() {
   const [busy, setBusy] = useState(false);
   const [downloads, setDownloads] = useState(0);
   const paisCfg = PAISES.find((p) => p.id === pais) ?? PAISES[0];
-  const tipos = disc === "mat" ? TIPOS_MAT : TIPOS_PORT;
-  const niveis = disc === "mat" ? NIVEIS_MAT : NIVEIS_PORT;
+  const tipos = disc === "mat" ? TIPOS_MAT : disc === "port" ? TIPOS_PORT : TIPOS_EM;
+  const niveis = disc === "mat" ? NIVEIS_MAT : disc === "port" ? NIVEIS_PORT : NIVEIS_EM;
 
   const mudarDisc = (d: DiscId) => {
     setDisc(d);
-    setTipo(d === "mat" ? "adicao" : "silabas");
+    setTipo(d === "mat" ? "adicao" : d === "port" ? "silabas" : "estudo");
   };
 
   const download = async () => {

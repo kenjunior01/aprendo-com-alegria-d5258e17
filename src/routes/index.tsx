@@ -719,12 +719,12 @@ function SchoolsTeaser({ pais }: { pais: string }) {
     {
       e: "🎬",
       t: "Modo Turma ao vivo",
-      d: "A turma inteira joga no projetor com um código PIN — e organiza torneios entre turmas com quadro e diplomas. Demonstração sem registo na página de escolas.",
+      d: "A turma inteira joga no projetor com um código PIN — e a escola organiza torneios com quadro e diplomas e desafios relâmpago com placar ao vivo. Demonstração sem registo na página de escolas.",
     },
     {
       e: "🖨️",
       t: "Fichas para imprimir",
-      d: "Matemática e Português com a moeda e as palavras do teu país (capulana, candongueiro…) — grátis, sem registo.",
+      d: "Matemática, Português e Estudo do Meio com a moeda e as palavras do teu país (capulana, candongueiro…) — grátis, sem registo.",
     },
   ];
   return (

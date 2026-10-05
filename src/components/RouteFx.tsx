@@ -42,16 +42,22 @@ function RouteEnter() {
   const { pathname } = useLocation();
   useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    // Web Animations API em vez de classList.add("route-enter"): não muta
+    // atributos que o React controla — sem hydration mismatch (mesmo com
+    // hidratação parcial/StrictMode) e funciona em qualquer timing.
     // Páginas com KidLoader não têm #main-content de imediato — tentar por alguns frames
     let raf = 0;
     let tries = 0;
     const tryApply = () => {
       const el = document.getElementById("main-content");
       if (el) {
-        el.classList.remove("route-enter");
-        // Força reflow para reiniciar a animação CSS
-        void el.offsetWidth;
-        el.classList.add("route-enter");
+        if (typeof el.animate === "function") {
+          el.animate([{ opacity: 0 }, { opacity: 1 }], {
+            duration: 300,
+            easing: "ease-out",
+            fill: "both",
+          });
+        }
         return;
       }
       if (++tries < 12) raf = requestAnimationFrame(tryApply);

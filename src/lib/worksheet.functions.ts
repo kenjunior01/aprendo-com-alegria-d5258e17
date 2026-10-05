@@ -5,11 +5,13 @@
 // recebe base64, bundle fica leve. Sem auth: input estrito + trava de
 // concorrência em memória (custo de geração é trivial).
 //
-// Duas disciplinas: Matemática (adição, subtração, multiplicação,
-// sequências, dinheiro) e Português (sílabas, palavras). Tudo adaptado
-// ao país: naming do ano/classe, moeda local e vocabulário local
-// (telemóvel em PT, ônibus no BR, capulana em MZ, candongueiro em AO,
-// coladeira em CV) — mesmo produto, cinco realidades.
+// Três disciplinas: Matemática (adição, subtração, multiplicação,
+// divisão, sequências, dinheiro, problemas), Português (sílabas,
+// palavras, ditado) e Estudo do Meio (descobre o teu país — geografia,
+// natureza e cultura local). Tudo adaptado ao país: naming do ano/classe,
+// moeda local e vocabulário local (telemóvel em PT, ônibus no BR,
+// capulana em MZ, candongueiro em AO, coladeira em CV) — mesmo produto,
+// cinco realidades.
 
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
@@ -20,41 +22,51 @@ const Input = z.object({
     "adicao",
     "subtracao",
     "multiplicacao",
+    "divisao",
     "sequencias",
     "dinheiro",
     "problemas",
     "silabas",
     "palavras",
+    "ditado",
+    "estudo",
   ]),
   nivel: z.number().int().min(1).max(3),
   pais: z.enum(["pt", "mz", "ao", "cv", "br"]).default("pt"),
 });
 
-const DISC: Record<string, "mat" | "port"> = {
+const DISC: Record<string, "mat" | "port" | "em"> = {
   adicao: "mat",
   subtracao: "mat",
   multiplicacao: "mat",
+  divisao: "mat",
   sequencias: "mat",
   dinheiro: "mat",
   problemas: "mat",
   silabas: "port",
   palavras: "port",
+  ditado: "port",
+  estudo: "em",
 };
 
 const DISC_LABEL: Record<string, string> = {
   mat: "Matemática",
   port: "Português",
+  em: "Estudo do Meio",
 };
 
 const TIPO_LABEL: Record<string, string> = {
   adicao: "Adição",
   subtracao: "Subtração",
   multiplicacao: "Multiplicação",
+  divisao: "Divisão",
   sequencias: "Sequências",
   dinheiro: "Dinheiro",
   problemas: "Problemas",
   silabas: "Sílabas",
   palavras: "Palavras",
+  ditado: "Ditado",
+  estudo: "Descobre o teu país",
 };
 
 // Configuração por país: naming do ano/classe + moeda local.
@@ -102,6 +114,13 @@ function nivelLabel(disc: string, nivel: number): string {
       : nivel === 2
         ? "Nível 2 · palavras longas"
         : "Nível 3 · palavras gigantes";
+  }
+  if (disc === "em") {
+    return nivel === 1
+      ? "Nível 1 · com pistas"
+      : nivel === 2
+        ? "Nível 2 · descobrir"
+        : "Nível 3 · explorador";
   }
   return nivel === 1 ? "Nível 1 · até 10" : nivel === 2 ? "Nível 2 · até 20" : "Nível 3 · até 100";
 }
@@ -559,6 +578,189 @@ function genProblemas(nivel: number, pais: string): Ex[] {
   return exs;
 }
 
+// ─── Estudo do Meio ───────────────────────────────────────────────────
+// Banco de fatos por país: geografia, natureza e cultura do dia-a-dia.
+// d = dificuldade (1 fácil com pistas, 2 médio, 3 explorador).
+// Tudo verificado e curado à mão — nenhuma resposta ambígua.
+interface Fato {
+  d: 1 | 2 | 3;
+  q: string;
+  a: string;
+  opts?: [string, string];
+}
+
+const FATOS: Record<string, Fato[]> = {
+  pt: [
+    { d: 1, q: "A capital de Portugal é ______.", a: "Lisboa", opts: ["Lisboa", "Porto"] },
+    {
+      d: 1,
+      q: "Verde e ______ são as cores da bandeira de Portugal.",
+      a: "vermelho",
+      opts: ["vermelho", "azul"],
+    },
+    { d: 1, q: "A oeste de Portugal fica o oceano ______.", a: "Atlântico" },
+    { d: 1, q: "Os ______ coloridos decoram as paredes das casas portuguesas.", a: "azulejos" },
+    {
+      d: 1,
+      q: "A língua oficial de Portugal é o ______.",
+      a: "português",
+      opts: ["português", "inglês"],
+    },
+    {
+      d: 2,
+      q: "O rio ______ passa por Lisboa antes de desaguar no mar.",
+      a: "Tejo",
+      opts: ["Tejo", "Douro"],
+    },
+    {
+      d: 2,
+      q: "A ______ é a ave que chega na primavera e é amiga das casas portuguesas.",
+      a: "andorinha",
+    },
+    { d: 2, q: "O pastel de ______ é um doce famoso de Lisboa.", a: "nata" },
+    { d: 3, q: "A serra da ______ é a mais alta de Portugal continental.", a: "Estrela" },
+    { d: 3, q: "Portugal fica na península ______, no sudoeste da Europa.", a: "Ibérica" },
+    { d: 3, q: "A guitarra ______ é o instrumento que acompanha o fado.", a: "portuguesa" },
+    { d: 3, q: "O barco ______ levava o vinho do Douro até ao Porto.", a: "rabelo" },
+  ],
+  mz: [
+    { d: 1, q: "A capital de Moçambique é ______.", a: "Maputo", opts: ["Maputo", "Beira"] },
+    { d: 1, q: "A moeda de Moçambique é o ______.", a: "metical", opts: ["metical", "escudo"] },
+    { d: 1, q: "A ______ é o pano colorido tradicional moçambicano.", a: "capulana" },
+    { d: 1, q: "O ______ é o táxi coletivo das cidades moçambicanas.", a: "chapa" },
+    { d: 1, q: "A leste de Moçambique fica o oceano ______.", a: "Índico" },
+    {
+      d: 1,
+      q: "A língua oficial de Moçambique é o ______.",
+      a: "português",
+      opts: ["português", "espanhol"],
+    },
+    {
+      d: 2,
+      q: "O rio ______ é o maior de Moçambique.",
+      a: "Zambeze",
+      opts: ["Zambeze", "Limpopo"],
+    },
+    {
+      d: 2,
+      q: "O parque da ______ é o mais famoso do país, com elefantes e búfalos.",
+      a: "Gorongosa",
+    },
+    { d: 2, q: "A ______ é a música mais conhecida de Moçambique.", a: "marrabenta" },
+    { d: 2, q: "A Ilha de ______ deu o nome ao país inteiro.", a: "Moçambique" },
+    {
+      d: 3,
+      q: "O ______ é um instrumento de madeira moçambicano, património da humanidade.",
+      a: "timbila",
+    },
+    { d: 3, q: "O monte ______ é o ponto mais alto de Moçambique.", a: "Binga" },
+  ],
+  ao: [
+    { d: 1, q: "A capital de Angola é ______.", a: "Luanda", opts: ["Luanda", "Benguela"] },
+    { d: 1, q: "A moeda de Angola é o ______.", a: "kwanza", opts: ["kwanza", "rand"] },
+    { d: 1, q: "A ______ negra gigante é o animal símbolo de Angola.", a: "palanca" },
+    { d: 1, q: "O ______ é o táxi coletivo das cidades angolanas.", a: "candongueiro" },
+    { d: 1, q: "A oeste de Angola fica o oceano ______.", a: "Atlântico" },
+    {
+      d: 1,
+      q: "A língua oficial de Angola é o ______.",
+      a: "português",
+      opts: ["português", "francês"],
+    },
+    {
+      d: 2,
+      q: "O ______ é a dança tradicional que nasceu em Angola e inspirou o mundo.",
+      a: "semba",
+    },
+    { d: 2, q: "O parque do ______, perto de Luanda, protege elefantes e girafas.", a: "Kissama" },
+    {
+      d: 2,
+      q: "A kizomba é uma música e dança nascida em ______.",
+      a: "Angola",
+      opts: ["Angola", "Brasil"],
+    },
+    { d: 3, q: "O rio ______ nasce e desagua em Angola.", a: "Cuanza" },
+    { d: 3, q: "O deserto do ______ aparece no sul de Angola.", a: "Namibe" },
+  ],
+  cv: [
+    { d: 1, q: "A capital de Cabo Verde é ______.", a: "Praia", opts: ["Praia", "Mindelo"] },
+    { d: 1, q: "A moeda de Cabo Verde é o ______.", a: "escudo", opts: ["escudo", "franco"] },
+    { d: 1, q: "Nas ilhas, para além do português, fala-se o ______.", a: "crioulo" },
+    { d: 1, q: "O ______ é o táxi coletivo das ilhas de Cabo Verde.", a: "aluguer" },
+    {
+      d: 1,
+      q: "A língua oficial de Cabo Verde é o ______.",
+      a: "português",
+      opts: ["português", "italiano"],
+    },
+    { d: 2, q: "Cabo Verde é formado por ______ ilhas.", a: "10", opts: ["10", "20"] },
+    { d: 2, q: "O vulcão do ______ é o ponto mais alto do país.", a: "Fogo" },
+    { d: 2, q: "A ______ é a música famosa de Cabo Verde, cantada por Cesária Évora.", a: "morna" },
+    { d: 2, q: "A ilha do ______ é famosa pelas praias e pelo vento.", a: "Sal" },
+    { d: 3, q: "A cantora Cesária ______ levou a morna de Cabo Verde para o mundo.", a: "Évora" },
+    { d: 3, q: "O ______ é a cidade da música, na ilha de São Vicente.", a: "Mindelo" },
+  ],
+  br: [
+    {
+      d: 1,
+      q: "A capital do Brasil é ______.",
+      a: "Brasília",
+      opts: ["Brasília", "Rio de Janeiro"],
+    },
+    { d: 1, q: "A moeda do Brasil é o ______.", a: "real", opts: ["real", "peso"] },
+    {
+      d: 1,
+      q: "O rio ______ é o maior rio do Brasil.",
+      a: "Amazonas",
+      opts: ["Amazonas", "São Francisco"],
+    },
+    { d: 1, q: "A floresta ______ é a maior floresta tropical do mundo.", a: "Amazônica" },
+    { d: 1, q: "O ______ é uma ave brasileira famosa pelo bico enorme e colorido.", a: "tucano" },
+    { d: 1, q: "A leste do Brasil fica o oceano ______.", a: "Atlântico" },
+    {
+      d: 1,
+      q: "A língua oficial do Brasil é o ______.",
+      a: "português",
+      opts: ["português", "espanhol"],
+    },
+    { d: 2, q: "O ______ é a festa mais famosa do Brasil, em fevereiro.", a: "Carnaval" },
+    { d: 2, q: "A ______-pintada é o maior felino do Brasil.", a: "onça" },
+    { d: 2, q: "O ______ é a dança brasileira mais conhecida no mundo.", a: "samba" },
+    { d: 3, q: "O Brasil é o único país da América do Sul que fala ______.", a: "português" },
+    {
+      d: 3,
+      q: "A seleção brasileira de futebol já ganhou ______ Copas do Mundo.",
+      a: "5",
+      opts: ["5", "10"],
+    },
+  ],
+};
+
+// Estudo do Meio — 8 fatos do país (2 colunas × 4 linhas, como problemas).
+// Nível 1 mostra pistas "(X ou Y)"; nível 2 sem pistas; nível 3 inclui
+// fatos mais difíceis. Cada ficha sai com combinação nova.
+function genEstudo(nivel: number, pais: string): Ex[] {
+  const pool = (FATOS[pais] ?? FATOS.pt).filter((f) => (nivel === 3 ? true : f.d <= 2));
+  const sorted = shuffle(pool).slice(0, 8);
+  while (sorted.length < 8) sorted.push(pool[sorted.length % pool.length]);
+  return sorted.map((f) => {
+    let text = f.q;
+    if (nivel === 1 && f.opts) {
+      const [o1, o2] = shuffle([f.a, f.opts[0] === f.a ? f.opts[1] : f.opts[0]]);
+      text = `${f.q} (${o1} ou ${o2})`;
+    }
+    return { text, answer: f.a };
+  });
+}
+
+// Português — ditado: 12 traços numerados; o professor lê, o aluno escreve.
+// As palavras (com divisão silábica para a correção) saem nas soluções.
+function genDitado(nivel: number, pais: string): Ex[] {
+  return shuffle(portPool(nivel, pais))
+    .slice(0, 12)
+    .map((s) => ({ text: s.replace(/-/g, ""), answer: `${s} (${s.replace(/-/g, "")})` }));
+}
+
 function genExercises(tipo: string, nivel: number, pais: string): Ex[] {
   const exs: Ex[] = [];
   for (let i = 0; i < 20; i++) {
@@ -578,6 +780,13 @@ function genExercises(tipo: string, nivel: number, pais: string): Ex[] {
       const a = rnd(2, aMax);
       const b = rnd(2, bMax);
       exs.push({ text: `${a} × ${b} =`, answer: String(a * b) });
+    } else if (tipo === "divisao") {
+      // Divisões exatas — o aluno descobre o quociente (tabelas do nível).
+      const bMax = nivel === 1 ? 5 : nivel === 2 ? 9 : 10;
+      const qMax = nivel === 1 ? 5 : nivel === 2 ? 9 : 10;
+      const b = rnd(2, bMax);
+      const q = rnd(2, qMax);
+      exs.push({ text: `${b * q} ÷ ${b} =`, answer: String(q) });
     } else if (tipo === "dinheiro") {
       // Preços na moeda local — soma e subtração de dinheiro do dia a dia.
       const cfg = PAIS[pais];
@@ -630,7 +839,11 @@ export const generateWorksheet = createServerFn({ method: "POST" })
             ? genPalavras(nivel, pais)
             : tipo === "problemas"
               ? genProblemas(nivel, pais)
-              : genExercises(tipo, nivel, pais);
+              : tipo === "estudo"
+                ? genEstudo(nivel, pais)
+                : tipo === "ditado"
+                  ? genDitado(nivel, pais)
+                  : genExercises(tipo, nivel, pais);
 
       // ─── PDF A4 ───────────────────────────────────────────────────────
       const pdf = await PDFDocument.create();
@@ -681,14 +894,28 @@ export const generateWorksheet = createServerFn({ method: "POST" })
         font: bodyFont,
         color: dark,
       });
+      if (tipo === "ditado") {
+        p1.drawText(
+          "O professor lê cada palavra em voz alta — o aluno escreve no traço. Boa sorte!",
+          {
+            x: M,
+            y: H - 140,
+            size: 9,
+            font: bodyFont,
+            color: muted,
+          },
+        );
+      }
 
-      // Problemas: 8 células largas (2×4) com texto quebrado; restantes: 20 (4×5).
-      const prob = tipo === "problemas";
-      const cols = prob ? 2 : 4;
+      // Problemas/estudo: 8 células largas (2×4) com texto quebrado; ditado:
+      // 12 traços (2×6); restantes: 20 (4×5).
+      const prob = tipo === "problemas" || tipo === "estudo";
+      const dit = tipo === "ditado";
+      const cols = prob || dit ? 2 : 4;
       const gap = 10;
       const cw = (W - M * 2 - gap * (cols - 1)) / cols;
-      const ch = prob ? 128 : 92;
-      const topY = H - 152;
+      const ch = prob ? 128 : dit ? 64 : 92;
+      const topY = dit ? H - 162 : H - 152;
 
       exs.forEach((ex, i) => {
         const col = i % cols;
@@ -723,6 +950,8 @@ export const generateWorksheet = createServerFn({ method: "POST" })
               color: dark,
             });
           });
+        } else if (dit) {
+          // Célula vazia com número — o espaço é para escrever ao ditado.
         } else {
           p1.drawText(ex.text, {
             x: x + 8,
@@ -766,10 +995,11 @@ export const generateWorksheet = createServerFn({ method: "POST" })
         color: muted,
       });
 
+      const solCols = dit ? 3 : 4;
       exs.forEach((ex, i) => {
-        const col = i % 4;
-        const row = Math.floor(i / 4);
-        const x = M + col * ((W - M * 2) / 4);
+        const col = i % solCols;
+        const row = Math.floor(i / solCols);
+        const x = M + col * ((W - M * 2) / solCols);
         const y = H - 130 - row * 26;
         p2.drawText(`${i + 1}. ${ex.answer}`, {
           x,

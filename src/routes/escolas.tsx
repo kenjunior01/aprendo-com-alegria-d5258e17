@@ -20,6 +20,8 @@ import { SchoolLeadForm } from "@/components/SchoolLeadForm";
 import { TeacherPanelPreview } from "@/components/TeacherPanelPreview";
 import { TurmaAoVivoDemo } from "@/components/TurmaAoVivoDemo";
 import { TorneiosKit } from "@/components/TorneiosKit";
+import { DesafiosTurmas } from "@/components/DesafiosTurmas";
+import { MuralEstrelas } from "@/components/MuralEstrelas";
 import { DiretorKit } from "@/components/DiretorKit";
 import { WorksheetKit } from "@/components/WorksheetKit";
 import { PaisesSection } from "@/components/PaisesSection";
@@ -48,7 +50,7 @@ export const Route = createFileRoute("/escolas")({
       {
         name: "description",
         content:
-          "Plano para escolas em Portugal, Moçambique, Angola, Cabo Verde e Brasil: 0,99€/aluno/mês, mínimo 20 alunos. Fichas grátis de matemática e português com a moeda e as palavras locais, painel do professor, modo turma ao vivo e torneios entre turmas sem registo.",
+          "Plano para escolas em Portugal, Moçambique, Angola, Cabo Verde e Brasil: 0,99€/aluno/mês, mínimo 20 alunos. Fichas grátis de matemática, português e estudo do meio, painel do professor, modo turma ao vivo, torneios e desafios entre turmas com placar ao vivo — sem registo.",
       },
       {
         property: "og:title",
@@ -126,6 +128,18 @@ const STEPS = [
 ];
 
 const SCHOOL_FAQS: Array<{ q: string; a: string }> = [
+  {
+    q: "Como funcionam os desafios relâmpago entre turmas?",
+    a: "O professor cria o desafio (duas turmas, disciplina e número de rondas), recebe um código partilhável pelo WhatsApp e abre o Placar ao Vivo no projetor da sala: pontos gigantes para cada turma, barra de vantagem animada e celebração no fim. Há também folha de registo em PDF para os dias sem internet. Grátis e sem registo.",
+  },
+  {
+    q: "Para que serve o Mural de Estrelas?",
+    a: "É um poster A4 imprimível com um espaço por aluno e 10 estrelas para pintar por conquista. O professor imprime, escreve os nomes e cola na parede — motivação diária offline que combina com os torneios, os desafios ao vivo e as fichas grátis.",
+  },
+  {
+    q: "Que fichas imprimíveis grátis existem?",
+    a: "Matemática (adição, subtração, multiplicação, divisão, sequências, dinheiro e problemas com o transporte local), Português (sílabas, palavras e ditado) e Estudo do Meio (descobre o teu país — geografia, natureza e cultura local), em 3 níveis e 5 países. Tudo com soluções incluídas.",
+  },
   {
     q: "Podemos organizar torneios entre turmas?",
     a: "Sim — o Kit de Torneios gera um quadro imprimível (mata-mata 4/8 ou liga 4-6 equipas) com as regras, folha de registo e diplomas do pódio. Cada ronda joga-se no Modo Turma ao vivo ou com fichas imprimíveis. Grátis e sem registo.",
@@ -425,6 +439,12 @@ function EscolasPage() {
 
         {/* Torneios entre turmas: quadro imprimível + diplomas — único no nicho */}
         <TorneiosKit />
+
+        {/* Desafios relâmpago entre duas turmas: código partilhável + placar ao vivo */}
+        <DesafiosTurmas />
+
+        {/* Mural de Estrelas: poster A4 de motivação diária da turma */}
+        <MuralEstrelas />
 
         {/* Fichas grátis: valor tangível antes de pagar (lead magnet offline-first) */}
         <WorksheetKit />
