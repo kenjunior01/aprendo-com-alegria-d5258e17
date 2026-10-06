@@ -6,6 +6,9 @@ import { BottomNav } from "@/components/BottomNav";
 import { ChunkyButton } from "@/components/ChunkyButton";
 import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
 import { StripeEmbeddedCheckout } from "@/components/StripeEmbeddedCheckout";
+import { useServerFn } from "@tanstack/react-start";
+import { createPaypalOrder, capturePaypalOrder } from "@/lib/paypal.functions";
+import { getStripeEnvironment } from "@/lib/stripe";
 import {
   Dialog,
   DialogContent,
@@ -256,9 +259,13 @@ const FAQS: Array<{ q: string; a: string }> = [
 function PremiumPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { subscription, isActive } = useSubscription();
+  const { subscription, isActive, refetch } = useSubscription();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [checkoutPriceId, setCheckoutPriceId] = useState<string | null>(null);
+  const [paypalBusy, setPaypalBusy] = useState<string | null>(null);
+  const [paypalMsg, setPaypalMsg] = useState<string | null>(null);
+  const createPP = useServerFn(createPaypalOrder);
+  const capturePP = useServerFn(capturePaypalOrder);
 
   useEffect(() => {
     const p = loadProfile();
@@ -268,6 +275,22 @@ function PremiumPage() {
     }
     setProfile(p);
   }, [navigate]);
+
+  // Regresso do PayPal: ?paypal=ok&token=ORDERID
+  useEffect(() => {
+    if (!user || typeof window === "undefined") return;
+    const sp = new URLSearchParams(window.location.search);
+    const token = sp.get("token");
+    if (sp.get("paypal") !== "ok" || !token) {
+      if (sp.get("paypal") === "cancel") setPaypalMsg("Pagamento PayPal cancelado.");
+      return;
+    }
+    setPaypalMsg("A confirmar pagamento PayPal…");
+    capturePP({ data: { orderId: token, environment: getStripeEnvironment() } })
+      .then(() => { setPaypalMsg("✅ Pagamento PayPal confirmado! Premium ativo."); refetch(); })
+      .catch((e: any) => setPaypalMsg(`❌ ${e?.message ?? "Erro no PayPal"}`))
+      .finally(() => window.history.replaceState({}, "", "/premium"));
+  }, [user]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!profile) return <KidLoader />;
 
@@ -279,6 +302,19 @@ function PremiumPage() {
       return;
     }
     setCheckoutPriceId(priceId);
+  };
+
+  const handlePaypal = async (priceId: string) => {
+    if (!user) { navigate({ to: "/auth" }); return; }
+    setPaypalBusy(priceId);
+    try {
+      const origin = window.location.origin;
+      const { url } = await createPP({ data: { planId: priceId, returnUrl: `${origin}/premium?paypal=ok`, cancelUrl: `${origin}/premium?paypal=cancel` } });
+      if (url) window.location.href = url;
+    } catch (e: any) {
+      setPaypalMsg(`❌ ${e?.message ?? "Erro no PayPal"}`);
+      setPaypalBusy(null);
+    }
   };
 
   return (
@@ -532,6 +568,11 @@ function PremiumPage() {
         <h2 id="planos" className="mt-8 scroll-mt-20 font-display text-2xl">
           Escolhe o teu plano
         </h2>
+        {paypalMsg && (
+          <p role="status" className="mt-2 rounded-2xl border border-border bg-card p-3 text-sm font-display">
+            {paypalMsg}
+          </p>
+        )}
         <div className="mt-3 grid gap-4 md:grid-cols-3">
           {PLANS.map((plan) => {
             const isCurrent = isActive && subscription?.price_id === plan.priceId;
@@ -569,9 +610,19 @@ function PremiumPage() {
                       <Star className="mr-1 inline h-4 w-4" /> Plano atual
                     </ChunkyButton>
                   ) : (
-                    <ChunkyButton onClick={() => handleSubscribe(plan.priceId)} className="w-full">
-                      <Sparkles className="mr-1 inline h-4 w-4" /> {plan.cta}
-                    </ChunkyButton>
+                    <div className="space-y-2">
+                      <ChunkyButton onClick={() => handleSubscribe(plan.priceId)} className="w-full">
+                        <Sparkles className="mr-1 inline h-4 w-4" /> {plan.cta}
+                      </ChunkyButton>
+                      <ChunkyButton
+                        tone="ghost"
+                        onClick={() => handlePaypal(plan.priceId)}
+                        disabled={paypalBusy !== null}
+                        className="w-full"
+                      >
+                        {paypalBusy === plan.priceId ? "A abrir PayPal…" : "Pagar com PayPal"}
+                      </ChunkyButton>
+                    </div>
                   )}
                 </div>
               </motion.div>
