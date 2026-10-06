@@ -1,10 +1,18 @@
 // LightningQuiz — Quiz Relâmpago reutilizável (5 perguntas rápidas).
 // Usado na Sala de Aula (maçã) e na página /desafio (quiz partilhado via WhatsApp).
 // Com seed determinística, gerador e amigo recebem EXATAMENTE as mesmas perguntas.
+//
+// Aprendizagem em primeiro lugar:
+// • Erro → a resposta certa fica destacada + dica do método, com tempo para LER
+//   antes de avançar (2,4s vs 0,9s no acerto).
+// • No fim, "Treinar os erros" repete só as falhadas (prática de recuperação,
+//   a técnica com melhor evidência para fixar memória).
+// • Dicas pedagógicas automáticas para aritmética (hintFor) — ensinam o método.
 import { useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
-import { MessageCircle, X } from "lucide-react";
+import { GraduationCap, MessageCircle, X } from "lucide-react";
 import { getRandomTriviaBoost, pickSeededTrivia, type TriviaQuestion } from "@/lib/triviaBoost";
+import { hintForPergunta } from "@/lib/hintFor";
 import { haptic } from "@/lib/haptics";
 import { playCorrect, playWrong } from "@/lib/audio";
 import { cn } from "@/lib/utils";
@@ -20,13 +28,19 @@ interface Props {
   challengerName?: string;
   /** Moedas por acerto (0 desativa a recompensa). */
   coinsPerCorrect?: number;
-  /** Callback ao fechar — devolve moedas ganhas. */
+  /** Callback ao fechar — devolve moedas ganhas (inclui ronda de revisão). */
   onClose: (earnedCoins: number) => void;
   /** Callback no fim do quiz (para atualizar perfil etc.). */
   onFinish?: (correct: number, total: number) => void;
   /** Se existir, mostra botão "Desafiar amigo" com a pontuação obtida. */
   onChallenge?: (correct: number) => void;
 }
+
+type Fase = "jogo" | "fim" | "revisao" | "fimRevisao";
+
+/** Tempo para ler a correção com calma (erro) vs ritmo no acerto. */
+const MS_ACERTO = 900;
+const MS_ERRO = 2400;
 
 export function LightningQuiz({
   seed,
@@ -42,40 +56,88 @@ export function LightningQuiz({
     () => (seed !== undefined ? pickSeededTrivia(seed, count) : getRandomTriviaBoost(count)),
     [seed, count],
   );
+  const [fase, setFase] = useState<Fase>("jogo");
+  const [lista, setLista] = useState<TriviaQuestion[]>(questions);
   const [idx, setIdx] = useState(0);
   const [picked, setPicked] = useState<number | null>(null);
   const [correct, setCorrect] = useState(0);
-  const q = questions[idx];
-  const done = idx >= questions.length;
+  const [missed, setMissed] = useState<TriviaQuestion[]>([]);
+  const [acertosRevisao, setAcertosRevisao] = useState(0);
+  const [moedasRevisao, setMoedasRevisao] = useState(0);
+  const q = lista[idx];
+  const done = fase === "jogo" ? idx >= questions.length : idx >= lista.length;
   const finishedRef = useRef(false);
+  const timerRef = useRef<number | null>(null);
+
+  useEffect(
+    () => () => {
+      // limpeza: nenhum timeout a avançar depois de desmontar
+      if (timerRef.current) window.clearTimeout(timerRef.current);
+    },
+    [],
+  );
 
   useEffect(() => {
-    if (done && !finishedRef.current) {
+    if (fase === "jogo" && done && !finishedRef.current) {
       finishedRef.current = true;
       onFinish?.(correct, count);
+      setFase("fim");
     }
-  }, [done]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [fase, done]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const moedasBase = correct * coinsPerCorrect;
+  const fechar = () => onClose(moedasBase + moedasRevisao);
+
+  const comecarRevisao = () => {
+    if (missed.length === 0) return;
+    haptic("tap");
+    // baralhar para não repetir a ordem memorizada
+    const baralhadas = [...missed].sort(() => Math.random() - 0.5);
+    setLista(baralhadas);
+    setIdx(0);
+    setPicked(null);
+    setAcertosRevisao(0);
+    setFase("revisao");
+  };
 
   const pick = (i: number) => {
-    if (picked !== null) return;
+    if (picked !== null || !q) return;
     setPicked(i);
+    const emRevisao = fase === "revisao";
     if (i === q.answerIndex) {
-      setCorrect((c) => c + 1);
+      if (emRevisao) {
+        setAcertosRevisao((c) => c + 1);
+        setMoedasRevisao((m) => m + 1);
+      } else {
+        setCorrect((c) => c + 1);
+      }
       playCorrect();
       haptic("success");
+      timerRef.current = window.setTimeout(() => avancar(emRevisao), MS_ACERTO);
     } else {
+      if (!emRevisao) setMissed((m) => (m.includes(q) ? m : [...m, q]));
       playWrong();
       haptic("error");
+      timerRef.current = window.setTimeout(() => avancar(emRevisao), MS_ERRO);
     }
-    setTimeout(() => {
+  };
+
+  const avancar = (emRevisao: boolean) => {
+    if (emRevisao && idx + 1 >= lista.length) {
+      setFase("fimRevisao");
       setIdx((v) => v + 1);
       setPicked(null);
-    }, 1100);
+      return;
+    }
+    setIdx((v) => v + 1);
+    setPicked(null);
   };
 
   const beat = scoreToBeat !== undefined ? correct > scoreToBeat : null;
   const tie = scoreToBeat !== undefined && correct === scoreToBeat;
   const resultEmoji = beat ? "🏆" : tie ? "🤝" : correct >= 4 ? "🎉" : "🍎";
+  const dica = q ? (q.hint ?? hintForPergunta(q.prompt)) : undefined;
+  const emJogo = fase === "jogo" || fase === "revisao";
 
   return (
     <motion.div
@@ -87,8 +149,12 @@ export function LightningQuiz({
     >
       <div className="flex items-center justify-between">
         <span className="font-display text-sm font-bold text-amber-600">
-          {scoreToBeat !== undefined ? "⚡ Quiz Relâmpago · Desafio" : "🍎 Pergunta Relâmpago"}
-          {coinsPerCorrect > 0 && scoreToBeat === undefined
+          {fase === "revisao" || fase === "fimRevisao"
+            ? "🎓 Treinar os erros"
+            : scoreToBeat !== undefined
+              ? "⚡ Quiz Relâmpago · Desafio"
+              : "🍎 Pergunta Relâmpago"}
+          {coinsPerCorrect > 0 && scoreToBeat === undefined && fase === "jogo"
             ? ` · +${coinsPerCorrect} moedas por acerto`
             : ""}
         </span>
@@ -96,7 +162,7 @@ export function LightningQuiz({
           type="button"
           onClick={() => {
             haptic("tap");
-            onClose(correct * coinsPerCorrect);
+            fechar();
           }}
           aria-label="Fechar quiz"
           className="rounded-full bg-muted p-1.5 text-muted-foreground transition hover:bg-muted/70"
@@ -105,10 +171,10 @@ export function LightningQuiz({
         </button>
       </div>
 
-      {!done && q ? (
+      {emJogo && q ? (
         <>
           <div className="mt-1 flex gap-1">
-            {questions.map((_, i) => (
+            {lista.map((_, i) => (
               <span
                 key={i}
                 className={cn(
@@ -119,7 +185,7 @@ export function LightningQuiz({
             ))}
           </div>
           <motion.p
-            key={idx}
+            key={`${fase}-${idx}`}
             initial={{ opacity: 0, x: 24 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ type: "spring", stiffness: 300, damping: 24 }}
@@ -155,11 +221,20 @@ export function LightningQuiz({
               </motion.button>
             ))}
           </div>
-          {q.hint && picked !== null && picked !== q.answerIndex && (
-            <p className="mt-2 text-xs text-muted-foreground">💡 {q.hint}</p>
+          {picked !== null && picked !== q.answerIndex && (
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mt-2.5 rounded-2xl border border-success/40 bg-success/10 px-3 py-2"
+            >
+              <p className="font-display text-sm font-bold text-success">
+                A resposta certa é: {q.options[q.answerIndex]}
+              </p>
+              {dica && <p className="mt-0.5 text-xs text-muted-foreground">💡 {dica}</p>}
+            </motion.div>
           )}
         </>
-      ) : (
+      ) : fase === "fim" ? (
         <div className="py-4 text-center">
           <motion.p
             initial={{ scale: 0, rotate: -20 }}
@@ -208,9 +283,7 @@ export function LightningQuiz({
           )}
 
           {coinsPerCorrect > 0 && scoreToBeat === undefined && (
-            <p className="mt-1 text-sm text-muted-foreground">
-              +{correct * coinsPerCorrect} moedas ganhas 🪙
-            </p>
+            <p className="mt-1 text-sm text-muted-foreground">+{moedasBase} moedas ganhas 🪙</p>
           )}
 
           <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
@@ -230,13 +303,58 @@ export function LightningQuiz({
               type="button"
               onClick={() => {
                 haptic("tap");
-                onClose(correct * coinsPerCorrect);
+                fechar();
               }}
               className="rounded-2xl bg-primary px-5 py-2.5 font-display font-bold text-primary-foreground active:scale-95"
             >
               {onChallenge ? "Fechar" : "Ótimo!"}
             </button>
           </div>
+
+          {/* Prática de recuperação: repetir só o que falhou */}
+          {scoreToBeat === undefined && missed.length > 0 && (
+            <button
+              type="button"
+              onClick={comecarRevisao}
+              className="mt-3 flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-amber-300 bg-amber-50 px-5 py-2.5 font-display font-bold text-amber-700 transition hover:bg-amber-100 active:scale-95 dark:bg-amber-950/40 dark:text-amber-200"
+            >
+              <GraduationCap className="h-4 w-4" />
+              Treinar os {missed.length} {missed.length === 1 ? "erro" : "erros"} · +1 🪙 cada
+            </button>
+          )}
+        </div>
+      ) : fase === "revisao" ? null : (
+        // fimRevisao
+        <div className="py-6 text-center">
+          <motion.p
+            initial={{ scale: 0, rotate: -20 }}
+            animate={{ scale: 1, rotate: 0 }}
+            transition={{ type: "spring", stiffness: 260, damping: 12 }}
+            className="font-display text-5xl"
+          >
+            {acertosRevisao === missed.length && missed.length > 0 ? "🌟" : "🎓"}
+          </motion.p>
+          <p className="mt-2 font-display text-2xl font-bold">
+            {acertosRevisao}/{missed.length} na revisão!
+          </p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {acertosRevisao === missed.length
+              ? "Agora já sabes todas — assim se aprende!"
+              : "Quase! As que faltam ficam para a próxima — tu consegues."}
+          </p>
+          {moedasRevisao > 0 && (
+            <p className="mt-1 text-sm text-muted-foreground">+{moedasRevisao} 🪙 na revisão</p>
+          )}
+          <button
+            type="button"
+            onClick={() => {
+              haptic("tap");
+              fechar();
+            }}
+            className="mt-4 rounded-2xl bg-primary px-5 py-2.5 font-display font-bold text-primary-foreground active:scale-95"
+          >
+            Continuar
+          </button>
         </div>
       )}
     </motion.div>

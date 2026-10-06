@@ -323,11 +323,16 @@ export function RealmGame({
         say("\ud83d\udee1 Escudo ativado — erro absorvido!", "excited");
       } else {
         setUnguarded((u) => u + 1);
-        say(mascot?.encourage ?? "Errar faz parte! Vais conseguir!", "sad");
+        // Momento de ensino: a resposta certa fica visível (borda verde) e a
+        // treinadora diz o que era — com tempo extra para ler antes de avançar.
+        say(
+          `A resposta certa era “${q.options[q.answerIndex]}”. ${mascot?.encourage ?? "Agora já sabes para a próxima!"}`,
+          "sad",
+        );
         checkDanger(unguarded + 1);
       }
       const newCorrect = correct;
-      setTimeout(() => advance(newCorrect, true, hadShield), 1150);
+      setTimeout(() => advance(newCorrect, true, hadShield), hadShield ? 1150 : 2100);
     }
   };
 
