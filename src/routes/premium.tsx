@@ -159,23 +159,6 @@ const PLANS: Plan[] = [
     ],
     cta: "Escolher anual",
   },
-  {
-    priceId: "vitalicio_lifetime",
-    badge: "Lançamento · Edição limitada",
-    name: "Vitalício",
-    price: "79,99€",
-    priceLabel: "uma vez · oferta limitada",
-    perks: [
-      "👑 Acesso vitalício a tudo no Kidoz",
-      "Para os primeiros early-adopters",
-      "Sem renovações nem cobranças futuras",
-      "Inclui todas as atualizações futuras",
-      "🏷️ Mascote dourada exclusiva 'Founder'",
-      "Suporte prioritário",
-    ],
-    cta: "Ser vitalício",
-    oneTime: true,
-  },
 ];
 
 interface Feature {
@@ -573,7 +556,7 @@ function PremiumPage() {
             {paypalMsg}
           </p>
         )}
-        <div className="mt-3 grid gap-4 md:grid-cols-3">
+        <div className="mt-3 grid gap-4 md:grid-cols-2">
           {PLANS.map((plan) => {
             const isCurrent = isActive && subscription?.price_id === plan.priceId;
             return (
@@ -739,7 +722,7 @@ function PremiumPage() {
           <div className="flex-1 text-center sm:text-left">
             <p className="font-display text-lg">Loja Kidoz — a aventura continua fora do ecrã 🎁</p>
             <p className="text-sm text-muted-foreground">
-              Os membros Família Anual e Vitalício recebem <b>itens exclusivos todos os meses</b> —
+              Os membros Família Anual recebem <b>itens exclusivos todos os meses</b> —
               livros de atividades, materiais escolares e merchandising com as mascotes.
             </p>
           </div>
