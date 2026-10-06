@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as TutorRouteImport } from './routes/tutor'
 import { Route as TermosRouteImport } from './routes/termos'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as RevisaoRouteImport } from './routes/revisao'
 import { Route as RaRouteImport } from './routes/ra'
 import { Route as PrivacidadeRouteImport } from './routes/privacidade'
 import { Route as PremiumRouteImport } from './routes/premium'
@@ -66,6 +67,11 @@ const TermosRoute = TermosRouteImport.update({
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RevisaoRoute = RevisaoRouteImport.update({
+  id: '/revisao',
+  path: '/revisao',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RaRoute = RaRouteImport.update({
@@ -299,6 +305,7 @@ export interface FileRoutesByFullPath {
   '/premium': typeof PremiumRoute
   '/privacidade': typeof PrivacidadeRoute
   '/ra': typeof RaRoute
+  '/revisao': typeof RevisaoRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/termos': typeof TermosRoute
   '/tutor': typeof TutorRoute
@@ -344,6 +351,7 @@ export interface FileRoutesByTo {
   '/premium': typeof PremiumRoute
   '/privacidade': typeof PrivacidadeRoute
   '/ra': typeof RaRoute
+  '/revisao': typeof RevisaoRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/termos': typeof TermosRoute
   '/tutor': typeof TutorRoute
@@ -390,6 +398,7 @@ export interface FileRoutesById {
   '/premium': typeof PremiumRoute
   '/privacidade': typeof PrivacidadeRoute
   '/ra': typeof RaRoute
+  '/revisao': typeof RevisaoRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/termos': typeof TermosRoute
   '/tutor': typeof TutorRoute
@@ -437,6 +446,7 @@ export interface FileRouteTypes {
     | '/premium'
     | '/privacidade'
     | '/ra'
+    | '/revisao'
     | '/sitemap.xml'
     | '/termos'
     | '/tutor'
@@ -482,6 +492,7 @@ export interface FileRouteTypes {
     | '/premium'
     | '/privacidade'
     | '/ra'
+    | '/revisao'
     | '/sitemap.xml'
     | '/termos'
     | '/tutor'
@@ -527,6 +538,7 @@ export interface FileRouteTypes {
     | '/premium'
     | '/privacidade'
     | '/ra'
+    | '/revisao'
     | '/sitemap.xml'
     | '/termos'
     | '/tutor'
@@ -573,6 +585,7 @@ export interface RootRouteChildren {
   PremiumRoute: typeof PremiumRoute
   PrivacidadeRoute: typeof PrivacidadeRoute
   RaRoute: typeof RaRoute
+  RevisaoRoute: typeof RevisaoRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TermosRoute: typeof TermosRoute
   TutorRoute: typeof TutorRoute
@@ -611,6 +624,13 @@ declare module '@tanstack/react-router' {
       path: '/sitemap.xml'
       fullPath: '/sitemap.xml'
       preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/revisao': {
+      id: '/revisao'
+      path: '/revisao'
+      fullPath: '/revisao'
+      preLoaderRoute: typeof RevisaoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/ra': {
@@ -936,6 +956,7 @@ const rootRouteChildren: RootRouteChildren = {
   PremiumRoute: PremiumRoute,
   PrivacidadeRoute: PrivacidadeRoute,
   RaRoute: RaRoute,
+  RevisaoRoute: RevisaoRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   TermosRoute: TermosRoute,
   TutorRoute: TutorRoute,

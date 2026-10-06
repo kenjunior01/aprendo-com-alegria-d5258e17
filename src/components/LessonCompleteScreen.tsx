@@ -23,6 +23,7 @@ import { shareChallenge } from "@/lib/challengeShare";
 import {
   Check,
   Coins,
+  GraduationCap,
   Heart,
   Trophy,
   Sparkles,
@@ -68,6 +69,12 @@ interface LessonCompleteScreenProps {
   chapterName?: string;
   /** Info para "Desafiar amigo" (lição atual) */
   shareInfo?: { subjectId: string; lessonId: string } | null;
+  /** N.º de perguntas falhadas — mostra o CTA "Treinar os erros". */
+  missedCount?: number;
+  /** Inicia a ronda de treino dos erros (+1 moeda cada). */
+  onTrainErrors?: () => void;
+  /** Resultado da última ronda de treino (mostrado como feedback honesto). */
+  reviewResult?: { correct: number; total: number } | null;
 }
 
 export function LessonCompleteScreen({
@@ -87,6 +94,9 @@ export function LessonCompleteScreen({
   nextLesson,
   chapterName,
   shareInfo,
+  missedCount = 0,
+  onTrainErrors,
+  reviewResult,
 }: LessonCompleteScreenProps) {
   const mascot = getMascot(mascotId);
   const accuracy = total > 0 ? Math.round((correct / total) * 100) : 0;
@@ -379,6 +389,30 @@ export function LessonCompleteScreen({
           transition={{ delay: 2.2 }}
           className="mt-8 flex w-full flex-col gap-3"
         >
+          {/* Treino de erros: resultado da última ronda (honesto) */}
+          {reviewResult && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="flex items-center justify-center gap-2 rounded-2xl border-2 border-success/40 bg-success/10 px-4 py-2.5 text-center font-display text-sm text-success"
+            >
+              <GraduationCap className="h-4 w-4 shrink-0" />
+              <span>
+                Treino: {reviewResult.correct} de {reviewResult.total} certos
+                {reviewResult.correct > 0 &&
+                  ` · +${reviewResult.correct} ${reviewResult.correct === 1 ? "moeda" : "moedas"}`}
+              </span>
+            </motion.div>
+          )}
+
+          {/* Treinar os erros — prática de recuperação com recompensa */}
+          {missedCount > 0 && onTrainErrors && (
+            <ChunkyButton tone="primary" onClick={onTrainErrors} className="w-full text-lg">
+              <GraduationCap className="mr-1.5 inline h-5 w-5" />
+              Treinar os {missedCount} {missedCount === 1 ? "erro" : "erros"} · +1 moeda cada
+            </ChunkyButton>
+          )}
+
           {/* Primary CTA: Continue or Next Lesson */}
           {nextLesson ? (
             <Link

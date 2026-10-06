@@ -52,8 +52,12 @@ export function generateDailyChallenge(date: string, grade: GradeLevel): DailyCh
     const relevantLessons = subject.lessons.filter((l) => l.grade <= grade);
     for (const lesson of relevantLessons) {
       for (const q of lesson.questions) {
+        // O desafio diário é sempre de escolha múltipla — ignora tipos sem opções
+        // (ex.: perguntas de ordenar) para manter a UI consistente.
+        if (typeof q.answerIndex !== "number" || !Array.isArray(q.options)) continue;
+        const mcq = q as typeof q & { options: string[]; answerIndex: number };
         allQuestions.push({
-          ...q,
+          ...mcq,
           subjectEmoji: subject.emoji,
           subjectName: subject.name,
           subjectId: subject.id,
@@ -139,7 +143,10 @@ export function saveDailyChallenge(state: DailyChallengeState) {
 }
 
 // ─── Calculate rewards ───
-export function calculateDailyChallengeRewards(state: DailyChallengeState, streak: number): {
+export function calculateDailyChallengeRewards(
+  state: DailyChallengeState,
+  streak: number,
+): {
   correct: number;
   total: number;
   xpEarned: number;

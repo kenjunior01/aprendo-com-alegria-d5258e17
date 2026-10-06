@@ -1,5 +1,6 @@
 // Conteúdo curricular para 1.º ciclo (Portugal — 1.º ao 4.º ano)
-// Cada lição tem perguntas de múltipla escolha.
+// Tipos de exercício: escolha múltipla (clássico), verdadeiro/falso,
+// ordenar (sílabas, números, estações…) e contar (grelha visual de emojis).
 
 export type SubjectId =
   | "portugues"
@@ -13,9 +14,19 @@ export type GradeLevel = 1 | 2 | 3 | 4;
 
 export interface Question {
   prompt: string;
-  options: string[];
-  answerIndex: number;
+  /** Opções possíveis — ausente apenas nas perguntas de ordenar (kind "order"). */
+  options?: string[];
+  /** Índice da resposta certa — ausente apenas nas perguntas de ordenar. */
+  answerIndex?: number;
   hint?: string;
+  /** Tipo de exercício — ausente = escolha múltipla clássica. */
+  kind?: "mcq" | "truefalse" | "order" | "count";
+  /** kind "order": itens pela ordem certa (o jogo baralha antes de mostrar). */
+  sequence?: string[];
+  /** kind "count": grelha visual de emojis — groups grupos de perGroup. */
+  visual?: { emoji: string; groups: number; perGroup: number };
+  /** Mostrada depois de responder — o "porquê" que ensina de verdade. */
+  explanation?: string;
 }
 
 export interface Lesson {
@@ -52,7 +63,12 @@ const SUBJECTS_CORE: Subject[] = [
         emoji: "🔤",
         grade: 1,
         questions: [
-          { prompt: "Qual destas é uma vogal?", options: ["B", "A", "M", "T"], answerIndex: 1 },
+          {
+            prompt: "Qual destas é uma vogal?",
+            options: ["B", "A", "M", "T"],
+            answerIndex: 1,
+            explanation: "As vogais são A, E, I, O, U — todas as outras letras são consoantes.",
+          },
           { prompt: "Quantas vogais tem 'CASA'?", options: ["1", "2", "3", "4"], answerIndex: 1 },
           {
             prompt: "A palavra 'OURO' começa por…",
@@ -64,6 +80,13 @@ const SUBJECTS_CORE: Subject[] = [
             options: ["P", "É", "nenhuma", "as duas"],
             answerIndex: 1,
           },
+          {
+            prompt: "Toca nas vogais pela ordem!",
+            kind: "order",
+            sequence: ["A", "E", "I", "O", "U"],
+            hint: "Canta baixinho: a, e, i, o, u!",
+            explanation: "A ordem das vogais: A, E, I, O, U!",
+          },
         ],
       },
       {
@@ -72,7 +95,12 @@ const SUBJECTS_CORE: Subject[] = [
         emoji: "🎵",
         grade: 1,
         questions: [
-          { prompt: "Quantas sílabas tem 'BO-LA'?", options: ["1", "2", "3", "4"], answerIndex: 1 },
+          {
+            prompt: "Quantas sílabas tem 'BO-LA'?",
+            options: ["1", "2", "3", "4"],
+            answerIndex: 1,
+            explanation: "BO-LA: cada pedacinho com vogal é uma sílaba — são 2!",
+          },
           {
             prompt: "'BORBOLETA' divide-se em…",
             options: ["BOR-BO-LE-TA", "BORB-OLETA", "BO-RBO-LETA", "BORBO-LETA"],
@@ -82,6 +110,18 @@ const SUBJECTS_CORE: Subject[] = [
             prompt: "Qual palavra tem 3 sílabas?",
             options: ["SOL", "MAR", "BANANA", "PÃO"],
             answerIndex: 2,
+          },
+          {
+            prompt: "Monta a palavra BO-LA pelas sílabas!",
+            kind: "order",
+            sequence: ["BO", "LA"],
+            explanation: "BO + LA = BOLA! Primeiro o bo, depois o la.",
+          },
+          {
+            prompt: "Monta 'BORBOLETA' pelas sílabas!",
+            kind: "order",
+            sequence: ["BOR", "BO", "LE", "TA"],
+            hint: "Diz devagarinho: bor… bo… le… ta!",
           },
         ],
       },
@@ -124,6 +164,7 @@ const SUBJECTS_CORE: Subject[] = [
             prompt: "Plural de 'PÃO' é…",
             options: ["PÃOS", "PÃES", "PÃEIS", "PANS"],
             answerIndex: 1,
+            explanation: "Palavras terminadas em -ÃO mudam para -ÕES: pão → pães.",
           },
           {
             prompt: "Singular de 'FLORES' é…",
@@ -134,6 +175,7 @@ const SUBJECTS_CORE: Subject[] = [
             prompt: "Plural de 'ANIMAL' é…",
             options: ["ANIMALS", "ANIMAIS", "ANIMALES", "ANIMAES"],
             answerIndex: 1,
+            explanation: "Terminadas em -AL mudam para -AIS: animal → animais.",
           },
         ],
       },
@@ -152,6 +194,7 @@ const SUBJECTS_CORE: Subject[] = [
             prompt: "Feminino de 'CÃO'?",
             options: ["CÃA", "CADELA", "CÃOZINHA", "CÃNINA"],
             answerIndex: 1,
+            explanation: "Há palavras que mudam por completo: cão → cadela!",
           },
           {
             prompt: "Masculino de 'GALINHA'?",
@@ -310,6 +353,34 @@ const SUBJECTS_CORE: Subject[] = [
             options: ["13", "14", "16", "17"],
             answerIndex: 1,
           },
+          {
+            prompt: "Conta as maçãs!",
+            kind: "count",
+            visual: { emoji: "🍎", groups: 1, perGroup: 5 },
+            options: ["4", "5", "6", "7"],
+            answerIndex: 1,
+            hint: "Aponta para cada maçã e conta em voz alta!",
+          },
+          {
+            prompt: "Conta os peixinhos!",
+            kind: "count",
+            visual: { emoji: "🐟", groups: 2, perGroup: 3 },
+            options: ["5", "6", "7", "8"],
+            answerIndex: 1,
+            explanation: "2 grupos de 3: 3 + 3 = 6 peixinhos!",
+          },
+          {
+            prompt: "Põe os números do menor para o maior!",
+            kind: "order",
+            sequence: ["3", "7", "10"],
+          },
+          {
+            prompt: "Depois do 9 vem o 10.",
+            kind: "truefalse",
+            options: ["Verdadeiro", "Falso"],
+            answerIndex: 0,
+            explanation: "Conta: 6, 7, 8, 9… e depois vem o 10!",
+          },
         ],
       },
       {
@@ -318,10 +389,23 @@ const SUBJECTS_CORE: Subject[] = [
         emoji: "➕",
         grade: 1,
         questions: [
-          { prompt: "2 + 3 = ?", options: ["4", "5", "6", "7"], answerIndex: 1 },
+          {
+            prompt: "2 + 3 = ?",
+            options: ["4", "5", "6", "7"],
+            answerIndex: 1,
+            explanation: "Começa no 2 e conta 3 passos: 3, 4, 5!",
+          },
           { prompt: "7 + 4 = ?", options: ["10", "11", "12", "13"], answerIndex: 1 },
           { prompt: "9 + 6 = ?", options: ["14", "15", "16", "17"], answerIndex: 1 },
           { prompt: "10 + 10 = ?", options: ["15", "20", "25", "100"], answerIndex: 1 },
+          {
+            prompt: "2 grupos de 4 estrelas — quantas ao todo?",
+            kind: "count",
+            visual: { emoji: "⭐", groups: 2, perGroup: 4 },
+            options: ["6", "7", "8", "9"],
+            answerIndex: 2,
+            explanation: "4 + 4 = 8 estrelas. Conta tudo junto!",
+          },
         ],
       },
       // 2.º ano
@@ -331,9 +415,21 @@ const SUBJECTS_CORE: Subject[] = [
         emoji: "➖",
         grade: 2,
         questions: [
-          { prompt: "10 − 4 = ?", options: ["5", "6", "7", "8"], answerIndex: 1 },
+          {
+            prompt: "10 − 4 = ?",
+            options: ["5", "6", "7", "8"],
+            answerIndex: 1,
+            explanation: "Do 10, conta para trás 4 passos: 9, 8, 7, 6!",
+          },
           { prompt: "15 − 7 = ?", options: ["7", "8", "9", "10"], answerIndex: 1 },
           { prompt: "20 − 11 = ?", options: ["8", "9", "10", "11"], answerIndex: 1 },
+          {
+            prompt: "10 − 10 = 0.",
+            kind: "truefalse",
+            options: ["Verdadeiro", "Falso"],
+            answerIndex: 0,
+            explanation: "Se tiras tudo, não fica nada: 0!",
+          },
         ],
       },
       {
@@ -342,10 +438,23 @@ const SUBJECTS_CORE: Subject[] = [
         emoji: "✖️",
         grade: 2,
         questions: [
-          { prompt: "2 × 3 = ?", options: ["5", "6", "7", "8"], answerIndex: 1 },
+          {
+            prompt: "2 × 3 = ?",
+            options: ["5", "6", "7", "8"],
+            answerIndex: 1,
+            explanation: "2 × 3 são 3 grupos de 2 — conta de 2 em 2: 2, 4, 6!",
+          },
           { prompt: "2 × 5 = ?", options: ["7", "10", "12", "15"], answerIndex: 1 },
           { prompt: "2 × 8 = ?", options: ["14", "16", "18", "20"], answerIndex: 1 },
           { prompt: "2 × 10 = ?", options: ["18", "20", "22", "25"], answerIndex: 1 },
+          {
+            prompt: "3 grupos de 2 olhos — quantos olhos?",
+            kind: "count",
+            visual: { emoji: "👀", groups: 3, perGroup: 2 },
+            options: ["5", "6", "7", "8"],
+            answerIndex: 1,
+            explanation: "2 × 3 = 6: três grupos, dois olhos em cada.",
+          },
         ],
       },
       {
@@ -360,6 +469,13 @@ const SUBJECTS_CORE: Subject[] = [
             prompt: "5 dezenas + 7 unidades = ?",
             options: ["12", "57", "75", "507"],
             answerIndex: 1,
+          },
+          {
+            prompt: "Põe do menor para o maior!",
+            kind: "order",
+            sequence: ["25", "52", "55"],
+            hint: "Olha primeiro para a dezena: 2 é menor do que 5.",
+            explanation: "25 < 52 < 55 — compara sempre as dezenas primeiro!",
           },
         ],
       },
@@ -394,6 +510,15 @@ const SUBJECTS_CORE: Subject[] = [
             prompt: "Se 4 amigos partilham 16 berlindes, quantos para cada um?",
             options: ["3", "4", "5", "6"],
             answerIndex: 1,
+          },
+          {
+            prompt: "16 balas em 4 sacos iguais — quantas balas em cada saco?",
+            kind: "count",
+            visual: { emoji: "🍬", groups: 4, perGroup: 4 },
+            options: ["2", "3", "4", "8"],
+            answerIndex: 2,
+            hint: "Conta só as balas de um saco!",
+            explanation: "16 ÷ 4 = 4: quatro sacos, quatro balas em cada.",
           },
         ],
       },
@@ -529,6 +654,13 @@ const SUBJECTS_CORE: Subject[] = [
             options: ["10", "20", "32", "16"],
             answerIndex: 1,
           },
+          {
+            prompt: "O coração trabalha sem parar, dia e noite.",
+            kind: "truefalse",
+            options: ["Verdadeiro", "Falso"],
+            answerIndex: 0,
+            explanation: "O coração bate cerca de 100 mil vezes por dia — nunca descansa!",
+          },
         ],
       },
       {
@@ -552,6 +684,13 @@ const SUBJECTS_CORE: Subject[] = [
             options: ["6", "8", "10", "4"],
             answerIndex: 1,
           },
+          {
+            prompt: "As aranhas são insetos.",
+            kind: "truefalse",
+            options: ["Verdadeiro", "Falso"],
+            answerIndex: 1,
+            explanation: "Insetos têm 6 patas — as aranhas têm 8 e são aracnídeos!",
+          },
         ],
       },
       {
@@ -567,6 +706,13 @@ const SUBJECTS_CORE: Subject[] = [
             answerIndex: 2,
           },
           { prompt: "Quantos dias tem uma semana?", options: ["5", "6", "7", "8"], answerIndex: 2 },
+          {
+            prompt: "Põe as estações do ano pela ordem, a começar na Primavera!",
+            kind: "order",
+            sequence: ["Primavera", "Verão", "Outono", "Inverno"],
+            hint: "Depois da Primavera vem o calor do Verão.",
+            explanation: "Primavera → Verão → Outono → Inverno e recomeça!",
+          },
         ],
       },
       // 3.º ano
@@ -623,6 +769,13 @@ const SUBJECTS_CORE: Subject[] = [
             prompt: "Qual é o satélite natural da Terra?",
             options: ["Sol", "Marte", "Lua", "Saturno"],
             answerIndex: 2,
+          },
+          {
+            prompt: "Põe os planetas pela ordem, do Sol para fora!",
+            kind: "order",
+            sequence: ["Mercúrio", "Vénus", "Terra"],
+            hint: "Mercúrio é o planeta mais perto do Sol.",
+            explanation: "Mercúrio, Vénus e depois a Terra — vivemos no 3.º planeta!",
           },
         ],
       },

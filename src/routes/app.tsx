@@ -13,6 +13,7 @@ import { useFastProfile } from "@/hooks/useFastProfile";
 import { AdaptiveTip } from "@/components/AdaptiveTip";
 import { MissionOfTheDay } from "@/components/MissionOfTheDay";
 import { SeasonalBanner } from "@/components/SeasonalBanner";
+import { countDue } from "@/lib/reviewQueue";
 import { Lock, Star, CheckCircle2, Crown, Play, GraduationCap } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { haptic } from "@/lib/haptics";
@@ -194,6 +195,8 @@ function AppHome() {
 
         <MissionOfTheDay completedLessons={profile.completedLessons} grade={profile.grade} />
 
+        <RevisaoMagicCard />
+
         <AdaptiveTip />
 
         {/* Quick links */}
@@ -221,6 +224,49 @@ function AppHome() {
 
       <BottomNav />
     </div>
+  );
+}
+
+// Cartão "Revisão Mágica" — só aparece quando há erros de dias anteriores
+// à espera de revisão (prática espaçada: o momento certo para a memória).
+function RevisaoMagicCard() {
+  const [due, setDue] = useState(0);
+  useEffect(() => {
+    setDue(countDue());
+  }, []);
+  if (due <= 0) return null;
+  return (
+    <motion.section
+      initial={{ opacity: 0, y: 14 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="card-chunky rounded-3xl border-2 border-primary/30 bg-gradient-to-br from-primary/15 via-card to-secondary/15 p-4"
+    >
+      <Link
+        to="/revisao"
+        onClick={() => haptic("tap")}
+        className="flex items-center gap-3"
+        aria-label={`Revisão Mágica: ${due} perguntas para rever`}
+      >
+        <motion.span
+          animate={{ rotate: [0, -12, 12, 0] }}
+          transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
+          className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-primary/15 text-3xl"
+        >
+          🪄
+        </motion.span>
+        <div className="min-w-0 flex-1">
+          <p className="font-display text-lg leading-tight">
+            Revisão Mágica · {due} {due === 1 ? "pergunta" : "perguntas"}
+          </p>
+          <p className="text-sm text-muted-foreground">
+            As que fugiram voltaram — treina e ganha +1 moeda cada!
+          </p>
+        </div>
+        <span className="btn-chunky shrink-0 rounded-full bg-primary px-5 py-2.5 font-display text-sm text-primary-foreground shadow-md">
+          Rever ✨
+        </span>
+      </Link>
+    </motion.section>
   );
 }
 

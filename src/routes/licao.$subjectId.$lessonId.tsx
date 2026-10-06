@@ -15,11 +15,14 @@ import { LessonCompleteScreen } from "@/components/LessonCompleteScreen";
 import { ComboTracker, ComboPopup } from "@/components/ComboTracker";
 import { getLesson, getSubject } from "@/lib/curriculum";
 import { completeLesson, loadProfile, updateProfile, type Profile } from "@/lib/storage";
+import { addMistake, markReviewed, reviewId } from "@/lib/reviewQueue";
+import { hintForQuestion, scrambleOrder } from "@/lib/questionDisplay";
+import { OrderQuestion } from "@/components/OrderQuestion";
 import { getMascot, prewarmMascotEmotions } from "@/lib/mascots";
 import { playCorrect, playWrong, playLevelUp, speak, stopSpeech, ttsAvailable } from "@/lib/audio";
 import { checkAndUnlockAchievements, type Achievement } from "@/lib/achievements";
 import { useVoiceMatch, isVoiceAvailable } from "@/lib/voice";
-import { Check, Heart, Mic, Sparkles, Volume2, X } from "lucide-react";
+import { Check, GraduationCap, Heart, Lightbulb, Mic, Sparkles, Volume2, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { haptic } from "@/lib/haptics";
 import { RouteError } from "@/components/RouteError";
@@ -93,6 +96,24 @@ function LessonPage() {
   const [showComboPopup, setShowComboPopup] = useState(false);
   const [aiHint, setAiHint] = useState<string | null>(null);
   const [aiLoading, setAiLoading] = useState(false);
+  // Dica instantânea local (offline): método/estratégia após o 1.º erro.
+  const [localHint, setLocalHint] = useState<string | null>(null);
+  // Ronda "Treinar os erros" — prática de recuperação no fim da lição.
+  const [missedIdx, setMissedIdx] = useState<number[]>([]);
+  const [treino, setTreino] = useState<{
+    order: number[]; // índices de lesson.questions, baralhados
+    pos: number;
+    correct: number;
+    wrong: number[]; // posições em `order` que voltaram a falhar
+  } | null>(null);
+  const [treinoResult, setTreinoResult] = useState<{
+    correct: number;
+    total: number;
+    stillWrongIdx: number[];
+  } | null>(null);
+  // Exercícios de ordenar: peças baralhadas + escolhas (índices para scrambled).
+  const [scrambled, setScrambled] = useState<string[]>([]);
+  const [seqPicks, setSeqPicks] = useState<number[]>([]);
   const lastSpokenRef = useRef<string>("");
   const startTimeRef = useRef<number>(Date.now());
   const questionStartRef = useRef<number>(Date.now());
@@ -111,13 +132,17 @@ function LessonPage() {
     prewarmMascotEmotions(p.mascot);
   }, [navigate]);
 
+  const inTreino = treino !== null;
+  const treinoQ =
+    inTreino && treino && lesson ? lesson.questions[treino.order[treino.pos]] : undefined;
+  const q = inTreino ? treinoQ : lesson?.questions[qIndex];
   const total = lesson?.questions.length ?? 0;
+  const totalActive = inTreino ? (treino?.order.length ?? 0) : total;
+  const posActive = inTreino ? (treino?.pos ?? 0) : qIndex;
   const progress = useMemo(
-    () => (total === 0 ? 0 : ((qIndex + (revealed ? 1 : 0)) / total) * 100),
-    [qIndex, revealed, total],
+    () => (totalActive === 0 ? 0 : ((posActive + (revealed ? 1 : 0)) / totalActive) * 100),
+    [posActive, revealed, totalActive],
   );
-
-  const q = lesson?.questions[qIndex];
 
   useEffect(() => {
     if (!q || done || hearts === 0) return;
@@ -130,6 +155,16 @@ function LessonPage() {
       stopSpeech();
     };
   }, [q, done, hearts]);
+
+  // Baralha as peças ao entrar numa pergunta de ordenar (nunca já ordenada).
+  useEffect(() => {
+    if (q?.kind === "order" && q.sequence) {
+      setScrambled(scrambleOrder(q.sequence));
+    } else {
+      setScrambled([]);
+    }
+    setSeqPicks([]);
+  }, [q]);
 
   useEffect(() => () => stopSpeech(), []);
 
@@ -171,13 +206,51 @@ function LessonPage() {
     );
   }
 
-  const isCorrect = revealed && selected === q.answerIndex;
+  const isOrder = q?.kind === "order" && q.sequence !== undefined;
+  const canCheck = !q
+    ? false
+    : isOrder
+      ? seqPicks.length === (q.sequence?.length ?? 0)
+      : selected !== null;
+  const isCorrect =
+    revealed &&
+    (isOrder && q?.sequence
+      ? seqPicks.map((i) => scrambled[i]).join("\u0000") === q.sequence.join("\u0000")
+      : selected === q?.answerIndex);
+  const respostaCertaTexto = q
+    ? isOrder && q.sequence
+      ? q.sequence.join(" → ")
+      : (q.options?.[q.answerIndex ?? 0] ?? "")
+    : "";
+
+  const startTreino = (idxs: number[]) => {
+    if (idxs.length === 0) return;
+    const baralhado = [...idxs].sort(() => Math.random() - 0.5);
+    setTreinoResult(null);
+    setTreino({ order: baralhado, pos: 0, correct: 0, wrong: [] });
+    setDone(false);
+    setSelected(null);
+    setRevealed(false);
+    setWrongAttempts(0);
+    setAiHint(null);
+    setLocalHint(null);
+    setSeqPicks([]);
+    setCombo(0);
+    lastSpokenRef.current = "";
+    questionStartRef.current = Date.now();
+    reaction.react("outro");
+    haptic("tap");
+  };
 
   const onCheck = () => {
-    if (selected === null) return;
+    if (!q || revealed || !canCheck) return;
     setRevealed(true);
     const elapsed = (Date.now() - questionStartRef.current) / 1000;
-    if (selected === q.answerIndex) {
+    const right =
+      isOrder && q.sequence
+        ? seqPicks.map((i) => scrambled[i]).join("\u0000") === q.sequence.join("\u0000")
+        : selected === q.answerIndex;
+    if (right) {
       setCorrect((c) => c + 1);
       playCorrect();
       const wasFirstTry = wrongAttempts === 0;
@@ -202,29 +275,55 @@ function LessonPage() {
       if (nextCombo >= 3) {
         setShowComboPopup(true);
       }
+      if (inTreino && treino) {
+        setTreino({ ...treino, correct: treino.correct + 1 });
+        // Acertou na revisão → a pergunta sai da fila de Revisão Mágica.
+        markReviewed(reviewId(subject.id, q.prompt), true);
+      }
     } else {
-      setHearts((h) => Math.max(0, h - 1));
+      if (inTreino && treino) {
+        setTreino({ ...treino, wrong: [...treino.wrong, treino.pos] });
+        // Voltou a errar → fica na fila, revê amanhã.
+        markReviewed(reviewId(subject.id, q.prompt), false);
+      } else {
+        setHearts((h) => Math.max(0, h - 1));
+        setMissedIdx((prev) => (prev.includes(qIndex) ? prev : [...prev, qIndex]));
+        // Entra na fila da Revisão Mágica (reaparece nos dias seguintes).
+        addMistake({
+          subjectId: subject.id,
+          subjectName: subject.name,
+          lessonId: lesson.id,
+          lessonTitle: lesson.title,
+          question: q,
+        });
+      }
       setCombo(0);
       const attempts = wrongAttempts + 1;
       setWrongAttempts(attempts);
       playWrong();
       reaction.react("wrong");
-      speak(`Quase! A resposta certa é ${q.options[q.answerIndex]}.`);
+      // Dica do método, instantânea e offline (1.º erro ou treino).
+      setLocalHint(hintForQuestion(q) ?? null);
+      speak(
+        isOrder && q.sequence
+          ? `A ordem certa é: ${q.sequence.join(", ")}.`
+          : `Quase! A resposta certa é ${respostaCertaTexto}.`,
+      );
       // Após 2 tentativas erradas, busca explicação personalizada da IA.
-      if (attempts >= 2 && !aiHint && !aiLoading) {
+      if (!inTreino && attempts >= 2 && !aiHint && !aiLoading) {
         setAiLoading(true);
         fnExplainMistake({
           data: {
             question: q.prompt,
-            childAnswer: q.options[selected],
-            correctAnswer: q.options[q.answerIndex],
+            childAnswer: q.options?.[selected ?? -1] ?? "—",
+            correctAnswer: respostaCertaTexto,
             subject: subject.id,
             grade: lesson.grade,
           },
         })
           .then((res) => setAiHint(`${res.explanation} ${res.hint}`.trim()))
           .catch(() =>
-            setAiHint(`A resposta certa é "${q.options[q.answerIndex]}". Tu consegues à próxima!`),
+            setAiHint(`A resposta certa é "${respostaCertaTexto}". Tu consegues à próxima!`),
           )
           .finally(() => setAiLoading(false));
       }
@@ -232,6 +331,34 @@ function LessonPage() {
   };
 
   const onNext = () => {
+    if (inTreino && treino) {
+      if (treino.pos + 1 >= treino.order.length) {
+        // Fim do treino: +1 moeda por acerto e volta à celebração, honesto.
+        if (treino.correct > 0) {
+          const updated = updateProfile({ coins: profile.coins + treino.correct });
+          setProfile(updated);
+        }
+        setTreinoResult({
+          correct: treino.correct,
+          total: treino.order.length,
+          stillWrongIdx: treino.wrong.map((p) => treino.order[p]),
+        });
+        setTreino(null);
+        setDone(true);
+        playLevelUp();
+        reaction.react("outro");
+        confetti({ particleCount: 140, spread: 95, origin: { y: 0.6 } });
+      } else {
+        setTreino({ ...treino, pos: treino.pos + 1 });
+        setSelected(null);
+        setRevealed(false);
+        setWrongAttempts(0);
+        setAiHint(null);
+        setLocalHint(null);
+        questionStartRef.current = Date.now();
+      }
+      return;
+    }
     if (qIndex + 1 >= total) {
       const finalCorrect = correct + (isCorrect ? 1 : 0);
       const durationSeconds = Math.round((Date.now() - startTimeRef.current) / 1000);
@@ -278,6 +405,7 @@ function LessonPage() {
       setRevealed(false);
       setWrongAttempts(0);
       setAiHint(null);
+      setLocalHint(null);
       questionStartRef.current = Date.now();
     }
   };
@@ -300,6 +428,13 @@ function LessonPage() {
         bonusXp={bonusXp}
         maxCombo={maxCombo}
         shareInfo={{ subjectId: subjectId, lessonId: lessonId }}
+        missedCount={treinoResult ? treinoResult.stillWrongIdx.length : missedIdx.length}
+        onTrainErrors={
+          (treinoResult ? treinoResult.stillWrongIdx.length : missedIdx.length) > 0
+            ? () => startTreino(treinoResult ? treinoResult.stillWrongIdx : missedIdx)
+            : undefined
+        }
+        reviewResult={treinoResult}
         onContinue={() => navigate({ to: "/app" })}
         onRetry={() => window.location.reload()}
         nextLesson={null}
@@ -349,26 +484,33 @@ function LessonPage() {
               />
             </div>
             <ComboTracker combo={combo} variant="inline" />
-            <div className="flex items-center gap-1 font-display text-destructive">
-              <motion.span
-                key={hearts}
-                initial={{ scale: 1.6, rotate: -18, opacity: 0.4 }}
-                animate={{ scale: 1, rotate: 0, opacity: 1 }}
-                transition={{ type: "spring", stiffness: 520, damping: 17 }}
-                className="inline-flex"
-              >
-                <Heart className="h-5 w-5 fill-current" />
-              </motion.span>
-              <motion.span
-                key={`h-${hearts}`}
-                initial={{ scale: 1.45 }}
-                animate={{ scale: 1 }}
-                transition={{ type: "spring", stiffness: 520, damping: 17 }}
-                className="inline-block font-semibold tabular-nums"
-              >
-                {hearts}
-              </motion.span>
-            </div>
+            {inTreino ? (
+              <div className="flex items-center gap-1 font-display text-primary">
+                <GraduationCap className="h-5 w-5" />
+                <span className="text-xs font-bold">Treino</span>
+              </div>
+            ) : (
+              <div className="flex items-center gap-1 font-display text-destructive">
+                <motion.span
+                  key={hearts}
+                  initial={{ scale: 1.6, rotate: -18, opacity: 0.4 }}
+                  animate={{ scale: 1, rotate: 0, opacity: 1 }}
+                  transition={{ type: "spring", stiffness: 520, damping: 17 }}
+                  className="inline-flex"
+                >
+                  <Heart className="h-5 w-5 fill-current" />
+                </motion.span>
+                <motion.span
+                  key={`h-${hearts}`}
+                  initial={{ scale: 1.45 }}
+                  animate={{ scale: 1 }}
+                  transition={{ type: "spring", stiffness: 520, damping: 17 }}
+                  className="inline-block font-semibold tabular-nums"
+                >
+                  {hearts}
+                </motion.span>
+              </div>
+            )}
             <SoundToggle />
           </div>
         </header>
@@ -405,82 +547,134 @@ function LessonPage() {
               </div>
             </div>
 
-            {(aiLoading || aiHint) && (
+            {(localHint || aiLoading || aiHint) && (
               <motion.div
                 initial={{ opacity: 0, y: -6 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="mb-4 flex items-start gap-2 rounded-2xl border-2 border-primary/40 bg-primary/10 px-3 py-2 text-sm"
+                className="mb-4 flex flex-col gap-2"
               >
-                <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-                <p className="leading-snug">
-                  {aiLoading ? "A pensar numa explicação fácil…" : aiHint}
-                </p>
+                {localHint && (
+                  <div className="flex items-start gap-2 rounded-2xl border-2 border-primary/40 bg-primary/10 px-3 py-2 text-sm">
+                    <Lightbulb className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                    <p className="leading-snug">
+                      <span className="font-display font-bold">Dica: </span>
+                      {localHint}
+                    </p>
+                  </div>
+                )}
+                {(aiLoading || aiHint) && (
+                  <div className="flex items-start gap-2 rounded-2xl border-2 border-primary/40 bg-primary/10 px-3 py-2 text-sm">
+                    <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                    <p className="leading-snug">
+                      {aiLoading ? "A pensar numa explicação fácil…" : aiHint}
+                    </p>
+                  </div>
+                )}
               </motion.div>
             )}
 
-            <div className="grid gap-2.5 sm:grid-cols-2 sm:gap-3">
-              {q.options.map((opt, i) => {
-                const isSel = selected === i;
-                const showCorrect = revealed && i === q.answerIndex;
-                const showWrong = revealed && isSel && i !== q.answerIndex;
-                return (
-                  <motion.button
-                    key={`${qIndex}-${i}`}
-                    whileTap={{ scale: revealed ? 1 : 0.96 }}
-                    disabled={revealed}
-                    onClick={() => {
-                      setSelected(i);
-                      speak(opt, { rate: 1 });
-                      haptic("tap");
-                    }}
-                    initial={{ opacity: 0, y: 18, scale: 0.95 }}
-                    animate={
-                      showWrong
-                        ? { opacity: 1, y: 0, scale: 1, x: [0, -9, 9, -6, 6, 0] }
-                        : showCorrect
-                          ? { opacity: 1, y: 0, scale: [1, 1.07, 1], x: 0 }
-                          : { opacity: 1, y: 0, scale: 1, x: 0 }
-                    }
-                    transition={
-                      showWrong
-                        ? { duration: 0.5, ease: "easeOut", x: { duration: 0.45 } }
-                        : showCorrect
-                          ? {
-                              duration: 0.4,
-                              scale: { type: "spring", stiffness: 340, damping: 13 },
-                            }
-                          : {
-                              delay: 0.06 + i * 0.055,
-                              type: "spring",
-                              stiffness: 300,
-                              damping: 24,
-                            }
-                    }
-                    className={cn(
-                      "card-chunky flex min-h-[60px] items-center rounded-2xl border-2 border-border bg-card px-4 py-4 text-left font-display text-base transition-all sm:text-lg",
-                      isSel && !revealed && "border-primary ring-4 ring-primary/25",
-                      showCorrect &&
-                        "border-success bg-success/15 text-success shadow-[0_0_18px_2px_rgba(124,209,110,0.4)]",
-                      showWrong && "border-destructive bg-destructive/10 text-destructive",
-                    )}
-                  >
-                    <motion.span
-                      initial={false}
-                      animate={
-                        isSel && !revealed
-                          ? { scale: 1.12, rotate: [0, -7, 0] }
-                          : { scale: 1, rotate: 0 }
-                      }
-                      transition={{ type: "spring", stiffness: 420, damping: 14 }}
-                      className="mr-3 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-muted text-sm"
-                    >
-                      {String.fromCharCode(65 + i)}
-                    </motion.span>
-                    <span className="flex-1">{opt}</span>
-                  </motion.button>
-                );
-              })}
-            </div>
+            {q.kind === "order" && q.sequence ? (
+              <OrderQuestion
+                sequence={q.sequence}
+                scrambled={scrambled}
+                picks={seqPicks}
+                revealed={revealed}
+                isCorrect={isCorrect}
+                onPick={(idx) => setSeqPicks((p) => [...p, idx])}
+                onUnpick={(pos) => setSeqPicks((p) => p.filter((_, i) => i !== pos))}
+              />
+            ) : (
+              <>
+                {q.kind === "count" && q.visual && <CountGrid visual={q.visual} />}
+                <div
+                  className={cn(
+                    "grid gap-2.5 sm:gap-3",
+                    q.kind === "truefalse" ? "grid-cols-2" : "sm:grid-cols-2",
+                  )}
+                >
+                  {(q.options ?? []).map((opt, i) => {
+                    const isTF = q.kind === "truefalse";
+                    const isSel = selected === i;
+                    const showCorrect = revealed && i === q.answerIndex;
+                    const showWrong = revealed && isSel && i !== q.answerIndex;
+                    return (
+                      <motion.button
+                        key={`${posActive}-${i}`}
+                        whileTap={{ scale: revealed ? 1 : 0.96 }}
+                        disabled={revealed}
+                        onClick={() => {
+                          setSelected(i);
+                          speak(opt, { rate: 1 });
+                          haptic("tap");
+                        }}
+                        initial={{ opacity: 0, y: 18, scale: 0.95 }}
+                        animate={
+                          showWrong
+                            ? { opacity: 1, y: 0, scale: 1, x: [0, -9, 9, -6, 6, 0] }
+                            : showCorrect
+                              ? { opacity: 1, y: 0, scale: [1, 1.07, 1], x: 0 }
+                              : { opacity: 1, y: 0, scale: 1, x: 0 }
+                        }
+                        transition={
+                          showWrong
+                            ? { duration: 0.5, ease: "easeOut", x: { duration: 0.45 } }
+                            : showCorrect
+                              ? {
+                                  duration: 0.4,
+                                  scale: { type: "spring", stiffness: 340, damping: 13 },
+                                }
+                              : {
+                                  delay: 0.06 + i * 0.055,
+                                  type: "spring",
+                                  stiffness: 300,
+                                  damping: 24,
+                                }
+                        }
+                        className={cn(
+                          "card-chunky flex min-h-[60px] items-center rounded-2xl border-2 border-border bg-card px-4 py-4 text-left font-display text-base transition-all sm:text-lg",
+                          isTF && "min-h-[88px] justify-center text-center sm:text-xl",
+                          isSel && !revealed && "border-primary ring-4 ring-primary/25",
+                          showCorrect &&
+                            "border-success bg-success/15 text-success shadow-[0_0_18px_2px_rgba(124,209,110,0.4)]",
+                          showWrong && "border-destructive bg-destructive/10 text-destructive",
+                        )}
+                      >
+                        <motion.span
+                          initial={false}
+                          animate={
+                            isSel && !revealed
+                              ? { scale: 1.12, rotate: [0, -7, 0] }
+                              : { scale: 1, rotate: 0 }
+                          }
+                          transition={{ type: "spring", stiffness: 420, damping: 14 }}
+                          className={cn(
+                            "inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-muted text-sm",
+                            isTF ? "mr-0 text-xl" : "mr-3",
+                          )}
+                        >
+                          {isTF ? (i === 0 ? "✅" : "❌") : String.fromCharCode(65 + i)}
+                        </motion.span>
+                        <span className="flex-1">{opt}</span>
+                      </motion.button>
+                    );
+                  })}
+                </div>
+              </>
+            )}
+
+            {revealed && q.explanation && (
+              <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mt-4 flex items-start gap-2 rounded-2xl border-2 border-accent/40 bg-accent/15 px-3 py-2.5 text-sm"
+              >
+                <Lightbulb className="mt-0.5 h-4 w-4 shrink-0 text-accent-foreground" />
+                <p className="leading-snug">
+                  <span className="font-display font-bold">Sabias? </span>
+                  {q.explanation}
+                </p>
+              </motion.div>
+            )}
           </motion.div>
         </div>
 
@@ -528,7 +722,7 @@ function LessonPage() {
                     </p>
                     {!isCorrect && (
                       <p className="text-sm text-muted-foreground">
-                        Resposta certa: <strong>{q.options[q.answerIndex]}</strong>
+                        Resposta certa: <strong>{respostaCertaTexto}</strong>
                       </p>
                     )}
                   </div>
@@ -571,8 +765,8 @@ function LessonPage() {
               )}
               <ChunkyButton
                 onClick={onCheck}
-                disabled={selected === null}
-                className={cn("ml-auto w-full sm:w-auto", selected !== null && "cta-glow")}
+                disabled={!canCheck}
+                className={cn("ml-auto w-full sm:w-auto", canCheck && "cta-glow")}
               >
                 Verificar
               </ChunkyButton>
@@ -581,5 +775,22 @@ function LessonPage() {
         )}
       </main>
     </LessonScene>
+  );
+}
+
+// ─── Grelha visual de contagem (groups grupos de perGroup) ───
+function CountGrid({ visual }: { visual: { emoji: string; groups: number; perGroup: number } }) {
+  return (
+    <div className="mb-4 flex flex-col items-center gap-2 rounded-3xl border-2 border-border bg-card/70 p-4">
+      {Array.from({ length: Math.max(1, visual.groups) }, (_, g) => (
+        <div key={g} className="flex flex-wrap justify-center gap-1.5" aria-hidden>
+          {Array.from({ length: Math.max(1, visual.perGroup) }, (_, k) => (
+            <span key={k} className="text-3xl sm:text-4xl">
+              {visual.emoji}
+            </span>
+          ))}
+        </div>
+      ))}
+    </div>
   );
 }
