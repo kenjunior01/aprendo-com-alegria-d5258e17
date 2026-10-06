@@ -7,8 +7,7 @@ import { ChunkyButton } from "@/components/ChunkyButton";
 import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
 import { StripeEmbeddedCheckout } from "@/components/StripeEmbeddedCheckout";
 import { useServerFn } from "@tanstack/react-start";
-import { createPaypalOrder, capturePaypalOrder } from "@/lib/paypal.functions";
-import { getStripeEnvironment } from "@/lib/stripe";
+import { createPaypalOrder } from "@/lib/paypal.functions";
 import {
   Dialog,
   DialogContent,
@@ -242,13 +241,12 @@ const FAQS: Array<{ q: string; a: string }> = [
 function PremiumPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { subscription, isActive, refetch } = useSubscription();
+  const { subscription, isActive } = useSubscription();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [checkoutPriceId, setCheckoutPriceId] = useState<string | null>(null);
   const [paypalBusy, setPaypalBusy] = useState<string | null>(null);
   const [paypalMsg, setPaypalMsg] = useState<string | null>(null);
   const createPP = useServerFn(createPaypalOrder);
-  const capturePP = useServerFn(capturePaypalOrder);
 
   useEffect(() => {
     const p = loadProfile();
@@ -258,22 +256,6 @@ function PremiumPage() {
     }
     setProfile(p);
   }, [navigate]);
-
-  // Regresso do PayPal: ?paypal=ok&token=ORDERID
-  useEffect(() => {
-    if (!user || typeof window === "undefined") return;
-    const sp = new URLSearchParams(window.location.search);
-    const token = sp.get("token");
-    if (sp.get("paypal") !== "ok" || !token) {
-      if (sp.get("paypal") === "cancel") setPaypalMsg("Pagamento PayPal cancelado.");
-      return;
-    }
-    setPaypalMsg("A confirmar pagamento PayPal…");
-    capturePP({ data: { orderId: token, environment: getStripeEnvironment() } })
-      .then(() => { setPaypalMsg("✅ Pagamento PayPal confirmado! Premium ativo."); refetch(); })
-      .catch((e: any) => setPaypalMsg(`❌ ${e?.message ?? "Erro no PayPal"}`))
-      .finally(() => window.history.replaceState({}, "", "/premium"));
-  }, [user]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!profile) return <KidLoader />;
 
@@ -288,14 +270,23 @@ function PremiumPage() {
   };
 
   const handlePaypal = async (priceId: string) => {
-    if (!user) { navigate({ to: "/auth" }); return; }
+    if (!user) {
+      navigate({ to: "/auth" });
+      return;
+    }
     setPaypalBusy(priceId);
     try {
       const origin = window.location.origin;
-      const { url } = await createPP({ data: { planId: priceId, returnUrl: `${origin}/premium?paypal=ok`, cancelUrl: `${origin}/premium?paypal=cancel` } });
+      const { url } = await createPP({
+        data: {
+          planId: priceId,
+          returnUrl: `${origin}/checkout/return?via=paypal`,
+          cancelUrl: `${origin}/checkout/return?via=paypal&cancelado=sim`,
+        },
+      });
       if (url) window.location.href = url;
-    } catch (e: any) {
-      setPaypalMsg(`❌ ${e?.message ?? "Erro no PayPal"}`);
+    } catch (e: unknown) {
+      setPaypalMsg(`❌ ${e instanceof Error ? e.message : "Erro no PayPal"}`);
       setPaypalBusy(null);
     }
   };
@@ -552,7 +543,10 @@ function PremiumPage() {
           Escolhe o teu plano
         </h2>
         {paypalMsg && (
-          <p role="status" className="mt-2 rounded-2xl border border-border bg-card p-3 text-sm font-display">
+          <p
+            role="status"
+            className="mt-2 rounded-2xl border border-border bg-card p-3 text-sm font-display"
+          >
             {paypalMsg}
           </p>
         )}
@@ -594,7 +588,10 @@ function PremiumPage() {
                     </ChunkyButton>
                   ) : (
                     <div className="space-y-2">
-                      <ChunkyButton onClick={() => handleSubscribe(plan.priceId)} className="w-full">
+                      <ChunkyButton
+                        onClick={() => handleSubscribe(plan.priceId)}
+                        className="w-full"
+                      >
                         <Sparkles className="mr-1 inline h-4 w-4" /> {plan.cta}
                       </ChunkyButton>
                       <ChunkyButton
@@ -722,8 +719,8 @@ function PremiumPage() {
           <div className="flex-1 text-center sm:text-left">
             <p className="font-display text-lg">Loja Kidoz — a aventura continua fora do ecrã 🎁</p>
             <p className="text-sm text-muted-foreground">
-              Os membros Família Anual recebem <b>itens exclusivos todos os meses</b> —
-              livros de atividades, materiais escolares e merchandising com as mascotes.
+              Os membros Família Anual recebem <b>itens exclusivos todos os meses</b> — livros de
+              atividades, materiais escolares e merchandising com as mascotes.
             </p>
           </div>
           <Link to="/merch" className="shrink-0">
