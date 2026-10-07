@@ -222,6 +222,11 @@ function ProfilePage() {
               🏆 Ver conquistas
             </ChunkyButton>
           </Link>
+          <Link to="/ajuda">
+            <ChunkyButton tone="secondary" className="w-full">
+              ❓ Ajuda e perguntas frequentes
+            </ChunkyButton>
+          </Link>
           <Link to="/convites">
             <ChunkyButton tone="secondary" className="w-full">
               🎁 Convitar amigos — ganha Premium!

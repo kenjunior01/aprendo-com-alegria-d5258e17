@@ -65,7 +65,12 @@ export const CHAPTERS: Chapter[] = [
     themeColorVar: "--pt-math",
     bgGradient: "from-[oklch(0.94_0.05_230)] to-[oklch(0.9_0.08_220)]",
     grade: 1,
-    missions: pick("matematica", ["mat-contar", "mat-somas"]),
+    missions: pick("matematica", [
+      "mat-contar",
+      "mat-somas",
+      "boost-mat-somar20",
+      "boost-mat-subtrair",
+    ]),
   },
   {
     id: "pais-magico",
@@ -77,7 +82,7 @@ export const CHAPTERS: Chapter[] = [
     themeColorVar: "--pt-world",
     bgGradient: "from-[oklch(0.94_0.06_145)] to-[oklch(0.9_0.09_155)]",
     grade: 1,
-    missions: pick("estudo-do-meio", ["em-portugal"]),
+    missions: pick("estudo-do-meio", ["em-portugal", "boost-edm-corpo"]),
   },
 
   // === 2.º ANO === Floresta das Palavras
@@ -91,7 +96,7 @@ export const CHAPTERS: Chapter[] = [
     themeColorVar: "--pt-portuguese",
     bgGradient: "from-[oklch(0.95_0.05_120)] to-[oklch(0.9_0.08_100)]",
     grade: 2,
-    missions: pick("portugues", ["pt-singular-plural", "pt-masc-fem"]),
+    missions: pick("portugues", ["pt-singular-plural", "pt-masc-fem", "boost-pt-silabas"]),
   },
   {
     id: "torre-tabuada",
@@ -103,7 +108,13 @@ export const CHAPTERS: Chapter[] = [
     themeColorVar: "--pt-math",
     bgGradient: "from-[oklch(0.94_0.05_270)] to-[oklch(0.9_0.08_280)]",
     grade: 2,
-    missions: pick("matematica", ["mat-subtracoes", "mat-tabuada-2", "mat-dezenas"]),
+    missions: pick("matematica", [
+      "mat-subtracoes",
+      "mat-tabuada-2",
+      "mat-dezenas",
+      "boost-mat-tabuada2",
+      "boost-mat-formas",
+    ]),
   },
   {
     id: "corpo-natureza",
@@ -115,7 +126,13 @@ export const CHAPTERS: Chapter[] = [
     themeColorVar: "--pt-world",
     bgGradient: "from-[oklch(0.94_0.06_140)] to-[oklch(0.9_0.09_170)]",
     grade: 2,
-    missions: pick("estudo-do-meio", ["em-corpo", "em-natureza", "em-tempo"]),
+    missions: pick("estudo-do-meio", [
+      "em-corpo",
+      "em-natureza",
+      "em-tempo",
+      "boost-edm-familia",
+      "boost-edm-natureza",
+    ]),
   },
 
   // === 3.º ANO === Castelo da Gramática
@@ -129,7 +146,13 @@ export const CHAPTERS: Chapter[] = [
     themeColorVar: "--pt-portuguese",
     bgGradient: "from-[oklch(0.93_0.06_50)] to-[oklch(0.88_0.1_30)]",
     grade: 3,
-    missions: pick("portugues", ["pt-substantivos", "pt-adjetivos", "pt-verbos"]),
+    missions: pick("portugues", [
+      "pt-substantivos",
+      "pt-adjetivos",
+      "pt-verbos",
+      "boost-pt-plural",
+      "boost-pt-verbos",
+    ]),
   },
   {
     id: "laboratorio-numeros",
@@ -141,7 +164,12 @@ export const CHAPTERS: Chapter[] = [
     themeColorVar: "--pt-math",
     bgGradient: "from-[oklch(0.93_0.06_240)] to-[oklch(0.88_0.1_260)]",
     grade: 3,
-    missions: pick("matematica", ["mat-tabuada-5", "mat-divisoes", "mat-tabuada-mista"]),
+    missions: pick("matematica", [
+      "mat-tabuada-5",
+      "mat-divisoes",
+      "mat-tabuada-mista",
+      "boost-mat-horas",
+    ]),
   },
   {
     id: "expedicao-portugal",
@@ -153,7 +181,7 @@ export const CHAPTERS: Chapter[] = [
     themeColorVar: "--pt-world",
     bgGradient: "from-[oklch(0.93_0.06_160)] to-[oklch(0.88_0.1_180)]",
     grade: 3,
-    missions: pick("estudo-do-meio", ["em-distritos", "em-sistema-solar"]),
+    missions: pick("estudo-do-meio", ["em-distritos", "em-sistema-solar", "boost-edm-mocambique"]),
   },
 
   // === 4.º ANO === Galáxia do Saber
@@ -167,7 +195,7 @@ export const CHAPTERS: Chapter[] = [
     themeColorVar: "--pt-portuguese",
     bgGradient: "from-[oklch(0.92_0.07_40)] to-[oklch(0.86_0.11_20)]",
     grade: 4,
-    missions: pick("portugues", ["pt-pronomes", "pt-pontuacao"]),
+    missions: pick("portugues", ["pt-pronomes", "pt-pontuacao", "boost-pt-ortografia"]),
   },
   {
     id: "estacao-fracoes",
@@ -179,7 +207,12 @@ export const CHAPTERS: Chapter[] = [
     themeColorVar: "--pt-math",
     bgGradient: "from-[oklch(0.92_0.07_220)] to-[oklch(0.86_0.11_250)]",
     grade: 4,
-    missions: pick("matematica", ["mat-fracoes-intro", "mat-fracoes-comparar", "mat-tabuada-7"]),
+    missions: pick("matematica", [
+      "mat-fracoes-intro",
+      "mat-fracoes-comparar",
+      "mat-tabuada-7",
+      "boost-mat-problemas",
+    ]),
   },
   {
     id: "guardioes-planeta",
@@ -191,22 +224,97 @@ export const CHAPTERS: Chapter[] = [
     themeColorVar: "--pt-world",
     bgGradient: "from-[oklch(0.92_0.07_140)] to-[oklch(0.86_0.11_170)]",
     grade: 4,
-    missions: pick("estudo-do-meio", ["em-historia", "em-ambiente"]),
+    missions: pick("estudo-do-meio", ["em-historia", "em-ambiente", "boost-edm-agua"]),
+  },
+
+  // === MUNDOS DE DESCOBERTA === matérias extra, ordenadas do fácil ao difícil
+  {
+    id: "ilha-do-ingles",
+    number: 13,
+    title: "Ilha do Inglês",
+    subtitle: "Início · Inglês",
+    story: "Hello, friend! A Mocha trouxe palavras mágicas de longe. Vamos aprendê-las juntos!",
+    emoji: "🇬🇧",
+    themeColorVar: "--pt-english",
+    bgGradient: "from-[oklch(0.94_0.05_300)] to-[oklch(0.9_0.08_290)]",
+    grade: 1,
+    missions: pick("ingles", [
+      "en-saudacoes",
+      "en-cores",
+      "en-numeros",
+      "boost-en-colors",
+      "en-familia",
+      "en-animais",
+      "boost-en-numbers",
+      "boost-en-animals",
+    ]),
+  },
+  {
+    id: "caminho-do-bem",
+    number: 14,
+    title: "Caminho do Bem",
+    subtitle: "Todos os anos · Cidadania",
+    story: "O Tito acredita em ti: vamos aprender a ser bons amigos e a cuidar do planeta.",
+    emoji: "🤝",
+    themeColorVar: "--pt-civic",
+    bgGradient: "from-[oklch(0.95_0.05_70)] to-[oklch(0.92_0.08_60)]",
+    grade: 1,
+    missions: pick("cidadania", [
+      "cid-respeito",
+      "boost-cid-emocoes",
+      "cid-ambiente",
+      "cid-seguranca",
+      "boost-cid-ambiente",
+    ]),
+  },
+  {
+    id: "laboratorio-curioso",
+    number: 15,
+    title: "Laboratório Curioso",
+    subtitle: "Todos os anos · Ciências",
+    story: "Pipoca vestiu a bata de cientista. Vamos descobrir animais, plantas, energia e mais!",
+    emoji: "🔬",
+    themeColorVar: "--pt-science",
+    bgGradient: "from-[oklch(0.94_0.05_210)] to-[oklch(0.9_0.08_200)]",
+    grade: 2,
+    missions: pick("ciencias", [
+      "boost-cie-animais",
+      "ci-animais",
+      "ci-plantas",
+      "ci-tempo",
+      "boost-cie-plantas",
+      "ci-estados",
+      "ci-energia",
+    ]),
+  },
+  {
+    id: "torre-do-ingles",
+    number: 16,
+    title: "Torre do Inglês",
+    subtitle: "Aventureiros · Inglês",
+    story: "Sobe a torre com corpo, comida e verbos — para falar inglês como um campeão!",
+    emoji: "🗼",
+    themeColorVar: "--pt-english",
+    bgGradient: "from-[oklch(0.92_0.06_300)] to-[oklch(0.88_0.09_290)]",
+    grade: 3,
+    missions: pick("ingles", ["en-corpo", "en-comida", "boost-en-greetings", "en-verbos"]),
   },
 ];
 
 export const getChapter = (id: string) => CHAPTERS.find((c) => c.id === id);
 
-export const chaptersForGrade = (grade: number) =>
-  CHAPTERS.filter((c) => c.grade <= grade + 1); // mostra o ano e o seguinte
+export const chaptersForGrade = (grade: number) => CHAPTERS.filter((c) => c.grade <= grade + 1); // mostra o ano e o seguinte
 
-export const totalMissions = () =>
-  CHAPTERS.reduce((sum, c) => sum + c.missions.length, 0);
+export const totalMissions = () => CHAPTERS.reduce((sum, c) => sum + c.missions.length, 0);
 
 export const isChapterComplete = (chapter: Chapter, completedLessons: string[]) =>
   chapter.missions.every((m) => completedLessons.includes(m.lessonId));
 
 export const chapterProgress = (chapter: Chapter, completedLessons: string[]) => {
   const done = chapter.missions.filter((m) => completedLessons.includes(m.lessonId)).length;
-  return { done, total: chapter.missions.length, pct: chapter.missions.length ? done / chapter.missions.length : 0 };
+  return {
+    done,
+    total: chapter.missions.length,
+    pct: chapter.missions.length ? done / chapter.missions.length : 0,
+  };
 };

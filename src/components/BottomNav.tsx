@@ -1,13 +1,5 @@
 import { Link, useLocation } from "@tanstack/react-router";
-import {
-  Map as MapIcon,
-  BookOpen,
-  Trophy,
-  BarChart3,
-  User,
-  Swords,
-  HelpCircle,
-} from "lucide-react";
+import { Map as MapIcon, Trophy, BarChart3, User, Swords } from "lucide-react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
@@ -15,9 +7,11 @@ import { loadProfile } from "@/lib/storage";
 import { Mascot } from "./Mascot";
 
 /**
- * Mobile-first bottom navigation — Premium Design
- * Large icons (~28px), generous touch targets (>=64px tall),
- * short labels, mascot as tutor entry point.
+ * Mobile-first bottom navigation — Foco no que ensina
+ * 5 abas apenas (uma criança de 6 anos não precisa de mais):
+ * Início · Desafios · O Meu Amigo (centro) · Prémios · Eu.
+ * Ler em voz alta, Jardim, Mundo, RA e Ajuda vivem na home
+ * ("Descobrir mais") e no perfil — a um toque, sem disputar atenção.
  * Hidden on md+ where in-page navigation is sufficient.
  */
 export function BottomNav() {
@@ -45,19 +39,11 @@ export function BottomNav() {
           to: "/app",
           label: "Início",
           icon: MapIcon,
-          match: (p) => p === "/app" || p.startsWith("/licao") || p.startsWith("/capitulo"),
-        },
-        {
-          to: "/leitura",
-          label: "Explorar",
-          icon: BookOpen,
-          match: (p) => p.startsWith("/leitura") || p.startsWith("/ra") || p.startsWith("/jardim"),
-        },
-        {
-          to: "/amigo",
-          label: "O Meu Amigo",
-          mascot: true,
-          match: (p) => p.startsWith("/amigo") || p.startsWith("/tutor"),
+          match: (p) =>
+            p === "/app" ||
+            p.startsWith("/licao") ||
+            p.startsWith("/capitulo") ||
+            p.startsWith("/revisao"),
         },
         {
           to: "/desafios",
@@ -66,12 +52,17 @@ export function BottomNav() {
           match: (p) => p.startsWith("/desafios"),
         },
         {
+          to: "/amigo",
+          label: "O Meu Amigo",
+          mascot: true,
+          match: (p) => p.startsWith("/amigo") || p.startsWith("/tutor"),
+        },
+        {
           to: "/conquistas",
           label: "Prémios",
           icon: Trophy,
           match: (p) => p.startsWith("/conquistas") || p.startsWith("/loja"),
         },
-        { to: "/ajuda", label: "Ajuda", icon: HelpCircle, match: (p) => p.startsWith("/ajuda") },
         { to: "/perfil", label: "Eu", icon: User, match: (p) => p.startsWith("/perfil") },
       ];
 

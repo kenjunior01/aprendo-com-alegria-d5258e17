@@ -28,29 +28,26 @@ export function AdaptiveTip() {
     let cancelled = false;
     setLoading(true);
     getAdaptiveRecommendation()
-      .then((r) => { if (!cancelled) setReco(r); })
+      .then((r) => {
+        if (!cancelled) setReco(r);
+      })
       .catch(() => {})
-      .finally(() => { if (!cancelled) setLoading(false); });
-    return () => { cancelled = true; };
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
   }, [user]);
 
-  if (!user) {
-    return (
-      <motion.div
-        initial={{ opacity: 0, y: 8 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="card-chunky mb-5 rounded-3xl border-2 border-dashed border-border bg-card/70 p-4 text-sm text-muted-foreground"
-      >
-        💡 Cria uma conta para receberes dicas personalizadas do teu tutor mágico.
-      </motion.div>
-    );
-  }
+  // Sem conta: nada de "nags" — a criança apenas aprende.
+  // A dica do tutor mágico é um extra para quem tem conta.
+  if (!user) return null;
 
   if (loading) {
     return (
       <div className="card-chunky mb-5 flex items-center gap-3 rounded-3xl border border-border bg-card p-4 text-sm text-muted-foreground">
-        <Loader2 className="h-4 w-4 animate-spin" />
-        A pensar na próxima missão para ti…
+        <Loader2 className="h-4 w-4 animate-spin" />A pensar na próxima missão para ti…
       </div>
     );
   }

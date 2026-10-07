@@ -13,6 +13,7 @@ import { motion } from "framer-motion";
 import { GraduationCap, MessageCircle, X } from "lucide-react";
 import { getRandomTriviaBoost, pickSeededTrivia, type TriviaQuestion } from "@/lib/triviaBoost";
 import { hintForPergunta } from "@/lib/hintFor";
+import { addMistake } from "@/lib/reviewQueue";
 import { haptic } from "@/lib/haptics";
 import { playCorrect, playWrong } from "@/lib/audio";
 import { cn } from "@/lib/utils";
@@ -115,7 +116,23 @@ export function LightningQuiz({
       haptic("success");
       timerRef.current = window.setTimeout(() => avancar(emRevisao), MS_ACERTO);
     } else {
-      if (!emRevisao) setMissed((m) => (m.includes(q) ? m : [...m, q]));
+      if (!emRevisao) {
+        setMissed((m) => (m.includes(q) ? m : [...m, q]));
+        // Um só sistema de revisão: erros do quiz entram na Revisão Mágica
+        // (voltam amanhã, até acertar — prática espaçada sem esforço extra).
+        addMistake({
+          subjectId: "geral",
+          subjectName: "Quiz Relâmpago",
+          lessonId: "quiz-relampago",
+          lessonTitle: "Quiz Relâmpago",
+          question: {
+            prompt: q.prompt,
+            options: q.options,
+            answerIndex: q.answerIndex,
+            hint: q.hint,
+          },
+        });
+      }
       playWrong();
       haptic("error");
       timerRef.current = window.setTimeout(() => avancar(emRevisao), MS_ERRO);

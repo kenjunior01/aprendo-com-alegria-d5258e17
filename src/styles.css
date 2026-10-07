@@ -143,6 +143,9 @@
   --pt-portuguese: oklch(0.65 0.2 22);   /* Warm red-orange — Portuguese */
   --pt-math: oklch(0.62 0.18 250);       /* Deep blue — Mathematics */
   --pt-world: oklch(0.68 0.18 148);      /* Fresh green — World Studies */
+  --pt-english: oklch(0.6 0.18 300);     /* Royal violet — English */
+  --pt-science: oklch(0.62 0.14 210);    /* Teal — Sciences */
+  --pt-civic: oklch(0.68 0.16 70);       /* Golden amber — Citizenship */
 
   /* ─── Gamification Colors ─── */
   --streak: oklch(0.72 0.2 55);          /* Flame orange */
@@ -203,6 +206,9 @@
   --pt-portuguese: oklch(0.7 0.2 22);
   --pt-math: oklch(0.7 0.18 250);
   --pt-world: oklch(0.72 0.18 148);
+  --pt-english: oklch(0.66 0.18 300);
+  --pt-science: oklch(0.68 0.14 210);
+  --pt-civic: oklch(0.74 0.16 70);
   --streak: oklch(0.74 0.2 55);
   --xp: oklch(0.78 0.17 90);
   --gem: oklch(0.72 0.16 200);
