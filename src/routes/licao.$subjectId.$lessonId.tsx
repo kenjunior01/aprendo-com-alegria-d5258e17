@@ -12,8 +12,9 @@ import { LessonScene } from "@/components/LessonScene";
 import { ChunkyButton } from "@/components/ChunkyButton";
 import { SoundToggle } from "@/components/SoundToggle";
 import { LessonCompleteScreen } from "@/components/LessonCompleteScreen";
+import { HeartRevive } from "@/components/HeartRevive";
 import { ComboTracker, ComboPopup } from "@/components/ComboTracker";
-import { getLesson, getSubject } from "@/lib/curriculum";
+import { getLesson, getSubject, type Question } from "@/lib/curriculum";
 import { completeLesson, loadProfile, updateProfile, type Profile } from "@/lib/storage";
 import { addMistake, markReviewed, reviewId } from "@/lib/reviewQueue";
 import { hintForQuestion, scrambleOrder } from "@/lib/questionDisplay";
@@ -117,6 +118,10 @@ function LessonPage() {
   const lastSpokenRef = useRef<string>("");
   const startTimeRef = useRef<number>(Date.now());
   const questionStartRef = useRef<number>(Date.now());
+  // Corações que ensinam: em vez de muro a 0 corações, resgate por prática
+  // de recuperação (re-respondendo os próprios erros desta lição).
+  const [revivePhase, setRevivePhase] = useState(false);
+  const [restPhase, setRestPhase] = useState(false);
   const reaction = useMascotReaction({ childName: undefined, speak: false });
 
   useEffect(() => {
@@ -442,12 +447,51 @@ function LessonPage() {
     );
   }
 
-  if (hearts === 0) {
+  const missedQuestions = revivePhase
+    ? missedIdx
+        .map((i) => lesson?.questions[i])
+        .filter(
+          (x): x is Question =>
+            !!x && Array.isArray(x.options) && typeof x.answerIndex === "number",
+        )
+    : [];
+
+  if (revivePhase && !restPhase && missedQuestions.length > 0) {
+    // Corações que ensinam: a criança recupera corações praticando os
+    // próprios erros (retrieval practice — a técnica com melhor evidência).
+    return (
+      <HeartRevive
+        questions={missedQuestions}
+        mascotId={profile.mascot}
+        equippedItemId={profile.equippedItem}
+        onDone={(gained) => {
+          if (gained > 0) {
+            setHearts(gained);
+            setRevivePhase(false);
+            // A pergunta onde parou volta a ser apresentada, fresca.
+            setSelected(null);
+            setRevealed(false);
+            setWrongAttempts(0);
+            setLocalHint(null);
+            questionStartRef.current = Date.now();
+          } else {
+            // 2 voltas sem acerto → hora de descansar (sem beco sem saída
+            // silencioso: botões claros de Voltar / Tentar outra vez).
+            setRestPhase(true);
+          }
+        }}
+      />
+    );
+  }
+
+  if (restPhase || revivePhase) {
     return (
       <main className="bg-paper flex min-h-[100dvh] flex-col items-center justify-center px-6 text-center">
         <Mascot id={profile.mascot} size="lg" equippedItemId={profile.equippedItem} />
-        <h1 className="mt-4 font-display text-4xl">Sem corações 💔</h1>
-        <p className="mt-2 text-muted-foreground">Tenta de novo, tu consegues!</p>
+        <h1 className="mt-4 font-display text-4xl">Descansa um pouco 💛</h1>
+        <p className="mt-2 text-muted-foreground">
+          Os corações repostam-se. Quando voltares, tu consegues!
+        </p>
         <div className="mt-6 flex w-full max-w-[24rem] flex-col gap-3 sm:flex-row">
           <Link to="/app" className="flex-1">
             <ChunkyButton tone="ghost" className="w-full">
@@ -729,10 +773,10 @@ function LessonPage() {
                 </div>
                 <ChunkyButton
                   tone={isCorrect ? "success" : "danger"}
-                  onClick={onNext}
+                  onClick={() => (hearts === 0 ? setRevivePhase(true) : onNext())}
                   className="w-full sm:w-auto"
                 >
-                  Continuar →
+                  {hearts === 0 ? "Ganhar corações 💪" : "Continuar →"}
                 </ChunkyButton>
               </div>
             </motion.div>

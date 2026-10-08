@@ -333,7 +333,7 @@ function DesafiosPage() {
                         <Zap className="h-8 w-8 fill-current" />
                       </div>
                       <div>
-                        <h2 className="font-display text-2xl font-bold">Missão Diária</h2>
+                        <h2 className="font-display text-2xl font-bold">Desafio do Dia</h2>
                         <p className="text-sm text-muted-foreground">Especialmente para ti</p>
                       </div>
                     </div>
@@ -343,7 +343,7 @@ function DesafiosPage() {
                   </div>
 
                   <p className="mb-8 text-lg leading-relaxed text-slate-700">
-                    Prepara-te! A tua missão de hoje é{" "}
+                    Prepara-te! O teu desafio de hoje é{" "}
                     <span className="font-black text-primary uppercase underline decoration-primary/30 underline-offset-4">
                       {aiChallenge.subject_id.replace("-", " ")}
                     </span>
@@ -373,7 +373,7 @@ function DesafiosPage() {
                       animate={{ y: 0, opacity: 1 }}
                       className="mt-4 flex items-center justify-center gap-2 text-success font-display"
                     >
-                      <Check className="h-5 w-5" /> Missão cumprida com sucesso!
+                      <Check className="h-5 w-5" /> Desafio cumprido com sucesso!
                     </motion.div>
                   )}
                 </motion.div>

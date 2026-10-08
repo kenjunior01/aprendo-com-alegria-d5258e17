@@ -10,7 +10,14 @@ interface Props {
   grade: number;
 }
 
-/** Highlight card for "Missão do Dia" — picks the next unfinished mission for the child's grade. */
+/**
+ * Highlight card for "Missão do dia".
+ *
+ * Um só sinal de "o que vem a seguir": a missão do dia é EXATAMENTE a missão
+ * AGORA do caminho (primeiro capítulo com missões por fazer, na ordem do
+ * currículo). Assim o cartão e o caminho nunca dizem coisas diferentes —
+ * a criança avança sempre na sequência pedagógica certa.
+ */
 export function MissionOfTheDay({ completedLessons, grade }: Props) {
   const [pulse, setPulse] = useState(false);
   useEffect(() => {
@@ -19,18 +26,8 @@ export function MissionOfTheDay({ completedLessons, grade }: Props) {
   }, []);
 
   const set = new Set(completedLessons);
-  // Prioridade: primeiro esgotar as missões do ano da criança; só depois
-  // usar capítulos do ano seguinte como "stretch". Assim a seed diária nunca
-  // recomenda conteúdo de um ano acima quando ainda há missões do próprio ano.
-  const day = new Date().getDate();
-  const seed = (c: (typeof CHAPTERS)[number]) => (c.number + day) % 7;
-  const inGrade = CHAPTERS.filter((c) => c.grade === grade).sort((a, b) => seed(a) - seed(b));
-  const stretchGrade = Math.min(4, grade + 1);
-  const stretch = CHAPTERS.filter((c) => c.grade === stretchGrade).sort(
-    (a, b) => seed(a) - seed(b),
-  );
-  const ordered = [...inGrade, ...stretch];
-  const chapter = ordered.find((c) => c.missions.some((m) => !set.has(m.lessonId)));
+  const visible = CHAPTERS.filter((c) => c.grade <= Math.min(4, grade + 1));
+  const chapter = visible.find((c) => c.missions.some((m) => !set.has(m.lessonId)));
   if (!chapter) return null;
   const mission = chapter.missions.find((m) => !set.has(m.lessonId)) ?? chapter.missions[0];
   const color = `var(${chapter.themeColorVar})`;
