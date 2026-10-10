@@ -14,6 +14,8 @@ import { GraduationCap, MessageCircle, X } from "lucide-react";
 import { getRandomTriviaBoost, pickSeededTrivia, type TriviaQuestion } from "@/lib/triviaBoost";
 import { hintForPergunta } from "@/lib/hintFor";
 import { addMistake } from "@/lib/reviewQueue";
+import { loadProfile } from "@/lib/storage";
+import { detectRegion, localizeQuestion } from "@/lib/region";
 import { haptic } from "@/lib/haptics";
 import { playCorrect, playWrong } from "@/lib/audio";
 import { cn } from "@/lib/utils";
@@ -53,10 +55,12 @@ export function LightningQuiz({
   onFinish,
   onChallenge,
 }: Props) {
-  const questions = useMemo<TriviaQuestion[]>(
-    () => (seed !== undefined ? pickSeededTrivia(seed, count) : getRandomTriviaBoost(count)),
-    [seed, count],
-  );
+  const questions = useMemo<TriviaQuestion[]>(() => {
+    const raw = seed !== undefined ? pickSeededTrivia(seed, count) : getRandomTriviaBoost(count);
+    // O teu país no jogo: vocabulário local (BR/AO/MZ); answerIndex intacto.
+    const region = loadProfile()?.region ?? detectRegion().code;
+    return raw.map((qq) => localizeQuestion(qq, region));
+  }, [seed, count]);
   const [fase, setFase] = useState<Fase>("jogo");
   const [lista, setLista] = useState<TriviaQuestion[]>(questions);
   const [idx, setIdx] = useState(0);

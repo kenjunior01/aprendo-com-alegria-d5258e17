@@ -75,6 +75,8 @@ interface LessonCompleteScreenProps {
   onTrainErrors?: () => void;
   /** Resultado da última ronda de treino (mostrado como feedback honesto). */
   reviewResult?: { correct: number; total: number } | null;
+  /** Curiosidade do país ("Sabias?") — só para regiões fora de PT. */
+  funFact?: string | null;
 }
 
 export function LessonCompleteScreen({
@@ -97,6 +99,7 @@ export function LessonCompleteScreen({
   missedCount = 0,
   onTrainErrors,
   reviewResult,
+  funFact,
 }: LessonCompleteScreenProps) {
   const mascot = getMascot(mascotId);
   const accuracy = total > 0 ? Math.round((correct / total) * 100) : 0;
@@ -323,6 +326,18 @@ export function LessonCompleteScreen({
             </p>
           </div>
         </motion.div>
+
+        {/* ── 6b. "Sabias?" — curiosidade do país da criança ── */}
+        {funFact && (
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1.8 }}
+            className="mt-3 px-2 text-center text-xs italic text-muted-foreground"
+          >
+            🌍 Sabias? {funFact}
+          </motion.p>
+        )}
 
         {/* ── 7. Achievement showcase ── */}
         <AnimatePresence>

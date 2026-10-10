@@ -15,6 +15,7 @@ import { MissionOfTheDay } from "@/components/MissionOfTheDay";
 import { SeasonalBanner } from "@/components/SeasonalBanner";
 import { countDue } from "@/lib/reviewQueue";
 import { loadMissions } from "@/lib/dailyMissions";
+import { REGIONS, detectRegion } from "@/lib/region";
 import { Lock, Star, CheckCircle2, Crown, Play, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { haptic } from "@/lib/haptics";
@@ -86,7 +87,9 @@ function AppHome() {
           <div className="flex items-center gap-3 sm:gap-4">
             <Mascot id={profile.mascot} size="md" bouncing equippedItemId={profile.equippedItem} />
             <div className="min-w-0 flex-1">
-              <h2 className="truncate font-display text-xl sm:text-2xl">Olá, {profile.name}! ☀️</h2>
+              <h2 className="truncate font-display text-xl sm:text-2xl">
+                Olá, {profile.name}! {REGIONS[profile.region ?? detectRegion().code]?.flag ?? "☀️"}
+              </h2>
               <p className="text-sm text-muted-foreground">
                 {profile.streak > 0
                   ? `🔥 ${profile.streak} ${profile.streak === 1 ? "dia seguido" : "dias seguidos"}!`

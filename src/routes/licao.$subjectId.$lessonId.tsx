@@ -16,6 +16,7 @@ import { HeartRevive } from "@/components/HeartRevive";
 import { ComboTracker, ComboPopup } from "@/components/ComboTracker";
 import { getLesson, getSubject, type Question } from "@/lib/curriculum";
 import { completeLesson, loadProfile, updateProfile, type Profile } from "@/lib/storage";
+import { detectRegion, localizeQuestion, regionalFunFact } from "@/lib/region";
 import { addMistake, markReviewed, reviewId } from "@/lib/reviewQueue";
 import { hintForQuestion, scrambleOrder } from "@/lib/questionDisplay";
 import { OrderQuestion } from "@/components/OrderQuestion";
@@ -77,7 +78,7 @@ function LessonPage() {
   const challengeId = search.challenge ?? null;
 
   const subject = getSubject(subjectId);
-  const lesson = getLesson(subjectId, lessonId);
+  const baseLesson = getLesson(subjectId, lessonId);
 
   const [profile, setProfile] = useState<Profile | null>(null);
   const [qIndex, setQIndex] = useState(0);
@@ -125,6 +126,26 @@ function LessonPage() {
   // Trava anti-duplo-toque do "Continuar" (ver onNext).
   const nextLockRef = useRef(false);
   const reaction = useMascotReaction({ childName: undefined, speak: false });
+
+  // O teu país no jogo: vocabulário PT-PT reescrito para a região da criança
+  // (BR/AO/MZ) em TODAS as perguntas — display, voz, treino e revisão ficam
+  // coerentes porque tudo deriva deste único objeto localizado.
+  const profileRegion = profile?.region;
+  const lesson = useMemo(() => {
+    if (!baseLesson) return baseLesson;
+    const region = profileRegion ?? detectRegion().code;
+    return {
+      ...baseLesson,
+      questions: baseLesson.questions.map((qq) => localizeQuestion(qq, region)),
+    };
+  }, [baseLesson, profileRegion]);
+
+  // "Sabias?" — curiosidade do país, calculada uma vez quando a lição acaba.
+  // (useMemo antes dos primeiros returns condicionais — regras dos hooks.)
+  const funFact = useMemo(
+    () => (done ? regionalFunFact(profileRegion ?? detectRegion().code) : null),
+    [done, profileRegion],
+  );
 
   useEffect(() => {
     const p = loadProfile();
@@ -450,6 +471,7 @@ function LessonPage() {
             : undefined
         }
         reviewResult={treinoResult}
+        funFact={funFact}
         onContinue={() => navigate({ to: "/app" })}
         onRetry={() => window.location.reload()}
         nextLesson={null}

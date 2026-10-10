@@ -28,7 +28,7 @@ import {
 import { haptic } from "@/lib/haptics";
 import { toast } from "sonner";
 import { useNavigate } from "@tanstack/react-router";
-import { REGIONS, getMozambiqueFact, localize } from "@/lib/region";
+import { REGIONS, getMozambiqueFact, localize, localizeQuestion } from "@/lib/region";
 import {
   playEat,
   playFun,
@@ -255,7 +255,7 @@ export function MascotRoom({ profile }: Props) {
       updateProfile({ energy: Math.min(100, profile.energy + 25) });
     } else if (statId === "knowledge") {
       playTap();
-      const trivia = getRandomTrivia(1)[0];
+      const trivia = localizeQuestion(getRandomTrivia(1)[0], region);
       setCurrentTrivia(trivia);
       setMood("thinking");
       setRoom("classroom");

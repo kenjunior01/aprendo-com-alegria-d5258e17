@@ -309,3 +309,75 @@ export function regionalContextPrompt(region: RegionCode, interests: string[]): 
     : "";
   return `País: ${r.country} (${r.curriculum}). Usa exemplos locais (ex: ${c.landmark} em ${c.city}, moeda ${c.currency}, rio ${c.river}). Vocabulário ${region === "BR" ? "pt-BR" : "pt-PT"}. ${interestStr}`.trim();
 }
+
+// ============ Localização de perguntas (lições, quizzes, revisão) ============
+// Substitui vocabulário PT-PT por variantes locais em TODOS os campos de texto
+// de uma pergunta. A resposta certa (answerIndex) nunca muda — prompt, opções,
+// dica e explicação são reescritos com o MESMO dicionário, por isso a pergunta
+// continua coerente. Genérico: serve para Question (currículo) e TriviaQuestion
+// (quiz relâmpago).
+
+interface LocalizableText {
+  prompt?: string;
+  options?: string[];
+  hint?: string;
+  sequence?: string[];
+  explanation?: string;
+}
+
+// Regiões com vocabulário próprio (CV mantém escrita PT-PT formal).
+const VOCAB_REGIONS: RegionCode[] = ["BR", "AO", "MZ"];
+
+export function localizeQuestion<T extends LocalizableText>(q: T, region?: RegionCode | null): T {
+  if (!region || !VOCAB_REGIONS.includes(region)) return q;
+  const vocab = vocabularyFor(region);
+  if (Object.keys(vocab).length === 0) return q;
+  return {
+    ...q,
+    prompt: q.prompt ? localize(q.prompt, region) : q.prompt,
+    options: q.options?.map((o) => localize(o, region)),
+    hint: q.hint ? localize(q.hint, region) : q.hint,
+    sequence: q.sequence?.map((s) => localize(s, region)),
+    explanation: q.explanation ? localize(q.explanation, region) : q.explanation,
+  };
+}
+
+// ============ "Sabias?" — curiosidade local no fim da lição ============
+// Uma linha leve no ecrã de conclusão para crianças fora de Portugal.
+// PT não tem factos: o ecrã base continua exatamente como estava.
+
+const BRASIL_FACTS = [
+  "O Brasil é o único país da América do Sul onde se fala português! 🇧🇷",
+  "A Amazónia, no Brasil, é a maior floresta tropical do mundo! 🌳",
+  "O Cristo Redentor, no Rio de Janeiro, é uma das 7 Maravilhas do Mundo Moderno! 🗿",
+  "O nome Brasil vem do pau-brasil, uma árvore da Mata Atlântica! 🌲",
+];
+
+const ANGOLA_FACTS = [
+  "A palanca negra gigante, símbolo de Angola, só existe em Angola! 🦌",
+  "O kwanza é a moeda de Angola! 💰",
+  "O semba, dança de Angola, é avô da samba brasileira! 💃",
+  "Luanda, a capital de Angola, fica junto ao mar Atlântico! 🌊",
+];
+
+const CABO_VERDE_FACTS = [
+  "Cabo Verde tem 10 ilhas vulcânicas no meio do Atlântico! 🌋",
+  "A morna, música de Cabo Verde, ficou famosa com Cesária Évora! 🎵",
+  "O escudo é a moeda de Cabo Verde! 💰",
+  "A praia da Laginha, em Mindelo, tem águas azul-turquesa! 🏖️",
+];
+
+const COUNTRY_FACTS: Partial<Record<RegionCode, string[]>> = {
+  BR: BRASIL_FACTS,
+  AO: ANGOLA_FACTS,
+  CV: CABO_VERDE_FACTS,
+  MZ: MOZAMBIQUE_FACTS,
+};
+
+/** Curiosidade do país da criança (null = não mostrar linha). */
+export function regionalFunFact(region?: RegionCode | null): string | null {
+  if (!region) return null;
+  const facts = COUNTRY_FACTS[region];
+  if (!facts || facts.length === 0) return null;
+  return facts[Math.floor(Math.random() * facts.length)];
+}

@@ -7,6 +7,7 @@ import { ChunkyButton } from "@/components/ChunkyButton";
 import { MASCOTS, type MascotId } from "@/lib/mascots";
 import { defaultProfile, saveProfile, type Profile } from "@/lib/storage";
 import { applyWelcomeBonus, REF_CODE_RE } from "@/lib/referral";
+import { REGION_SELECT, REGIONS, detectRegion, type RegionCode } from "@/lib/region";
 import { cn } from "@/lib/utils";
 import { RouteError } from "@/components/RouteError";
 
@@ -54,6 +55,8 @@ function Onboarding() {
   const [age, setAge] = useState(7);
   const [grade, setGrade] = useState(1);
   const [mascot, setMascot] = useState<MascotId>("fox");
+  // País da criança — pré-selecionado pelo browser (idioma/fuso), 1 toque muda.
+  const [region, setRegion] = useState<RegionCode | null>(() => detectRegion().code);
 
   const role: "child" | "parent" = track === "parent" ? "parent" : "child";
 
@@ -67,6 +70,7 @@ function Onboarding() {
       age: finalAge,
       grade: finalGrade,
       mascot,
+      region: region ?? detectRegion().code,
     };
     saveProfile(p);
     // Bónus de boas-vindas por convite (+140 moedas)
@@ -247,6 +251,32 @@ function Onboarding() {
                     {g}.º ano
                   </button>
                 ))}
+              </div>
+              <div className="w-full">
+                <p className="mb-2 text-xs font-display uppercase tracking-wide text-muted-foreground">
+                  Em que país vives?
+                </p>
+                <div role="list" className="flex flex-wrap justify-center gap-2">
+                  {REGION_SELECT.map((code) => {
+                    const r = REGIONS[code];
+                    const active = region === code;
+                    return (
+                      <button
+                        key={code}
+                        role="listitem"
+                        onClick={() => setRegion(code)}
+                        aria-pressed={active}
+                        className={cn(
+                          "flex flex-col items-center gap-0.5 rounded-2xl border-2 px-3 py-2 transition-transform active:scale-95",
+                          active ? "border-primary bg-primary/10" : "border-border bg-card",
+                        )}
+                      >
+                        <span className="text-xl">{r.flag}</span>
+                        <span className="font-display text-[11px] leading-tight">{r.country}</span>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
               <div className="flex w-full flex-col gap-3 sm:flex-row">
                 <ChunkyButton tone="ghost" onClick={() => setStep(2)} className="sm:flex-1">
