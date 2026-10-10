@@ -69,7 +69,7 @@ function Onboarding() {
       mascot,
     };
     saveProfile(p);
-    // Bónus de boas-vindas por convite (+120 moedas, +2 gemas)
+    // Bónus de boas-vindas por convite (+140 moedas)
     if (refCode) applyWelcomeBonus(refCode);
     if (track === "parent") navigate({ to: "/pais" });
     else if (track === "junior") navigate({ to: "/junior" });
@@ -99,7 +99,7 @@ function Onboarding() {
             animate={{ opacity: 1, y: 0 }}
             className="mb-4 rounded-2xl border-2 border-primary/50 bg-primary/10 px-4 py-2.5 text-center font-display text-sm text-primary"
           >
-            🎁 Foste convidado! Vais receber <b>+120 moedas</b> e <b>+2 gemas</b> ao criar o perfil.
+            🎁 Foste convidado! Vais receber <b>+140 moedas</b> ao criar o perfil.
           </motion.div>
         )}
         <div className="mb-4 flex justify-center">

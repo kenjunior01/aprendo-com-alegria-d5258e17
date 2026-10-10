@@ -14,6 +14,7 @@ import { AdaptiveTip } from "@/components/AdaptiveTip";
 import { MissionOfTheDay } from "@/components/MissionOfTheDay";
 import { SeasonalBanner } from "@/components/SeasonalBanner";
 import { countDue } from "@/lib/reviewQueue";
+import { loadMissions } from "@/lib/dailyMissions";
 import { Lock, Star, CheckCircle2, Crown, Play, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { haptic } from "@/lib/haptics";
@@ -277,6 +278,19 @@ function CompactChapterCard({
  */
 function DiscoverGrid({ profile }: { profile: Profile }) {
   const premium = isPremiumActive(profile);
+  // Progresso real das missões de hoje — convite silencioso ao Jardim sem novo bloco na home.
+  const [dailyDone, setDailyDone] = useState<{ done: number; total: number } | null>(null);
+  useEffect(() => {
+    try {
+      const s = loadMissions();
+      setDailyDone({
+        done: s.missions.filter((m) => (s.progress[m.id] ?? 0) >= m.target).length,
+        total: s.missions.length,
+      });
+    } catch {
+      setDailyDone(null);
+    }
+  }, []);
   return (
     <section aria-label="Descobrir mais" className="mt-8">
       <h2 className="mb-3 font-display text-lg text-muted-foreground">Descobrir mais</h2>
@@ -294,7 +308,16 @@ function DiscoverGrid({ profile }: { profile: Profile }) {
           title="Ler em voz alta"
           subtitle="Praticar leitura"
         />
-        <DiscoverTile to="/jardim" emoji="🌱" title="Jardim" subtitle="Missões que crescem" />
+        <DiscoverTile
+          to="/jardim"
+          emoji="🌱"
+          title="Jardim"
+          subtitle={
+            dailyDone && dailyDone.done > 0
+              ? `${dailyDone.done}/${dailyDone.total} missões hoje`
+              : "Missões que crescem"
+          }
+        />
         <DiscoverTile to="/mundo" emoji="🏠" title="Meu Mundo" subtitle="Decorar o quarto" />
         <DiscoverTile to="/ra" emoji="🥽" title="Laboratório 3D" subtitle="Mascote em RA" />
       </div>

@@ -42,12 +42,12 @@ export const Route = createFileRoute("/convites")({
       {
         name: "description",
         content:
-          "Convida amigos para o Kidoz pelo WhatsApp e ganha prémios: moedas, gemas e dias de Premium grátis!",
+          "Convida amigos para o Kidoz pelo WhatsApp e ganha prémios: moedas e dias de Premium grátis!",
       },
       { property: "og:title", content: "Convita & Ganha — Kidoz" },
       {
         property: "og:description",
-        content: "Convida amigos e ganha moedas, gemas e dias de Premium grátis!",
+        content: "Convida amigos e ganha moedas e dias de Premium grátis!",
       },
       { property: "og:url", content: "https://kidoz.online/convites" },
       { property: "og:image", content: "https://kidoz.online/og-image.jpg" },

@@ -122,6 +122,8 @@ function LessonPage() {
   // de recuperação (re-respondendo os próprios erros desta lição).
   const [revivePhase, setRevivePhase] = useState(false);
   const [restPhase, setRestPhase] = useState(false);
+  // Trava anti-duplo-toque do "Continuar" (ver onNext).
+  const nextLockRef = useRef(false);
   const reaction = useMascotReaction({ childName: undefined, speak: false });
 
   useEffect(() => {
@@ -249,6 +251,8 @@ function LessonPage() {
 
   const onCheck = () => {
     if (!q || revealed || !canCheck) return;
+    // Pergunta verificada → liberta a trava do "Continuar" desta rodada.
+    nextLockRef.current = false;
     setRevealed(true);
     const elapsed = (Date.now() - questionStartRef.current) / 1000;
     const right =
@@ -336,6 +340,12 @@ function LessonPage() {
   };
 
   const onNext = () => {
+    // Anti-duplo-toque: a barra de feedback sai com animação e o botão velho
+    // pode receber outro toque durante a saída — isso avançava 2 perguntas
+    // (ou transbordava o qIndex → "Esta lição fugiu!"). A trava fica ATIVA
+    // até à verificação da pergunta seguinte: cliques fantasma nunca passam.
+    if (nextLockRef.current) return;
+    nextLockRef.current = true;
     if (inTreino && treino) {
       if (treino.pos + 1 >= treino.order.length) {
         // Fim do treino: +1 moeda por acerto e volta à celebração, honesto.
@@ -725,9 +735,17 @@ function LessonPage() {
         <AnimatePresence>
           {revealed && (
             <motion.div
+              key={`fb-${qIndex}-${inTreino ? treino.pos : "main"}`}
               initial={{ y: 120 }}
               animate={{ y: 0 }}
-              exit={{ y: 120 }}
+              // Saída determinística e inclicável: o spring podia demorar a
+              // assentar (rAF lento/tab de fundo) e o botão velho ficava ativo
+              // por cima da pergunta seguinte.
+              exit={{
+                y: 120,
+                pointerEvents: "none",
+                transition: { duration: 0.18, ease: "easeIn" },
+              }}
               transition={{ type: "spring", stiffness: 200, damping: 22 }}
               className={cn(
                 "fixed inset-x-0 bottom-0 z-30 border-t-4",

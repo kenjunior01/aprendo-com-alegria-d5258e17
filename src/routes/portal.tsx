@@ -441,7 +441,7 @@ function PortalPage() {
               {premium
                 ? dailyAllClaimed
                   ? "Missões de hoje concluídas — és incrível! Volta amanhã por mais! 🔥"
-                  : "As Missões de Hoje esperam por ti. Escolhe um reino! ✦"
+                  : "As Missões do Portal esperam por ti. Escolhe um reino! ✦"
                 : "Toca numa ilha para experimentares a Visita Guiada grátis! 👇"}
             </p>
           </section>
@@ -475,7 +475,7 @@ function PortalPage() {
           {/* Missões Diárias do Portal */}
           <section className="mt-4 rounded-3xl border border-white/15 bg-white/5 p-4 backdrop-blur">
             <div className="flex items-center justify-between gap-2">
-              <h2 className="font-display text-lg text-white">🎯 Missões de Hoje</h2>
+              <h2 className="font-display text-lg text-white">🎯 Missões do Portal</h2>
               <span className="inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-orange-500/30 to-amber-400/30 px-3 py-1 font-display text-xs text-amber-200">
                 🔥 {daily.state.streak} dia{daily.state.streak === 1 ? "" : "s"} seguidos
               </span>

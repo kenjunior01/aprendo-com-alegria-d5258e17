@@ -207,8 +207,12 @@ export function applyProgress(ev: ProgressEvent): {
     const prev = state.progress[m.id] ?? 0;
     if (prev >= m.target) continue;
     let delta = 0;
+    // "ciencias" (Laboratório Curioso) e "estudo-do-meio" são o mesmo eixo
+    // curricular do 1.º ciclo — jogar em qualquer um credita a missão.
     const subjMatches =
-      m.subject === ev.subject || (m.subject === "leitura" && ev.subject === "leitura");
+      m.subject === ev.subject ||
+      (m.subject === "estudo-do-meio" && ev.subject === "ciencias") ||
+      (m.subject === "leitura" && ev.subject === "leitura");
     if (m.metric === "lessons" && ev.lessonsDelta && subjMatches) delta = ev.lessonsDelta;
     else if (m.metric === "correct" && ev.correctDelta && subjMatches) delta = ev.correctDelta;
     else if (m.metric === "minutes" && ev.minutesDelta)

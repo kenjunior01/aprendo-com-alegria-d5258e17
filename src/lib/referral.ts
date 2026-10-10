@@ -188,8 +188,7 @@ export function applyWelcomeBonus(refCode: string): { applied: boolean; profile?
   const p = loadProfile();
   if (!p) return { applied: false };
   const next = updateProfile({
-    coins: p.coins + 120,
-    gems: p.gems + 2,
+    coins: p.coins + 140,
     invitedBy: code,
   });
   if (typeof window !== "undefined") localStorage.setItem(key, "1");
@@ -206,7 +205,7 @@ export interface RefReward {
 
 export const MILESTONES: RefReward[] = [
   { at: 1, icon: "🪙", title: "150 Abracadinhos", desc: "Moedas para gastar na loja!" },
-  { at: 2, icon: "💎", title: "60 Gemas", desc: "Gemas brilhantes para itens raros." },
+  { at: 2, icon: "🪙", title: "600 Abracadinhos", desc: "Uma fortuna para gastar na loja!" },
   { at: 3, icon: "👑", title: "7 dias de Premium", desc: "Mundo Premium desbloqueado uma semana!" },
   { at: 5, icon: "🏆", title: "15 dias de Premium + 300 moedas", desc: "Meio mês de magia extra!" },
   { at: 8, icon: "🌟", title: "Embaixador Kidoz", desc: "30 dias de Premium + título exclusivo!" },
@@ -224,7 +223,7 @@ export function grantReward(reward: RefReward): Profile | null {
     case 1:
       return updateProfile({ coins: p.coins + 150 });
     case 2:
-      return updateProfile({ gems: p.gems + 60 });
+      return updateProfile({ coins: p.coins + 600 });
     case 3:
       return grantPremiumDays(7);
     case 5: {
