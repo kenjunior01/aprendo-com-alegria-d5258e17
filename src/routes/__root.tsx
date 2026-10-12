@@ -4,6 +4,9 @@ import { MotionConfig } from "framer-motion";
 import { UsageGuard } from "@/components/UsageGuard";
 import { CookieConsent } from "@/components/CookieConsent";
 import { InstallPrompt } from "@/components/InstallPrompt";
+import { GlobalErrorBoundary } from "@/components/GlobalErrorBoundary";
+import { OfflineBanner } from "@/components/OfflineBanner";
+import { loadProfile } from "@/lib/storage";
 import { Toaster } from "@/components/ui/sonner";
 import { installServerFnAuthInterceptor } from "@/integrations/supabase/serverFnAuth";
 import { registerServiceWorker } from "@/lib/registerSW";
@@ -190,21 +193,27 @@ function RootComponent() {
     registerServiceWorker();
     initOfflineGuard();
     void initNative();
+    // Modo leitura fácil (dislexia — A4 da auditoria): classe aplicada antes
+    // do primeiro paint de conteúdo para não haver "salto" de layout.
+    document.documentElement.classList.toggle("easy-read", !!loadProfile()?.easyRead);
   }, []);
   return (
     <MotionConfig reducedMotion="user">
-      <a
-        href="#main-content"
-        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-primary focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-primary-foreground focus:shadow-lg"
-      >
-        Saltar para o conteúdo
-      </a>
-      <Outlet />
-      <RouteFx />
-      <UsageGuard />
-      <CookieConsent />
-      <InstallPrompt />
-      <Toaster position="top-center" offset={14} />
+      <GlobalErrorBoundary>
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-primary focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-primary-foreground focus:shadow-lg"
+        >
+          Saltar para o conteúdo
+        </a>
+        <OfflineBanner />
+        <Outlet />
+        <RouteFx />
+        <UsageGuard />
+        <CookieConsent />
+        <InstallPrompt />
+        <Toaster position="top-center" offset={14} />
+      </GlobalErrorBoundary>
     </MotionConfig>
   );
 }

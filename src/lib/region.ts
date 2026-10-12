@@ -148,26 +148,18 @@ const VOCAB_BR: VocabMap = {
 const VOCAB_AO: VocabMap = {
   rapaz: "miúdo",
   pequeno_almoco: "matabicho",
+  autocarro: "machimbombo",
 };
 
 const VOCAB_MZ: VocabMap = {
+  // Só termos REALMENTE distintos do PT-PT (auditoria C1: no-ops tipo
+  // "escola"→"escola" eram ruído). Títulos de lições e nomes próprios ficam.
   pequeno_almoco: "matabicho",
   autocarro: "machimbombo",
-  estudar: "estudar",
-  escola: "escola",
-  aprender: "aprender",
-  moçambique: "Moçambique",
-  Cores: "Cores",
-  Animais: "Animais",
-  Frutas: "Frutas",
-  Estrelas: "Estrelas",
-  Províncias: "Províncias",
-  Sabores: "Sabores",
   "Fauna MZ": "Fauna de Moçambique",
+  "Rios MZ": "Rios de Moçambique",
   Ritmos: "Ritmos e Danças",
   Bandeira: "A nossa Bandeira",
-  "Rios MZ": "Rios de Moçambique",
-  Cidades: "Cidades",
   Heróis: "Heróis Nacionais",
 };
 

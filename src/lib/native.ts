@@ -74,8 +74,10 @@ export function initOfflineGuard(): void {
   if (offlineWired || typeof window === "undefined") return;
   offlineWired = true;
   window.addEventListener("offline", () => {
-    toast.error("Sem ligação à internet", {
-      description: "A Kidoz precisa de internet para sincronizar o teu progresso.",
+    // Tom calmo e verdadeiro: as lições funcionam offline (o progresso é
+    // guardado no dispositivo) — sem alarmismo (P6 da auditoria).
+    toast.info("Estás offline", {
+      description: "O teu progresso continua a ser guardado. As lições funcionam na mesma!",
     });
   });
   window.addEventListener("online", () => {

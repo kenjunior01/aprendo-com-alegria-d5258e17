@@ -45,6 +45,9 @@ export interface Profile {
   // Fica apenas no dispositivo (não sincroniza: a cloud não tem estas colunas).
   consentAt?: string | null;
   consentParentEmail?: string | null;
+  // Modo leitura fácil (dislexia — A4 da auditoria): mais espaço entre letras
+  // e linhas. Definido pelos pais em /pais; fica só no dispositivo.
+  easyRead?: boolean;
   // Histórico local de sessões (últimas 120) para o relatório semanal aos pais.
   // Fica só no dispositivo — não sincroniza (não há colunas na cloud).
   sessionHistory?: LocalSession[];
@@ -97,6 +100,7 @@ export const defaultProfile = (): Profile => ({
   sessionHistory: [],
   consentAt: null,
   consentParentEmail: null,
+  easyRead: false,
 });
 
 export const loadProfile = (): Profile | null => {

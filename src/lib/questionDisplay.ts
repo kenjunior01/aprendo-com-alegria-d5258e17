@@ -43,3 +43,40 @@ export function hintForQuestion(q: Question): string | undefined {
   }
   return hintForPergunta(q.prompt);
 }
+
+/**
+ * Baralha as opções de uma escolha múltipla (P3 da auditoria: memorizar a
+ * POSIÇÃO da resposta deixava de funcionar — a criança pensa, não decora).
+ * Mantém a coerência total: o answerIndex novo aponta para a MESMA resposta
+ * certa, por isso display, voz, dica e revisão continuam alinhados.
+ * Verdadeiro/Falso fica na ordem fixa (✅/❌ têm posição semântica) e
+ * perguntas com menos de 3 opções não valem o baralho.
+ */
+export function shuffleMcqOptions<
+  T extends {
+    options?: string[];
+    answerIndex?: number;
+    kind?: string;
+  },
+>(q: T): T {
+  if (q.kind === "truefalse") return q;
+  const opts = q.options;
+  const ans = q.answerIndex;
+  if (!Array.isArray(opts) || typeof ans !== "number" || opts.length < 3) return q;
+  const idxs = opts.map((_, i) => i);
+  let perm = idxs;
+  // Garante que a resposta certa NÃO fica no mesmo sítio (rejogadas diferentes).
+  for (let attempt = 0; attempt < 8; attempt++) {
+    perm = [...idxs];
+    for (let i = perm.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [perm[i], perm[j]] = [perm[j], perm[i]];
+    }
+    if (perm[ans] !== ans) break;
+  }
+  return {
+    ...q,
+    options: perm.map((i) => opts[i]),
+    answerIndex: perm.indexOf(ans),
+  };
+}

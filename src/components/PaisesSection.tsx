@@ -62,8 +62,9 @@ const PAISES: Record<PaisId, PaisInfo> = {
     exemploRes: "25 Kz",
     exemploPort: "candongueiro",
     exemploPortRes: "can-don-guei-ro",
-    cultura: "Contexto angolano nos exercícios e desafios",
-    culturaAtivo: false,
+    cultura:
+      "Vocabulário angolano, curiosidades no fim das lições e exemplos de Angola no tutor IA",
+    culturaAtivo: true,
   },
   cv: {
     flag: "🇨🇻",
@@ -75,8 +76,8 @@ const PAISES: Record<PaisId, PaisInfo> = {
     exemploRes: "150 Esc",
     exemploPort: "coladeira",
     exemploPortRes: "co-la-dei-ra",
-    cultura: "Contexto cabo-verdiano nos exercícios e desafios",
-    culturaAtivo: false,
+    cultura: "Curiosidades de Cabo Verde no fim das lições e exemplos cabo-verdianos no tutor IA",
+    culturaAtivo: true,
   },
   br: {
     flag: "🇧🇷",
@@ -88,8 +89,9 @@ const PAISES: Record<PaisId, PaisInfo> = {
     exemploRes: "R$ 7",
     exemploPort: "ônibus",
     exemploPortRes: "ô-ni-bus",
-    cultura: "Contexto brasileiro nos exercícios e desafios",
-    culturaAtivo: false,
+    cultura:
+      "Vocabulário brasileiro, curiosidades no fim das lições e exemplos do Brasil no tutor IA",
+    culturaAtivo: true,
   },
 };
 

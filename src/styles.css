@@ -1086,3 +1086,22 @@ iframe[src*="lovable.dev/badge"] {
 @media (prefers-reduced-motion: reduce) {
   .cta-glow { animation: none; }
 }
+
+/* ─── Modo leitura fácil (dislexia — A4 da auditoria) ─── */
+/* Ativado pelos pais em /pais: mais espaço entre letras/palavras e entre
+   linhas, texto ligeiramente maior. Sem troca de fonte (as fontes do sistema
+   já são neutras) — o espaçamento é o ajuste com melhor evidência. */
+html.easy-read {
+  font-size: 106%;
+}
+html.easy-read body {
+  letter-spacing: 0.045em;
+  word-spacing: 0.14em;
+}
+html.easy-read p,
+html.easy-read li,
+html.easy-read span,
+html.easy-read button,
+html.easy-read label {
+  line-height: 1.75;
+}

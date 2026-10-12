@@ -50,6 +50,7 @@ import {
   Search,
   ChevronUp,
   Filter,
+  BookOpenText,
 } from "lucide-react";
 import { PurchaseHistoryPanel } from "@/components/PurchaseHistoryPanel";
 import { ParentWeeklyReport } from "@/components/ParentWeeklyReport";
@@ -405,6 +406,8 @@ function ParentDashboard() {
       </header>
 
       <main id="main-content" className="mx-auto max-w-6xl px-3 py-4 sm:px-5 sm:py-6">
+        {/* Acessibilidade no dispositivo — leitura fácil para dislexia (A4) */}
+        <EasyReadCard />
         {children.length === 0 ? (
           <>
             <motion.section
@@ -1187,6 +1190,50 @@ function KPI({ icon, label, value }: { icon: React.ReactNode; label: string; val
         <p className="text-[10px] uppercase tracking-wide text-muted-foreground">{label}</p>
       </div>
       <p className="mt-1 font-display text-xl sm:text-2xl">{value}</p>
+    </div>
+  );
+}
+
+// Acessibilidade no dispositivo — modo leitura fácil (dislexia, A4 da auditoria).
+// Aplica a classe html.easy-read (CSS: mais espaço entre letras, palavras e
+// linhas). Guarda no perfil local e aplica imediatamente, sem recarregar.
+function EasyReadCard() {
+  const [easy, setEasy] = useState<boolean>(() => !!loadProfile()?.easyRead);
+  const toggle = () => {
+    const next = !easy;
+    setEasy(next);
+    updateProfile({ easyRead: next });
+    document.documentElement.classList.toggle("easy-read", next);
+  };
+  return (
+    <div className="card-chunky mb-5 flex items-center gap-4 rounded-3xl border-2 border-border bg-card p-4 sm:p-5">
+      <div className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-primary/15 text-primary">
+        <BookOpenText className="h-5 w-5" aria-hidden="true" />
+      </div>
+      <div className="min-w-0 flex-1">
+        <h2 className="font-display text-base font-bold sm:text-lg">Leitura fácil</h2>
+        <p className="text-xs text-muted-foreground sm:text-sm">
+          Mais espaço entre letras, palavras e linhas — recomendado para crianças com dislexia.
+          Aplica-se a este dispositivo.
+        </p>
+      </div>
+      <button
+        type="button"
+        role="switch"
+        aria-checked={easy}
+        onClick={toggle}
+        className={`relative inline-flex h-8 w-14 shrink-0 items-center rounded-full border-2 transition-colors ${
+          easy ? "border-primary bg-primary" : "border-border bg-muted"
+        }`}
+      >
+        <span className="sr-only">Ativar leitura fácil</span>
+        <span
+          aria-hidden="true"
+          className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform ${
+            easy ? "translate-x-7" : "translate-x-1"
+          }`}
+        />
+      </button>
     </div>
   );
 }

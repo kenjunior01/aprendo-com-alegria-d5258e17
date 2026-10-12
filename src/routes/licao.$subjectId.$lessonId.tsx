@@ -19,7 +19,7 @@ import { getStudentTeacherLesson } from "@/lib/teacherContent.functions";
 import { completeLesson, loadProfile, updateProfile, type Profile } from "@/lib/storage";
 import { detectRegion, localizeQuestion, regionalFunFact } from "@/lib/region";
 import { addMistake, markReviewed, reviewId } from "@/lib/reviewQueue";
-import { hintForQuestion, scrambleOrder } from "@/lib/questionDisplay";
+import { hintForQuestion, scrambleOrder, shuffleMcqOptions } from "@/lib/questionDisplay";
 import { OrderQuestion } from "@/components/OrderQuestion";
 import { getMascot, prewarmMascotEmotions } from "@/lib/mascots";
 import { playCorrect, playWrong, playLevelUp, speak, stopSpeech, ttsAvailable } from "@/lib/audio";
@@ -184,7 +184,10 @@ function LessonPage() {
     const region = profileRegion ?? detectRegion().code;
     return {
       ...baseLesson,
-      questions: baseLesson.questions.map((qq) => localizeQuestion(qq, region)),
+      // Localiza o vocabulário e BARALHA as opções MCQ (P3 da auditoria) —
+      // display, voz, treino e revisão derivam deste único objeto, por isso
+      // tudo fica coerente com as opções embaralhadas.
+      questions: baseLesson.questions.map((qq) => shuffleMcqOptions(localizeQuestion(qq, region))),
     };
   }, [baseLesson, profileRegion]);
 
@@ -365,7 +368,11 @@ function LessonPage() {
         // Voltou a errar → fica na fila, revê amanhã.
         markReviewed(reviewId(subject.id, q.prompt), false);
       } else {
-        setHearts((h) => Math.max(0, h - 1));
+        // Corações persistidos (G4 da auditoria): gastar coração grava já no
+        // perfil — sair da lição a meio já não "devolve" os corações gastos.
+        const nh = Math.max(0, hearts - 1);
+        setHearts(nh);
+        updateProfile({ hearts: nh });
         setMissedIdx((prev) => (prev.includes(qIndex) ? prev : [...prev, qIndex]));
         // Entra na fila da Revisão Mágica (reaparece nos dias seguintes).
         addMistake({
@@ -548,6 +555,7 @@ function LessonPage() {
         onDone={(gained) => {
           if (gained > 0) {
             setHearts(gained);
+            updateProfile({ hearts: gained });
             setRevivePhase(false);
             // A pergunta onde parou volta a ser apresentada, fresca.
             setSelected(null);
@@ -727,6 +735,7 @@ function LessonPage() {
                         key={`${posActive}-${i}`}
                         whileTap={{ scale: revealed ? 1 : 0.96 }}
                         disabled={revealed}
+                        aria-pressed={isSel}
                         onClick={() => {
                           setSelected(i);
                           speak(opt, { rate: 1 });
@@ -823,6 +832,8 @@ function LessonPage() {
                 isCorrect ? "border-success bg-success/15" : "border-destructive bg-destructive/10",
               )}
               style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+              role="status"
+              aria-live="assertive"
             >
               <div className="mx-auto flex max-w-[48rem] flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:py-5">
                 <div className="flex items-center gap-3">

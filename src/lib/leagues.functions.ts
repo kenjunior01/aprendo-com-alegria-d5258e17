@@ -27,11 +27,22 @@ export interface LeagueMemberRow {
   last_played_at: string | null;
 }
 
-const BOT_NAMES = ["Kidoz Bot", "Estrelinha", "Trovão", "Lua", "Bolinha", "Faísca", "Pipoca", "Zumbido", "Pintinho", "Nuvem"];
+const BOT_NAMES = [
+  "Kidoz Bot",
+  "Estrelinha",
+  "Trovão",
+  "Lua",
+  "Bolinha",
+  "Faísca",
+  "Pipoca",
+  "Zumbido",
+  "Pintinho",
+  "Nuvem",
+];
 const BOT_MASCOTS = ["fox", "owl", "rabbit", "panda", "lion", "turtle"];
 const BOT_DIFFICULTIES = ["easy", "easy", "medium", "medium", "hard"] as const;
 
-const pick = <T,>(a: readonly T[]) => a[Math.floor(Math.random() * a.length)];
+const pick = <T>(a: readonly T[]) => a[Math.floor(Math.random() * a.length)];
 
 // Mapeia idade (2..14) para um escalão jogável.
 export function ageToGroup(age: number | null | undefined): string {
@@ -52,8 +63,9 @@ const childInputSchema = z.object({
 // ---- helpers ---------------------------------------------------------------
 
 function randCode() {
-  return Array.from({ length: 6 }, () =>
-    "ABCDEFGHJKMNPQRSTUVWXYZ23456789"[Math.floor(Math.random() * 31)],
+  return Array.from(
+    { length: 6 },
+    () => "ABCDEFGHJKMNPQRSTUVWXYZ23456789"[Math.floor(Math.random() * 31)],
   ).join("");
 }
 
@@ -132,7 +144,14 @@ export const joinWeeklyLeague = createServerFn({ method: "POST" })
       league = (existing?.[0] as unknown as LeagueRow) ?? null;
 
       if (!league) {
-        const ends = new Date(); ends.setDate(ends.getDate() + 7);
+        // Semana COMUM (G7 da auditoria): todas as ligas terminam à mesma
+        // SEGUNDA-FEIRA — antes cada criança tinha a sua "semana" de 7 dias
+        // a partir da adesão, o que quebrava comparações e prémios semanais.
+        const ends = new Date();
+        let add = (8 - ends.getUTCDay()) % 7; // dias até segunda (UTC)
+        if (add === 0) add = 7; // criada à segunda → acaba na próxima
+        if (add < 2) add += 7; // criada ao domingo → evita liga de 1-2 dias
+        ends.setUTCDate(ends.getUTCDate() + add);
         const { data: created, error } = await supabase
           .from("leagues" as any)
           .insert({
@@ -195,7 +214,8 @@ export const addLeagueScore = createServerFn({ method: "POST" })
     const { supabase, userId } = context;
 
     // Encontra a participação dessa criança (ou única do utilizador).
-    let q = supabase.from("league_members" as any)
+    let q = supabase
+      .from("league_members" as any)
       .select("id, score, games_played")
       .eq("league_id", data.leagueId)
       .eq("user_id", userId);
@@ -204,7 +224,8 @@ export const addLeagueScore = createServerFn({ method: "POST" })
     if (!row) return { ok: false as const, error: "Não estás nesta liga." };
     const me = row as unknown as { id: string; score: number; games_played: number };
     const newScore = (me.score ?? 0) + data.points;
-    await supabase.from("league_members" as any)
+    await supabase
+      .from("league_members" as any)
       .update({
         score: newScore,
         games_played: (me.games_played ?? 0) + 1,
@@ -217,7 +238,12 @@ export const addLeagueScore = createServerFn({ method: "POST" })
       .from("league_members" as any)
       .select("id, score, user_id, bot_difficulty")
       .eq("league_id", data.leagueId);
-    const list = (all ?? []) as unknown as Array<{ id: string; score: number; user_id: string | null; bot_difficulty: string | null }>;
+    const list = (all ?? []) as unknown as Array<{
+      id: string;
+      score: number;
+      user_id: string | null;
+      bot_difficulty: string | null;
+    }>;
     const leaderScore = list.reduce((m, r) => Math.max(m, r.score ?? 0), newScore);
     const bots = list.filter((r) => !r.user_id);
     for (const b of bots) {
@@ -228,7 +254,8 @@ export const addLeagueScore = createServerFn({ method: "POST" })
         playerPoints: data.points,
       });
       if (bump > 0) {
-        await supabase.from("league_members" as any)
+        await supabase
+          .from("league_members" as any)
           .update({ score: (b.score ?? 0) + bump })
           .eq("id", b.id);
       }
@@ -239,10 +266,12 @@ export const addLeagueScore = createServerFn({ method: "POST" })
 // Tabela classificativa + estatísticas simples.
 export const getLeagueLeaderboard = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(z.object({
-    leagueId: z.string().uuid(),
-    childId: z.string().min(1).max(64).optional(),
-  }).parse)
+  .inputValidator(
+    z.object({
+      leagueId: z.string().uuid(),
+      childId: z.string().min(1).max(64).optional(),
+    }).parse,
+  )
   .handler(async ({ context, data }) => {
     const { supabase, userId } = context;
     const { data: members } = await supabase
@@ -260,7 +289,9 @@ export const getLeagueLeaderboard = createServerFn({ method: "POST" })
         .from("profiles")
         .select("id, name, mascot")
         .in("id", userIds);
-      profMap = new Map((profs ?? []).map((p) => [p.id, { name: p.name ?? "Amigo", mascot: p.mascot ?? "fox" }]));
+      profMap = new Map(
+        (profs ?? []).map((p) => [p.id, { name: p.name ?? "Amigo", mascot: p.mascot ?? "fox" }]),
+      );
     }
 
     const leaderboard = list.map((m, i) => {
@@ -268,9 +299,7 @@ export const getLeagueLeaderboard = createServerFn({ method: "POST" })
       const isMyChild = isMine && data.childId ? m.child_id === data.childId : isMine;
       const isBot = !m.user_id;
       const prof = m.user_id ? profMap.get(m.user_id) : null;
-      const name = isBot
-        ? (m.bot_name ?? "Bot")
-        : (m.child_name ?? prof?.name ?? "Amigo");
+      const name = isBot ? (m.bot_name ?? "Bot") : (m.child_name ?? prof?.name ?? "Amigo");
       return {
         rank: i + 1,
         memberId: m.id,
