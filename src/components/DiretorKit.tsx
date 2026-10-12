@@ -83,7 +83,7 @@ export function DiretorKit() {
       "Plataforma de aprendizagem em português para o 1.º ciclo (Português, Matemática e Estudo do Meio), com painel do professor, relatórios em PDF para conselhos de turma e ligação às famílias por WhatsApp. Funciona offline — ideal para tablets partilhados e redes instáveis. Sem anúncios.",
       "",
       "INVESTIMENTO",
-      `${unitLabel} por aluno/mês (IVA incluído, desconto por volume automático). Com ±${alunos} alunos: ${eur(monthly)}/mês — menos de 5 cêntimos por dia útil por aluno. Cancelamento a qualquer momento.`,
+      `${unitLabel} por aluno/mês (IVA incluído, desconto por volume automático). Com ±${alunos} alunos: ${eur(monthly)}/mês — cerca de ${Math.ceil((monthly / Math.max(1, alunos) / 21) * 100)} cêntimos por dia útil por aluno. Cancelamento a qualquer momento.`,
       pais !== "pt"
         ? `Equivalente de referência: ${fx.fmt(monthly * fx.taxa)}/mês (câmbio de referência; cobrança em euros).`
         : "",

@@ -109,8 +109,9 @@ function TermosPage() {
         <section className="mt-10">
           <h2 className="font-display text-xl sm:text-2xl">6. Pagamentos e assinaturas</h2>
           <p className="mt-3 text-sm leading-relaxed text-foreground/90">
-            Os planos premium do Kidoz incluem o <strong>Família Premium</strong> (4,99€/mês ou
-            39,99€/ano) e o <strong>plano para Escolas</strong> (0,99€/aluno/mês, com mínimo de 20
+            Os planos premium do Kidoz incluem o <strong>Família Premium</strong> (7,99€/mês ou
+            59,99€/ano) e o <strong>plano para Escolas</strong> (entre 1,19€ e 2,49€/aluno/mês
+            conforme o volume, com mínimo de 20
             alunos), com IVA incluído quando aplicável. Os pagamentos são processados de forma
             segura por Stripe e PayPal — o Kidoz não armazena dados de cartão.
           </p>

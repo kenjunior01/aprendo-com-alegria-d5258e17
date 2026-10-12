@@ -29,7 +29,7 @@ export const PAYMENTS = {
 
 /** Preço por aluno/mês em EUR — preço base de entrada (tier 20-49 alunos).
  *  Para descontos por volume usar sempre `precoPorAluno(alunos)` de schoolPricing. */
-export const PRECO_POR_ALUNO_EUR = 0.99;
+export const PRECO_POR_ALUNO_EUR = 2.49;
 
 /**
  * Plano anual: 10 meses pagos por 12 gozados (2 meses grátis).

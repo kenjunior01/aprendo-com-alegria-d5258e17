@@ -78,7 +78,7 @@ export function PremiumUpsell() {
       ) : (
         <p className="mx-auto mt-1.5 max-w-[26rem] text-sm text-muted-foreground">
           5 reinos mágicos, criaturas colecionáveis, Bazar dos Cristais e missões diárias com streak
-          🔥 — só no Premium, desde <b>3,33€/mês</b>.
+          🔥 — só no Premium, desde <b>5,00€/mês</b>.
         </p>
       )}
       <div className="mt-4 flex flex-col items-center justify-center gap-2 sm:flex-row">

@@ -225,7 +225,7 @@ function CrechesPage() {
           <p className="text-sm text-muted-foreground">
             Procuras o plano para escolas do 1.º ciclo?{" "}
             <Link to="/escolas" className="font-display text-primary underline">
-              Ver Plano Escolas (0,99€/aluno)
+              Ver Plano Escolas (desde 1,19€/aluno)
             </Link>
           </p>
         </section>

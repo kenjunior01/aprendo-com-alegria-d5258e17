@@ -197,7 +197,7 @@ const PASSOS: Record<Modo, Passo[]> = {
     {
       titulo: "Passo 8 — Subscrição com condições transparentes",
       detalhe:
-        "Desconto automático por volume (0,99€ → 0,45€ conforme o nº de alunos), fatura com NIF, cartão/PayPal/transferência e cancelamento em 2 cliques. Programa Fundador: primeiras 20 instituições têm 50% no 1.º ano.",
+        "Desconto automático por volume (2,49€ → 1,19€ conforme o nº de alunos), fatura com NIF, cartão/PayPal/transferência e cancelamento em 2 cliques. Programa Fundador: primeiras 20 instituições têm 50% no 1.º ano.",
       icone: FileDown,
     },
   ],

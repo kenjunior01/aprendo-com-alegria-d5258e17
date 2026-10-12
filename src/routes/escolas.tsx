@@ -58,11 +58,11 @@ import {
 export const Route = createFileRoute("/escolas")({
   head: () => ({
     meta: [
-      { title: "Kidoz para Escolas — desde 0,45€/aluno/mês, funciona offline" },
+      { title: "Kidoz para Escolas — desde 1,19€/aluno/mês, funciona offline" },
       {
         name: "description",
         content:
-          "Plano para escolas em Portugal, Moçambique, Angola, Cabo Verde e Brasil: desde 0,45€/aluno/mês com desconto automático por volume, 15 dias grátis. Painel do professor, fichas grátis, Estúdio do Professor e modo turma ao vivo.",
+          "Plano para escolas em Portugal, Moçambique, Angola, Cabo Verde e Brasil: desde 1,19€/aluno/mês com desconto automático por volume, 15 dias grátis. Painel do professor, fichas grátis, Estúdio do Professor e modo turma ao vivo.",
       },
       {
         property: "og:title",
@@ -352,12 +352,12 @@ function EscolasPage() {
           </p>
           <div className="mt-5">
             <div className="inline-flex items-baseline gap-2">
-              <span className="font-display text-5xl text-primary">desde 0,45€</span>
+              <span className="font-display text-5xl text-primary">desde 1,19€</span>
               <span className="text-base text-muted-foreground">/ aluno · mês</span>
             </div>
             <p className="mt-1 text-xs text-muted-foreground">
-              Desconto automático por volume — 0,99€ a partir de 20 alunos, 0,79€ com 50, 0,59€ com
-              200, 0,45€ com 500+. IVA incluído · sem negociação escondida
+              Desconto automático por volume — 2,49€ a partir de 20 alunos, 1,99€ com 50, 1,49€ com
+              200, 1,19€ com 500+. IVA incluído · sem negociação escondida
             </p>
           </div>
           <div className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-4">
@@ -697,7 +697,7 @@ function EscolasPage() {
             </a>
             <a
               href={`https://wa.me/?text=${encodeURIComponent(
-                "Olá! Tenho interesse no plano Kidoz para Escolas (desde 0,45€/aluno/mês com desconto automático). A minha instituição chama-se…",
+                "Olá! Tenho interesse no plano Kidoz para Escolas (desde 1,19€/aluno/mês com desconto automático). A minha instituição chama-se…",
               )}`}
               target="_blank"
               rel="noopener noreferrer"
@@ -710,7 +710,7 @@ function EscolasPage() {
 
           {unitario !== SCHOOL_TIERS[0].pricePerStudent && (
             <p className="mt-3 rounded-2xl bg-muted/50 px-4 py-2 text-center text-xs text-muted-foreground">
-              Honestidade total: o checkout de cartão automático serve o tier de entrada (0,99€). A
+              Honestidade total: o checkout de cartão automático serve o tier de entrada (2,49€). A
               partir de 50 alunos o desconto é aplicado na proposta/fatura — responde­mos no mesmo
               dia útil.
             </p>

@@ -9,6 +9,7 @@ import { useEffect, useState } from "react";
 import { detectRegion, regionBadgeText, REGIONS, type RegionInfo } from "@/lib/region";
 import { RouteError } from "@/components/RouteError";
 import { HomeMiniDemo } from "@/components/HomeMiniDemo";
+import { SCHOOL_TIERS, eur as eurEscolas } from "@/lib/schoolPricing";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -48,7 +49,7 @@ export const Route = createFileRoute("/")({
               name: "A Kidoz é gratuita?",
               acceptedAnswer: {
                 "@type": "Answer",
-                text: "Podes criar o perfil e experimentar lições gratuitamente. Para acesso completo existem planos para famílias, escolas (0,99€/aluno) e creches.",
+                text: "Podes criar o perfil e experimentar lições gratuitamente. Para acesso completo existem planos para famílias, escolas (desde 1,19€/aluno) e creches.",
               },
             },
             {
@@ -362,7 +363,7 @@ function Landing() {
           </Link>
           <Link to="/escolas" className="flex-1 sm:flex-none">
             <ChunkyButton tone="ghost" className="w-full">
-              🏫 Escolas — 0,99€/aluno
+              🏫 Escolas — desde 1,19€/aluno
             </ChunkyButton>
           </Link>
           <Link to="/creches" className="flex-1 sm:flex-none">
@@ -613,7 +614,7 @@ function StatsStrip() {
 const FAQS = [
   {
     q: "A Kidoz é gratuita?",
-    a: "Podes criar o perfil e experimentar lições gratuitamente. Para acesso completo existem planos para famílias, escolas (0,99€/aluno) e creches.",
+    a: "Podes criar o perfil e experimentar lições gratuitamente. Para acesso completo existem planos para famílias, escolas (desde 1,19€/aluno) e creches.",
   },
   {
     q: "É seguro para o meu filho?",
@@ -703,12 +704,12 @@ function PremiumStrip() {
       <div className="mt-5 flex flex-col items-center justify-center gap-3 sm:flex-row">
         <Link to="/premium" className="w-full sm:w-auto">
           <ChunkyButton tone="primary" className="min-h-[54px] w-full text-base">
-            Ver planos desde 3,33€/mês
+            Ver planos desde 5,00€/mês
           </ChunkyButton>
         </Link>
         <Link to="/escolas" className="w-full sm:w-auto">
           <ChunkyButton tone="ghost" className="min-h-[54px] w-full text-base">
-            🏫 Para escolas — 0,99€/aluno
+            🏫 Para escolas — desde 1,19€/aluno
           </ChunkyButton>
         </Link>
       </div>
@@ -758,7 +759,7 @@ function SchoolsTeaser({ pais }: { pais: string }) {
         </h2>
         <p className="mx-auto mt-2 max-w-[40rem] text-sm text-muted-foreground sm:text-base">
           Em 5 países: Portugal, Moçambique, Angola, Cabo Verde e Brasil. Cada aluno custa menos de
-          5 cêntimos por dia útil — e os Fundadores travam 50% de desconto no 1.º ano.
+          12 cêntimos por dia útil — e os Fundadores travam 50% de desconto no 1.º ano.
         </p>
       </div>
       <div className="mt-4 grid gap-3 md:grid-cols-3">
@@ -781,11 +782,12 @@ function SchoolsTeaser({ pais }: { pais: string }) {
       <div className="card-chunky mt-4 flex flex-col items-center gap-3 rounded-3xl border-2 border-primary/30 bg-gradient-to-br from-primary/10 to-secondary/10 p-5 sm:flex-row sm:justify-between">
         <div className="text-center sm:text-left">
           <p className="font-display text-2xl text-primary">
-            0,99€ <span className="text-sm font-normal text-muted-foreground">/ aluno · mês</span>
+            desde {eurEscolas(Math.min(...SCHOOL_TIERS.map((t) => t.pricePerStudent)))}{" "}
+            <span className="text-sm font-normal text-muted-foreground">/ aluno · mês</span>
           </p>
           <p className="text-xs text-muted-foreground">
             {fx
-              ? `≈ ${fx.fmt(0.99 * fx.taxa)} por aluno/mês · câmbio de referência, cobrança em euros`
+              ? `≈ ${fx.fmt(Math.min(...SCHOOL_TIERS.map((t) => t.pricePerStudent)) * fx.taxa)} por aluno/mês · câmbio de referência, cobrança em euros`
               : "Mínimo 20 alunos · funciona em tablets partilhados · faturação com NIF"}
           </p>
         </div>

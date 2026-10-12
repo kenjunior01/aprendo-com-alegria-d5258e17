@@ -72,13 +72,13 @@ const TRUST = [
 export const Route = createFileRoute("/premium")({
   head: () => ({
     meta: [
-      { title: "Subscrição Kidoz Premium — desde 3,33€/mês" },
+      { title: "Subscrição Kidoz Premium — desde 5,00€/mês" },
       {
         name: "description",
         content:
-          "Acesso ilimitado a todas as disciplinas, Mocha IA, modo família e relatórios. Planos a partir de 3,33€/mês.",
+          "Acesso ilimitado a todas as disciplinas, Mocha IA, modo família e relatórios. Planos a partir de 5,00€/mês.",
       },
-      { property: "og:title", content: "Kidoz Premium — desde 3,33€/mês" },
+      { property: "og:title", content: "Kidoz Premium — desde 5,00€/mês" },
       {
         property: "og:description",
         content: "Acesso ilimitado a todas as disciplinas, Mocha IA, modo família e relatórios.",
@@ -129,7 +129,7 @@ const PLANS: Plan[] = [
   {
     priceId: "familia_mensal",
     name: "Família Mensal",
-    price: "4,99€",
+    price: "7,99€",
     priceLabel: "/mês",
     perks: [
       "Tudo grátis incluído",
@@ -146,10 +146,10 @@ const PLANS: Plan[] = [
   },
   {
     priceId: "familia_anual",
-    badge: "Mais popular · Poupa 33%",
+    badge: "Mais popular · Poupa 37%",
     name: "Família Anual",
-    price: "39,99€",
-    priceLabel: "/ano (≈3,33€/mês)",
+    price: "59,99€",
+    priceLabel: "/ano (≈5,00€/mês)",
     highlight: true,
     perks: [
       "Tudo do plano mensal",
@@ -160,6 +160,21 @@ const PLANS: Plan[] = [
       "Faturação anual única",
     ],
     cta: "Escolher anual",
+  },
+  {
+    priceId: "vitalicio_lifetime",
+    badge: "Preço de fundador",
+    name: "Vitalício",
+    price: "99,99€",
+    priceLabel: "uma única vez · para sempre",
+    oneTime: true,
+    perks: [
+      "Tudo do plano anual — para sempre, sem renovações",
+      "🗝️ Preço de fundador: só enquanto lançamos os novos conteúdos",
+      "🙏 Obrigado por apoiar o Kidoz desde o início",
+      "Pagamento único — sem surpresas nem letra miúda",
+    ],
+    cta: "Quero o Vitalício",
   },
 ];
 
@@ -513,7 +528,7 @@ function PremiumPage() {
                 i: "👑",
                 t: "Kidoz Premium (anual)",
                 d: "Até 4 crianças · Tutor IA · Mundo Premium · relatórios",
-                p: "3,33€/mês",
+                p: "5,00€/mês",
                 highlight: true,
               },
             ].map((r) => (
@@ -567,7 +582,7 @@ function PremiumPage() {
                   plan.highlight
                     ? "border-primary bg-card shadow-elegant"
                     : "border-border bg-card/80"
-                }`}
+                } ${plan.oneTime ? "md:col-span-2" : ""}`}
               >
                 {plan.badge && (
                   <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-primary px-3 py-0.5 font-display text-[10px] uppercase tracking-wider text-primary-foreground">
@@ -591,6 +606,17 @@ function PremiumPage() {
                   {isCurrent ? (
                     <ChunkyButton tone="ghost" disabled className="w-full opacity-70">
                       <Star className="mr-1 inline h-4 w-4" /> Plano atual
+                    </ChunkyButton>
+                  ) : plan.oneTime ? (
+                    /* Vitalício: pagamento único só via PayPal — o preço one-time
+                       ainda não tem lookup key no dashboard Stripe. */
+                    <ChunkyButton
+                      tone="primary"
+                      onClick={() => handlePaypal(plan.priceId)}
+                      disabled={paypalBusy !== null}
+                      className="w-full"
+                    >
+                      {paypalBusy === plan.priceId ? "A abrir PayPal…" : "Pagar com PayPal"}
                     </ChunkyButton>
                   ) : (
                     <div className="space-y-2">
@@ -675,7 +701,7 @@ function PremiumPage() {
               {
                 i: "🏫",
                 t: "Para instituições",
-                d: "Painel de turma, exportação CSV e preço por aluno a partir de 0,99€/mês.",
+                d: "Painel de turma, exportação CSV e preço por aluno a partir de 1,19€/mês.",
               },
             ].map((c) => (
               <div

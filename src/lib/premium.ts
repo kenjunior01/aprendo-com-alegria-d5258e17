@@ -33,7 +33,7 @@ export const PLANS: PremiumPlan[] = [
   {
     id: "family",
     name: "Família Premium",
-    price: "4,99€",
+    price: "7,99€",
     priceLabel: "/mês",
     highlight: true,
     perks: [

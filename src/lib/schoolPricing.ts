@@ -1,11 +1,19 @@
 // schoolPricing.ts — A única fonte de verdade dos preços institucionais.
-// Substitui o antigo PRECO_POR_ALUNO_EUR fixo por tiers transparentes:
-// quanto maior a escola, menor o preço por aluno — desconto automático,
-// sem negociação escondida nem letra miúda (lição dos concorrentes:
-// Smartick 55-99€/mês assusta; transparência total converte diretores).
+// Tiers transparentes: quanto maior a escola, menor o preço por aluno —
+// desconto automático, sem negociação escondida nem letra miúda (lição dos
+// concorrentes: Smartick 55-99€/mês assusta; transparência total converte
+// diretores).
+//
+// Reajuste (out/2026): a auditoria N1 mostrou que 0,99€/aluno era estratégia
+// de tração, não de sustentação — o suporte B2B, onboarding e faturação
+// comem a margem a baixo volume. Nova base 2,49€/aluno/mês ≈ 24,90€/aluno/ano
+// (menos de 0,12€ por dia útil) — ainda abaixo do custo de UM manual escolar,
+// e 20× mais barato que o Smartick por criança.
 //
 // ⚠️ Se mudares valores aqui, os PDFs (proposta/certificado) e a calculadora
 // de /escolas atualizam automaticamente — nada mais a editar.
+// ⚠️ Textos hardcoded a acompanhar: /escolas (hero + WhatsApp), /tutorial,
+// index.tsx (secção escolas), PaisesSection, /termos e /creches.
 
 export interface SchoolTier {
   id: string;
@@ -26,7 +34,7 @@ export const SCHOOL_TIERS: readonly SchoolTier[] = [
     id: "turma",
     min: 20,
     max: 49,
-    pricePerStudent: 0.99,
+    pricePerStudent: 2.49,
     name: "Turma & Escola",
     emoji: "🎒",
     note: "Para escolas a arrancar — tudo incluído, sem fidelização.",
@@ -35,7 +43,7 @@ export const SCHOOL_TIERS: readonly SchoolTier[] = [
     id: "plus",
     min: 50,
     max: 199,
-    pricePerStudent: 0.79,
+    pricePerStudent: 1.99,
     name: "Escola Plus",
     emoji: "🏫",
     note: "Escolas a crescer — -20% automático em todo o painel.",
@@ -44,7 +52,7 @@ export const SCHOOL_TIERS: readonly SchoolTier[] = [
     id: "grande",
     min: 200,
     max: 499,
-    pricePerStudent: 0.59,
+    pricePerStudent: 1.49,
     name: "Escola Grande",
     emoji: "🏛️",
     note: "Grandes escolas — -40% automático. O favorito dos agrupamentos.",
@@ -53,10 +61,10 @@ export const SCHOOL_TIERS: readonly SchoolTier[] = [
     id: "rede",
     min: 500,
     max: 20000,
-    pricePerStudent: 0.45,
+    pricePerStudent: 1.19,
     name: "Rede & Município",
     emoji: "🌍",
-    note: "Redes, municípios e grupos escolares — -55% e gestão dedicada.",
+    note: "Redes, municípios e grupos escolares — -52% e gestão dedicada.",
   },
 ] as const;
 
@@ -102,7 +110,7 @@ export function eur(v: number): string {
   return v.toLocaleString("pt-PT", { style: "currency", currency: "EUR" });
 }
 
-/** Desconto % do tier dado face ao preço base (0,99€). */
+/** Desconto % do tier dado face ao preço base (2,49€). */
 export function descontoTier(pricePerStudent: number): number {
   const base = SCHOOL_TIERS[0].pricePerStudent;
   return Math.round((1 - pricePerStudent / base) * 100);

@@ -45,7 +45,7 @@ export function PremiumStatusPanel() {
           <div className="flex-1">
             <h2 className="font-display text-xl">Desbloqueia o Kidoz Premium</h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              Acesso ilimitado, Mocha IA, modo família e relatórios. Desde 3,33€/mês.
+              Acesso ilimitado, Mocha IA, modo família e relatórios. Desde 5,00€/mês.
             </p>
             <Link to="/premium" className="mt-3 inline-block">
               <ChunkyButton>

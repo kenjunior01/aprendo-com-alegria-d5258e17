@@ -36,19 +36,27 @@ Mercado verificado (fontes públicas, out/2026):
 | Lingokids | ≈10-15€/mês | sem currículo PT |
 | ABCmouse | ≈14€/mês (14,99$) | sem currículo PT |
 | IXL (família) | ≈15-25€/mês | sem currículo PT |
-| **Kidoz Premium anual** | **3,33€/mês (39,99€/ano), até 4 crianças** | **currículo PT completo** |
-| Kidoz Premium mensal | 4,99€/mês | flexível |
-| Kidoz Escolas | 0,99€/aluno/mês | B2B, insubstituível |
+| **Kidoz Premium anual** | **5,00€/mês (59,99€/ano), até 4 crianças** | **currículo PT completo** |
+| Kidoz Premium mensal | 7,99€/mês | flexível |
+| Kidoz Vitalício | 99,99€ uma única vez | preço de fundador |
+| Kidoz Escolas | 1,19-2,49€/aluno/mês (volume) | B2B, insubstituível |
 
-**Posição:** 2,4×-30× mais barato que todas as alternativas sérias. A mensagem certa
-já está na página Premium ("sai por menos que UMA hora de explicações"). Regras de
-ouro de precificação:
-1. **Nunca competir por preço para baixo** — já somos o mais barato; o valor percebido
-   sobe com conteúdo e confiança, não com descontos.
-2. **Vitalício (79,99€) como âncora de colecionador**, não como norma — protege a
-   receita recorrente das escolas.
-3. **Escolas a 0,99€ é a vantagem estratégica real**: um concorrente B2C a 12€/mês
-   não consegue descer a 0,99€/aluno sem quebrar o negócio. As escolas são o fosso.
+**Posição (reajuste out/2026):** 2×-19× mais barato que todas as alternativas sérias
+no B2C e ainda o dobro do valor no B2B. A subida de preços partiu da auditoria N1:
+0,99€/aluno e 4,99€/mês eram tração, não sustentação — e preço baixo demais lê-se
+como "fraco" em educação (lição da análise competitiva). A mensagem certa continua
+na página Premium ("sai por menos que UMA hora de explicações"). Regras de ouro:
+1. **Nunca competir por preço para baixo** — somos o melhor valor, não o mais barato;
+   o valor percebido sobe com conteúdo e confiança, não com descontos.
+2. **Vitalício (99,99€) como âncora de fundador**, não como norma — protege a
+   receita recorrente das escolas e da família anual.
+3. **Escolas com tiers por volume (2,49€ → 1,19€) são a vantagem estratégica real**:
+   um concorrente B2C a 12€/mês não consegue servir escolas a 1,19€/aluno sem
+   quebrar o negócio. As escolas são o fosso — e 24,90€/aluno/ano no tier de
+   entrada custa menos que UM manual escolar.
+4. **Programa Fundador mantém a ponte de adoção**: primeiras 20 instituições
+   com 50% no 1.º ano (≈1,25€/aluno/mês) — os primeiros acreditadores continuam
+   a ter condição especial sem o catálogo inteiro ficar barato para sempre.
 
 ### Pilar C — Confiança como produto (o Khan Kids playbook)
 Já aplicado nas últimas 2 semanas: consentimento parental no onboarding, legais
