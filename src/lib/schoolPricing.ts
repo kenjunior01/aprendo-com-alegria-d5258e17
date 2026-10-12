@@ -6,8 +6,8 @@
 //
 // Reajuste (out/2026): a auditoria N1 mostrou que 0,99€/aluno era estratégia
 // de tração, não de sustentação — o suporte B2B, onboarding e faturação
-// comem a margem a baixo volume. Nova base 2,49€/aluno/mês ≈ 24,90€/aluno/ano
-// (menos de 0,12€ por dia útil) — ainda abaixo do custo de UM manual escolar,
+// comem a margem a baixo volume. Nova base 2,49€/aluno/mês ≈ 25-30€/aluno por
+// ano letivo — o preço de um a dois manuais escolares,
 // e 20× mais barato que o Smartick por criança.
 //
 // ⚠️ Se mudares valores aqui, os PDFs (proposta/certificado) e a calculadora
@@ -90,18 +90,6 @@ export const MIN_ALUNOS_ESCOLA = 20;
 /** Total mensal EUR para N alunos com o desconto automático do tier. */
 export function totalMensalEur(alunos: number): number {
   const v = Math.max(1, Math.floor(alunos)) * precoPorAluno(alunos);
-  return Math.round(v * 100) / 100;
-}
-
-/** Total anual EUR (10 meses pagos por 12 gozados — 2 meses grátis). */
-export function totalAnualEur(alunos: number): number {
-  const v = totalMensalEur(alunos) * 10;
-  return Math.round(v * 100) / 100;
-}
-
-/** Mensal equivalente do anual (total ÷ 12) — para comparação honesta. */
-export function mensalEquivalenteAnualEur(alunos: number): number {
-  const v = totalAnualEur(alunos) / 12;
   return Math.round(v * 100) / 100;
 }
 

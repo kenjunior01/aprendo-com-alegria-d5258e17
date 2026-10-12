@@ -297,7 +297,6 @@ function EscolasPage() {
   const unitario = precoPorAluno(students);
   const tier = tierDe(students);
   const monthly = useMemo(() => totalMensalEur(students), [students]);
-  const yearly = useMemo(() => monthly * 12, [monthly]);
   const poupancaPct = descontoTier(unitario);
 
   const adjust = (delta: number) => {
@@ -618,12 +617,8 @@ function EscolasPage() {
                   ≈ {FX_CALC[paisCalc].fmt(monthly * FX_CALC[paisCalc].taxa)} por mês
                 </p>
               )}
-              <p className="mt-1 text-xs text-muted-foreground">
-                {yearly.toLocaleString("pt-PT", {
-                  style: "currency",
-                  currency: "EUR",
-                })}{" "}
-                por ano
+              <p className="mt-1 text-xs font-semibold text-primary/80">
+                Faturação mensal · sem fidelização — cancela quando quiseres
               </p>
             </div>
           </div>

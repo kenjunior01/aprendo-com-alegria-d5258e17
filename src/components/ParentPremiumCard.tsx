@@ -81,7 +81,7 @@ export function ParentPremiumCard() {
             ))}
           </ul>
           <p className="mt-2 text-xs text-muted-foreground">
-            Anual: 59,99€ (poupa 37%) · Sem anúncios · Cancela quando quiser
+            Sem anúncios · Cancela quando quiser · Sem fidelização · Até 4 crianças
           </p>
           <div className="mt-3 flex flex-col gap-2 sm:flex-row">
             <Link to="/premium" className="flex-1">

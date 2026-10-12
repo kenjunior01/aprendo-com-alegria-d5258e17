@@ -52,7 +52,7 @@ export function MerchPremiumPerk({ className = "" }: { className?: string }) {
           to="/premium"
           className="shrink-0 rounded-2xl bg-primary px-4 py-2.5 font-display text-sm font-semibold text-primary-foreground transition-transform hover:-translate-y-0.5"
         >
-          Ver planos desde 5,00€/mês
+          Ver planos — 7,99€/mês
         </Link>
       )}
     </aside>

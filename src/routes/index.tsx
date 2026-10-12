@@ -704,7 +704,7 @@ function PremiumStrip() {
       <div className="mt-5 flex flex-col items-center justify-center gap-3 sm:flex-row">
         <Link to="/premium" className="w-full sm:w-auto">
           <ChunkyButton tone="primary" className="min-h-[54px] w-full text-base">
-            Ver planos desde 5,00€/mês
+            Ver planos — 7,99€/mês
           </ChunkyButton>
         </Link>
         <Link to="/escolas" className="w-full sm:w-auto">

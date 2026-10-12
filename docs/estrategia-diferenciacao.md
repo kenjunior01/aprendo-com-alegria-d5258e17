@@ -36,9 +36,8 @@ Mercado verificado (fontes públicas, out/2026):
 | Lingokids | ≈10-15€/mês | sem currículo PT |
 | ABCmouse | ≈14€/mês (14,99$) | sem currículo PT |
 | IXL (família) | ≈15-25€/mês | sem currículo PT |
-| **Kidoz Premium anual** | **5,00€/mês (59,99€/ano), até 4 crianças** | **currículo PT completo** |
-| Kidoz Premium mensal | 7,99€/mês | flexível |
-| Kidoz Vitalício | 99,99€ uma única vez | preço de fundador |
+| **Kidoz Premium** | **7,99€/mês, até 4 crianças, sem fidelização** | **currículo PT completo** |
+| Kidoz Vitalício | 99,99€ uma única vez | preço de fundador, sem subscrição |
 | Kidoz Escolas | 1,19-2,49€/aluno/mês (volume) | B2B, insubstituível |
 
 **Posição (reajuste out/2026):** 2×-19× mais barato que todas as alternativas sérias
@@ -49,11 +48,14 @@ na página Premium ("sai por menos que UMA hora de explicações"). Regras de ou
 1. **Nunca competir por preço para baixo** — somos o melhor valor, não o mais barato;
    o valor percebido sobe com conteúdo e confiança, não com descontos.
 2. **Vitalício (99,99€) como âncora de fundador**, não como norma — protege a
-   receita recorrente das escolas e da família anual.
+   receita recorrente mensal das escolas e das famílias.
+   **Só cobrança mensal (decisão out/2026)**: sem planos anuais em lado nenhum
+   — menos opções = decisão mais fácil; quem quiser compromisso longo compra o
+   Vitalício.
 3. **Escolas com tiers por volume (2,49€ → 1,19€) são a vantagem estratégica real**:
    um concorrente B2C a 12€/mês não consegue servir escolas a 1,19€/aluno sem
-   quebrar o negócio. As escolas são o fosso — e 24,90€/aluno/ano no tier de
-   entrada custa menos que UM manual escolar.
+   quebrar o negócio. As escolas são o fosso — e ≈25€/aluno por ano letivo no
+   tier de entrada é o preço de um manual escolar.
 4. **Programa Fundador mantém a ponte de adoção**: primeiras 20 instituições
    com 50% no 1.º ano (≈1,25€/aluno/mês) — os primeiros acreditadores continuam
    a ter condição especial sem o catálogo inteiro ficar barato para sempre.

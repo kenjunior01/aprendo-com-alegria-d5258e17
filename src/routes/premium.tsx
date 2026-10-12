@@ -72,13 +72,13 @@ const TRUST = [
 export const Route = createFileRoute("/premium")({
   head: () => ({
     meta: [
-      { title: "Subscrição Kidoz Premium — desde 5,00€/mês" },
+      { title: "Subscrição Kidoz Premium — 7,99€/mês" },
       {
         name: "description",
         content:
-          "Acesso ilimitado a todas as disciplinas, Mocha IA, modo família e relatórios. Planos a partir de 5,00€/mês.",
+          "Acesso ilimitado a todas as disciplinas, Mocha IA, modo família e relatórios. Planos a partir de 7,99€/mês.",
       },
-      { property: "og:title", content: "Kidoz Premium — desde 5,00€/mês" },
+      { property: "og:title", content: "Kidoz Premium — 7,99€/mês" },
       {
         property: "og:description",
         content: "Acesso ilimitado a todas as disciplinas, Mocha IA, modo família e relatórios.",
@@ -128,9 +128,11 @@ interface Plan {
 const PLANS: Plan[] = [
   {
     priceId: "familia_mensal",
+    badge: "Sem fidelização · cancela em 2 cliques",
     name: "Família Mensal",
     price: "7,99€",
     priceLabel: "/mês",
+    highlight: true,
     perks: [
       "Tudo grátis incluído",
       "🌀 O MUNDO PREMIUM — 5 reinos × 3 níveis, criaturas e Bazar de Cristais",
@@ -142,24 +144,7 @@ const PLANS: Plan[] = [
       "📊 Relatórios semanais aos pais",
       "Sem anúncios, sem limites de leitura por voz",
     ],
-    cta: "Começar mensal",
-  },
-  {
-    priceId: "familia_anual",
-    badge: "Mais popular · Poupa 37%",
-    name: "Família Anual",
-    price: "59,99€",
-    priceLabel: "/ano (≈5,00€/mês)",
-    highlight: true,
-    perks: [
-      "Tudo do plano mensal",
-      "💰 Equivalente a 4 meses grátis",
-      "🎁 Itens exclusivos de loja todos os meses",
-      "🚀 Acesso prioritário a novos conteúdos",
-      "📜 Certificados imprimíveis das conquistas",
-      "Faturação anual única",
-    ],
-    cta: "Escolher anual",
+    cta: "Começar agora",
   },
   {
     priceId: "vitalicio_lifetime",
@@ -169,7 +154,7 @@ const PLANS: Plan[] = [
     priceLabel: "uma única vez · para sempre",
     oneTime: true,
     perks: [
-      "Tudo do plano anual — para sempre, sem renovações",
+      "Tudo do plano mensal — para sempre, sem renovações",
       "🗝️ Preço de fundador: só enquanto lançamos os novos conteúdos",
       "🙏 Obrigado por apoiar o Kidoz desde o início",
       "Pagamento único — sem surpresas nem letra miúda",
@@ -526,9 +511,9 @@ function PremiumPage() {
               },
               {
                 i: "👑",
-                t: "Kidoz Premium (anual)",
+                t: "Kidoz Premium",
                 d: "Até 4 crianças · Tutor IA · Mundo Premium · relatórios",
-                p: "5,00€/mês",
+                p: "7,99€/mês",
                 highlight: true,
               },
             ].map((r) => (
@@ -751,7 +736,7 @@ function PremiumPage() {
           <div className="flex-1 text-center sm:text-left">
             <p className="font-display text-lg">Loja Kidoz — a aventura continua fora do ecrã 🎁</p>
             <p className="text-sm text-muted-foreground">
-              Os membros Família Anual recebem <b>itens exclusivos todos os meses</b> — livros de
+              Os membros Premium recebem <b>novidades exclusivas todas as temporadas</b> — livros de
               atividades, materiais escolares e merchandising com as mascotes.
             </p>
           </div>

@@ -4,7 +4,6 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 // Planos pagos via PayPal (pagamento único; o PayPal aceita conta PayPal e cartão/banco como convidado).
 const PLANS: Record<string, { amount: string; days: number | null; name: string }> = {
   familia_mensal: { amount: "7.99", days: 31, name: "Kidoz Família Mensal" },
-  familia_anual: { amount: "59.99", days: 366, name: "Kidoz Família Anual" },
   vitalicio_lifetime: { amount: "99.99", days: null, name: "Kidoz Vitalício" },
 };
 

@@ -56,7 +56,6 @@ export const generateProposal = createServerFn({ method: "POST" })
       const monthly = alunos * unitario;
       const yearly = monthly * 12;
       const fundador = yearly * 0.5;
-      const anualComGratis = monthly * 10; // plano anual: 10 meses pagos, 12 gozados
 
       const pdf = await PDFDocument.create();
       const titleFont = await pdf.embedFont(StandardFonts.HelveticaBold);
@@ -142,7 +141,7 @@ export const generateProposal = createServerFn({ method: "POST" })
       line(
         `${unitLabel} por aluno/mês (IVA incluído, desconto por volume automático) - \u2248 ${centDia} cêntimos por dia útil por aluno. Com ${alunos} alunos:`,
       );
-      line(`${eur(monthly)} por mês  ·  ${eur(yearly)} por ano`, 15, titleFont, dark, 24);
+      line(`${eur(monthly)} por mês (cobrança mensal, sem fidelização)`, 15, titleFont, dark, 24);
       if (pais !== "pt") {
         line(
           `Equivalente de referência em ${moeda.nome}: ${moeda.fmt(monthly * moeda.taxa)}/mês (câmbio de referência; a cobrança é feita em euros).`,
@@ -165,13 +164,6 @@ export const generateProposal = createServerFn({ method: "POST" })
         bodyFont,
         muted,
         18,
-      );
-      line(
-        `Plano anual com 2 meses grátis: ${eur(anualComGratis)}/ano com ${alunos} alunos (cobrança única).`,
-        9.5,
-        bodyFont,
-        muted,
-        22,
       );
 
       line("PROGRAMA DE ESCOLAS FUNDADORAS", 13, titleFont, primary, 20);

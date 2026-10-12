@@ -162,7 +162,7 @@ de Maputo); IXL/Matific só entram via escola. O Kidoz está no sítio certo.
 4. **Selo "kid-safe" / declaração de privacidade simples** (Lingokids) — página "Porque
    somos seguros" para pais: dados recolhidos (poucos), processadores, contactos.
 5. **Comparação de preço honesta na landing** (Smartick é 55-99€/mês) — "Kidoz
-   Premium desde 5,00€/mês — 16× mais barato que uma hora de explicações por mês" é fact.
+   Premium por 7,99€/mês — sai por menos que UMA hora de explicações" é fact.
 6. **Modo offline leve** (Lingokids) — a lição atual já funciona sem rede se o perfil
    for local; garantir que não bloqueia em rede lenta (auditado em P2).
 7. **Analytics por turma no /escolas** (IXL/Matific) — mantendo o jogo para a criança.

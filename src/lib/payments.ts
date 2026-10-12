@@ -31,24 +31,8 @@ export const PAYMENTS = {
  *  Para descontos por volume usar sempre `precoPorAluno(alunos)` de schoolPricing. */
 export const PRECO_POR_ALUNO_EUR = 2.49;
 
-/**
- * Plano anual: 10 meses pagos por 12 gozados (2 meses grátis).
- * Honestidade em primeiro lugar: o anual é pago numa única tranche via
- * PayPal/transferência/fatura — o checkout de cartão continua mensal.
- */
-export const MESES_PAGOS_ANUAL = 10;
-
-/** Total anual por aluno — respeita o desconto automático por volume. */
-export function totalAnualEur(alunos: number): number {
-  const v = totalMensalEur(alunos) * MESES_PAGOS_ANUAL;
-  return Math.round(v * 100) / 100;
-}
-
-/** Equivalente mensal do plano anual (total ÷ 12) — para o banner honesto. */
-export function mensalEquivalenteAnualEur(alunos: number): number {
-  const v = totalAnualEur(alunos) / 12;
-  return Math.round(v * 100) / 100;
-}
+// Decisão out/2026: faturação SÓ mensal, sem fidelização — nem família nem
+// instituições. O total anual é sempre mensal × meses usados.
 
 /**
  * Link paypal.me com o valor pré-preenchido em EUR.

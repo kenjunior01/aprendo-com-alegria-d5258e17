@@ -38,8 +38,7 @@ export const generateCartaFundadora = createServerFn({ method: "POST" })
       const { escola, alunos, pais } = data;
       const unitario = precoPorAluno(alunos);
       const unitLabel = unitario.toFixed(2).replace(".", ",") + "\u20ac";
-      const annualPoupanca = alunos * unitario * 12 * 0.5; // 50% do 1.º ano
-      const anual = alunos * unitario * 10; // plano anual: 10 meses pagos
+      const annualPoupanca = alunos * unitario * 12 * 0.5; // 50% do 1.º ano (Fundador)
 
       const pdf = await PDFDocument.create();
       const titleFont = await pdf.embedFont(StandardFonts.HelveticaBold);
@@ -139,7 +138,6 @@ export const generateCartaFundadora = createServerFn({ method: "POST" })
       line("CONDIÇÕES", 11.5, titleFont, primary, 20);
       const condicoes = [
         `Plano mensal de ${unitLabel} por aluno (IVA incluído, desconto por volume automático), sem fidelização — cancelamento a qualquer momento.`,
-        `Plano anual com 2 meses grátis: ${eur(anual)}/ano com ${alunos} alunos (cobrança única, em euros).`,
         "Piloto de 4 semanas antes da decisão final do conselho — sem custos para experimentar em modo demonstração.",
         "Faturação com NIF da instituição; pagamento por cartão, PayPal, transferência ou processo administrativo.",
         "Conformidade RGPD: dados dos alunos apagáveis a pedido dos pais, sem anúncios nem chat entre estranhos.",
