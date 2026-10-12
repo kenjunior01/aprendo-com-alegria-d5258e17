@@ -334,6 +334,33 @@ function Landing() {
         {/* Mini-experimento: o visitante prova o produto sem registo — adaptado ao país */}
         <HomeMiniDemo key={region?.code ?? "PT"} pais={region?.code ?? "PT"} />
 
+        {/* Duelo da Família — novidade gratuita para toda a casa */}
+        <Link
+          to="/duelo"
+          className="group relative mt-12 flex w-full items-center gap-4 overflow-hidden rounded-3xl border-2 border-violet-400/70 bg-gradient-to-r from-violet-500/10 via-card to-fuchsia-500/10 p-4 transition-all hover:scale-[1.01] active:scale-[0.99] sm:mt-16 sm:p-5"
+        >
+          <div className="pointer-events-none absolute -right-4 -top-6 select-none text-[6rem] opacity-10">
+            ⚔️
+          </div>
+          <div className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-violet-500 text-3xl text-white shadow-lg">
+            ⚔️
+          </div>
+          <div className="min-w-0 flex-1 text-left">
+            <p className="font-display text-[10px] font-black uppercase tracking-[0.25em] text-violet-600">
+              novo · grátis
+            </p>
+            <h2 className="font-display text-lg leading-tight sm:text-xl">
+              Duelo da Família — 1 contra 1 no mesmo tablet
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              Irmãos, primos e pais contra filhos. Quem acerta mais?
+            </p>
+          </div>
+          <div className="shrink-0 rounded-full bg-violet-500 px-4 py-2 font-display text-sm font-bold text-white shadow-md transition-transform group-hover:translate-x-1">
+            Jogar
+          </div>
+        </Link>
+
         {/* Learning path */}
         <LessonPathPreview />
 
