@@ -46,6 +46,11 @@
     <priority>0.6</priority>
   </url>
   <url>
+    <loc>https://kidoz.online/duelo</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
     <loc>https://kidoz.online/escolas</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>

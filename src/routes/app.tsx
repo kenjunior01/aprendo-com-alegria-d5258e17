@@ -318,6 +318,7 @@ function DiscoverGrid({ profile }: { profile: Profile }) {
       <h2 className="mb-3 font-display text-lg text-muted-foreground">Descobrir mais</h2>
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3">
         <DiscoverTile to="/amigo" emoji="🤖" title="O Meu Amigo" subtitle="Brinca e conversa" />
+        <DiscoverTile to="/duelo" emoji="⚔️" title="Duelo" subtitle="1 contra 1 em casa" />
         <DiscoverTile
           to={premium ? "/portal" : "/convites"}
           emoji="🌀"
@@ -353,7 +354,7 @@ function DiscoverTile({
   title,
   subtitle,
 }: {
-  to: "/amigo" | "/portal" | "/convites" | "/leitura" | "/jardim" | "/mundo" | "/ra";
+  to: "/amigo" | "/portal" | "/convites" | "/leitura" | "/jardim" | "/mundo" | "/ra" | "/duelo";
   emoji: string;
   title: string;
   subtitle: string;

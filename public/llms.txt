@@ -11,6 +11,7 @@ Kidoz combina um caminho de aprendizagem do 1.º ao 4.º ano (Português, Matem�
 - [Aventura](/app): Caminho de lições para crianças do 1.º ciclo.
 - [Júnior](/junior): Jogos para crianças dos 2 aos 5 anos.
 - [Desafios](/desafios): Desafios diários, PvP e ligas semanais.
+- [Duelo da Família](/duelo): Duelo de perguntas 1 contra 1 no mesmo dispositivo — irmãos, primos e pais contra filhos.
 - [Desafios Infinitos](/desafios/infinitos): Milhares de níveis em 12 disciplinas.
 - [Leitura](/leitura): Prática de leitura em voz alta com reconhecimento de voz.
 - [Tutor Mocha](/tutor): Tutor IA conversacional em PT-PT.
@@ -21,8 +22,8 @@ Kidoz combina um caminho de aprendizagem do 1.º ao 4.º ano (Português, Matem�
 - [Conquistas](/conquistas): Medalhas e badges desbloqueados.
 - [Perfil](/perfil): Perfil e definições da criança.
 - [Painel de Pais](/pais): Acompanhamento do progresso dos filhos.
-- [Premium](/premium): Subscrições Família e Vitalício, desde 3,33€/mês.
-- [Escolas](/escolas): Plano para escolas, 0,99€ por aluno/mês.
+- [Premium](/premium): Subscrição Família 7,99€/mês ou Vitalício 99,99€ (pagamento único).
+- [Escolas](/escolas): Plano para escolas, desde 1,19€ por aluno/mês (tiers por dimensão).
 - [Creches](/creches): Plano para creches e jardins de infância (2-5 anos).
 - [Autenticação](/auth): Iniciar sessão ou criar conta.
 

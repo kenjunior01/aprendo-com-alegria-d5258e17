@@ -112,10 +112,10 @@ const SUBJECTS_CORE: Subject[] = [
             answerIndex: 2,
           },
           {
-            prompt: "Monta a palavra BO-LA pelas sílabas!",
+            prompt: "Monta a palavra MO-CHI-LA pelas sílabas!",
             kind: "order",
-            sequence: ["BO", "LA"],
-            explanation: "BO + LA = BOLA! Primeiro o bo, depois o la.",
+            sequence: ["MO", "CHI", "LA"],
+            explanation: "MO + CHI + LA = MOCHILA! Cada pedacinho com vogal é uma sílaba.",
           },
           {
             prompt: "Monta 'BORBOLETA' pelas sílabas!",
@@ -145,6 +145,18 @@ const SUBJECTS_CORE: Subject[] = [
             prompt: "Qual rima com 'MAR'?",
             options: ["RIO", "PESCAR", "ÁGUA", "PEIXE"],
             answerIndex: 1,
+          },
+          {
+            prompt: "Qual rima com 'BALÃO'?",
+            options: ["FAZENDA", "MÃO", "VERDE", "BOLA"],
+            answerIndex: 1,
+            explanation: "BALÃO e MÃO terminam no mesmo som: -ão!",
+          },
+          {
+            prompt: "Qual rima com 'FLOR'?",
+            options: ["DOR", "SOL", "CASA", "PÉ"],
+            answerIndex: 0,
+            explanation: "FLOR e DOR terminam no mesmo som: -or!",
           },
         ],
       },
@@ -201,6 +213,18 @@ const SUBJECTS_CORE: Subject[] = [
             options: ["GALINHO", "GALO", "PINTO", "PATO"],
             answerIndex: 1,
           },
+          {
+            prompt: "Feminino de 'AVÔ'?",
+            options: ["AVÓ", "AVOA", "AVINHA", "AVÔA"],
+            answerIndex: 0,
+            explanation: "Só o acento muda: avô → avó!",
+          },
+          {
+            prompt: "Masculino de 'ÉGUA'?",
+            options: ["CAVALO", "ÉGUO", "CAVALETA", "ÉGUE"],
+            answerIndex: 0,
+            explanation: "Égua é a fêmea; o macho é o cavalo.",
+          },
         ],
       },
       // 3.º ano - Gramática
@@ -252,6 +276,18 @@ const SUBJECTS_CORE: Subject[] = [
             prompt: "Qualidade de 'corajoso' é…",
             options: ["coragem", "medroso", "lento", "alto"],
             answerIndex: 0,
+          },
+          {
+            prompt: "Em 'gato preto', a palavra 'preto' é…",
+            options: ["substantivo", "verbo", "adjetivo", "número"],
+            answerIndex: 2,
+            explanation: "'Preto' diz como é o gato — uma qualidade. É um adjetivo!",
+          },
+          {
+            prompt: "O contrário de 'ALTO' é…",
+            options: ["grande", "baixo", "longe", "forte"],
+            answerIndex: 1,
+            explanation: "Adjetivos opostos: alto ↔ baixo, como uma girafa e um rato.",
           },
         ],
       },
@@ -305,6 +341,18 @@ const SUBJECTS_CORE: Subject[] = [
             options: ["Ele", "Ela", "Eles", "Tu"],
             answerIndex: 1,
           },
+          {
+            prompt: "Pronome para 'tu e eu'?",
+            options: ["eles", "nós", "vós", "ela"],
+            answerIndex: 1,
+            explanation: "Quando falo comigo + tu = nós!",
+          },
+          {
+            prompt: "'___ vão ao parque.' (o João e a Ana)",
+            options: ["Nós", "Eles", "Eu", "Tu"],
+            answerIndex: 1,
+            explanation: "Duas outras pessoas de que se fala = eles.",
+          },
         ],
       },
       {
@@ -323,6 +371,18 @@ const SUBJECTS_CORE: Subject[] = [
             prompt: "Para separar palavras numa lista usamos…",
             options: ["ponto", "vírgula", "traço", "parêntesis"],
             answerIndex: 1,
+          },
+          {
+            prompt: "O que mostra o '!' em 'Corre!'?",
+            options: ["Uma pergunta", "Força ou surpresa", "Uma lista", "O fim de um texto"],
+            answerIndex: 1,
+            explanation: "O ponto de exclamação dá energia: susto, alegria ou ordem!",
+          },
+          {
+            prompt: "Onde colocamos o ponto final?",
+            options: ["No meio da frase", "No fim da frase", "Antes das palavras", "Nunca se usa"],
+            answerIndex: 1,
+            explanation: "O ponto final descansa a frase: diz 'acabou aqui'.",
           },
         ],
       },
@@ -489,6 +549,18 @@ const SUBJECTS_CORE: Subject[] = [
           { prompt: "5 × 4 = ?", options: ["15", "20", "25", "30"], answerIndex: 1 },
           { prompt: "5 × 7 = ?", options: ["30", "35", "40", "45"], answerIndex: 1 },
           { prompt: "5 × 9 = ?", options: ["40", "45", "50", "55"], answerIndex: 1 },
+          {
+            prompt: "5 × 2 = ?",
+            options: ["8", "10", "12", "15"],
+            answerIndex: 1,
+            hint: "Conta de 5 em 5: 5, 10!",
+          },
+          {
+            prompt: "5 × 6 = ?",
+            options: ["25", "30", "35", "40"],
+            answerIndex: 1,
+            explanation: "De 5 em 5, seis vezes: 5, 10, 15, 20, 25, 30!",
+          },
         ],
       },
       {
@@ -592,6 +664,18 @@ const SUBJECTS_CORE: Subject[] = [
           { prompt: "7 × 6 = ?", options: ["42", "48", "49", "56"], answerIndex: 0 },
           { prompt: "7 × 8 = ?", options: ["54", "56", "63", "64"], answerIndex: 1 },
           { prompt: "7 × 9 = ?", options: ["56", "63", "72", "81"], answerIndex: 1 },
+          {
+            prompt: "7 × 3 = ?",
+            options: ["18", "21", "24", "27"],
+            answerIndex: 1,
+            hint: "De 7 em 7: 7, 14, 21!",
+          },
+          {
+            prompt: "7 × 10 = ?",
+            options: ["63", "70", "77", "80"],
+            answerIndex: 1,
+            explanation: "Multiplicar por 10 é só acrescentar um zero: 7 × 10 = 70!",
+          },
         ],
       },
     ],
@@ -874,6 +958,49 @@ for (const s of SUBJECTS) {
 export const getSubject = (id: string) => SUBJECTS.find((s) => s.id === id);
 export const getLesson = (subjectId: string, lessonId: string) =>
   getSubject(subjectId)?.lessons.find((l) => l.id === lessonId);
+
+// ---------------------------------------------------------------------------
+// Validador de integridade (só em dev) — apanha dados quebrados ANTES de
+// chegarem às crianças: resposta fora do intervalo, IDs duplicados, lições
+// finas, perguntas sem opções… Cada violação aparece na consola com prefixo
+// [currículo]. Produção não paga nada (o bloco nem executa).
+// Auditoria completa em scripts/auditCurriculum.mts (mesmas regras).
+// ---------------------------------------------------------------------------
+if (import.meta.env.DEV) {
+  const problems: string[] = [];
+  const globalIds = new Set<string>();
+  for (const s of SUBJECTS) {
+    for (const l of s.lessons) {
+      const tag = `${s.id}/${l.id}`;
+      if (globalIds.has(l.id)) problems.push(`ID duplicado: ${tag}`);
+      globalIds.add(l.id);
+      if (!l.title || !l.emoji) problems.push(`Sem título/emoji: ${tag}`);
+      if (!Array.isArray(l.questions) || l.questions.length < 4)
+        problems.push(`Menos de 4 perguntas: ${tag} (${l.questions?.length ?? 0})`);
+      (l.questions ?? []).forEach((q, i) => {
+        if (!q.prompt) problems.push(`Sem prompt: ${tag}[${i}]`);
+        if (q.kind === "order") {
+          if (!Array.isArray(q.sequence) || q.sequence.length < 3)
+            problems.push(`Order inválida (sequence < 3): ${tag}[${i}]`);
+        } else if (q.kind === "count") {
+          if (!q.visual || q.visual.groups < 1 || q.visual.perGroup < 1)
+            problems.push(`Count inválido (visual): ${tag}[${i}]`);
+        } else if (!Array.isArray(q.options) || q.options.length < 2) {
+          problems.push(`Opções insuficientes: ${tag}[${i}]`);
+        } else if (
+          q.answerIndex == null ||
+          q.answerIndex < 0 ||
+          q.answerIndex >= q.options.length
+        ) {
+          problems.push(`answerIndex fora do intervalo: ${tag}[${i}]`);
+        }
+      });
+    }
+  }
+  if (problems.length)
+    console.error(`[currículo] ${problems.length} problema(s):\n` + problems.join("\n"));
+  else console.info(`[currículo] OK — ${SUBJECTS.length} matérias validadas ✔`);
+}
 
 export const GRADE_LABEL: Record<GradeLevel, string> = {
   1: "1.º ano",

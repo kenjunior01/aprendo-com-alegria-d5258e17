@@ -29,6 +29,7 @@ import { Route as JuniorRouteImport } from './routes/junior'
 import { Route as JardimRouteImport } from './routes/jardim'
 import { Route as EscolasRouteImport } from './routes/escolas'
 import { Route as EscolaRouteImport } from './routes/escola'
+import { Route as DueloRouteImport } from './routes/duelo'
 import { Route as DesafiosRouteImport } from './routes/desafios'
 import { Route as DesafioRouteImport } from './routes/desafio'
 import { Route as CrechesRouteImport } from './routes/creches'
@@ -154,6 +155,11 @@ const EscolasRoute = EscolasRouteImport.update({
 const EscolaRoute = EscolaRouteImport.update({
   id: '/escola',
   path: '/escola',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DueloRoute = DueloRouteImport.update({
+  id: '/duelo',
+  path: '/duelo',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DesafiosRoute = DesafiosRouteImport.update({
@@ -303,6 +309,7 @@ export interface FileRoutesByFullPath {
   '/creches': typeof CrechesRoute
   '/desafio': typeof DesafioRoute
   '/desafios': typeof DesafiosRouteWithChildren
+  '/duelo': typeof DueloRoute
   '/escola': typeof EscolaRoute
   '/escolas': typeof EscolasRoute
   '/jardim': typeof JardimRoute
@@ -351,6 +358,7 @@ export interface FileRoutesByTo {
   '/creches': typeof CrechesRoute
   '/desafio': typeof DesafioRoute
   '/desafios': typeof DesafiosRouteWithChildren
+  '/duelo': typeof DueloRoute
   '/escola': typeof EscolaRoute
   '/escolas': typeof EscolasRoute
   '/jardim': typeof JardimRoute
@@ -400,6 +408,7 @@ export interface FileRoutesById {
   '/creches': typeof CrechesRoute
   '/desafio': typeof DesafioRoute
   '/desafios': typeof DesafiosRouteWithChildren
+  '/duelo': typeof DueloRoute
   '/escola': typeof EscolaRoute
   '/escolas': typeof EscolasRoute
   '/jardim': typeof JardimRoute
@@ -450,6 +459,7 @@ export interface FileRouteTypes {
     | '/creches'
     | '/desafio'
     | '/desafios'
+    | '/duelo'
     | '/escola'
     | '/escolas'
     | '/jardim'
@@ -498,6 +508,7 @@ export interface FileRouteTypes {
     | '/creches'
     | '/desafio'
     | '/desafios'
+    | '/duelo'
     | '/escola'
     | '/escolas'
     | '/jardim'
@@ -546,6 +557,7 @@ export interface FileRouteTypes {
     | '/creches'
     | '/desafio'
     | '/desafios'
+    | '/duelo'
     | '/escola'
     | '/escolas'
     | '/jardim'
@@ -595,6 +607,7 @@ export interface RootRouteChildren {
   CrechesRoute: typeof CrechesRoute
   DesafioRoute: typeof DesafioRoute
   DesafiosRoute: typeof DesafiosRouteWithChildren
+  DueloRoute: typeof DueloRoute
   EscolaRoute: typeof EscolaRoute
   EscolasRoute: typeof EscolasRoute
   JardimRoute: typeof JardimRoute
@@ -769,6 +782,13 @@ declare module '@tanstack/react-router' {
       path: '/escola'
       fullPath: '/escola'
       preLoaderRoute: typeof EscolaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/duelo': {
+      id: '/duelo'
+      path: '/duelo'
+      fullPath: '/duelo'
+      preLoaderRoute: typeof DueloRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/desafios': {
@@ -982,6 +1002,7 @@ const rootRouteChildren: RootRouteChildren = {
   CrechesRoute: CrechesRoute,
   DesafioRoute: DesafioRoute,
   DesafiosRoute: DesafiosRouteWithChildren,
+  DueloRoute: DueloRoute,
   EscolaRoute: EscolaRoute,
   EscolasRoute: EscolasRoute,
   JardimRoute: JardimRoute,
