@@ -821,6 +821,7 @@ function DashboardView({ data }: { data: ParentDashboardData }) {
     portugues: "Português",
     matematica: "Matemática",
     "estudo-do-meio": "Estudo do Meio",
+    duelo: "Duelo da Família",
   };
   const weekdayLabel = ["D", "S", "T", "Q", "Q", "S", "S"];
 

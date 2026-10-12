@@ -217,6 +217,30 @@ function DesafiosPage() {
           </div>
         </Link>
 
+        {/* Duelo da Família — 1 contra 1 no mesmo dispositivo */}
+        <Link
+          to="/duelo"
+          className="group relative mb-8 flex items-center gap-4 overflow-hidden rounded-3xl border-2 border-violet-500 bg-violet-50 p-4 transition-all hover:scale-[1.02] active:scale-[0.98]"
+        >
+          <div className="absolute right-0 top-0 translate-x-1/3 -translate-y-1/4 opacity-10 select-none">
+            ⚔️
+          </div>
+          <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-violet-500 text-white shadow-lg">
+            <Swords className="h-8 w-8" />
+          </div>
+          <div className="flex-1">
+            <h2 className="font-display text-xl font-bold text-violet-900 leading-tight">
+              Duelo da Família
+            </h2>
+            <p className="text-sm text-violet-700/80">
+              1 contra 1 no mesmo tablet — irmãos, primos e pais contra filhos. Quem acerta mais?
+            </p>
+          </div>
+          <div className="rounded-full bg-violet-500 p-2 text-white shadow-md group-hover:translate-x-1 transition-transform">
+            <Zap className="h-5 w-5 fill-current" />
+          </div>
+        </Link>
+
         {/* Desafio Expresso via WhatsApp */}
         <motion.section
           initial={{ opacity: 0, y: 12 }}

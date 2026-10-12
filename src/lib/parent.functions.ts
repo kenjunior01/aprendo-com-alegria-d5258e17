@@ -5,7 +5,15 @@ import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { z } from "zod";
 
 export interface ParentDashboardData {
-  child: { id: string; name: string; mascot: string; grade: number; xp: number; coins: number; streak: number };
+  child: {
+    id: string;
+    name: string;
+    mascot: string;
+    grade: number;
+    xp: number;
+    coins: number;
+    streak: number;
+  };
   totals: { sessions: number; correct: number; total: number; minutes: number };
   bySubject: { subject_id: string; correct: number; total: number; minutes: number }[];
   byDay: { date: string; minutes: number; correct: number; total: number }[];
@@ -13,7 +21,11 @@ export interface ParentDashboardData {
   insights: { type: "good" | "warn" | "info"; text: string }[];
   recommendation: { title: string; message: string; focusSubject: string };
   predictions: { area: string; risk: "alto" | "medio" | "baixo"; reason: string }[];
-  offPlatform: { type: "livro" | "brincadeira" | "atividade"; title: string; description: string }[];
+  offPlatform: {
+    type: "livro" | "brincadeira" | "atividade";
+    title: string;
+    description: string;
+  }[];
   achievements: { code: string; unlocked_at: string }[];
 }
 
@@ -21,6 +33,7 @@ const SUBJECT_NAMES: Record<string, string> = {
   portugues: "Português",
   matematica: "Matemática",
   "estudo-do-meio": "Estudo do Meio",
+  duelo: "Duelo da Família",
 };
 
 export const getChildDashboard = createServerFn({ method: "POST" })
@@ -104,7 +117,10 @@ export const getChildDashboard = createServerFn({ method: "POST" })
       const w = new Date(s.created_at as string).getDay();
       byWeekdayMap[w] += Math.round((s.duration_seconds ?? 0) / 60);
     }
-    const byWeekday = Object.entries(byWeekdayMap).map(([w, m]) => ({ weekday: Number(w), minutes: m }));
+    const byWeekday = Object.entries(byWeekdayMap).map(([w, m]) => ({
+      weekday: Number(w),
+      minutes: m,
+    }));
 
     // Insights
     const accuracy = totals.total ? totals.correct / totals.total : 0;
@@ -112,16 +128,37 @@ export const getChildDashboard = createServerFn({ method: "POST" })
     const insights: ParentDashboardData["insights"] = [];
 
     if (totals.sessions === 0) {
-      insights.push({ type: "info", text: "Sem atividade nos últimos 14 dias. Convida o teu filho a abrir o Kidoz hoje." });
+      insights.push({
+        type: "info",
+        text: "Sem atividade nos últimos 14 dias. Convida o teu filho a abrir o Kidoz hoje.",
+      });
     } else {
-      if (accuracy >= 0.85) insights.push({ type: "good", text: `Excelente precisão de ${Math.round(accuracy * 100)}% — pronto para o próximo nível.` });
-      else if (accuracy < 0.6) insights.push({ type: "warn", text: `Precisão de ${Math.round(accuracy * 100)}%. Pode beneficiar de revisão dos básicos.` });
+      if (accuracy >= 0.85)
+        insights.push({
+          type: "good",
+          text: `Excelente precisão de ${Math.round(accuracy * 100)}% — pronto para o próximo nível.`,
+        });
+      else if (accuracy < 0.6)
+        insights.push({
+          type: "warn",
+          text: `Precisão de ${Math.round(accuracy * 100)}%. Pode beneficiar de revisão dos básicos.`,
+        });
 
-      if (activeDays >= 10) insights.push({ type: "good", text: `Praticou em ${activeDays} dos últimos 14 dias — ótima rotina!` });
-      else if (activeDays <= 3) insights.push({ type: "warn", text: `Apenas ${activeDays} dia(s) de prática. 10 minutos diários fazem diferença.` });
+      if (activeDays >= 10)
+        insights.push({
+          type: "good",
+          text: `Praticou em ${activeDays} dos últimos 14 dias — ótima rotina!`,
+        });
+      else if (activeDays <= 3)
+        insights.push({
+          type: "warn",
+          text: `Apenas ${activeDays} dia(s) de prática. 10 minutos diários fazem diferença.`,
+        });
 
       if (bySubject.length >= 2) {
-        const sorted = [...bySubject].sort((a, b) => (a.correct / Math.max(1, a.total)) - (b.correct / Math.max(1, b.total)));
+        const sorted = [...bySubject].sort(
+          (a, b) => a.correct / Math.max(1, a.total) - b.correct / Math.max(1, b.total),
+        );
         const weakest = sorted[0];
         const strongest = sorted[sorted.length - 1];
         if (weakest.total >= 3 && strongest.total >= 3) {
@@ -182,7 +219,10 @@ export const getChildDashboard = createServerFn({ method: "POST" })
       recommendation,
       predictions,
       offPlatform,
-      achievements: (ach ?? []).map((a) => ({ code: a.achievement_code, unlocked_at: a.unlocked_at })),
+      achievements: (ach ?? []).map((a) => ({
+        code: a.achievement_code,
+        unlocked_at: a.unlocked_at,
+      })),
     };
   });
 
@@ -190,28 +230,77 @@ function buildOffPlatform(
   grade: number,
   bySubject: Array<{ subject_id: string; correct: number; total: number }>,
 ): ParentDashboardData["offPlatform"] {
-  const sorted = [...bySubject].sort((a, b) => (a.correct / Math.max(1, a.total)) - (b.correct / Math.max(1, b.total)));
+  const sorted = [...bySubject].sort(
+    (a, b) => a.correct / Math.max(1, a.total) - b.correct / Math.max(1, b.total),
+  );
   const weakest = sorted[0]?.subject_id ?? "geral";
 
   const POOL: Record<string, ParentDashboardData["offPlatform"]> = {
     portugues: [
-      { type: "livro", title: grade <= 2 ? "«A que sabe a Lua?» — Michael Grejniec" : "«O Beijo da Palavrinha» — Mia Couto", description: "Leitura conjunta antes de dormir, pelo menos 10 minutos." },
-      { type: "brincadeira", title: "Caça às palavras em casa", description: "Procurem juntos objetos que comecem por uma letra escolhida." },
-      { type: "atividade", title: "Diário ilustrado", description: "Pedir à criança que desenhe e escreva uma frase sobre o dia." },
+      {
+        type: "livro",
+        title:
+          grade <= 2
+            ? "«A que sabe a Lua?» — Michael Grejniec"
+            : "«O Beijo da Palavrinha» — Mia Couto",
+        description: "Leitura conjunta antes de dormir, pelo menos 10 minutos.",
+      },
+      {
+        type: "brincadeira",
+        title: "Caça às palavras em casa",
+        description: "Procurem juntos objetos que comecem por uma letra escolhida.",
+      },
+      {
+        type: "atividade",
+        title: "Diário ilustrado",
+        description: "Pedir à criança que desenhe e escreva uma frase sobre o dia.",
+      },
     ],
     matematica: [
-      { type: "brincadeira", title: "Matemática na cozinha", description: "Pesar ingredientes, contar copos, dividir bolachas — frações na prática." },
-      { type: "atividade", title: "Jogos de tabuleiro com dados", description: "Monopólio Júnior, Uno, jogo da glória reforçam contagem e estratégia." },
-      { type: "livro", title: "«Histórias de Matemágica»", description: "Coleção infantil com problemas como aventuras." },
+      {
+        type: "brincadeira",
+        title: "Matemática na cozinha",
+        description: "Pesar ingredientes, contar copos, dividir bolachas — frações na prática.",
+      },
+      {
+        type: "atividade",
+        title: "Jogos de tabuleiro com dados",
+        description: "Monopólio Júnior, Uno, jogo da glória reforçam contagem e estratégia.",
+      },
+      {
+        type: "livro",
+        title: "«Histórias de Matemágica»",
+        description: "Coleção infantil com problemas como aventuras.",
+      },
     ],
     "estudo-do-meio": [
-      { type: "atividade", title: "Caminhada na natureza", description: "Identificar 5 plantas/animais e fotografá-los para depois pesquisar." },
-      { type: "brincadeira", title: "Mapa do bairro", description: "Desenhar juntos um mapa da rua, com pontos de referência." },
-      { type: "livro", title: "«O Meu Primeiro Atlas» — Porto Editora", description: "Explorar continentes, países, animais juntos." },
+      {
+        type: "atividade",
+        title: "Caminhada na natureza",
+        description: "Identificar 5 plantas/animais e fotografá-los para depois pesquisar.",
+      },
+      {
+        type: "brincadeira",
+        title: "Mapa do bairro",
+        description: "Desenhar juntos um mapa da rua, com pontos de referência.",
+      },
+      {
+        type: "livro",
+        title: "«O Meu Primeiro Atlas» — Porto Editora",
+        description: "Explorar continentes, países, animais juntos.",
+      },
     ],
     geral: [
-      { type: "atividade", title: "20 minutos sem ecrãs", description: "Conversar à mesa sobre o que aprenderam hoje." },
-      { type: "brincadeira", title: "Adivinhas em família", description: "Ótimo para vocabulário e raciocínio." },
+      {
+        type: "atividade",
+        title: "20 minutos sem ecrãs",
+        description: "Conversar à mesa sobre o que aprenderam hoje.",
+      },
+      {
+        type: "brincadeira",
+        title: "Adivinhas em família",
+        description: "Ótimo para vocabulário e raciocínio.",
+      },
     ],
   };
 
@@ -224,39 +313,68 @@ async function getRecommendationForChild(
 ) {
   const apiKey = process.env.LOVABLE_API_KEY;
   const fallback = () => {
-    const sorted = [...bySubject].sort((a, b) => (a.correct / Math.max(1, a.total)) - (b.correct / Math.max(1, b.total)));
+    const sorted = [...bySubject].sort(
+      (a, b) => a.correct / Math.max(1, a.total) - b.correct / Math.max(1, b.total),
+    );
     const weak = sorted[0];
     return {
-      title: weak ? `Reforçar ${SUBJECT_NAMES[weak.subject_id] ?? weak.subject_id}` : "Continuar a prática",
-      message: weak ? "Sugerimos 2-3 missões nesta área esta semana." : "Continuem com a rotina diária — está a correr bem!",
+      title: weak
+        ? `Reforçar ${SUBJECT_NAMES[weak.subject_id] ?? weak.subject_id}`
+        : "Continuar a prática",
+      message: weak
+        ? "Sugerimos 2-3 missões nesta área esta semana."
+        : "Continuem com a rotina diária — está a correr bem!",
       focusSubject: weak?.subject_id ?? "geral",
     };
   };
   if (!apiKey || sessions.length === 0) return fallback();
   try {
-    const summary = bySubject.map((s) => `${s.subject_id}: ${Math.round((s.correct / Math.max(1, s.total)) * 100)}% (${s.total} respostas)`).join(", ");
+    const summary = bySubject
+      .map(
+        (s) =>
+          `${s.subject_id}: ${Math.round((s.correct / Math.max(1, s.total)) * 100)}% (${s.total} respostas)`,
+      )
+      .join(", ");
     const resp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
       body: JSON.stringify({
         model: "google/gemini-3-flash-preview",
         messages: [
-          { role: "system", content: "És um conselheiro educacional para pais portugueses. Sê breve, prático e em pt-PT." },
-          { role: "user", content: `Performance recente do filho: ${summary}. Recomenda foco para esta semana.` },
-        ],
-        tools: [{ type: "function", function: {
-          name: "advise",
-          parameters: {
-            type: "object",
-            properties: {
-              title: { type: "string", description: "Título curto, máx 6 palavras, pt-PT" },
-              message: { type: "string", description: "Conselho prático 1-2 frases para o pai/mãe, pt-PT" },
-              focusSubject: { type: "string", enum: ["portugues", "matematica", "estudo-do-meio", "geral"] },
-            },
-            required: ["title", "message", "focusSubject"],
-            additionalProperties: false,
+          {
+            role: "system",
+            content:
+              "És um conselheiro educacional para pais portugueses. Sê breve, prático e em pt-PT.",
           },
-        }}],
+          {
+            role: "user",
+            content: `Performance recente do filho: ${summary}. Recomenda foco para esta semana.`,
+          },
+        ],
+        tools: [
+          {
+            type: "function",
+            function: {
+              name: "advise",
+              parameters: {
+                type: "object",
+                properties: {
+                  title: { type: "string", description: "Título curto, máx 6 palavras, pt-PT" },
+                  message: {
+                    type: "string",
+                    description: "Conselho prático 1-2 frases para o pai/mãe, pt-PT",
+                  },
+                  focusSubject: {
+                    type: "string",
+                    enum: ["portugues", "matematica", "estudo-do-meio", "geral"],
+                  },
+                },
+                required: ["title", "message", "focusSubject"],
+                additionalProperties: false,
+              },
+            },
+          },
+        ],
         tool_choice: { type: "function", function: { name: "advise" } },
       }),
     });
@@ -264,7 +382,9 @@ async function getRecommendationForChild(
     const data = await resp.json();
     const args = data.choices?.[0]?.message?.tool_calls?.[0]?.function?.arguments;
     if (args) return JSON.parse(args);
-  } catch { /* noop */ }
+  } catch {
+    /* noop */
+  }
   return fallback();
 }
 
@@ -316,8 +436,20 @@ export const getMyChildren = createServerFn({ method: "GET" })
 
     const childIds = links.filter((l) => l.child_id).map((l) => l.child_id) as string[];
     const { data: profiles } = childIds.length
-      ? await supabase.from("profiles").select("id, name, mascot, grade, xp, streak").in("id", childIds)
-      : { data: [] as Array<{ id: string; name: string; mascot: string; grade: number; xp: number; streak: number }> };
+      ? await supabase
+          .from("profiles")
+          .select("id, name, mascot, grade, xp, streak")
+          .in("id", childIds)
+      : {
+          data: [] as Array<{
+            id: string;
+            name: string;
+            mascot: string;
+            grade: number;
+            xp: number;
+            streak: number;
+          }>,
+        };
 
     return {
       children: profiles ?? [],
@@ -440,7 +572,11 @@ export const setChildControls = createServerFn({ method: "POST" })
     if (!(await assertLinked(userId, data.childId))) {
       return { ok: false as const, reason: "not_linked" as const };
     }
-    const patch: { parent_pin?: string | null; daily_limit_min?: number | null; bedtime_hour?: number | null } = {};
+    const patch: {
+      parent_pin?: string | null;
+      daily_limit_min?: number | null;
+      bedtime_hour?: number | null;
+    } = {};
     if (data.parentPin !== undefined) patch.parent_pin = data.parentPin;
     if (data.dailyLimitMin !== undefined) patch.daily_limit_min = data.dailyLimitMin;
     if (data.bedtimeHour !== undefined) patch.bedtime_hour = data.bedtimeHour;
@@ -448,4 +584,3 @@ export const setChildControls = createServerFn({ method: "POST" })
     if (error) return { ok: false as const, reason: "error" as const };
     return { ok: true as const };
   });
-

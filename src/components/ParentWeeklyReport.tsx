@@ -15,6 +15,7 @@ const SUBJECTS: Record<string, { name: string; emoji: string }> = {
   ingles: { name: "Inglês", emoji: "🗣️" },
   ciencias: { name: "Ciências", emoji: "🔬" },
   cidadania: { name: "Cidadania", emoji: "🌱" },
+  duelo: { name: "Duelo da Família", emoji: "⚔️" },
 };
 
 const subjectMeta = (id: string) => SUBJECTS[id] ?? { name: id, emoji: "📘" };
