@@ -20,7 +20,6 @@ import {
 } from "lucide-react";
 import {
   PAYMENTS,
-  PRECO_POR_ALUNO_EUR,
   FX_PAG,
   paisSeguro,
   paypalMeLink,
@@ -29,6 +28,7 @@ import {
   mensalEquivalenteAnualEur,
   type PaisPagId,
 } from "@/lib/payments";
+import { totalMensalEur, precoPorAluno } from "@/lib/schoolPricing";
 
 const PAISES_PAG = [
   { id: "pt", flag: "🇵🇹", nome: "Portugal" },
@@ -55,7 +55,9 @@ export function Pagamentos({ alunos, pais, onEscolherPais }: PagamentosProps) {
   const [copiado, setCopiado] = useState(false);
   const [plano, setPlano] = useState<"mensal" | "anual">("mensal");
 
-  const monthly = Math.max(1, alunos) * PRECO_POR_ALUNO_EUR;
+  const monthly = totalMensalEur(alunos);
+  const unitario = precoPorAluno(alunos);
+  const unitLabel = unitario.toFixed(2).replace(".", ",") + "€";
   const anual = totalAnualEur(alunos);
   const mensalAnual = mensalEquivalenteAnualEur(alunos);
   const valor = plano === "anual" ? anual : monthly;
@@ -166,14 +168,14 @@ export function Pagamentos({ alunos, pais, onEscolherPais }: PagamentosProps) {
       <div className="mt-3 rounded-2xl bg-primary/10 px-4 py-2.5 text-center text-sm font-bold text-primary">
         {plano === "anual" ? (
           <>
-            {eur(anual)} por ano · 0,99€ × {alunos} alunos × 10 meses (2 grátis) · IVA incluído
+            {eur(anual)} por ano · {unitLabel} × {alunos} alunos × 10 meses (2 grátis) · IVA incluído
             <span className="mt-0.5 block text-xs font-semibold text-primary/80">
               ≡ {eur(mensalAnual)}/mês — o mesmo produto, com 2 meses de presentes
             </span>
           </>
         ) : (
           <>
-            {eur(monthly)}/mês · 0,99€ × {alunos} alunos · IVA incluído
+            {eur(monthly)}/mês · {unitLabel} × {alunos} alunos · IVA incluído
           </>
         )}
         {p !== "pt" && (

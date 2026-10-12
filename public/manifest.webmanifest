@@ -1,10 +1,12 @@
 {
   "name": "Kidoz — Aprender com alegria",
   "short_name": "Kidoz",
-  "description": "App educativa estilo Duolingo para crianças do 1.º ciclo em Portugal. Português, Matemática e Estudo do Meio com mascotes divertidas.",
+  "description": "App educativa para crianças do 1.º ciclo em PT, MZ, AO, CV e BR. Português, Matemática, Estudo do Meio, Inglês e mais — com mascotes, painel de escola e PWA offline.",
   "start_url": "/",
   "scope": "/",
+  "id": "/",
   "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
   "orientation": "portrait",
   "background_color": "#fdf8ee",
   "theme_color": "#ff8c42",
@@ -33,6 +35,29 @@
       "type": "image/png",
       "form_factor": "narrow",
       "label": "Ecrã principal da Kidoz"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "A aventura de hoje",
+      "short_name": "Aprender",
+      "description": "Ir direto à missão do dia no caminho de aprendizagem",
+      "url": "/app",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Painel da Escola",
+      "short_name": "Escola",
+      "description": "Turmas, relatórios e Estúdio do Professor",
+      "url": "/escola",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Kidoz para Escolas",
+      "short_name": "Instituições",
+      "description": "Planos institucionais, fichas grátis e trial de 15 dias",
+      "url": "/escolas",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
     }
   ]
 }

@@ -65,6 +65,9 @@ import {
 } from "recharts";
 import { RouteError } from "@/components/RouteError";
 import { KidLoader } from "@/components/KidLoader";
+import { TeacherContents } from "@/components/TeacherContents";
+import { SchoolTrialCard } from "@/components/SchoolTrialCard";
+import { CheckCircle2, Circle, BookOpenCheck } from "lucide-react";
 
 export const Route = createFileRoute("/escola")({
   head: () => ({
@@ -426,14 +429,45 @@ function EscolaPage() {
           </div>
         )}
 
+        {/* Tutorial de onboarding — a turma pronta em 5 passos (estado real do painel) */}
+        <OnboardingChecklist
+          hasSchool={schools.length > 0}
+          hasClass={classes.length > 0}
+          onGoTab={(tab) => {
+            const el = document.querySelector<HTMLButtonElement>(
+              `[role="tab"][data-value="${tab}"]`,
+            );
+            el?.click();
+            window.scrollTo({ top: 240, behavior: "smooth" });
+          }}
+        />
+
+        {/* Trial 15 dias — uma vez por conta, sem cartão */}
+        <div className="mt-4">
+          <SchoolTrialCard />
+        </div>
+
         <Tabs defaultValue="schools">
           <TabsList className="mb-4">
-            <TabsTrigger value="schools">Escolas</TabsTrigger>
-            <TabsTrigger value="classes">Turmas</TabsTrigger>
+            <TabsTrigger value="schools" data-value="schools">
+              Escolas
+            </TabsTrigger>
+            <TabsTrigger value="classes" data-value="classes">
+              Turmas
+            </TabsTrigger>
+            <TabsTrigger value="conteudos" data-value="conteudos">
+              <BookOpenCheck className="mr-1 inline h-4 w-4" /> Conteúdos
+            </TabsTrigger>
             {selectedClass && (
-              <TabsTrigger value="dash">Relatório · {selectedClass.name}</TabsTrigger>
+              <TabsTrigger value="dash" data-value="dash">
+                Relatório · {selectedClass.name}
+              </TabsTrigger>
             )}
           </TabsList>
+
+          <TabsContent value="conteudos">
+            <TeacherContents />
+          </TabsContent>
 
           <TabsContent value="schools">
             <NewSchool
@@ -1006,6 +1040,124 @@ function Stat({ label, value }: { label: string; value: string }) {
       <p className="text-[10px] uppercase tracking-wide text-muted-foreground">{label}</p>
       <p className="font-display text-lg">{value}</p>
     </div>
+  );
+}
+
+// Checklist de onboarding do professor — o "tutorial" do modo instituições,
+// sempre visível até estar completo. Cada passo usa o estado REAL do painel
+// (escolas/turmas criadas) — nada de checkboxes falsos.
+function OnboardingChecklist({
+  hasSchool,
+  hasClass,
+  onGoTab,
+}: {
+  hasSchool: boolean;
+  hasClass: boolean;
+  onGoTab: (tab: "schools" | "classes" | "conteudos") => void;
+}) {
+  const [hidden, setHidden] = useState(false);
+  const steps: {
+    done: boolean;
+    label: string;
+    desc: string;
+    action?: { label: string; tab: "schools" | "classes" | "conteudos" };
+  }[] = [
+    { done: true, label: "Conta criada", desc: "Já estás dentro — meio caminho andado." },
+    {
+      done: hasSchool,
+      label: "Criar a escola",
+      desc: "O nome da instituição e o código de convite da direção.",
+      action: { label: "Criar agora", tab: "schools" },
+    },
+    {
+      done: hasClass,
+      label: "Criar a primeira turma",
+      desc: "Cada turma tem um código de 6 caracteres para os alunos entrarem.",
+      action: { label: "Criar turma", tab: "schools" },
+    },
+    {
+      done: false,
+      label: "Partilhar o código com os alunos",
+      desc: "Os alunos entram em kidoz.online/escolas com o código — sem emails.",
+      action: { label: "Ver turmas", tab: "classes" },
+    },
+    {
+      done: false,
+      label: "Enviar os primeiros conteúdos (Premium)",
+      desc: "Cria uma lição à tua medida ou carrega um CSV no Estúdio do Professor.",
+      action: { label: "Abrir Estúdio", tab: "conteudos" },
+    },
+  ];
+  const doneCount = steps.filter((s) => s.done).length;
+  const allDone = doneCount === steps.length;
+
+  if (hidden) return null;
+
+  return (
+    <section
+      className="mb-4 rounded-2xl border-2 border-primary/30 bg-gradient-to-br from-primary/10 via-card to-accent/10 p-4"
+      aria-label="Tutorial de onboarding"
+    >
+      <div className="flex items-center justify-between gap-2">
+        <div>
+          <p className="font-display text-base">
+            {allDone
+              ? "Tudo pronto — boa aula! 🎉"
+              : `Começa aqui: ${doneCount}/${steps.length} passos`}
+          </p>
+          {!allDone && (
+            <p className="text-xs text-muted-foreground">
+              Da conta ao primeiro exercício dos teus alunos em menos de 10 minutos.
+            </p>
+          )}
+        </div>
+        <div className="flex items-center gap-2">
+          <a
+            href="/tutorial"
+            className="text-xs font-semibold text-primary underline underline-offset-2"
+          >
+            Tutorial completo
+          </a>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setHidden(true)}
+            aria-label="Fechar tutorial"
+          >
+            <X className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
+      <ol className="mt-3 space-y-1.5">
+        {steps.map((s) => (
+          <li key={s.label} className="flex items-start gap-2 rounded-xl bg-card/70 px-3 py-2">
+            {s.done ? (
+              <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-success" />
+            ) : (
+              <Circle className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
+            )}
+            <div className="min-w-0 flex-1">
+              <p
+                className={`text-sm ${s.done ? "text-muted-foreground line-through" : "font-semibold"}`}
+              >
+                {s.label}
+              </p>
+              <p className="text-xs text-muted-foreground">{s.desc}</p>
+            </div>
+            {!s.done && s.action && (
+              <Button
+                size="sm"
+                variant="outline"
+                className="shrink-0"
+                onClick={() => onGoTab(s.action!.tab)}
+              >
+                {s.action.label}
+              </Button>
+            )}
+          </li>
+        ))}
+      </ol>
+    </section>
   );
 }
 

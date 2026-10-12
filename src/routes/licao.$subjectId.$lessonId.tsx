@@ -14,7 +14,8 @@ import { SoundToggle } from "@/components/SoundToggle";
 import { LessonCompleteScreen } from "@/components/LessonCompleteScreen";
 import { HeartRevive } from "@/components/HeartRevive";
 import { ComboTracker, ComboPopup } from "@/components/ComboTracker";
-import { getLesson, getSubject, type Question } from "@/lib/curriculum";
+import { getLesson, getSubject, type Lesson, type Subject, type Question } from "@/lib/curriculum";
+import { getStudentTeacherLesson } from "@/lib/teacherContent.functions";
 import { completeLesson, loadProfile, updateProfile, type Profile } from "@/lib/storage";
 import { detectRegion, localizeQuestion, regionalFunFact } from "@/lib/region";
 import { addMistake, markReviewed, reviewId } from "@/lib/reviewQueue";
@@ -74,11 +75,58 @@ function LessonPage() {
   const navigate = useNavigate();
   const fnSubmitChallenge = useServerFn(submitChallengeScore);
   const fnExplainMistake = useServerFn(explainMistake);
+  const fnTurmaLesson = useServerFn(getStudentTeacherLesson);
   const search = Route.useSearch();
   const challengeId = search.challenge ?? null;
 
-  const subject = getSubject(subjectId);
-  const baseLesson = getLesson(subjectId, lessonId);
+  // Lições autorais do professor: subjectId "turma" carrega da cloud (com
+  // verificação de turma no servidor). Mesmo motor, mesma diversão.
+  const isTurma = subjectId === "turma";
+  const [turmaLesson, setTurmaLesson] = useState<Lesson | null>(null);
+  const [turmaLoading, setTurmaLoading] = useState(isTurma);
+  useEffect(() => {
+    if (!isTurma) return;
+    let alive = true;
+    setTurmaLoading(true);
+    fnTurmaLesson({ data: { lessonId } })
+      .then((r) => {
+        if (!alive) return;
+        const row = r.lesson;
+        setTurmaLesson(
+          row
+            ? {
+                id: row.id,
+                title: row.title,
+                emoji: row.emoji,
+                grade: (row.grade as 1 | 2 | 3 | 4) ?? 1,
+                questions: (row.questions ?? []) as Question[],
+              }
+            : null,
+        );
+        setTurmaLoading(false);
+      })
+      .catch(() => {
+        if (alive) {
+          setTurmaLesson(null);
+          setTurmaLoading(false);
+        }
+      });
+    return () => {
+      alive = false;
+    };
+  }, [isTurma, lessonId, fnTurmaLesson]);
+
+  const TURMA_SUBJECT: Subject = {
+    id: "turma",
+    name: "Turma",
+    tagline: "Lições do teu professor",
+    emoji: "🎓",
+    colorVar: "--primary",
+    lessons: [],
+  };
+
+  const subject = isTurma ? TURMA_SUBJECT : getSubject(subjectId);
+  const baseLesson = isTurma ? turmaLesson : getLesson(subjectId, lessonId);
 
   const [profile, setProfile] = useState<Profile | null>(null);
   const [qIndex, setQIndex] = useState(0);
@@ -206,6 +254,7 @@ function LessonPage() {
   }, [voice.matchedIndex, revealed]);
 
   if (!profile) return <KidLoader />;
+  if (isTurma && turmaLoading) return <KidLoader compact label="A abrir a lição da turma…" />;
   if (!subject || !lesson || !q) {
     const fallbackMascot = getMascot(profile?.mascot);
     return (

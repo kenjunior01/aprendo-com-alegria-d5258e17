@@ -12,6 +12,9 @@
 // automaticamente; PayPal e transferência são confirmados manualmente no
 // mesmo dia útil — por isso a UI diz sempre a verdade sobre os prazos.
 
+// Estrutura de preços institucionais por volume (tiers) — fonte única.
+import { totalMensalEur } from "./schoolPricing";
+
 /** Países suportados na secção de pagamento (mesmo conjunto da calculadora). */
 export type PaisPagId = "pt" | "mz" | "ao" | "cv" | "br";
 
@@ -24,7 +27,8 @@ export const PAYMENTS = {
   beneficiario: "Kidoz Online",
 } as const;
 
-/** Preço por aluno/mês em EUR (deve refletir PRICE_PER_STUDENT de /escolas). */
+/** Preço por aluno/mês em EUR — preço base de entrada (tier 20-49 alunos).
+ *  Para descontos por volume usar sempre `precoPorAluno(alunos)` de schoolPricing. */
 export const PRECO_POR_ALUNO_EUR = 0.99;
 
 /**
@@ -34,9 +38,9 @@ export const PRECO_POR_ALUNO_EUR = 0.99;
  */
 export const MESES_PAGOS_ANUAL = 10;
 
-/** Total anual por aluno (0,99€ × 10 = 9,90€). Arredondado a cêntimos. */
+/** Total anual por aluno — respeita o desconto automático por volume. */
 export function totalAnualEur(alunos: number): number {
-  const v = Math.max(1, Math.floor(alunos)) * PRECO_POR_ALUNO_EUR * MESES_PAGOS_ANUAL;
+  const v = totalMensalEur(alunos) * MESES_PAGOS_ANUAL;
   return Math.round(v * 100) / 100;
 }
 

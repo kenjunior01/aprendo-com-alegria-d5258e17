@@ -7,6 +7,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
+import { precoPorAluno } from "@/lib/schoolPricing";
 
 const Input = z.object({
   escola: z.string().max(80).default(""),
@@ -49,7 +50,10 @@ export const generateProposal = createServerFn({ method: "POST" })
     try {
       const { escola, alunos, pais } = data;
       const moeda = MOEDA[pais];
-      const monthly = alunos * 0.99;
+      const unitario = precoPorAluno(alunos);
+      const unitLabel = unitario.toFixed(2).replace(".", ",") + "\u20ac";
+      const centDia = Math.max(1, Math.ceil((unitario / 21) * 100));
+      const monthly = alunos * unitario;
       const yearly = monthly * 12;
       const fundador = yearly * 0.5;
       const anualComGratis = monthly * 10; // plano anual: 10 meses pagos, 12 gozados
@@ -136,7 +140,7 @@ export const generateProposal = createServerFn({ method: "POST" })
 
       line("INVESTIMENTO", 13, titleFont, primary, 20);
       line(
-        `0,99\u20ac por aluno/mês (IVA incluído) - menos de 5 cêntimos por dia útil por aluno. Com ${alunos} alunos:`,
+        `${unitLabel} por aluno/mês (IVA incluído, desconto por volume automático) - \u2248 ${centDia} cêntimos por dia útil por aluno. Com ${alunos} alunos:`,
       );
       line(`${eur(monthly)} por mês  ·  ${eur(yearly)} por ano`, 15, titleFont, dark, 24);
       if (pais !== "pt") {

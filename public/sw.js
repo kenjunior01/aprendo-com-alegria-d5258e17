@@ -4,10 +4,11 @@
 //  - Static assets (JS/CSS/img/fonts): StaleWhileRevalidate
 //  - Same-origin API responses are NOT cached (avoid stale data)
 
-const CACHE_VERSION = 'kidoz-v3';
+const CACHE_VERSION = 'kidoz-v4';
 const STATIC_CACHE = `${CACHE_VERSION}-static`;
 const HTML_CACHE = `${CACHE_VERSION}-html`;
 const PRECACHE_URLS = [
+    "/tutorial",
   '/',
   '/manifest.webmanifest',
   '/icon-192.png',

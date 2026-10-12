@@ -406,6 +406,12 @@ function Landing() {
             >
               Ajuda
             </Link>
+            <Link
+              to="/tutorial"
+              className="hover:text-primary hover:underline min-h-[44px] inline-flex items-center"
+            >
+              Tutoriais
+            </Link>
           </nav>
           <p className="mt-2">&copy; {new Date().getFullYear()} Kidoz — Aprender a brincar</p>
         </footer>

@@ -29,6 +29,16 @@ import { PlanificadorSemanal } from "@/components/PlanificadorSemanal";
 import { PaisesSection } from "@/components/PaisesSection";
 import { CopiasCalc } from "@/components/CopiasCalc";
 import { RouteError } from "@/components/RouteError";
+import { SchoolTrialCard } from "@/components/SchoolTrialCard";
+import {
+  SCHOOL_TIERS,
+  precoPorAluno,
+  tierDe,
+  totalMensalEur,
+  descontoTier,
+  MIN_ALUNOS_ESCOLA,
+} from "@/lib/schoolPricing";
+import { GraduationCap } from "lucide-react";
 import {
   ArrowLeft,
   Check,
@@ -48,11 +58,11 @@ import {
 export const Route = createFileRoute("/escolas")({
   head: () => ({
     meta: [
-      { title: "Kidoz para Escolas — 0,99€/aluno/mês, funciona offline" },
+      { title: "Kidoz para Escolas — desde 0,45€/aluno/mês, funciona offline" },
       {
         name: "description",
         content:
-          "Plano para escolas em Portugal, Moçambique, Angola, Cabo Verde e Brasil: 0,99€/aluno/mês, mínimo 20 alunos. Fichas grátis de matemática, português e estudo do meio, painel do professor, modo turma ao vivo, torneios e desafios entre turmas com placar ao vivo — sem registo.",
+          "Plano para escolas em Portugal, Moçambique, Angola, Cabo Verde e Brasil: desde 0,45€/aluno/mês com desconto automático por volume, 15 dias grátis. Painel do professor, fichas grátis, Estúdio do Professor e modo turma ao vivo.",
       },
       {
         property: "og:title",
@@ -73,9 +83,8 @@ export const Route = createFileRoute("/escolas")({
   errorComponent: RouteError,
 });
 
-const MIN_STUDENTS = 20;
+const MIN_STUDENTS = MIN_ALUNOS_ESCOLA;
 const MAX_STUDENTS = 5000;
-const PRICE_PER_STUDENT = 0.99;
 const PRICE_ID = "escola_aluno_mensal";
 
 const FEATURES: { icon: typeof SchoolIcon; title: string; desc: string }[] = [
@@ -285,8 +294,11 @@ function EscolasPage() {
     }
   };
 
-  const monthly = useMemo(() => students * PRICE_PER_STUDENT, [students]);
+  const unitario = precoPorAluno(students);
+  const tier = tierDe(students);
+  const monthly = useMemo(() => totalMensalEur(students), [students]);
   const yearly = useMemo(() => monthly * 12, [monthly]);
+  const poupancaPct = descontoTier(unitario);
 
   const adjust = (delta: number) => {
     setStudents((n) => {
@@ -338,14 +350,16 @@ function EscolasPage() {
             pais. Funciona em tablets partilhados e continua offline quando a rede falha. Pagas
             apenas pelos alunos que usam.
           </p>
-          <div className="mt-5 inline-flex items-baseline gap-2">
-            <span className="font-display text-5xl text-primary">0,99€</span>
-            <span className="text-base text-muted-foreground">/ aluno · mês</span>
+          <div className="mt-5">
+            <div className="inline-flex items-baseline gap-2">
+              <span className="font-display text-5xl text-primary">desde 0,45€</span>
+              <span className="text-base text-muted-foreground">/ aluno · mês</span>
+            </div>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Desconto automático por volume — 0,99€ a partir de 20 alunos, 0,79€ com 50, 0,59€ com
+              200, 0,45€ com 500+. IVA incluído · sem negociação escondida
+            </p>
           </div>
-          <p className="mt-1 text-xs text-muted-foreground">
-            Mínimo {MIN_STUDENTS} alunos · faturação mensal · IVA incluído · menos de 5 cêntimos por
-            dia útil por aluno
-          </p>
           <div className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-4">
             {[
               { n: "300+", l: "exercícios" },
@@ -363,6 +377,32 @@ function EscolasPage() {
 
         {/* Entrada do aluno na turma (fecha o ciclo institucional) */}
         <JoinClassCard />
+
+        {/* Trial institucional — 15 dias grátis, sem cartão */}
+        <section className="mt-8">
+          <SchoolTrialCard />
+        </section>
+
+        {/* Tutorial dedicado — cada tipo de cadastro guiado ao pormenor */}
+        <section className="mt-8 card-chunky flex flex-col items-center gap-3 rounded-3xl border-2 border-violet-400/40 bg-gradient-to-br from-violet-400/10 via-card to-primary/10 p-5 text-center sm:flex-row sm:text-left">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-violet-400/20">
+            <GraduationCap className="h-6 w-6 text-violet-600" />
+          </div>
+          <div className="flex-1">
+            <p className="font-display text-lg">Tutorial passo a passo para cada modo</p>
+            <p className="text-sm text-muted-foreground">
+              Guias dedicados para famílias, professores e direções: da criação de conta aos
+              primeiros exercícios dos alunos — com o modo instituição explicado ao pormenor
+              (escola, turmas, códigos, relatórios e Estúdio do Professor).
+            </p>
+          </div>
+          <Link
+            to="/tutorial"
+            className="inline-flex min-h-[48px] shrink-0 items-center justify-center rounded-2xl bg-violet-500 px-5 font-display text-sm font-semibold text-white shadow-lg transition-transform active:scale-95"
+          >
+            Ver tutoriais →
+          </Link>
+        </section>
 
         {/* Programa de Escolas Fundadoras — urgência honesta, sem inventar números */}
         <section className="mt-8 overflow-hidden rounded-3xl border-2 border-amber-400/60 bg-gradient-to-br from-amber-400/15 via-card to-secondary/20 p-6 sm:p-8">
@@ -548,6 +588,16 @@ function EscolasPage() {
             </div>
 
             <div className="flex-1 rounded-2xl bg-muted/60 p-4 text-center sm:text-left">
+              {tier && (
+                <p className="mb-1 inline-flex items-center gap-1.5 rounded-full bg-primary/15 px-3 py-0.5 text-xs font-bold text-primary">
+                  {tier.emoji} {tier.name} · {unitario.toFixed(2).replace(".", ",")}€/aluno
+                  {poupancaPct > 0 && (
+                    <span className="rounded-full bg-success/20 px-1.5 text-[10px] text-success">
+                      -{poupancaPct}%
+                    </span>
+                  )}
+                </p>
+              )}
               <p className="text-xs uppercase tracking-wider text-muted-foreground">Total mensal</p>
               <p className="font-display text-3xl text-primary">
                 {monthly.toLocaleString("pt-PT", {
@@ -584,6 +634,34 @@ function EscolasPage() {
               : `Cobramos em euros (€) — o equivalente em ${FX_CALC[paisCalc].nome} é aproximado (câmbio de referência), para facilitares a decisão.`}
           </p>
 
+          {/* Tiers transparentes — a tabela completa, sem letra miúda */}
+          <div className="mt-5 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+            {SCHOOL_TIERS.map((t) => {
+              const ativo = tier?.id === t.id;
+              return (
+                <div
+                  key={t.id}
+                  className={`rounded-2xl border-2 p-3 text-center transition-colors ${
+                    ativo ? "border-primary bg-primary/10" : "border-border bg-muted/40"
+                  }`}
+                >
+                  <p aria-hidden="true" className="text-xl">
+                    {t.emoji}
+                  </p>
+                  <p className="font-display text-sm">{t.name}</p>
+                  <p className="font-display text-lg text-primary">
+                    {t.pricePerStudent.toFixed(2).replace(".", ",")}€
+                  </p>
+                  <p className="text-[10px] text-muted-foreground">
+                    {t.min}–{t.max >= 20000 ? "∞" : t.max} alunos
+                    {descontoTier(t.pricePerStudent) > 0 &&
+                      ` · -${descontoTier(t.pricePerStudent)}%`}
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+
           <ul className="mt-5 grid gap-2 text-sm sm:grid-cols-2">
             {[
               "Acesso completo para todos os alunos da licença",
@@ -599,9 +677,18 @@ function EscolasPage() {
           </ul>
 
           <div className="mt-6 flex flex-col items-stretch gap-3 sm:flex-row">
-            <ChunkyButton onClick={handleSubscribe} className="min-h-[56px] flex-1 text-base">
-              Subscrever {students} alunos
-            </ChunkyButton>
+            {unitario === SCHOOL_TIERS[0].pricePerStudent ? (
+              <ChunkyButton onClick={handleSubscribe} className="min-h-[56px] flex-1 text-base">
+                Subscrever {students} alunos
+              </ChunkyButton>
+            ) : (
+              <a
+                href="#fundador"
+                className="inline-flex min-h-[56px] flex-1 items-center justify-center rounded-2xl bg-primary px-6 font-display text-base font-semibold text-primary-foreground shadow-lg transition-transform active:scale-95"
+              >
+                Pedir proposta com -{poupancaPct}%
+              </a>
+            )}
             <a
               href="mailto:escolas@kidoz.online?subject=Pedido%20de%20demonstra%C3%A7%C3%A3o%20Kidoz%20Escolas"
               className="inline-flex min-h-[56px] flex-1 items-center justify-center rounded-2xl border-2 border-border bg-card px-5 font-display text-base hover:bg-muted"
@@ -610,7 +697,7 @@ function EscolasPage() {
             </a>
             <a
               href={`https://wa.me/?text=${encodeURIComponent(
-                "Olá! Tenho interesse no plano Kidoz para Escolas (0,99€/aluno/mês). A minha instituição chama-se…",
+                "Olá! Tenho interesse no plano Kidoz para Escolas (desde 0,45€/aluno/mês com desconto automático). A minha instituição chama-se…",
               )}`}
               target="_blank"
               rel="noopener noreferrer"
@@ -620,6 +707,14 @@ function EscolasPage() {
               WhatsApp
             </a>
           </div>
+
+          {unitario !== SCHOOL_TIERS[0].pricePerStudent && (
+            <p className="mt-3 rounded-2xl bg-muted/50 px-4 py-2 text-center text-xs text-muted-foreground">
+              Honestidade total: o checkout de cartão automático serve o tier de entrada (0,99€). A
+              partir de 50 alunos o desconto é aplicado na proposta/fatura — responde­mos no mesmo
+              dia útil.
+            </p>
+          )}
 
           <p className="mt-4 text-center text-xs text-muted-foreground">
             🔒 Pagamento seguro processado pela Stripe. IVA calculado automaticamente por país.

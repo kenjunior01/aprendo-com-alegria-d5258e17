@@ -40,6 +40,9 @@ import {
 } from "lucide-react";
 import { RouteError } from "@/components/RouteError";
 import { KidLoader } from "@/components/KidLoader";
+import { startPremiumTrial } from "@/lib/teacherContent.functions";
+import { toast } from "sonner";
+import { CalendarClock, LoaderCircle } from "lucide-react";
 
 const TESTIMONIALS = [
   {
@@ -399,6 +402,9 @@ function PremiumPage() {
             )}
           </div>
         </section>
+
+        {/* Trial família — 7 dias grátis, sem cartão (anti-dark-pattern: sem renovação automática escondida) */}
+        {!premiumNow && user && <PremiumTrialCard />}
 
         {/* Sem pagar? Convita! */}
         <section className="card-chunky mt-5 flex flex-col items-center gap-3 rounded-3xl border-2 border-secondary/50 bg-gradient-to-br from-secondary/15 to-accent/10 p-5 text-center sm:flex-row sm:text-left">
@@ -801,5 +807,65 @@ function PremiumPage() {
 
       <BottomNav />
     </div>
+  );
+}
+
+// Trial família — 7 dias de Premium sem cartão e sem renovação automática
+// (o oposto dos dark patterns do FTC v. ABCmouse: quando acaba, simplesmente acaba).
+function PremiumTrialCard() {
+  const fnStart = useServerFn(startPremiumTrial);
+  const [loading, setLoading] = useState(false);
+  const [activated, setActivated] = useState(false);
+  const { isActive, isTrial, trialUntil, refetch } = useSubscription();
+
+  if (activated || isTrial || isActive) {
+    const until = trialUntil ? new Date(trialUntil).toLocaleDateString("pt-PT") : "";
+    return (
+      <section className="card-chunky mt-5 rounded-3xl border-2 border-success/40 bg-gradient-to-br from-success/15 to-emerald-300/10 p-5 text-center">
+        <p className="font-display text-lg">Trial Premium ativo 🎉</p>
+        <p className="mt-1 text-sm text-muted-foreground">
+          {until ? `Até ${until}. ` : ""}Explora o Mundo, o tutor IA e tudo sem limites — sem cartão
+          nenhum por trás disto.
+        </p>
+        <Link to="/portal" className="mt-3 inline-block">
+          <ChunkyButton>
+            <Sparkles className="mr-1 inline h-5 w-5" /> Entrar no Mundo Premium
+          </ChunkyButton>
+        </Link>
+      </section>
+    );
+  }
+
+  return (
+    <section className="card-chunky mt-5 rounded-3xl border-2 border-amber-400/50 bg-gradient-to-br from-amber-400/15 via-card to-accent/10 p-5 text-center">
+      <CalendarClock className="mx-auto h-8 w-8 text-amber-500" />
+      <p className="mt-2 font-display text-lg">Experimenta 7 dias grátis, sem cartão</p>
+      <p className="mx-auto mt-1 max-w-md text-sm text-muted-foreground">
+        Premium completo durante uma semana. Sem pedirmos cartão, sem renovação automática
+        escondida, sem chatices no fim — quando acabar, acabou. É só aproveitar.
+      </p>
+      <ChunkyButton
+        className="mt-3"
+        disabled={loading}
+        onClick={async () => {
+          setLoading(true);
+          try {
+            const r = await fnStart();
+            if (r.ok) {
+              toast.success(r.message ?? "7 dias de Premium ativados! 🎉");
+              setActivated(true);
+              await refetch();
+            } else {
+              toast.info(r.message ?? "O trial só pode ser ativado uma vez por conta.");
+            }
+          } finally {
+            setLoading(false);
+          }
+        }}
+      >
+        {loading && <LoaderCircle className="mr-1 inline h-4 w-4 animate-spin" />}
+        Ativar os meus 7 dias grátis
+      </ChunkyButton>
+    </section>
   );
 }

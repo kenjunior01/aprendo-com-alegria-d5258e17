@@ -7,6 +7,7 @@
 import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { Calculator } from "lucide-react";
+import { totalMensalEur } from "@/lib/schoolPricing";
 
 const eur = (v: number) => v.toLocaleString("pt-PT", { style: "currency", currency: "EUR" });
 
@@ -18,7 +19,7 @@ export function CopiasCalc() {
   const calc = useMemo(() => {
     const copiasMes = Math.round(alunos * fichasSemana * 4.33);
     const custoCopias = copiasMes * precoCopia;
-    const kidoz = alunos * 0.99;
+    const kidoz = totalMensalEur(alunos); // desconto por volume automático
     const poupanca = custoCopias - kidoz;
     const pct = custoCopias > 0 ? Math.round((poupanca / custoCopias) * 100) : 0;
     return { copiasMes, custoCopias, kidoz, poupanca, pct };

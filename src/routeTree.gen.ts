@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TutorialRouteImport } from './routes/tutorial'
 import { Route as TutorRouteImport } from './routes/tutor'
 import { Route as TermosRouteImport } from './routes/termos'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
@@ -55,6 +56,11 @@ import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/em
 import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
 
+const TutorialRoute = TutorialRouteImport.update({
+  id: '/tutorial',
+  path: '/tutorial',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TutorRoute = TutorRouteImport.update({
   id: '/tutor',
   path: '/tutor',
@@ -316,6 +322,7 @@ export interface FileRoutesByFullPath {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/termos': typeof TermosRoute
   '/tutor': typeof TutorRoute
+  '/tutorial': typeof TutorialRoute
   '/aprender/estudo-do-meio': typeof AprenderEstudoDoMeioRoute
   '/aprender/matematica': typeof AprenderMatematicaRoute
   '/aprender/portugues': typeof AprenderPortuguesRoute
@@ -363,6 +370,7 @@ export interface FileRoutesByTo {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/termos': typeof TermosRoute
   '/tutor': typeof TutorRoute
+  '/tutorial': typeof TutorialRoute
   '/aprender/estudo-do-meio': typeof AprenderEstudoDoMeioRoute
   '/aprender/matematica': typeof AprenderMatematicaRoute
   '/aprender/portugues': typeof AprenderPortuguesRoute
@@ -411,6 +419,7 @@ export interface FileRoutesById {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/termos': typeof TermosRoute
   '/tutor': typeof TutorRoute
+  '/tutorial': typeof TutorialRoute
   '/aprender/estudo-do-meio': typeof AprenderEstudoDoMeioRoute
   '/aprender/matematica': typeof AprenderMatematicaRoute
   '/aprender/portugues': typeof AprenderPortuguesRoute
@@ -460,6 +469,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/termos'
     | '/tutor'
+    | '/tutorial'
     | '/aprender/estudo-do-meio'
     | '/aprender/matematica'
     | '/aprender/portugues'
@@ -507,6 +517,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/termos'
     | '/tutor'
+    | '/tutorial'
     | '/aprender/estudo-do-meio'
     | '/aprender/matematica'
     | '/aprender/portugues'
@@ -554,6 +565,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/termos'
     | '/tutor'
+    | '/tutorial'
     | '/aprender/estudo-do-meio'
     | '/aprender/matematica'
     | '/aprender/portugues'
@@ -602,6 +614,7 @@ export interface RootRouteChildren {
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TermosRoute: typeof TermosRoute
   TutorRoute: typeof TutorRoute
+  TutorialRoute: typeof TutorialRoute
   AprenderEstudoDoMeioRoute: typeof AprenderEstudoDoMeioRoute
   AprenderMatematicaRoute: typeof AprenderMatematicaRoute
   AprenderPortuguesRoute: typeof AprenderPortuguesRoute
@@ -618,6 +631,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/tutorial': {
+      id: '/tutorial'
+      path: '/tutorial'
+      fullPath: '/tutorial'
+      preLoaderRoute: typeof TutorialRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/tutor': {
       id: '/tutor'
       path: '/tutor'
@@ -981,6 +1001,7 @@ const rootRouteChildren: RootRouteChildren = {
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   TermosRoute: TermosRoute,
   TutorRoute: TutorRoute,
+  TutorialRoute: TutorialRoute,
   AprenderEstudoDoMeioRoute: AprenderEstudoDoMeioRoute,
   AprenderMatematicaRoute: AprenderMatematicaRoute,
   AprenderPortuguesRoute: AprenderPortuguesRoute,

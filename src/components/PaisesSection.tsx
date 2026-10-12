@@ -232,8 +232,8 @@ export function PaisesSection() {
         </AnimatePresence>
 
         <p className="mt-4 text-center text-xs text-muted-foreground">
-          Preço único em todos os países:{" "}
-          <span className="font-bold text-primary">0,99 € por aluno/mês</span>. Outros países
+          Preço único em todos os países, com desconto automático por volume (desde{" "}
+          <span className="font-bold text-primary">0,45 € por aluno/mês</span>). Outros países
           (Guiné-Bissau, São Tomé, Timor)? Fala connosco — abrimos por procura das escolas.
         </p>
       </div>

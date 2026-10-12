@@ -11,6 +11,7 @@ import { Copy, Mail, Check, FileSignature, Download, LoaderCircle, PenLine } fro
 import { ChunkyButton } from "@/components/ChunkyButton";
 import { generateProposal } from "@/lib/proposal.functions";
 import { generateCartaFundadora } from "@/lib/certificado.functions";
+import { precoPorAluno, totalMensalEur } from "@/lib/schoolPricing";
 
 const PRESETS = [
   { label: "1 turma", alunos: 24 },
@@ -69,8 +70,10 @@ export function DiretorKit() {
     }
   };
 
+  const unitLabel = precoPorAluno(alunos).toFixed(2).replace(".", ",") + "€";
+
   const proposta = useMemo(() => {
-    const monthly = alunos * 0.99;
+    const monthly = totalMensalEur(alunos);
     const firstYear = monthly * 12 * 0.5;
     const fx = FX_PROPOSTA[pais];
     return [
@@ -80,7 +83,7 @@ export function DiretorKit() {
       "Plataforma de aprendizagem em português para o 1.º ciclo (Português, Matemática e Estudo do Meio), com painel do professor, relatórios em PDF para conselhos de turma e ligação às famílias por WhatsApp. Funciona offline — ideal para tablets partilhados e redes instáveis. Sem anúncios.",
       "",
       "INVESTIMENTO",
-      `0,99€ por aluno/mês (IVA incluído). Com ±${alunos} alunos: ${eur(monthly)}/mês — menos de 5 cêntimos por dia útil por aluno. Cancelamento a qualquer momento.`,
+      `${unitLabel} por aluno/mês (IVA incluído, desconto por volume automático). Com ±${alunos} alunos: ${eur(monthly)}/mês — menos de 5 cêntimos por dia útil por aluno. Cancelamento a qualquer momento.`,
       pais !== "pt"
         ? `Equivalente de referência: ${fx.fmt(monthly * fx.taxa)}/mês (câmbio de referência; cobrança em euros).`
         : "",
@@ -286,10 +289,10 @@ export function DiretorKit() {
       </div>
 
       <div className="mt-3 rounded-2xl bg-primary/10 px-4 py-2.5 text-center text-sm font-bold text-primary">
-        {eur(alunos * 0.99)}/mês · 0,99€ × {alunos} alunos · IVA incluído
+        {eur(totalMensalEur(alunos))}/mês · {unitLabel} × {alunos} alunos · IVA incluído
         {pais !== "pt" && (
           <span className="mt-0.5 block text-xs font-semibold text-primary/80">
-            ≈ {fx.fmt(alunos * 0.99 * fx.taxa)} por mês (câmbio de referência)
+            ≈ {fx.fmt(totalMensalEur(alunos) * fx.taxa)} por mês (câmbio de referência)
           </span>
         )}
       </div>
@@ -385,7 +388,7 @@ export function DiretorKit() {
           )}
         </ChunkyButton>
         <p className="mt-1.5 text-[11px] text-muted-foreground">
-          Documento com benefícios (50% no 1.º ano — poupança de {eur(alunos * 0.99 * 6)}),
+          Documento com benefícios (50% no 1.º ano — poupança de {eur(totalMensalEur(alunos) * 6)}),
           condições honestas e linhas de assinatura — pronto para o conselho aprovar e devolver
           assinado.
         </p>

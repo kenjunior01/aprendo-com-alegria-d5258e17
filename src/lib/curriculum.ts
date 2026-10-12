@@ -860,9 +860,12 @@ export const SUBJECTS: Subject[] = [...SUBJECTS_CORE, ...SUBJECTS_EXTRA];
 // Lições boost (curriculumBoost.ts) — anexadas a cada matéria existente.
 // Aparecem no fim do caminho de aprendizagem de cada matéria.
 import { BOOST_LESSONS } from "./curriculumBoost";
+import { BOOST2_LESSONS } from "./curriculumBoost2";
 for (const s of SUBJECTS) {
   const extra = BOOST_LESSONS[s.id];
   if (extra?.length) s.lessons.push(...extra);
+  const extra2 = BOOST2_LESSONS[s.id];
+  if (extra2?.length) s.lessons.push(...extra2);
 }
 
 export const getSubject = (id: string) => SUBJECTS.find((s) => s.id === id);

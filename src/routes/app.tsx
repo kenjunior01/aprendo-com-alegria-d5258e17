@@ -14,6 +14,7 @@ import { useFastProfile } from "@/hooks/useFastProfile";
 import { AdaptiveTip } from "@/components/AdaptiveTip";
 import { MissionOfTheDay } from "@/components/MissionOfTheDay";
 import { SeasonalBanner } from "@/components/SeasonalBanner";
+import { TurmaLessons } from "@/components/TurmaLessons";
 import { countDue } from "@/lib/reviewQueue";
 import { loadMissions } from "@/lib/dailyMissions";
 import { REGIONS, detectRegion } from "@/lib/region";
@@ -119,6 +120,9 @@ function AppHome() {
         <MissionOfTheDay completedLessons={profile.completedLessons} grade={profile.grade} />
 
         <RevisaoMagicCard />
+
+        {/* Lições da turma — o que o professor enviou (auto-esconde se não houver) */}
+        <TurmaLessons />
 
         <FocusedPath profile={profile} />
 
