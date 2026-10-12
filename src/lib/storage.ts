@@ -45,6 +45,19 @@ export interface Profile {
   // Fica apenas no dispositivo (não sincroniza: a cloud não tem estas colunas).
   consentAt?: string | null;
   consentParentEmail?: string | null;
+  // Histórico local de sessões (últimas 120) para o relatório semanal aos pais.
+  // Fica só no dispositivo — não sincroniza (não há colunas na cloud).
+  sessionHistory?: LocalSession[];
+}
+
+// Sessão de lição guardada localmente (sem dados pessoais além do desempenho)
+export interface LocalSession {
+  d: string; // YYYY-MM-DD (UTC)
+  s: string; // subjectId
+  c: number; // acertos
+  t: number; // total de perguntas
+  m: number; // minutos
+  g: number; // ano escolar
 }
 
 const KEY = "kidoz-profile-v2";
@@ -81,6 +94,7 @@ export const defaultProfile = (): Profile => ({
   premiumUntil: null,
   refCode: null,
   invitedBy: null,
+  sessionHistory: [],
   consentAt: null,
   consentParentEmail: null,
 });
@@ -200,6 +214,18 @@ export const completeLesson = (result: LessonResult): Profile => {
     lastPlayed: t,
     completedLessons: completed,
     hearts: Math.min(5, current.hearts + 1),
+    // Relatório semanal dos pais: guarda a sessão localmente (cap 120)
+    sessionHistory: [
+      ...(current.sessionHistory ?? []),
+      {
+        d: t,
+        s: result.subjectId,
+        c: result.correct,
+        t: result.total,
+        m: Math.max(1, Math.round(result.durationSeconds / 60)),
+        g: result.grade,
+      },
+    ].slice(-120),
   };
   saveProfile(next);
   void recordSession(result, xpEarned, coinsEarned);
@@ -401,6 +427,8 @@ function mergeProfiles(local: Profile | null, cloud: Profile): Profile {
     gems: Math.max(local.gems, cloud.gems),
     streak: Math.max(local.streak, cloud.streak),
     streakShieldAt: local.streakShieldAt ?? null, // só existe no dispositivo
+    sessionHistory:
+      (local.sessionHistory?.length ? local.sessionHistory : cloud.sessionHistory) ?? [],
     hearts: Math.max(local.hearts, cloud.hearts),
     lastPlayed: local.lastPlayed > cloud.lastPlayed ? local.lastPlayed : cloud.lastPlayed,
     completedLessons: completed,

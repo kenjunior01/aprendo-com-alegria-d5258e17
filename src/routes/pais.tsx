@@ -52,6 +52,7 @@ import {
   Filter,
 } from "lucide-react";
 import { PurchaseHistoryPanel } from "@/components/PurchaseHistoryPanel";
+import { ParentWeeklyReport } from "@/components/ParentWeeklyReport";
 import { PortalParentReport } from "@/components/PortalParentReport";
 import { ParentPremiumCard } from "@/components/ParentPremiumCard";
 import { QuickChildSignup } from "@/components/QuickChildSignup";
@@ -405,69 +406,87 @@ function ParentDashboard() {
 
       <main id="main-content" className="mx-auto max-w-6xl px-3 py-4 sm:px-5 sm:py-6">
         {children.length === 0 ? (
-          <motion.section
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="card-chunky rounded-3xl border border-border bg-card p-5 sm:p-8"
-          >
-            <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center">
-              <div className="grid h-16 w-16 place-items-center rounded-3xl bg-gradient-to-br from-primary to-secondary text-3xl">
-                👨‍👩‍👧
+          <>
+            <motion.section
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="card-chunky rounded-3xl border border-border bg-card p-5 sm:p-8"
+            >
+              <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center">
+                <div className="grid h-16 w-16 place-items-center rounded-3xl bg-gradient-to-br from-primary to-secondary text-3xl">
+                  👨‍👩‍👧
+                </div>
+                <div>
+                  <h1 className="font-display text-2xl sm:text-3xl">
+                    Bem-vindo(a), {profile.name}!
+                  </h1>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    Cria um perfil para a tua criança em poucos segundos e começa a acompanhar a
+                    aprendizagem.
+                  </p>
+                </div>
               </div>
-              <div>
-                <h1 className="font-display text-2xl sm:text-3xl">Bem-vindo(a), {profile.name}!</h1>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  Cria um perfil para a tua criança em poucos segundos e começa a acompanhar a
-                  aprendizagem.
-                </p>
+              <div className="mt-5">
+                {showQuickSignup ? (
+                  <QuickChildSignup
+                    onClose={() => setShowQuickSignup(false)}
+                    onCreated={async ({ childId }) => {
+                      setShowQuickSignup(false);
+                      setSelectedChild(childId);
+                      await reloadChildren();
+                    }}
+                  />
+                ) : (
+                  <ChunkyButton
+                    onClick={() => setShowQuickSignup(true)}
+                    className="w-full sm:w-auto"
+                  >
+                    <UserPlus className="h-4 w-4" /> Criar perfil de criança
+                  </ChunkyButton>
+                )}
               </div>
-            </div>
-            <div className="mt-5">
-              {showQuickSignup ? (
-                <QuickChildSignup
-                  onClose={() => setShowQuickSignup(false)}
-                  onCreated={async ({ childId }) => {
-                    setShowQuickSignup(false);
-                    setSelectedChild(childId);
-                    await reloadChildren();
-                  }}
-                />
-              ) : (
-                <ChunkyButton onClick={() => setShowQuickSignup(true)} className="w-full sm:w-auto">
-                  <UserPlus className="h-4 w-4" /> Criar perfil de criança
-                </ChunkyButton>
-              )}
-            </div>
-            <details className="mt-5 rounded-2xl bg-muted/40 p-3">
-              <summary className="cursor-pointer font-display text-sm">
-                Tenho um código de convite
-              </summary>
-              <div className="mt-3">
-                <p className="text-xs text-muted-foreground">
-                  Introduz aqui o código que te foi dado (na conta da criança).
-                </p>
-                <label htmlFor="pais-invite-code" className="sr-only">
-                  Código de convite
-                </label>
-                <input
-                  id="pais-invite-code"
-                  name="inviteCode"
-                  aria-label="Código de convite"
-                  value={acceptCode}
-                  onChange={(e) => setAcceptCode(e.target.value.toUpperCase())}
-                  placeholder="ABC123"
-                  maxLength={8}
-                  className="mt-2 w-full rounded-xl border-2 border-border bg-card px-3 py-2 text-center font-mono text-lg tracking-widest outline-none focus:border-primary"
-                />
-                <ChunkyButton tone="secondary" onClick={acceptInvite} className="mt-2 w-full">
-                  Ligar conta
-                </ChunkyButton>
-                {acceptMsg && <p className="mt-2 text-center text-xs">{acceptMsg}</p>}
+              <details className="mt-5 rounded-2xl bg-muted/40 p-3">
+                <summary className="cursor-pointer font-display text-sm">
+                  Tenho um código de convite
+                </summary>
+                <div className="mt-3">
+                  <p className="text-xs text-muted-foreground">
+                    Introduz aqui o código que te foi dado (na conta da criança).
+                  </p>
+                  <label htmlFor="pais-invite-code" className="sr-only">
+                    Código de convite
+                  </label>
+                  <input
+                    id="pais-invite-code"
+                    name="inviteCode"
+                    aria-label="Código de convite"
+                    value={acceptCode}
+                    onChange={(e) => setAcceptCode(e.target.value.toUpperCase())}
+                    placeholder="ABC123"
+                    maxLength={8}
+                    className="mt-2 w-full rounded-xl border-2 border-border bg-card px-3 py-2 text-center font-mono text-lg tracking-widest outline-none focus:border-primary"
+                  />
+                  <ChunkyButton tone="secondary" onClick={acceptInvite} className="mt-2 w-full">
+                    Ligar conta
+                  </ChunkyButton>
+                  {acceptMsg && <p className="mt-2 text-center text-xs">{acceptMsg}</p>}
+                </div>
+              </details>
+            </motion.section>
+
+            {/* Relatório local da semana — funciona mesmo sem crianças ligadas à conta */}
+            {profile && (
+              <div className="mt-5">
+                <ParentWeeklyReport profile={profile} />
               </div>
-            </details>
-          </motion.section>
+            )}
+          </>
         ) : (
           <>
+            {/* Relatório local da semana — o dispositivo onde a criança joga é
+                o mesmo que o pai usa (família típica de 1 tablet/telemóvel) */}
+            {profile && <ParentWeeklyReport profile={profile} />}
+
             {/* Search + grade filter */}
             <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center">
               <div className="relative flex-1">

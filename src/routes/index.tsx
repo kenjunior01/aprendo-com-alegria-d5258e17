@@ -395,6 +395,12 @@ function Landing() {
               Termos
             </Link>
             <Link
+              to="/seguranca"
+              className="hover:text-primary hover:underline min-h-[44px] inline-flex items-center"
+            >
+              🔒 Segurança
+            </Link>
+            <Link
               to="/ajuda"
               className="hover:text-primary hover:underline min-h-[44px] inline-flex items-center"
             >
