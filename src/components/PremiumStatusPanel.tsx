@@ -44,9 +44,13 @@ export function PremiumStatusPanel() {
           <Crown className="h-8 w-8 text-primary" />
           <div className="flex-1">
             <h2 className="font-display text-xl">Desbloqueia o Kidoz Premium</h2>
-            <p className="mt-1 text-sm text-muted-foreground">Acesso ilimitado, Mocha IA, modo família e relatórios. Desde 3,33€/mês.</p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Acesso ilimitado, Mocha IA, modo família e relatórios. Desde 3,33€/mês.
+            </p>
             <Link to="/premium" className="mt-3 inline-block">
-              <ChunkyButton><Sparkles className="mr-1 inline h-4 w-4" /> Ver planos</ChunkyButton>
+              <ChunkyButton>
+                <Sparkles className="mr-1 inline h-4 w-4" /> Ver planos
+              </ChunkyButton>
             </Link>
           </div>
         </div>
@@ -54,7 +58,9 @@ export function PremiumStatusPanel() {
     );
   }
 
-  const planLabel = subscription ? (PLAN_LABELS[subscription.price_id] || subscription.price_id) : "Premium";
+  const planLabel = subscription
+    ? PLAN_LABELS[subscription.price_id] || subscription.price_id
+    : "Premium";
   const isLifetime = subscription?.price_id === "vitalicio_lifetime";
   const renewDate = subscription?.current_period_end
     ? new Date(subscription.current_period_end).toLocaleDateString("pt-PT")
@@ -73,10 +79,19 @@ export function PremiumStatusPanel() {
           </div>
           {isLifetime ? (
             <p className="mt-1 text-sm text-muted-foreground">Acesso vitalício — sem renovações.</p>
-          ) : renewDate && (
-            <p className="mt-1 text-sm text-muted-foreground">
-              {subscription?.cancel_at_period_end ? "Termina a" : "Renova a"} {renewDate}
-            </p>
+          ) : (
+            renewDate && (
+              <>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  {subscription?.cancel_at_period_end ? "Termina a" : "Renova a"} {renewDate}
+                </p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  {subscription?.cancel_at_period_end
+                    ? "Sem renovação — o acesso mantém-se até ao fim do período pago."
+                    : "Renovação automática. Cancela em 2 cliques abaixo — sem chamadas nem letras miudinhas."}
+                </p>
+              </>
+            )
           )}
           <div className="mt-3 flex flex-wrap gap-2">
             {!isLifetime && (

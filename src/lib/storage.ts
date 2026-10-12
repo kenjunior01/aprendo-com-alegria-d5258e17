@@ -13,6 +13,9 @@ export interface Profile {
   streak: number;
   hearts: number;
   lastPlayed: string; // YYYY-MM-DD
+  // Escudo da sequência: data em que o escudo salvou o streak pela última vez
+  // (só no dispositivo — evita perder o streak por falhar 1 dia, 1× por semana)
+  streakShieldAt?: string | null;
   completedLessons: string[];
   ownedItems: string[];
   equippedItem: string | null;
@@ -57,6 +60,7 @@ export const defaultProfile = (): Profile => ({
   streak: 0,
   hearts: 5,
   lastPlayed: "",
+  streakShieldAt: null,
   completedLessons: [],
   ownedItems: [],
   equippedItem: null,
@@ -126,6 +130,34 @@ const yesterday = () => {
   return d.toISOString().slice(0, 10);
 };
 
+// Diferença em dias (UTC) entre uma data YYYY-MM-DD e hoje.
+// Retorna 999 para datas vazias — tratado como ausência longa.
+export const dayGap = (from: string, to: string = today()): number => {
+  if (!from) return 999;
+  return Math.round((Date.parse(to) - Date.parse(from)) / 86_400_000);
+};
+
+// Escudo da sequência — lição dos concorrentes (Duolingo causa "streak anxiety"):
+// falhar 1 dia não apaga o progresso da criança. O escudo salva a sequência
+// automaticamente 1× por semana. Depois disso, a sequência recomeça em 1.
+const SHIELD_INTERVAL_DAYS = 7;
+const shieldEligible = (p: { streakShieldAt?: string | null }): boolean =>
+  !p.streakShieldAt || dayGap(p.streakShieldAt) >= SHIELD_INTERVAL_DAYS;
+
+// O streak verdadeiro que a UI deve mostrar — honesto em vez de "fantasma":
+// se a criança falhou dias, mostra 0 (ou o streak protegido pelo escudo).
+export const effectiveStreak = (p: {
+  streak: number;
+  lastPlayed: string;
+  streakShieldAt?: string | null;
+}): number => {
+  if (!p.lastPlayed) return 0;
+  const gap = dayGap(p.lastPlayed);
+  if (gap <= 1) return p.streak; // jogou hoje ou ontem: sequência viva
+  if (gap === 2 && shieldEligible(p)) return p.streak; // escudo ativo
+  return 0;
+};
+
 export interface LessonResult {
   lessonId: string;
   subjectId: string;
@@ -139,10 +171,15 @@ export const completeLesson = (result: LessonResult): Profile => {
   const current = loadProfile() ?? defaultProfile();
   const t = today();
   let streak = current.streak;
+  let streakShieldAt = current.streakShieldAt ?? null;
   if (current.lastPlayed === t) {
     // mesmo dia, mantém
-  } else if (current.lastPlayed === yesterday()) {
+  } else if (dayGap(current.lastPlayed) === 1) {
     streak += 1;
+  } else if (current.lastPlayed && dayGap(current.lastPlayed) === 2 && shieldEligible(current)) {
+    // Escudo da sequência: falhou só 1 dia e o escudo está disponível
+    streak += 1;
+    streakShieldAt = t;
   } else {
     streak = 1;
   }
@@ -159,6 +196,7 @@ export const completeLesson = (result: LessonResult): Profile => {
     xp: current.xp + xpEarned,
     coins: current.coins + coinsEarned,
     streak,
+    streakShieldAt,
     lastPlayed: t,
     completedLessons: completed,
     hearts: Math.min(5, current.hearts + 1),
@@ -362,6 +400,7 @@ function mergeProfiles(local: Profile | null, cloud: Profile): Profile {
     coins: Math.max(local.coins, cloud.coins),
     gems: Math.max(local.gems, cloud.gems),
     streak: Math.max(local.streak, cloud.streak),
+    streakShieldAt: local.streakShieldAt ?? null, // só existe no dispositivo
     hearts: Math.max(local.hearts, cloud.hearts),
     lastPlayed: local.lastPlayed > cloud.lastPlayed ? local.lastPlayed : cloud.lastPlayed,
     completedLessons: completed,

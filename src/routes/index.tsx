@@ -291,6 +291,7 @@ function Landing() {
             "🚫 Sem anúncios",
             region ? `${region.flag} Programa de ${region.country}` : "🇵🇹 Programa nacional",
             "👪 Painel de pais",
+            "💳 Cancela em 2 cliques",
           ].map((t) => (
             <li
               key={t}
@@ -370,6 +371,13 @@ function Landing() {
             </ChunkyButton>
           </Link>
         </motion.div>
+
+        {/* Linha de confiança para pais — lição dos líderes de categoria (Khan Kids
+            vence por confiança explícita; ABCmouse perdeu $10M FTC por dark patterns) */}
+        <p className="mt-10 text-center text-xs text-muted-foreground sm:text-sm">
+          🔒 Sem anúncios · 🚫 Sem venda de dados · 💳 Cancela quando quiseres · 👪 Conforme RGPD e
+          COPPA
+        </p>
 
         {/* Footer */}
         <footer className="mt-12 w-full border-t border-border pt-5 pb-6 text-center text-xs text-muted-foreground sm:mt-16">

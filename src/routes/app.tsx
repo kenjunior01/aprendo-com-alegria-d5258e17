@@ -7,6 +7,7 @@ import { Mascot } from "@/components/Mascot";
 import { MascotVoiceTutor } from "@/components/MascotVoiceTutor";
 import { CHAPTERS, type Chapter, type Mission } from "@/lib/chapters";
 import type { Profile } from "@/lib/storage";
+import { dayGap, effectiveStreak } from "@/lib/storage";
 import { getMascot, prewarmMascotEmotions } from "@/lib/mascots";
 import { isPremiumActive } from "@/lib/premium";
 import { useFastProfile } from "@/hooks/useFastProfile";
@@ -69,6 +70,11 @@ function AppHome() {
 
   if (!profile) return <KidLoader mascotId={fastProfile?.mascot ?? null} />;
   const mascot = getMascot(profile.mascot);
+  // Streak honesto + boas-vindas sem culpa (lição dos concorrentes: streak
+  // anxiety afasta crianças; regresso deve celebrar, não acusar)
+  const streak = effectiveStreak(profile);
+  const awayDays = profile.lastPlayed ? dayGap(profile.lastPlayed) : 999;
+  const isReturning = profile.lastPlayed !== "" && awayDays >= 2 && streak === 0;
 
   return (
     <div className="min-h-[100dvh] bg-background pb-28 md:pb-12">
@@ -88,12 +94,16 @@ function AppHome() {
             <Mascot id={profile.mascot} size="md" bouncing equippedItemId={profile.equippedItem} />
             <div className="min-w-0 flex-1">
               <h2 className="truncate font-display text-xl sm:text-2xl">
-                Olá, {profile.name}! {REGIONS[profile.region ?? detectRegion().code]?.flag ?? "☀️"}
+                {isReturning
+                  ? `Voltaste, ${profile.name}! 🌟`
+                  : `Olá, ${profile.name}! ${REGIONS[profile.region ?? detectRegion().code]?.flag ?? "☀️"}`}
               </h2>
               <p className="text-sm text-muted-foreground">
-                {profile.streak > 0
-                  ? `🔥 ${profile.streak} ${profile.streak === 1 ? "dia seguido" : "dias seguidos"}!`
-                  : mascot.encourage}
+                {isReturning
+                  ? `Que bom ver-te de volta! Tudo pronto para a aventura de hoje.${awayDays >= 2 && awayDays < 999 ? " A tua oferta diária está à espera." : ""}`
+                  : streak > 0
+                    ? `🔥 ${streak} ${streak === 1 ? "dia seguido" : "dias seguidos"}!`
+                    : mascot.encourage}
               </p>
             </div>
           </div>
@@ -118,6 +128,11 @@ function AppHome() {
 
         <p className="mt-10 text-center text-sm text-muted-foreground">
           ✨ Mais aventuras vão chegando à medida que avanças
+        </p>
+
+        {/* Linha de confiança — para os pais que espreitam por cima do ombro */}
+        <p className="mt-3 text-center text-xs text-muted-foreground/70">
+          🔒 Sem anúncios · 👪 Feito para crianças · 💳 Cancela quando quiseres
         </p>
       </main>
 
