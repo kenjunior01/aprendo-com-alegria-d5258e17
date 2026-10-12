@@ -5,16 +5,22 @@ export const Route = createFileRoute("/privacidade")({
   head: () => ({
     meta: [
       { title: "Política de Privacidade — Kidoz" },
-      { name: "description", content: "Política de privacidade do Kidoz: como recolhemos, tratamos e protegemos os dados dos nossos utilizadores e crianças." },
+      {
+        name: "description",
+        content:
+          "Política de privacidade do Kidoz: como recolhemos, tratamos e protegemos os dados dos nossos utilizadores e crianças.",
+      },
       { property: "og:title", content: "Política de Privacidade — Kidoz" },
-      { property: "og:description", content: "Política de privacidade do Kidoz: como recolhemos, tratamos e protegemos os dados dos nossos utilizadores e crianças." },
+      {
+        property: "og:description",
+        content:
+          "Política de privacidade do Kidoz: como recolhemos, tratamos e protegemos os dados dos nossos utilizadores e crianças.",
+      },
       { property: "og:url", content: "https://kidoz.online/privacidade" },
       { property: "og:image", content: "https://kidoz.online/og-image.jpg" },
       { name: "twitter:image", content: "https://kidoz.online/og-image.jpg" },
     ],
-    links: [
-      { rel: "canonical", href: "https://kidoz.online/privacidade" },
-    ],
+    links: [{ rel: "canonical", href: "https://kidoz.online/privacidade" }],
   }),
   component: PrivacidadePage,
   errorComponent: RouteError,
@@ -26,7 +32,7 @@ function PrivacidadePage() {
       <div className="mx-auto max-w-[56rem] px-4 sm:px-6">
         <h1 className="font-display text-3xl sm:text-4xl">Política de Privacidade</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Última atualização: 4 de março de 2025
+          Última atualização: 12 de outubro de 2026
         </p>
 
         {/* 1. Responsável pelo tratamento */}
@@ -36,8 +42,21 @@ function PrivacidadePage() {
             O responsável pelo tratamento dos dados pessoais no âmbito da plataforma Kidoz é:
           </p>
           <ul className="mt-3 list-disc space-y-1 pl-5 text-sm leading-relaxed text-foreground/90">
-            <li><strong>Entidade:</strong> Kidoz</li>
-            <li><strong>Contacto:</strong> <a href="mailto:info@kidoz.online" className="text-primary underline">info@kidoz.online</a></li>
+            <li>
+              <strong>Entidade:</strong> Kidoz
+            </li>
+            <li>
+              <strong>Contacto geral:</strong>{" "}
+              <a href="mailto:info@kidoz.online" className="text-primary underline">
+                info@kidoz.online
+              </a>
+            </li>
+            <li>
+              <strong>Escolas e instituições:</strong>{" "}
+              <a href="mailto:escolas@kidoz.online" className="text-primary underline">
+                escolas@kidoz.online
+              </a>
+            </li>
           </ul>
         </section>
 
@@ -48,10 +67,31 @@ function PrivacidadePage() {
             Recolhemos apenas os dados estritamente necessários para o funcionamento da plataforma:
           </p>
           <ul className="mt-3 list-disc space-y-2 pl-5 text-sm leading-relaxed text-foreground/90">
-            <li><strong>Dados de conta:</strong> nome e endereço de correio eletrónico do responsável familiar.</li>
-            <li><strong>Dados de utilização:</strong> progresso nas lições, tempo gasto, respostas dadas e sequência de uso.</li>
-            <li><strong>Dados do dispositivo:</strong> tipo de navegador, sistema operativo e resolução do ecrã (para garantir compatibilidade).</li>
-            <li><strong>Dados fornecidos pelo responsável:</strong> PIN parental, limites de tempo diário e hora de dormir configurados.</li>
+            <li>
+              <strong>Dados de conta:</strong> nome e endereço de correio eletrónico do responsável
+              familiar.
+            </li>
+            <li>
+              <strong>Dados de utilização:</strong> progresso nas lições, tempo gasto, respostas
+              dadas e sequência de uso.
+            </li>
+            <li>
+              <strong>Email do responsável:</strong> recolhido no onboarding com o consentimento
+              parental, para recibos, recuperação de conta e avisos importantes.
+            </li>
+            <li>
+              <strong>Dados de pagamento:</strong> tratados exclusivamente por Stripe e PayPal — os
+              números de cartão e dados bancários nunca passam nem ficam guardados nos servidores do
+              Kidoz.
+            </li>
+            <li>
+              <strong>Dados do dispositivo:</strong> tipo de navegador, sistema operativo e
+              resolução do ecrã (para garantir compatibilidade).
+            </li>
+            <li>
+              <strong>Dados fornecidos pelo responsável:</strong> PIN parental, limites de tempo
+              diário e hora de dormir configurados.
+            </li>
           </ul>
         </section>
 
@@ -64,8 +104,12 @@ function PrivacidadePage() {
           <ul className="mt-3 list-disc space-y-2 pl-5 text-sm leading-relaxed text-foreground/90">
             <li>Prestar o serviço educativo Kidoz e garantir o seu funcionamento adequado.</li>
             <li>Personalizar a aprendizagem de cada criança com base no seu progresso e nível.</li>
-            <li>Garantir o cumprimento da COPPA (Children's Online Privacy Protection Act) e do RGPD.</li>
-            <li>Comunicar com os responsáveis familiares sobre o progresso e atualizações do serviço.</li>
+            <li>
+              Garantir o cumprimento da COPPA (Children's Online Privacy Protection Act) e do RGPD.
+            </li>
+            <li>
+              Comunicar com os responsáveis familiares sobre o progresso e atualizações do serviço.
+            </li>
           </ul>
         </section>
 
@@ -76,9 +120,18 @@ function PrivacidadePage() {
             O tratamento dos dados pessoais baseia-se nas seguintes bases legais, conforme o RGPD:
           </p>
           <ul className="mt-3 list-disc space-y-2 pl-5 text-sm leading-relaxed text-foreground/90">
-            <li><strong>Consentimento</strong> — para o tratamento de dados das crianças, obtido junto do responsável familiar.</li>
-            <li><strong>Execução do contrato</strong> — para prestar o serviço subscrito pelo utilizador.</li>
-            <li><strong>Interesse legítimo</strong> — para melhorar a plataforma, garantir a segurança e prevenir fraudes.</li>
+            <li>
+              <strong>Consentimento</strong> — para o tratamento de dados das crianças, obtido junto
+              do responsável familiar.
+            </li>
+            <li>
+              <strong>Execução do contrato</strong> — para prestar o serviço subscrito pelo
+              utilizador.
+            </li>
+            <li>
+              <strong>Interesse legítimo</strong> — para melhorar a plataforma, garantir a segurança
+              e prevenir fraudes.
+            </li>
           </ul>
         </section>
 
@@ -89,9 +142,35 @@ function PrivacidadePage() {
             Os dados pessoais não são partilhados com terceiros exceto nas seguintes situações:
           </p>
           <ul className="mt-3 list-disc space-y-2 pl-5 text-sm leading-relaxed text-foreground/90">
-            <li><strong>Supabase</strong> — prestador de alojamento e base de dados, com servidores na União Europeia, que atua como subresponsável pelo tratamento.</li>
-            <li><strong>Venda de dados:</strong> o Kidoz <strong>não vende</strong> dados pessoais a terceiros, sob qualquer circunstância.</li>
-            <li><strong>Publicidade:</strong> o Kidoz <strong>não exibe publicidade</strong> nem partilha dados para fins publicitários.</li>
+            <li>
+              <strong>Supabase</strong> — prestador de alojamento e base de dados, com servidores na
+              União Europeia, que atua como subresponsável pelo tratamento.
+            </li>
+            <li>
+              <strong>Stripe Payments Europe, Ltd.</strong> — processamento de pagamentos por cartão
+              e faturação de assinaturas.
+            </li>
+            <li>
+              <strong>PayPal (Europe) S.à r.l. et Cie, S.C.A.</strong> — processamento alternativo
+              de pagamentos (planos família e escolas).
+            </li>
+            <li>
+              <strong>Lovable Cloud / AI Gateway</strong> — processa as mensagens enviadas ao tutor
+              de IA, com filtros automáticos de dados pessoais (emails e telefones são removidos) e
+              sem utilizá-las para treinar modelos.
+            </li>
+            <li>
+              <strong>Serviço de email transacional</strong> — envio de recibos, convites e emails
+              de autenticação.
+            </li>
+            <li>
+              <strong>Venda de dados:</strong> o Kidoz <strong>não vende</strong> dados pessoais a
+              terceiros, sob qualquer circunstância.
+            </li>
+            <li>
+              <strong>Publicidade:</strong> o Kidoz <strong>não exibe publicidade</strong> nem
+              partilha dados para fins publicitários.
+            </li>
           </ul>
         </section>
 
@@ -99,10 +178,17 @@ function PrivacidadePage() {
         <section className="mt-10">
           <h2 className="font-display text-xl sm:text-2xl">6. Retenção de dados</h2>
           <p className="mt-3 text-sm leading-relaxed text-foreground/90">
-            Os dados pessoais são mantidos durante o período em que a conta se encontra ativa e até 30 dias após o pedido de eliminação. Após este prazo, todos os dados são eliminados de forma segura e irreversível.
+            Os dados pessoais são mantidos durante o período em que a conta se encontra ativa e até
+            30 dias após o pedido de eliminação. Após este prazo, todos os dados são eliminados de
+            forma segura e irreversível.
           </p>
           <p className="mt-3 text-sm leading-relaxed text-foreground/90">
-            O responsável familiar pode solicitar a eliminação antecipada de todos os dados através de <a href="mailto:info@kidoz.online" className="text-primary underline">info@kidoz.online</a>.
+            O responsável familiar pode solicitar a eliminação antecipada de todos os dados através
+            de{" "}
+            <a href="mailto:info@kidoz.online" className="text-primary underline">
+              info@kidoz.online
+            </a>
+            .
           </p>
         </section>
 
@@ -113,14 +199,31 @@ function PrivacidadePage() {
             Nos termos do RGPD, os titulares dos dados têm os seguintes direitos:
           </p>
           <ul className="mt-3 list-disc space-y-2 pl-5 text-sm leading-relaxed text-foreground/90">
-            <li><strong>Acesso</strong> — solicitar informação sobre os dados pessoais tratados.</li>
-            <li><strong>Retificação</strong> — corrigir dados incorretos ou incompletos.</li>
-            <li><strong>Eliminação</strong> — solicitar a remoção dos dados pessoais («direito ao esquecimento»).</li>
-            <li><strong>Portabilidade</strong> — receber os dados num formato estruturado e de uso corrente.</li>
-            <li><strong>Oposição</strong> — opor-se ao tratamento dos dados em determinadas circunstâncias.</li>
+            <li>
+              <strong>Acesso</strong> — solicitar informação sobre os dados pessoais tratados.
+            </li>
+            <li>
+              <strong>Retificação</strong> — corrigir dados incorretos ou incompletos.
+            </li>
+            <li>
+              <strong>Eliminação</strong> — solicitar a remoção dos dados pessoais («direito ao
+              esquecimento»).
+            </li>
+            <li>
+              <strong>Portabilidade</strong> — receber os dados num formato estruturado e de uso
+              corrente.
+            </li>
+            <li>
+              <strong>Oposição</strong> — opor-se ao tratamento dos dados em determinadas
+              circunstâncias.
+            </li>
           </ul>
           <p className="mt-3 text-sm leading-relaxed text-foreground/90">
-            Para exercer qualquer destes direitos, contacte-nos através de <a href="mailto:info@kidoz.online" className="text-primary underline">info@kidoz.online</a>.
+            Para exercer qualquer destes direitos, contacte-nos através de{" "}
+            <a href="mailto:info@kidoz.online" className="text-primary underline">
+              info@kidoz.online
+            </a>
+            .
           </p>
         </section>
 
@@ -128,13 +231,29 @@ function PrivacidadePage() {
         <section className="mt-10">
           <h2 className="font-display text-xl sm:text-2xl">8. Crianças (COPPA / RGPD)</h2>
           <p className="mt-3 text-sm leading-relaxed text-foreground/90">
-            O Kidoz é uma plataforma dirigida a crianças em idade escolar. Por isso, aplicamos medidas adicionais de proteção:
+            O Kidoz é uma plataforma dirigida a crianças em idade escolar. Por isso, aplicamos
+            medidas adicionais de proteção:
           </p>
           <ul className="mt-3 list-disc space-y-2 pl-5 text-sm leading-relaxed text-foreground/90">
-            <li><strong>Consentimento parental:</strong> é obrigatório o consentimento do responsável familiar para o registo e tratamento de dados de menores de 13 anos (COPPA) e de menores de 16 anos (RGPD, art.º 8).</li>
-            <li><strong>Porta de idade:</strong> o Kidoz implementa uma verificação de idade que impede o acesso direto de menores sem autorização parental.</li>
-            <li><strong>Sem perfilamento para anúncios:</strong> não realizamos qualquer tipo de perfilamento ou rastreamento para fins publicitários.</li>
-            <li><strong>Minimização de dados:</strong> recolhemos apenas os dados estritamente necessários para a prestação do serviço educativo.</li>
+            <li>
+              <strong>Consentimento parental:</strong> é obrigatório o consentimento do responsável
+              familiar para o registo e tratamento de dados de menores de 13 anos (COPPA) e de
+              menores de 16 anos (RGPD, art.º 8).
+            </li>
+            <li>
+              <strong>Fluxo de consentimento no produto:</strong> antes de qualquer perfil de
+              criança ser criado no onboarding, é pedida a autorização explícita de um responsável
+              (declaração + email de contacto); no registo de conta é exigida a confirmação de
+              maioridade com aceitação dos Termos e desta política.
+            </li>
+            <li>
+              <strong>Sem perfilamento para anúncios:</strong> não realizamos qualquer tipo de
+              perfilamento ou rastreamento para fins publicitários.
+            </li>
+            <li>
+              <strong>Minimização de dados:</strong> recolhemos apenas os dados estritamente
+              necessários para a prestação do serviço educativo.
+            </li>
           </ul>
         </section>
 
@@ -145,8 +264,20 @@ function PrivacidadePage() {
             O Kidoz utiliza cookies da seguinte forma:
           </p>
           <ul className="mt-3 list-disc space-y-2 pl-5 text-sm leading-relaxed text-foreground/90">
-            <li><strong>Cookies essenciais:</strong> ativados por predefinição, são necessários para o funcionamento básico da plataforma (autenticação, preferências de idioma).</li>
-            <li><strong>Cookies de análise:</strong> ativados apenas com o consentimento do utilizador, servem para compreender padrões de uso e melhorar a experiência (consulte o banner de consentimento de cookies).</li>
+            <li>
+              <strong>Cookies essenciais:</strong> ativados por predefinição, são necessários para o
+              funcionamento básico da plataforma (autenticação, preferências de idioma).
+            </li>
+            <li>
+              <strong>Sem análise de terceiros:</strong> nesta altura o Kidoz não utiliza Google
+              Analytics nem ferramentas semelhantes de rastreio; o progresso educativo fica no
+              armazenamento local do dispositivo e, com conta, sincroniza de forma segura com a
+              nossa base de dados na UE.
+            </li>
+            <li>
+              <strong>Escolha guardada:</strong> a preferência do banner de cookies é guardada
+              localmente e pode ser alterada a qualquer momento limpando os dados do navegador.
+            </li>
           </ul>
         </section>
 
@@ -154,19 +285,27 @@ function PrivacidadePage() {
         <section className="mt-10">
           <h2 className="font-display text-xl sm:text-2xl">10. Alterações a esta política</h2>
           <p className="mt-3 text-sm leading-relaxed text-foreground/90">
-            O Kidoz reserva-se o direito de atualizar esta política de privacidade a qualquer momento. As alterações serão publicadas nesta página com a data de última atualização.
+            O Kidoz reserva-se o direito de atualizar esta política de privacidade a qualquer
+            momento. As alterações serão publicadas nesta página com a data de última atualização.
           </p>
           <p className="mt-3 text-sm leading-relaxed text-foreground/90">
-            Recomendamos a consulta periódica desta página para se manter informado sobre como protegemos os seus dados.
+            Recomendamos a consulta periódica desta página para se manter informado sobre como
+            protegemos os seus dados.
           </p>
         </section>
 
         <div className="mt-12 border-t border-border pt-6 text-center text-xs text-muted-foreground">
-          <Link to="/termos" className="text-primary underline">Termos de Utilização</Link>
+          <Link to="/termos" className="text-primary underline">
+            Termos de Utilização
+          </Link>
           {" · "}
-          <Link to="/ajuda" className="text-primary underline">Ajuda</Link>
+          <Link to="/ajuda" className="text-primary underline">
+            Ajuda
+          </Link>
           {" · "}
-          <Link to="/app" className="text-primary underline">Voltar ao Kidoz</Link>
+          <Link to="/app" className="text-primary underline">
+            Voltar ao Kidoz
+          </Link>
         </div>
       </div>
     </main>

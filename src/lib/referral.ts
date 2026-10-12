@@ -9,9 +9,14 @@
 //
 // Tokens de aceitação são únicos (salt aleatória) e só podem ser usados uma vez
 // (hash guardado localmente) — simples e à prova de duplicados casuais.
+//
+// Anti-abuso: os marcos que dão DIAS DE PREMIUM exigem sessão cloud — sem conta,
+// caem em moedas. Assim, tokens fabricados deixam de dar Premium a dispositivos
+// anónimos. (Verificação server-side completa dos convites: P1.)
 
 import { loadProfile, updateProfile, type Profile } from "./storage";
 import { grantPremiumDays } from "./premium";
+import { supabase } from "@/integrations/supabase/client";
 
 export const REF_CODE_RE = /^[A-HJ-NP-Z2-9]{6}$/; // sem I,L,O,0,1 (evita confusão)
 
@@ -206,34 +211,74 @@ export interface RefReward {
 export const MILESTONES: RefReward[] = [
   { at: 1, icon: "🪙", title: "150 Abracadinhos", desc: "Moedas para gastar na loja!" },
   { at: 2, icon: "🪙", title: "600 Abracadinhos", desc: "Uma fortuna para gastar na loja!" },
-  { at: 3, icon: "👑", title: "7 dias de Premium", desc: "Mundo Premium desbloqueado uma semana!" },
-  { at: 5, icon: "🏆", title: "15 dias de Premium + 300 moedas", desc: "Meio mês de magia extra!" },
-  { at: 8, icon: "🌟", title: "Embaixador Kidoz", desc: "30 dias de Premium + título exclusivo!" },
+  {
+    at: 3,
+    icon: "👑",
+    title: "7 dias de Premium",
+    desc: "Uma semana desbloqueada — requer conta ligada!",
+  },
+  {
+    at: 5,
+    icon: "🏆",
+    title: "15 dias de Premium + 300 moedas",
+    desc: "Meio mês de magia — requer conta ligada!",
+  },
+  {
+    at: 8,
+    icon: "🌟",
+    title: "Embaixador Kidoz",
+    desc: "30 dias de Premium + título — requer conta ligada!",
+  },
 ];
 
 export function milestoneFor(count: number): RefReward | null {
   return MILESTONES.find((m) => m.at === count) ?? null;
 }
 
-/** Entrega o prémio do marco atingido (idempotente por chamada). */
-export function grantReward(reward: RefReward): Profile | null {
+/** Há sessão Supabase ativa neste dispositivo? */
+async function hasCloudSession(): Promise<boolean> {
+  try {
+    const { data } = await supabase.auth.getSession();
+    return Boolean(data.session?.user);
+  } catch {
+    return false;
+  }
+}
+
+/** Entrega o prémio do marco atingido (idempotente por chamada).
+ *  Dias de Premium exigem sessão cloud — sem conta, caem em moedas (anti-abuso).
+ *  Devolve a nota a celebrar (ex.: fallback de moedas). */
+export async function grantReward(
+  reward: RefReward,
+): Promise<{ profile: Profile | null; note: string }> {
   const p = loadProfile();
-  if (!p) return null;
+  if (!p) return { profile: null, note: "" };
+  const coinsFallback = (coins: number, note: string) => ({
+    profile: updateProfile({ coins: p.coins + coins }),
+    note,
+  });
   switch (reward.at) {
     case 1:
-      return updateProfile({ coins: p.coins + 150 });
+      return { profile: updateProfile({ coins: p.coins + 150 }), note: reward.title };
     case 2:
-      return updateProfile({ coins: p.coins + 600 });
-    case 3:
-      return grantPremiumDays(7);
-    case 5: {
-      const after = grantPremiumDays(15);
-      return updateProfile({ coins: after.coins + 300 });
+      return { profile: updateProfile({ coins: p.coins + 600 }), note: reward.title };
+    case 3: {
+      if (await hasCloudSession()) return { profile: grantPremiumDays(7), note: reward.title };
+      return coinsFallback(250, "+250 moedas — liga a conta para dias Premium! 👑");
     }
-    case 8:
-      return grantPremiumDays(30);
+    case 5: {
+      if (await hasCloudSession()) {
+        const after = grantPremiumDays(15);
+        return { profile: updateProfile({ coins: after.coins + 300 }), note: reward.title };
+      }
+      return coinsFallback(400, "+400 moedas — liga a conta para dias Premium! 🏆");
+    }
+    case 8: {
+      if (await hasCloudSession()) return { profile: grantPremiumDays(30), note: reward.title };
+      return coinsFallback(800, "+800 moedas — liga a conta para dias Premium! 🌟");
+    }
     default:
-      return null;
+      return { profile: null, note: "" };
   }
 }
 

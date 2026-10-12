@@ -38,6 +38,10 @@ export interface Profile {
   // Sistema de convites
   refCode?: string | null; // código único deste perfil (6 chars)
   invitedBy?: string | null; // código de quem convidou este perfil
+  // Consentimento parental (RGPD art.º 8 / COPPA) — registado no onboarding.
+  // Fica apenas no dispositivo (não sincroniza: a cloud não tem estas colunas).
+  consentAt?: string | null;
+  consentParentEmail?: string | null;
 }
 
 const KEY = "kidoz-profile-v2";
@@ -73,6 +77,8 @@ export const defaultProfile = (): Profile => ({
   premiumUntil: null,
   refCode: null,
   invitedBy: null,
+  consentAt: null,
+  consentParentEmail: null,
 });
 
 export const loadProfile = (): Profile | null => {
@@ -221,10 +227,12 @@ async function syncProfileToCloud(p: Profile) {
       push_token: p.pushToken ?? null,
       last_daily_gift: p.lastDailyGift ?? null,
       unlocked_stickers: p.unlockedStickers,
-      premium_until: p.premiumUntil ?? null,
       ref_code: p.refCode ?? null,
       invited_by: p.invitedBy ?? null,
     };
+    // Nota: is_premium / premium_until NÃO são enviados pelo cliente — são
+    // propriedade do servidor (webhook Stripe / capture PayPal). Assim, um
+    // perfil adulterado no dispositivo não consegue propagar Premium para a cloud.
     await supabase.from("profiles").upsert({
       id: user.id,
       name: p.name,
@@ -240,7 +248,6 @@ async function syncProfileToCloud(p: Profile) {
       completed_lessons: p.completedLessons,
       owned_items: p.ownedItems,
       equipped_item: p.equippedItem,
-      is_premium: p.isPremium,
       role: p.role,
       parent_pin: p.parentPin ?? null,
       daily_limit_min: p.dailyLimitMin ?? null,
@@ -360,7 +367,8 @@ function mergeProfiles(local: Profile | null, cloud: Profile): Profile {
     completedLessons: completed,
     ownedItems: owned,
     equippedItem: cloud.equippedItem ?? local.equippedItem,
-    isPremium: cloud.isPremium || local.isPremium,
+    // Premium pago é decisão do servidor: a cloud manda, o local não soma.
+    isPremium: cloud.isPremium,
     role: cloud.role || local.role,
     // Parental controls: cloud is source of truth (set by parent on any device)
     parentPin: cloud.parentPin ?? local.parentPin ?? null,

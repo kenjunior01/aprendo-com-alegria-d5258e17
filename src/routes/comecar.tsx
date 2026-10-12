@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Mascot } from "@/components/Mascot";
@@ -57,6 +57,11 @@ function Onboarding() {
   const [mascot, setMascot] = useState<MascotId>("fox");
   // País da criança — pré-selecionado pelo browser (idioma/fuso), 1 toque muda.
   const [region, setRegion] = useState<RegionCode | null>(() => detectRegion().code);
+  // Consentimento parental (RGPD art.º 8 / COPPA) — exigido antes de criar perfil de criança.
+  const [showConsent, setShowConsent] = useState(false);
+  const [consentOk, setConsentOk] = useState(false);
+  const [parentEmail, setParentEmail] = useState("");
+  const emailOk = /.+@.+\..+/.test(parentEmail.trim());
 
   const role: "child" | "parent" = track === "parent" ? "parent" : "child";
 
@@ -71,6 +76,9 @@ function Onboarding() {
       grade: finalGrade,
       mascot,
       region: region ?? detectRegion().code,
+      // Consentimento parental registado no onboarding (RGPD art.º 8 / COPPA)
+      consentAt: track === "parent" ? null : new Date().toISOString(),
+      consentParentEmail: track === "parent" ? null : parentEmail.trim().toLowerCase(),
     };
     saveProfile(p);
     // Bónus de boas-vindas por convite (+140 moedas)
@@ -122,7 +130,74 @@ function Onboarding() {
         </div>
 
         <AnimatePresence mode="wait">
-          {step === 0 && (
+          {showConsent && (
+            <Step key="consent">
+              <Mascot id="owl" size="lg" />
+              <h1 className="font-display text-3xl sm:text-4xl">Adulto, é a tua vez 👋</h1>
+              <p className="text-muted-foreground">
+                Para criar o perfil de uma criança, a lei (RGPD/COPPA) pede a autorização de um
+                responsável. Leva menos de um minuto.
+              </p>
+              <label className="flex w-full max-w-[26rem] cursor-pointer items-start gap-3 rounded-2xl border-2 border-border bg-card p-4 text-left text-sm">
+                <input
+                  type="checkbox"
+                  checked={consentOk}
+                  onChange={(e) => setConsentOk(e.target.checked)}
+                  className="mt-0.5 h-5 w-5 shrink-0 accent-[var(--primary)]"
+                />
+                <span>
+                  Sou o pai, mãe ou responsável e autorizo a criação do perfil e o tratamento dos
+                  dados conforme a{" "}
+                  <Link to="/privacidade" className="text-primary underline" target="_blank">
+                    Política de Privacidade
+                  </Link>
+                  .
+                </span>
+              </label>
+              <div className="w-full max-w-[26rem] text-left">
+                <label
+                  htmlFor="comecar-parent-email"
+                  className="mb-1 block font-display text-xs uppercase tracking-wide text-muted-foreground"
+                >
+                  Email do responsável
+                </label>
+                <input
+                  id="comecar-parent-email"
+                  type="email"
+                  value={parentEmail}
+                  onChange={(e) => setParentEmail(e.target.value)}
+                  placeholder="responsavel@exemplo.com"
+                  autoComplete="email"
+                  className="w-full rounded-2xl border-2 border-border bg-card px-4 py-3.5 outline-none focus:border-primary"
+                />
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Só para recibos, recuperação de conta e avisos importantes. Nunca é mostrado na
+                  app.
+                </p>
+              </div>
+              <div className="flex w-full flex-col gap-3 sm:flex-row">
+                <ChunkyButton
+                  tone="ghost"
+                  onClick={() => setShowConsent(false)}
+                  className="sm:flex-1"
+                >
+                  ← Voltar
+                </ChunkyButton>
+                <ChunkyButton
+                  onClick={() => {
+                    setShowConsent(false);
+                    setStep(1);
+                  }}
+                  disabled={!consentOk || !emailOk}
+                  className="sm:flex-1"
+                >
+                  Autorizar e continuar →
+                </ChunkyButton>
+              </div>
+            </Step>
+          )}
+
+          {!showConsent && step === 0 && (
             <Step key="0">
               <Mascot id="owl" size="lg" bouncing />
               <h1 className="font-display text-3xl sm:text-4xl">Quem está a chegar?</h1>
@@ -164,13 +239,16 @@ function Onboarding() {
                   <p className="text-xs text-muted-foreground">Acompanhar uma criança</p>
                 </button>
               </div>
-              <ChunkyButton onClick={() => setStep(1)} className="w-full sm:w-auto">
+              <ChunkyButton
+                onClick={() => (track === "parent" ? setStep(1) : setShowConsent(true))}
+                className="w-full sm:w-auto"
+              >
                 Continuar →
               </ChunkyButton>
             </Step>
           )}
 
-          {step === 1 && (
+          {!showConsent && step === 1 && (
             <Step key="1">
               <Mascot id="owl" size="lg" bouncing />
               <h1 className="font-display text-3xl sm:text-4xl">
@@ -206,7 +284,7 @@ function Onboarding() {
             </Step>
           )}
 
-          {step === 2 && role === "child" && (
+          {!showConsent && step === 2 && role === "child" && (
             <Step key="2">
               <h1 className="font-display text-3xl sm:text-4xl">Que idade tens?</h1>
               <div className="grid grid-cols-3 gap-3 sm:grid-cols-5">
@@ -234,7 +312,7 @@ function Onboarding() {
             </Step>
           )}
 
-          {step === 3 && role === "child" && (
+          {!showConsent && step === 3 && role === "child" && (
             <Step key="3">
               <h1 className="font-display text-3xl sm:text-4xl">Em que ano andas?</h1>
               <p className="text-muted-foreground">Vamos ajustar a aventura ao teu nível.</p>
@@ -289,7 +367,7 @@ function Onboarding() {
             </Step>
           )}
 
-          {step === 4 && role === "child" && (
+          {!showConsent && step === 4 && role === "child" && (
             <Step key="4">
               <h1 className="font-display text-3xl sm:text-4xl">Escolhe a tua mascote!</h1>
               <p className="text-muted-foreground">Vai ser o teu companheiro de aventuras.</p>

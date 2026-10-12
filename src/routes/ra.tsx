@@ -8,7 +8,7 @@ import { Mascot } from "@/components/Mascot";
 import { ChunkyButton } from "@/components/ChunkyButton";
 import { MASCOTS, type MascotId } from "@/lib/mascots";
 import { loadProfile, updateProfile, type Profile } from "@/lib/storage";
-import { isPremiumActive } from "@/lib/premium";
+import { usePremiumAccess } from "@/hooks/usePremiumAccess";
 import { LAB_MISSIONS, checkAnswer, type LabMission } from "@/lib/labMissions";
 import {
   ArrowLeft,
@@ -130,8 +130,9 @@ function ARPage() {
     }
   }, [navigate]);
 
+  const premiumAccess = usePremiumAccess(profile);
   if (!profile) return <KidLoader />;
-  const premium = isPremiumActive(profile);
+  const premium = premiumAccess;
   const mascotModel = MODELS[selected];
   const labModel = LAB_MODELS.find((m) => m.id === labSelected)!;
   const activeSrc = tab === "mascot" ? mascotModel.src : labModel.src;

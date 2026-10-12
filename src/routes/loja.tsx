@@ -11,7 +11,7 @@ import { localProfile, refreshProfile } from "@/lib/profileFast";
 import { Coins, Lock, Check, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { playCorrect, playWrong } from "@/lib/audio";
-import { isPremiumActive } from "@/lib/premium";
+import { usePremiumAccess } from "@/hooks/usePremiumAccess";
 import { RouteError } from "@/components/RouteError";
 import { KidLoader } from "@/components/KidLoader";
 
@@ -73,6 +73,7 @@ function ShopPage() {
     };
   }, [navigate]);
 
+  const premiumAccess = usePremiumAccess(profile);
   if (!profile) return <KidLoader />;
 
   const items = SHOP_FALLBACK.filter((i) => i.type === activeType);
@@ -83,7 +84,7 @@ function ShopPage() {
   };
 
   const onBuy = (item: ShopItem) => {
-    if (item.premium && !isPremiumActive(profile)) {
+    if (item.premium && !premiumAccess) {
       flash("err", "Este item é só para Premium ✨");
       playWrong();
       return;
@@ -173,7 +174,7 @@ function ShopPage() {
           {items.map((item) => {
             const owned = profile.ownedItems.includes(item.id);
             const equipped = profile.equippedItem === item.id;
-            const lockedPremium = item.premium && !isPremiumActive(profile);
+            const lockedPremium = item.premium && !premiumAccess;
             const canAfford = profile.coins >= item.price;
 
             return (

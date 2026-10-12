@@ -41,6 +41,8 @@ function AuthPage() {
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // Consentimento obrigatório no registo (maioridade + termos) — RGPD art.º 8 / COPPA
+  const [consent, setConsent] = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -181,6 +183,28 @@ function AuthPage() {
               minLength={6}
             />
 
+            {mode === "signup" && (
+              <label className="flex items-start gap-2.5 rounded-2xl bg-card px-3 py-2.5 text-left text-xs leading-relaxed text-muted-foreground">
+                <input
+                  type="checkbox"
+                  checked={consent}
+                  onChange={(e) => setConsent(e.target.checked)}
+                  className="mt-0.5 h-4 w-4 shrink-0 accent-[var(--primary)]"
+                />
+                <span>
+                  Confirmo que sou maior de idade e aceito os{" "}
+                  <Link to="/termos" className="text-primary underline">
+                    Termos
+                  </Link>{" "}
+                  e a{" "}
+                  <Link to="/privacidade" className="text-primary underline">
+                    Política de Privacidade
+                  </Link>
+                  .
+                </span>
+              </label>
+            )}
+
             {error && (
               <div
                 role="alert"
@@ -192,7 +216,11 @@ function AuthPage() {
               </div>
             )}
 
-            <ChunkyButton type="submit" disabled={loading} className="w-full">
+            <ChunkyButton
+              type="submit"
+              disabled={loading || (mode === "signup" && !consent)}
+              className="w-full"
+            >
               {loading ? "Aguarda…" : mode === "signup" ? "Criar conta 🎉" : "Entrar →"}
             </ChunkyButton>
           </form>

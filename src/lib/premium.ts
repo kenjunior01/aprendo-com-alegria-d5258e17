@@ -1,6 +1,8 @@
-// Estrutura Freemium — sem pagamentos reais ainda.
-// Marca features/conteúdos como premium e expõe helpers para verificar acesso.
-// Suporta Premium temporário (ganho por convites de amigos) via premiumUntil.
+// Estrutura Freemium.
+// O Premium PAGO (isPremium permanente) é propriedade do servidor — o webhook
+// Stripe / capture PayPal escrevem is_premium na cloud e o cliente apenas o
+// reflete (pull). O Premium TEMPORÁRIO de convites (premiumUntil) vive no
+// dispositivo e expira sozinho.
 
 import { loadProfile, updateProfile, type Profile } from "./storage";
 
@@ -73,6 +75,16 @@ export const isPremiumActive = (p?: Profile | null): boolean => {
   }
 };
 
+/** Premium temporário de convites (premiumUntil válido) — a única via local de Premium. */
+export const referralPremiumActive = (p?: Profile | null): boolean => {
+  if (!p?.premiumUntil) return false;
+  try {
+    return new Date(p.premiumUntil).getTime() > Date.now();
+  } catch {
+    return false;
+  }
+};
+
 /** Dias restantes do Premium temporário (0 se não aplicável). */
 export const premiumDaysLeft = (p?: Profile | null): number => {
   if (!p?.premiumUntil) return 0;
@@ -98,12 +110,6 @@ export const grantPremiumDays = (days: number): Profile => {
 
 /** Atalho para o hook de gating em toda a app. */
 export const hasPremiumAccess = (): boolean => isPremiumActive(loadProfile());
-
-// Activa a assinatura simulada (sem pagamento real).
-// Em produção, isto seria feito por um webhook do Paddle/Stripe.
-export const startTrialPremium = (): Profile => {
-  return updateProfile({ isPremium: true });
-};
 
 export const cancelPremium = (): Profile => {
   return updateProfile({ isPremium: false });

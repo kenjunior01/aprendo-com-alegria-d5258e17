@@ -11,7 +11,8 @@ import { getMascot } from "@/lib/mascots";
 import { haptic } from "@/lib/haptics";
 import { playPortal, playLevelUp } from "@/lib/audio";
 import { cn } from "@/lib/utils";
-import { isPremiumActive, premiumDaysLeft } from "@/lib/premium";
+import { premiumDaysLeft } from "@/lib/premium";
+import { usePremiumAccess } from "@/hooks/usePremiumAccess";
 import {
   REALMS,
   REALM_LEVELS,
@@ -111,7 +112,7 @@ function PortalPage() {
     };
   }, [navigate]);
 
-  const premium = useMemo(() => isPremiumActive(profile), [profile]);
+  const premium = usePremiumAccess(profile);
   const canTour = useMemo(() => tourAvailable(), []);
   const dailyAllClaimed =
     daily.quests.length > 0 && daily.quests.every((q) => daily.state.claimed.includes(q.id));

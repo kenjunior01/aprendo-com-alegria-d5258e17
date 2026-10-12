@@ -106,7 +106,7 @@ function ConvitesPage() {
     setAutoClaimToken(search.claim);
   }, [search.claim]);
 
-  const tryClaim = (token: string) => {
+  const tryClaim = async (token: string) => {
     const r = acceptClaim(token);
     if (!r.ok) {
       if (r.reason === "duplicate") toast.info("Este convite já tinha sido reclamado! 🙂");
@@ -117,18 +117,20 @@ function ConvitesPage() {
       setAutoClaimToken(null);
       return;
     }
-    if (r.reward) grantReward(r.reward);
+    let celebrate = `🎉 Convite de ${r.name} aceite!`;
+    if (r.reward) {
+      const applied = await grantReward(r.reward);
+      if (applied.profile) celebrate = `${r.reward.icon} ${applied.note || r.reward.title}`;
+    }
     setCount(getInviteCount());
     setGiven(getRewardsGiven());
     setAutoClaimToken(null);
-    setCelebrating(
-      r.reward ? `${r.reward.icon} ${r.reward.title}` : `🎉 Convite de ${r.name} aceite!`,
-    );
+    setCelebrating(celebrate);
     haptic("celebrate");
   };
 
   useEffect(() => {
-    if (autoClaimToken && profile) tryClaim(autoClaimToken);
+    if (autoClaimToken && profile) void tryClaim(autoClaimToken);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [autoClaimToken, profile]);
 
@@ -164,12 +166,12 @@ function ConvitesPage() {
     if (v.startsWith("http")) {
       const m = v.match(/claim=([A-Za-z0-9_-]+)/);
       if (m) {
-        tryClaim(m[1]);
+        void tryClaim(m[1]);
         setPasteValue("");
         return;
       }
     }
-    tryClaim(v);
+    void tryClaim(v);
     setPasteValue("");
   };
 
