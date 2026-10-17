@@ -43,7 +43,7 @@ export function ParentPremiumCard() {
             <div className="mt-3 flex flex-col gap-2 sm:flex-row">
               <Link to="/premium" className="flex-1">
                 <ChunkyButton className="w-full">
-                  <Crown className="mr-1 inline h-4 w-4" /> Garantir 7,99€/mês
+                  <Crown className="mr-1 inline h-4 w-4" /> Garantir desde 5,00€/mês
                 </ChunkyButton>
               </Link>
               <Link to="/convites" className="flex-1">
@@ -63,7 +63,7 @@ export function ParentPremiumCard() {
       <div className="flex items-start gap-3">
         <Crown className="mt-0.5 h-7 w-7 shrink-0 text-primary" />
         <div className="min-w-0 flex-1">
-          <h2 className="font-display text-lg">Kidoz Família Premium — 7,99€/mês</h2>
+          <h2 className="font-display text-lg">Kidoz Família Premium — desde 5,00€/mês</h2>
           <p className="mt-1 text-sm text-muted-foreground">
             O que o seu filho ganha (e o que você controla) com o plano completo:
           </p>

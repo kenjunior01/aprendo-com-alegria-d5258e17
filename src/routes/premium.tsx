@@ -72,13 +72,13 @@ const TRUST = [
 export const Route = createFileRoute("/premium")({
   head: () => ({
     meta: [
-      { title: "Subscrição Kidoz Premium — 7,99€/mês" },
+      { title: "Subscrição Kidoz Premium — desde 5,00€/mês" },
       {
         name: "description",
         content:
-          "Acesso ilimitado a todas as disciplinas, Mocha IA, modo família e relatórios. Planos a partir de 7,99€/mês.",
+          "Acesso ilimitado a todas as disciplinas, Mocha IA, modo família e relatórios. Anual 59,99€ (≈5,00€/mês) ou mensal 7,99€ — cancela quando quiser.",
       },
-      { property: "og:title", content: "Kidoz Premium — 7,99€/mês" },
+      { property: "og:title", content: "Kidoz Premium — desde 5,00€/mês" },
       {
         property: "og:description",
         content: "Acesso ilimitado a todas as disciplinas, Mocha IA, modo família e relatórios.",
@@ -127,12 +127,27 @@ interface Plan {
 
 const PLANS: Plan[] = [
   {
+    priceId: "familia_anual",
+    badge: "Melhor valor · poupa 37%",
+    name: "Família Anual",
+    price: "59,99€",
+    priceLabel: "/ano · equivale a 5,00€/mês",
+    highlight: true,
+    oneTime: true,
+    perks: [
+      "Tudo do plano mensal — 12 meses pelo preço de ~8",
+      "👨‍👩‍👧 Até 4 crianças incluídas — ≈1,25€/criança/mês",
+      "🔒 Preço fixo durante o ano todo, sem surpresas",
+      "Sem renovação automática escondida — avisamos antes de acabar",
+    ],
+    cta: "Quero o Anual",
+  },
+  {
     priceId: "familia_mensal",
     badge: "Sem fidelização · cancela em 2 cliques",
     name: "Família Mensal",
     price: "7,99€",
     priceLabel: "/mês",
-    highlight: true,
     perks: [
       "Tudo grátis incluído",
       "🌀 O MUNDO PREMIUM — 5 reinos × 3 níveis, criaturas e Bazar de Cristais",
@@ -145,21 +160,6 @@ const PLANS: Plan[] = [
       "Sem anúncios, sem limites de leitura por voz",
     ],
     cta: "Começar agora",
-  },
-  {
-    priceId: "vitalicio_lifetime",
-    badge: "Preço de fundador",
-    name: "Vitalício",
-    price: "99,99€",
-    priceLabel: "uma única vez · para sempre",
-    oneTime: true,
-    perks: [
-      "Tudo do plano mensal — para sempre, sem renovações",
-      "🗝️ Preço de fundador: só enquanto lançamos os novos conteúdos",
-      "🙏 Obrigado por apoiar o Kidoz desde o início",
-      "Pagamento único — sem surpresas nem letra miúda",
-    ],
-    cta: "Quero o Vitalício",
   },
 ];
 
@@ -223,6 +223,10 @@ const FEATURES: Feature[] = [
 ];
 
 const FAQS: Array<{ q: string; a: string }> = [
+  {
+    q: "Como funciona o plano anual?",
+    a: "Pagas 59,99€ uma única vez e ficas 366 dias com tudo incluído — equivale a 5,00€/mês (poupa 37%). Sem renovação automática: avisamos antes de acabar e decides se queres continuar.",
+  },
   {
     q: "Posso cancelar quando quiser?",
     a: "Sim. O cancelamento é instantâneo no painel de perfil e mantém o acesso até ao fim do período pago.",
@@ -513,7 +517,7 @@ function PremiumPage() {
                 i: "👑",
                 t: "Kidoz Premium",
                 d: "Até 4 crianças · Tutor IA · Mundo Premium · relatórios",
-                p: "7,99€/mês",
+                p: "desde 5,00€/mês",
                 highlight: true,
               },
             ].map((r) => (
@@ -567,7 +571,7 @@ function PremiumPage() {
                   plan.highlight
                     ? "border-primary bg-card shadow-elegant"
                     : "border-border bg-card/80"
-                } ${plan.oneTime ? "md:col-span-2" : ""}`}
+                }`}
               >
                 {plan.badge && (
                   <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-primary px-3 py-0.5 font-display text-[10px] uppercase tracking-wider text-primary-foreground">
@@ -593,8 +597,8 @@ function PremiumPage() {
                       <Star className="mr-1 inline h-4 w-4" /> Plano atual
                     </ChunkyButton>
                   ) : plan.oneTime ? (
-                    /* Vitalício: pagamento único só via PayPal — o preço one-time
-                       ainda não tem lookup key no dashboard Stripe. */
+                    /* Anual: pagamento único só via PayPal — plug-and-play,
+                       sem criar preço/lookup key novo no dashboard Stripe. */
                     <ChunkyButton
                       tone="primary"
                       onClick={() => handlePaypal(plan.priceId)}

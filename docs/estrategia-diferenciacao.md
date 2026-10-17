@@ -37,7 +37,7 @@ Mercado verificado (fontes públicas, out/2026):
 | ABCmouse | ≈14€/mês (14,99$) | sem currículo PT |
 | IXL (família) | ≈15-25€/mês | sem currículo PT |
 | **Kidoz Premium** | **7,99€/mês, até 4 crianças, sem fidelização** | **currículo PT completo** |
-| Kidoz Vitalício | 99,99€ uma única vez | preço de fundador, sem subscrição |
+| Kidoz Família Anual | 59,99€/ano (≈5,00€/mês, poupa 37%) | melhor valor, pagamento único por ano |
 | Kidoz Escolas | 1,19-2,49€/aluno/mês (volume) | B2B, insubstituível |
 
 **Posição (reajuste out/2026):** 2×-19× mais barato que todas as alternativas sérias
@@ -47,11 +47,10 @@ como "fraco" em educação (lição da análise competitiva). A mensagem certa c
 na página Premium ("sai por menos que UMA hora de explicações"). Regras de ouro:
 1. **Nunca competir por preço para baixo** — somos o melhor valor, não o mais barato;
    o valor percebido sobe com conteúdo e confiança, não com descontos.
-2. **Vitalício (99,99€) como âncora de fundador**, não como norma — protege a
-   receita recorrente mensal das escolas e das famílias.
-   **Só cobrança mensal (decisão out/2026)**: sem planos anuais em lado nenhum
-   — menos opções = decisão mais fácil; quem quiser compromisso longo compra o
-   Vitalício.
+2. **Anual (59,99€/ano ≈ 5,00€/mês, poupa 37%) como âncora de valor** (decisão
+   out/2026, substitui o vitalício) — recompensa o compromisso longo com poupança
+   real; o mensal fica para quem não quer compromisso. Cobrado como PayPal
+   one-time de 366 dias: plug-and-play, sem renovação automática escondida.
 3. **Escolas com tiers por volume (2,49€ → 1,19€) são a vantagem estratégica real**:
    um concorrente B2C a 12€/mês não consegue servir escolas a 1,19€/aluno sem
    quebrar o negócio. As escolas são o fosso — e ≈25€/aluno por ano letivo no

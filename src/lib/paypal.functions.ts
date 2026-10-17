@@ -4,7 +4,12 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 // Planos pagos via PayPal (pagamento único; o PayPal aceita conta PayPal e cartão/banco como convidado).
 const PLANS: Record<string, { amount: string; days: number | null; name: string }> = {
   familia_mensal: { amount: "7.99", days: 31, name: "Kidoz Família Mensal" },
-  vitalicio_lifetime: { amount: "99.99", days: null, name: "Kidoz Vitalício" },
+  // Anual regressou por decisão do fundador (out/2026) — one-time de 366 dias,
+  // plug-and-play: não precisa de plano de subscrição no dashboard PayPal.
+  familia_anual: { amount: "59.99", days: 366, name: "Kidoz Família Anual" },
+  // LEGACY: vitalício descontinuado — já não é oferecido na UI. Mantido para
+  // capturar ordens em curso; quem comprou antes mantém o acesso pela BD.
+  vitalicio_lifetime: { amount: "99.99", days: null, name: "Kidoz Vitalício (legacy)" },
 };
 
 type PaypalEnv = "sandbox" | "live";
