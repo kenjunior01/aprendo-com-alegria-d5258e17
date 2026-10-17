@@ -26,7 +26,7 @@ import { playCorrect, playWrong, playLevelUp, speak, stopSpeech, ttsAvailable } 
 import { checkAndUnlockAchievements, type Achievement } from "@/lib/achievements";
 import { useVoiceMatch, isVoiceAvailable } from "@/lib/voice";
 import { Check, GraduationCap, Heart, Lightbulb, Mic, Sparkles, Volume2, X } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, shuffled } from "@/lib/utils";
 import { haptic } from "@/lib/haptics";
 import { RouteError } from "@/components/RouteError";
 import { KidLoader } from "@/components/KidLoader";
@@ -305,7 +305,7 @@ function LessonPage() {
 
   const startTreino = (idxs: number[]) => {
     if (idxs.length === 0) return;
-    const baralhado = [...idxs].sort(() => Math.random() - 0.5);
+    const baralhado = shuffled(idxs); // Fisher–Yates justo
     setTreinoResult(null);
     setTreino({ order: baralhado, pos: 0, correct: 0, wrong: [] });
     setDone(false);

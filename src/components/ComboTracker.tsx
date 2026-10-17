@@ -116,7 +116,7 @@ interface ComboPopupProps {
 export function ComboPopup({ combo, show, onDone }: ComboPopupProps) {
   if (!show || combo < 3) return null;
 
-  const label = combo >= 8 ? "INCREDIBLE!" : combo >= 5 ? "AMAZING!" : combo >= 3 ? "COMBO!" : "";
+  const label = combo >= 8 ? "INCRÍVEL!" : combo >= 5 ? "ESPETACULAR!" : combo >= 3 ? "COMBO!" : "";
 
   return (
     <AnimatePresence>

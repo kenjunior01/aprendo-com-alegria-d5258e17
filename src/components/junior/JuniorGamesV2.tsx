@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { recordJuniorPlay } from "@/lib/junior";
+import { shuffled } from "@/lib/utils"; // Fisher–Yates justo
 
 function speak(t: string) {
   if (typeof window === "undefined" || !window.speechSynthesis) return;
@@ -122,7 +123,7 @@ export function GameJardimMagico({ onDone }: { onDone?: () => void }) {
 // 🧩 Quebra-Cabeças do Kido — slide puzzle 3 peças
 const PUZZLE_TARGET = ["🦁", "🐘", "🦒"];
 export function GamePuzzle({ onDone }: { onDone?: () => void }) {
-  const [order, setOrder] = useState(() => [...PUZZLE_TARGET].sort(() => Math.random() - 0.5));
+  const [order, setOrder] = useState(() => shuffled(PUZZLE_TARGET));
   const [sel, setSel] = useState<number | null>(null);
   const ok = order.join("") === PUZZLE_TARGET.join("");
   useEffect(() => { if (ok) { recordJuniorPlay("puzzle-kido", "Resolveu o quebra-cabeças!"); onDone?.(); } }, [ok]);
@@ -150,7 +151,7 @@ export function GamePuzzle({ onDone }: { onDone?: () => void }) {
 export function GameCacaTesouro({ onDone }: { onDone?: () => void }) {
   const [round, setRound] = useState(0);
   const grid = useMemo(() => {
-    const items = ["🌴", "🌴", "🌴", "🌴", "🌴", "🌴", "🌴", "💎"].sort(() => Math.random() - 0.5);
+    const items = shuffled(["🌴", "🌴", "🌴", "🌴", "🌴", "🌴", "🌴", "💎"]);
     return items;
   }, [round]);
   const tap = (e: string) => {
@@ -184,11 +185,11 @@ const SEASONS = [
   { e: "❄️", k: "inverno" },
 ];
 export function GameEstacoes({ onDone }: { onDone?: () => void }) {
-  const order = useMemo(() => [...SEASONS].sort(() => Math.random() - 0.5), []);
+  const order = useMemo(() => shuffled(SEASONS), []);
   const [i, setI] = useState(0);
   const target = order[i];
   if (!target) return <Done msg="Conheces as estações!" />;
-  const opts = useMemo(() => [...SEASONS].sort(() => Math.random() - 0.5).slice(0, 3).concat(target).filter((v, idx, a) => a.findIndex(x => x.k === v.k) === idx).slice(0, 3), [i]);
+  const opts = useMemo(() => shuffled(SEASONS).slice(0, 3).concat(target).filter((v, idx, a) => a.findIndex(x => x.k === v.k) === idx).slice(0, 3), [i]);
   const pick = (k: string) => {
     if (k === target.k) { speak(target.k); const n = i + 1; if (n >= order.length) { recordJuniorPlay("estacoes-ano", "Identificou as estações!"); onDone?.(); } setI(n); }
   };
@@ -210,11 +211,11 @@ const EMOJI_SET = [
   { e: "😊", k: "feliz" }, { e: "😢", k: "triste" }, { e: "😡", k: "zangado" }, { e: "😮", k: "surpreso" }, { e: "😴", k: "cansado" },
 ];
 export function GameEmocoes({ onDone }: { onDone?: () => void }) {
-  const order = useMemo(() => [...EMOJI_SET].sort(() => Math.random() - 0.5).slice(0, 4), []);
+  const order = useMemo(() => shuffled(EMOJI_SET).slice(0, 4), []);
   const [i, setI] = useState(0);
   const target = order[i];
   if (!target) return <Done msg="Conheces as emoções!" />;
-  const opts = useMemo(() => [...EMOJI_SET].sort(() => Math.random() - 0.5).slice(0, 3).concat(target).filter((v, idx, a) => a.findIndex(x => x.k === v.k) === idx).slice(0, 3), [i]);
+  const opts = useMemo(() => shuffled(EMOJI_SET).slice(0, 3).concat(target).filter((v, idx, a) => a.findIndex(x => x.k === v.k) === idx).slice(0, 3), [i]);
   const pick = (k: string) => {
     if (k === target.k) { speak(target.k); const n = i + 1; if (n >= order.length) { recordJuniorPlay("emocoes-kido", "Identificou as emoções!"); onDone?.(); } setI(n); }
   };

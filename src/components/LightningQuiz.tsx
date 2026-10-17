@@ -18,7 +18,7 @@ import { loadProfile } from "@/lib/storage";
 import { detectRegion, localizeQuestion } from "@/lib/region";
 import { haptic } from "@/lib/haptics";
 import { playCorrect, playWrong } from "@/lib/audio";
-import { cn } from "@/lib/utils";
+import { cn, shuffled } from "@/lib/utils";
 
 interface Props {
   /** Seed determinística — se ausente, gera perguntas aleatórias. */
@@ -96,8 +96,8 @@ export function LightningQuiz({
   const comecarRevisao = () => {
     if (missed.length === 0) return;
     haptic("tap");
-    // baralhar para não repetir a ordem memorizada
-    const baralhadas = [...missed].sort(() => Math.random() - 0.5);
+    // baralhar para não repetir a ordem memorizada (Fisher–Yates justo)
+    const baralhadas = shuffled(missed);
     setLista(baralhadas);
     setIdx(0);
     setPicked(null);

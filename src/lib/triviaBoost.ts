@@ -944,6 +944,7 @@ export const TRIVIA_BOOST: TriviaQuestion[] = [
 ];
 
 /** Banco total: triviaBank (auto-gerado) + boost autorado + ultra (Ronda 2). */
+import { shuffled } from "@/lib/utils";
 import { TRIVIA_BANK } from "@/lib/triviaBank";
 import { TRIVIA_ULTRA } from "@/lib/triviaUltra";
 export const ALL_TRIVIA: TriviaQuestion[] = [...TRIVIA_BANK, ...TRIVIA_BOOST, ...TRIVIA_ULTRA];
@@ -951,7 +952,8 @@ export const ALL_TRIVIA: TriviaQuestion[] = [...TRIVIA_BANK, ...TRIVIA_BOOST, ..
 /** Escolhe n perguntas aleatórias do banco total, opcionalmente por categoria. */
 export function getRandomTriviaBoost(n: number, category?: string): TriviaQuestion[] {
   const pool = category ? ALL_TRIVIA.filter((q) => q.category === category) : ALL_TRIVIA;
-  return [...pool].sort(() => Math.random() - 0.5).slice(0, n);
+  // Fisher–Yates justo (antes: sort(random) enviesava as posições)
+  return shuffled(pool).slice(0, n);
 }
 
 /**

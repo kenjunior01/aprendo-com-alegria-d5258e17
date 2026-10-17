@@ -7,8 +7,9 @@ import { recordJuniorPlay } from "@/lib/junior";
 import { speak, playCorrect, playWrong, playLevelUp } from "@/lib/audio";
 import { GameTutorial } from "./GameTutorial";
 import { cn } from "@/lib/utils";
+import { shuffled as shuffle } from "@/lib/utils"; // Fisher–Yates justo
 
-const shuffle = <T,>(a: T[]) => [...a].sort(() => Math.random() - 0.5);
+
 
 function DoneBanner({ msg, emoji = "🎉" }: { msg: string; emoji?: string }) {
   return (

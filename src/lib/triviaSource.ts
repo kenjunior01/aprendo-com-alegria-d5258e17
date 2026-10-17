@@ -1,6 +1,7 @@
 // Trivia source com cache local + fallback offline para `triviaBank` + `triviaBoost`.
 import { supabase } from "@/integrations/supabase/client";
 import { ALL_TRIVIA, type TriviaQuestion } from "@/lib/triviaBoost";
+import { shuffled } from "@/lib/utils";
 
 const LS_PREFIX = "alegria.trivia.cache.v1::";
 const LS_TTL_MS = 6 * 3600 * 1000; // 6h client cache
@@ -35,8 +36,8 @@ function writeLocal(key: string, qs: RemoteTriviaQ[]) {
 function fallbackOffline(count: number, age?: number): RemoteTriviaQ[] {
   const pool = ALL_TRIVIA.filter((q) => age == null || Math.abs(q.age - age) <= 2);
   const src = pool.length ? pool : ALL_TRIVIA;
-  const shuffled = [...src].sort(() => Math.random() - 0.5).slice(0, count);
-  return shuffled.map((q: TriviaQuestion) => ({
+  const baralhado = shuffled(src).slice(0, count);
+  return baralhado.map((q: TriviaQuestion) => ({
     category: q.category,
     prompt: q.prompt,
     options: q.options,

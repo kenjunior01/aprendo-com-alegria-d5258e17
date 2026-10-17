@@ -7,6 +7,7 @@ import { Volume2, RotateCcw } from "lucide-react";
 import { recordJuniorPlay } from "@/lib/junior";
 import { speak, playCorrect, playWrong, playTap, stopSpeech } from "@/lib/audio";
 import { GameTutorial } from "./GameTutorial";
+import { shuffled } from "@/lib/utils"; // Fisher–Yates justo
 
 // ============================================================
 // 1) Jardim das Cores e Formas (2-3) — versão "tap-tap" + narração
@@ -41,7 +42,7 @@ const POTS = [
 export function GameJardimCores({ onDone }: { onDone?: () => void }) {
   const [started, setStarted] = useState(false);
   const [items, setItems] = useState<ColorItem[]>(() =>
-    [...COLOR_POOL].sort(() => Math.random() - 0.5).slice(0, 8),
+    shuffled(COLOR_POOL).slice(0, 8),
   );
   const [score, setScore] = useState(0);
   const [picked, setPicked] = useState<ColorItem | null>(null);
@@ -206,13 +207,13 @@ export function GameOrquestraAnimais({ onDone }: { onDone?: () => void }) {
   const [score, setScore] = useState(0);
   const [revealed, setRevealed] = useState<string | null>(null);
 
-  const order = useMemo(() => [...ANIMALS].sort(() => Math.random() - 0.5).slice(0, 6), []);
+  const order = useMemo(() => shuffled(ANIMALS).slice(0, 6), []);
   const target = order[round];
 
   const choices = useMemo(() => {
     if (!target) return [];
-    const others = ANIMALS.filter((a) => a.name !== target.name).sort(() => Math.random() - 0.5).slice(0, 2);
-    return [...others, target].sort(() => Math.random() - 0.5);
+    const others = shuffled(ANIMALS.filter((a) => a.name !== target.name)).slice(0, 2);
+    return shuffled([...others, target]);
   }, [round, target]);
 
   // Toca o som-alvo automaticamente ao iniciar a ronda

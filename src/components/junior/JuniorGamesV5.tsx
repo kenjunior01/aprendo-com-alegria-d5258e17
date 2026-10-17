@@ -7,8 +7,9 @@ import { Volume2 } from "lucide-react";
 import { recordJuniorPlay } from "@/lib/junior";
 import { speak, playCorrect, playWrong, playTap, playLevelUp } from "@/lib/audio";
 import { GameTutorial } from "./GameTutorial";
+import { shuffled as shuffle } from "@/lib/utils"; // Fisher–Yates justo
 
-const shuffle = <T,>(a: T[]) => [...a].sort(() => Math.random() - 0.5);
+
 
 // ---------- 1) Balões da Cor — rebenta os balões da cor pedida ----------
 const BALLOON_COLORS = [

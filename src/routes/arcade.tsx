@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import * as React from "react";
-import { useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { ArrowLeft, Trophy, Sparkles, Share2 } from "lucide-react";
 import { BottomNav } from "@/components/BottomNav";
@@ -10,6 +10,7 @@ import { RouteError } from "@/components/RouteError";
 import { ARCADE_POOL } from "@/lib/juniorGameRegistry";
 import { shareChallenge, type ChallengePayload } from "@/lib/challengeShare";
 import { loadProfile } from "@/lib/storage";
+import { shuffled } from "@/lib/utils";
 
 export const Route = createFileRoute("/arcade")({
   head: () => ({
@@ -37,7 +38,7 @@ export const Route = createFileRoute("/arcade")({
 
 type ArcadeEntry = { id: string; title: string; emoji: string; el: React.ComponentType };
 
-// Pool vem do registry central (29 jogos — inclui os 8 V8)
+// Pool vem do registry central (contagem automática abaixo)
 const POOL: ArcadeEntry[] = ARCADE_POOL.map((g) => ({
   id: g.id,
   title: g.title,
@@ -48,8 +49,8 @@ const POOL: ArcadeEntry[] = ARCADE_POOL.map((g) => ({
 const HISCORE_KEY = "kidoz-arcade-hiscore";
 
 function pickRun(n: number): ArcadeEntry[] {
-  const shuffled = [...POOL].sort(() => Math.random() - 0.5);
-  return shuffled.slice(0, n);
+  // Fisher–Yates justo (antes: sort(random) enviesava a ordem)
+  return shuffled(POOL).slice(0, n);
 }
 
 function ArcadePage() {
@@ -57,9 +58,9 @@ function ArcadePage() {
   const [idx, setIdx] = useState(0);
   const [score, setScore] = useState(0);
   const [finished, setFinished] = useState(false);
-  const hi = useMemo(() => {
-    if (typeof window === "undefined") return 0;
-    return Number(localStorage.getItem(HISCORE_KEY) ?? "0");
+  const [hi, setHi] = useState(0);
+  useEffect(() => {
+    setHi(Number(localStorage.getItem(HISCORE_KEY) ?? "0"));
   }, [finished]);
 
   const start = (n: number) => {

@@ -10,6 +10,7 @@
 // • Recompensas para o perfil local: TODOS participam, quem vence ganha bónus —
 //   nunca castigamos por perder (regressos sem culpa).
 import { ALL_TRIVIA, type TriviaQuestion } from "@/lib/triviaBoost";
+import { shuffled } from "@/lib/utils";
 import { detectRegion, localizeQuestion } from "@/lib/region";
 import { dayGap, loadProfile, saveProfile, type Profile } from "@/lib/storage";
 import type { MascotId } from "@/lib/mascots";
@@ -58,10 +59,11 @@ export function dueloPoolSize(grade: DueloGrade): number {
 export function pickDueloQuestions(grade: DueloGrade, perPlayer: number): DueloQuestion[] {
   const ages = GRADE_AGES[grade];
   const pool = ALL_TRIVIA.filter((q) => ages.includes(q.age));
-  const shuffled = [...pool].sort(() => Math.random() - 0.5);
+  // Fisher–Yates justo (antes: sort(random) enviesava as posições)
+  const baralhado = shuffled(pool);
   const region = loadProfile()?.region ?? detectRegion().code;
-  const total = Math.min(perPlayer * 2, shuffled.length);
-  return shuffled.slice(0, total).map((q, i) => ({
+  const total = Math.min(perPlayer * 2, baralhado.length);
+  return baralhado.slice(0, total).map((q, i) => ({
     ...localizeQuestion(q, region),
     turn: (i % 2) as 0 | 1,
   }));

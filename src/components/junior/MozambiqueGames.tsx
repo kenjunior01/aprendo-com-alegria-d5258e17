@@ -4,8 +4,7 @@ import { motion } from "framer-motion";
 import { recordJuniorPlay } from "@/lib/junior";
 import { speak, playCorrect, playWrong, playLevelUp } from "@/lib/audio";
 import { GameTutorial } from "./GameTutorial";
-
-const shuffle = <T,>(a: T[]) => [...a].sort(() => Math.random() - 0.5);
+import { shuffled as shuffle } from "@/lib/utils"; // Fisher–Yates justo
 
 function TapGame({
   gameId, title, prompt, items, rounds = 5, onWin,

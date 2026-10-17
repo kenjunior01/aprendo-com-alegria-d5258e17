@@ -8,7 +8,6 @@ import { ArrowLeft, Sparkles } from "lucide-react";
 import {
   GARDENS, GAMES, getGardenGames, gardenProgressFor, currentLevel,
   loadJuniorProgress, getActiveJuniorChildId, listJuniorChildren,
-  recordJuniorPlay,
   type JuniorGame, type JuniorProgress, type JuniorChild,
 } from "@/lib/junior";
 import { grantSticker, type JuniorSticker } from "@/lib/juniorRewards";
@@ -262,7 +261,7 @@ function JuniorPage() {
               onClick={() => {
                 if (!active) return;
                 haptic("celebrate");
-                recordJuniorPlay(active.id, `Terminou ${active.title}`, activeChildId);
+                // Progresso já é gravado pelo próprio jogo ao concluir — evitar dupla contagem
                 const { granted, sticker } = grantSticker(active.id, activeChildId);
                 if (sticker) setCelebrating({ sticker, isNew: granted });
                 setStickerBump((n) => n + 1);

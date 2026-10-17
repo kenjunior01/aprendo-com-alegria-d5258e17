@@ -1,6 +1,7 @@
 import { useMemo, useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { recordJuniorPlay } from "@/lib/junior";
+import { shuffled } from "@/lib/utils"; // Fisher–Yates justo
 
 function speak(text: string) {
   if (typeof window === "undefined" || !window.speechSynthesis) return;
@@ -83,7 +84,7 @@ export function GameMeuCorpo({ onDone }: { onDone?: () => void }) {
   const [i, setI] = useState(0);
   const target = BODY[i];
   if (!target) return <Done msg="Conheces o teu corpo!" />;
-  const opts = useMemo(() => [...BODY].sort(() => Math.random() - 0.5).slice(0, 3).concat(target).filter((v, idx, a) => a.findIndex(x => x.k === v.k) === idx).slice(0, 3), [i]);
+  const opts = useMemo(() => shuffled(BODY).slice(0, 3).concat(target).filter((v, idx, a) => a.findIndex(x => x.k === v.k) === idx).slice(0, 3), [i]);
   const pick = (k: string) => {
     if (k === target.k) {
       speak("Boa!");
@@ -107,7 +108,7 @@ export function GameMeuCorpo({ onDone }: { onDone?: () => void }) {
 // 4) Memória dos Animais
 export function GameMemoria({ onDone }: { onDone?: () => void }) {
   const animals = ["🐶", "🐱", "🐰", "🦊"];
-  const [cards] = useState(() => [...animals, ...animals].sort(() => Math.random() - 0.5).map((e, i) => ({ id: i, e })));
+  const [cards] = useState(() => shuffled([...animals, ...animals]).map((e, i) => ({ id: i, e })));
   const [open, setOpen] = useState<number[]>([]);
   const [matched, setMatched] = useState<string[]>([]);
   useEffect(() => {
@@ -152,7 +153,7 @@ export function GameLetraAventura({ onDone }: { onDone?: () => void }) {
   const cur = LETTERS[i];
   if (!cur) return <Done msg="Letras dominadas!" />;
   const correct = cur.word[cur.missing];
-  const opts = useMemo(() => Array.from(new Set([correct, "A", "E", "I", "O", "U", "M", "T"])).slice(0, 4).sort(() => Math.random() - 0.5), [i]);
+  const opts = useMemo(() => shuffled(Array.from(new Set([correct, "A", "E", "I", "O", "U", "M", "T"])).slice(0, 4)), [i]);
   const pick = (l: string) => {
     if (l === correct) {
       speak(cur.word);
@@ -239,7 +240,7 @@ export function GameSoletrar({ onDone }: { onDone?: () => void }) {
   const [built, setBuilt] = useState("");
   useEffect(() => { setBuilt(""); }, [i]);
   if (!cur) return <Done msg="Sabes soletrar!" />;
-  const letters = useMemo(() => cur.word.split("").sort(() => Math.random() - 0.5), [i]);
+  const letters = useMemo(() => shuffled(cur.word.split("")), [i]);
   const add = (l: string) => {
     const next = built + l;
     setBuilt(next);
@@ -273,7 +274,7 @@ export function GameMatematica({ onDone }: { onDone?: () => void }) {
   }), []);
   const cur = qs[round];
   if (!cur) return <Done msg="Pequeno matemático!" />;
-  const opts = useMemo(() => Array.from(new Set([cur.r, cur.r + 1, Math.max(1, cur.r - 1), cur.r + 2])).slice(0, 4).sort(() => Math.random() - 0.5), [round]);
+  const opts = useMemo(() => shuffled(Array.from(new Set([cur.r, cur.r + 1, Math.max(1, cur.r - 1), cur.r + 2])).slice(0, 4)), [round]);
   const pick = (n: number) => {
     if (n === cur.r) {
       speak(`${cur.a} mais ${cur.b} é ${cur.r}`);
@@ -327,7 +328,7 @@ export function GameRelogio({ onDone }: { onDone?: () => void }) {
   const [i, setI] = useState(0);
   const cur = CLOCK[i];
   if (!cur) return <Done msg="Aprendeste as horas!" />;
-  const opts = useMemo(() => Array.from(new Set([cur.h, (cur.h + 3) % 24, (cur.h + 6) % 24, (cur.h + 9) % 24])).slice(0, 4).sort(() => Math.random() - 0.5), [i]);
+  const opts = useMemo(() => shuffled(Array.from(new Set([cur.h, (cur.h + 3) % 24, (cur.h + 6) % 24, (cur.h + 9) % 24])).slice(0, 4)), [i]);
   const pick = (h: number) => {
     if (h === cur.h) {
       speak(`${cur.h} horas`);
@@ -360,7 +361,7 @@ export function GamePalop({ onDone }: { onDone?: () => void }) {
   const [i, setI] = useState(0);
   const t = PALOP[i];
   if (!t) return <Done msg="Conheces a lusofonia!" />;
-  const opts = useMemo(() => [...PALOP].sort(() => Math.random() - 0.5).slice(0, 3).concat(t).filter((v, idx, a) => a.findIndex(x => x.n === v.n) === idx).slice(0, 3), [i]);
+  const opts = useMemo(() => shuffled(PALOP).slice(0, 3).concat(t).filter((v, idx, a) => a.findIndex(x => x.n === v.n) === idx).slice(0, 3), [i]);
   const pick = (n: string) => {
     if (n === t.n) {
       speak(`${t.n}: ${t.word}`);

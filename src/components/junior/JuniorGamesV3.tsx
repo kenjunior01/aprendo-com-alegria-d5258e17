@@ -16,8 +16,8 @@ const SHADOW_ITEMS = [
   { e: "🐧", id: "pen" },
 ];
 export function GameSombras({ onDone }: { onDone?: () => void }) {
-  const [shadows] = useState(() => [...SHADOW_ITEMS].sort(() => Math.random() - 0.5));
-  const [animals] = useState(() => [...SHADOW_ITEMS].sort(() => Math.random() - 0.5));
+  const [shadows] = useState(() => shuffled(SHADOW_ITEMS));
+  const [animals] = useState(() => shuffled(SHADOW_ITEMS));
   const [picked, setPicked] = useState<string | null>(null);
   const [matched, setMatched] = useState<Record<string, boolean>>({});
   const done = Object.keys(matched).length >= SHADOW_ITEMS.length;
@@ -273,6 +273,7 @@ export function GameLabirinto({ onDone }: { onDone?: () => void }) {
 import { getRandomTrivia } from "@/lib/triviaBank";
 import { loadProfile } from "@/lib/storage";
 import { detectRegion, localizeQuestion } from "@/lib/region";
+import { shuffled } from "@/lib/utils"; // Fisher–Yates justo
 
 export function GameTriviaJr({ onDone }: { onDone?: () => void }) {
   const [questions] = useState(() => {

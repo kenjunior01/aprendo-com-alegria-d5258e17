@@ -369,10 +369,25 @@ function GardenPage() {
   );
 }
 
-const _cn = cn;
-void _cn;
+type AppLink =
+  | "/app"
+  | "/leitura"
+  | "/aprender/portugues"
+  | "/aprender/matematica"
+  | "/aprender/estudo-do-meio";
 
-function subjectLink(subject: string): "/app" | "/leitura" {
-  if (subject === "leitura") return "/leitura";
-  return "/app";
+function subjectLink(subject: string): AppLink {
+  switch (subject) {
+    case "leitura":
+      return "/leitura";
+    case "portugues":
+      return "/aprender/portugues";
+    case "matematica":
+      return "/aprender/matematica";
+    case "estudo-do-meio":
+    case "ciencias":
+      return "/aprender/estudo-do-meio";
+    default:
+      return "/app";
+  }
 }

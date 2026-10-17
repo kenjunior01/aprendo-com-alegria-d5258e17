@@ -6,8 +6,7 @@ import { motion } from "framer-motion";
 import { recordJuniorPlay } from "@/lib/junior";
 import { speak, playCorrect, playWrong, playLevelUp } from "@/lib/audio";
 import { GameTutorial } from "./GameTutorial";
-
-const shuffle = <T,>(a: T[]) => [...a].sort(() => Math.random() - 0.5);
+import { shuffled as shuffle } from "@/lib/utils"; // Fisher–Yates justo
 
 // Generic tap-one-of-many template
 function TapGame({
@@ -242,7 +241,8 @@ export function GameEstrelasTap() {
   const [round, setRound] = useState(0);
   const target = (round % 3) + 1;
   const [tapped, setTapped] = useState(0);
-  const done = round >= 3 && tapped >= target;
+  // 3 rondas (0..2): termina quando a última ronda estiver contada
+  const done = round >= 2 && tapped >= target;
   useEffect(() => {
     if (started) speak(`Conta ${target} estrelas. Toca ${target} vezes!`, { rate: 0.92 });
     setTapped(0);

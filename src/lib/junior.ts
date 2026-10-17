@@ -906,6 +906,16 @@ export const GAMES: JuniorGame[] = [
     age: "3-4",
     garden: "descobertas",
   },
+
+  // 🇲🇿 Moçambique — orgulho local (estavam no registry mas inalcançáveis pela UI)
+  { id: "mz-provinces", title: "Províncias de Moçambique", emoji: "🇲🇿", description: "Descobre as províncias do país.", benefits: ["Geografia", "Cultura"], age: "4-5", garden: "preparacao" },
+  { id: "mz-food", title: "Sabores de Moçambique", emoji: "🥘", description: "As comidas típicas da nossa terra.", benefits: ["Vocabulário", "Cultura"], age: "4-5", garden: "preparacao" },
+  { id: "mz-animals", title: "Fauna de Moçambique", emoji: "🦒", description: "Os animais da nossa natureza.", benefits: ["Natureza", "Vocabulário"], age: "4-5", garden: "preparacao" },
+  { id: "mz-culture", title: "Ritmos de Moçambique", emoji: "🎸", description: "Música e dança de Moçambique.", benefits: ["Cultura", "Audição"], age: "4-5", garden: "preparacao" },
+  { id: "mz-flag", title: "Bandeira de Moçambique", emoji: "🚩", description: "Conhece a bandeira nacional.", benefits: ["Cidadania", "Cores"], age: "4-5", garden: "preparacao" },
+  { id: "mz-rivers", title: "Rios de Moçambique", emoji: "🌊", description: "Os grandes rios do país.", benefits: ["Geografia"], age: "4-5", garden: "preparacao" },
+  { id: "mz-cities", title: "Cidades de Moçambique", emoji: "🏢", description: "As cidades importantes do país.", benefits: ["Geografia", "Memória"], age: "4-5", garden: "preparacao" },
+  { id: "mz-heroes", title: "Heróis de Moçambique", emoji: "🏅", description: "Heróis que marcaram a nação.", benefits: ["História", "Cidadania"], age: "4-5", garden: "preparacao" },
 ];
 
 export const getGardenGames = (gardenId: GardenId) => GAMES.filter((g) => g.garden === gardenId);
