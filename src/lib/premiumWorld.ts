@@ -242,6 +242,8 @@ export interface PortalState {
   titles: string[]; // títulos conquistados ("Lenda do Vulcão"…)
   activeTitle: string | null;
   lastPlayed: string | null;
+  /** tentativas falhadas por "reino:nível" — alimenta a suavização adaptativa */
+  attempts: Record<string, number>;
 }
 
 const emptyState = (): PortalState => ({
@@ -257,6 +259,7 @@ const emptyState = (): PortalState => ({
   titles: [],
   activeTitle: null,
   lastPlayed: null,
+  attempts: {},
 });
 
 export function loadPortalState(): PortalState {
@@ -335,6 +338,7 @@ export function finishRealm(
     goldenKey?: boolean;
     dragonSlain?: boolean;
     doubled?: boolean; // power-up ✦×2 usado neste jogo
+    bestStreak?: number; // melhor sequência de acertos seguidos nesta tentativa
   },
 ): RealmFinish {
   const total = realmQuestionCount(realm, levelIdx);
@@ -348,6 +352,8 @@ export function finishRealm(
   const baseCrystals = correct * 2 + (perfect ? 5 : 0);
   let crystals = Math.round(baseCrystals * level.mult * (perk === "crystals" ? 1.15 : 1));
   if (extra?.doubled) crystals *= 2;
+  // Bónus de sequência: 5+ acertos seguidos vale cristais extra (combo recompensado)
+  if ((extra?.bestStreak ?? 0) >= 5) crystals += 3;
   const coins = Math.round(
     (correct * 3 + (perfect ? 10 : 0)) * (1 + levelIdx * 0.5) * (perk === "coins" ? 1.15 : 1),
   );
@@ -376,6 +382,12 @@ export function finishRealm(
     newTitle = legendTitle;
     state.activeTitle = legendTitle;
   }
+  // Adaptatividade: contar derrotas seguidas — o caminho suaviza à 3.ª tentativa
+  // (Prodigy/Matific fazem disto o núcleo; aqui é honesto e invisível à criança).
+  const attemptKey = `${realm.id}:${levelIdx}`;
+  if (starsEarned === 0) state.attempts[attemptKey] = (state.attempts[attemptKey] ?? 0) + 1;
+  else state.attempts[attemptKey] = 0;
+
   savePortalState(state);
 
   // Missões diárias do Portal: alimenta o progresso de hoje.
@@ -474,6 +486,8 @@ export function realmQuestions(
   grade: number,
   levelIdx = 0,
   seed = 0,
+  /** negativo = mais fácil (adaptatividade após derrotas) */
+  harderDelta = 0,
 ): GenQuestion[] {
   // Offset por reino + nível + seed da tentativa: perguntas diferentes entre
   // reinos, níveis e cada nova tentativa.
@@ -482,7 +496,7 @@ export function realmQuestions(
     REALMS.findIndex((r) => r.id === realm.id),
   );
   const lvl = REALM_LEVELS[levelIdx] ?? REALM_LEVELS[0];
-  const level = Math.max(1, Math.min(14, grade + 1 + realmIndex + lvl.harder));
+  const level = Math.max(1, Math.min(14, grade + 1 + realmIndex + lvl.harder + harderDelta));
   const count = realmQuestionCount(realm, levelIdx);
   const per = Math.ceil(count / realm.tracks.length);
   const out: GenQuestion[] = [];

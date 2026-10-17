@@ -52,6 +52,8 @@ interface Props {
   levelIdx: number;
   /** seed da tentativa — cada jogo tem perguntas novas */
   seed?: number;
+  /** ajuste adaptativo do nível (negativo = perguntas mais fáceis após 2 derrotas) */
+  harderDelta?: number;
   /** modo visita guiada (não-premium): 3 perguntas, sem recompensas reais */
   demo?: boolean;
   supplies?: GameSupplies;
@@ -125,6 +127,7 @@ export function RealmGame({
   grade,
   levelIdx,
   seed = 0,
+  harderDelta = 0,
   demo,
   supplies,
   perks,
@@ -136,11 +139,11 @@ export function RealmGame({
 }: Props) {
   const questions = useMemo<GenQuestion[]>(
     () =>
-      realmQuestions(realm, grade, levelIdx, seed).slice(
+      realmQuestions(realm, grade, levelIdx, seed, harderDelta).slice(
         0,
         demo ? 3 : realmQuestionCount(realm, levelIdx),
       ),
-    [realm, grade, levelIdx, seed, demo],
+    [realm, grade, levelIdx, seed, demo, harderDelta],
   );
   const [idx, setIdx] = useState(0);
   const [correct, setCorrect] = useState(0);
@@ -175,6 +178,7 @@ export function RealmGame({
     k: 0,
   }));
   const [streak, setStreak] = useState(0);
+  const maxStreakRef = useRef(0);
   const [creatureBurst, setCreatureBurst] = useState(0);
   const dangerFlags = useRef({ lava: false, fuel: false, heart: false });
   const say = (line: string, mood: ActorMood) => setCoach((c) => ({ line, mood, k: c.k + 1 }));
@@ -256,6 +260,7 @@ export function RealmGame({
       goldenKey,
       dragonSlain: slain,
       doubled: doubleActive,
+      bestStreak: maxStreakRef.current,
     });
     setFinish({
       correct: finalCorrect,
@@ -298,6 +303,11 @@ export function RealmGame({
       playCorrect();
       const ns = streak + 1;
       setStreak(ns);
+      maxStreakRef.current = Math.max(maxStreakRef.current, ns);
+      if (ns % 5 === 0) {
+        playCoins();
+        say(`🔥 Sequência ×${ns}! Bónus de cristais no fim!`, "excited");
+      }
       setCreatureBurst((b) => b + 1);
       if (ns % 3 === 0 && !finish) {
         const wins = REALM_COACH[realm.id].win;
@@ -513,6 +523,12 @@ export function RealmGame({
           idx={idx}
         />
       </div>
+
+      {streak >= 3 && (
+        <p className="mt-2 text-center font-display text-sm font-bold text-amber-500" role="status">
+          🔥 Sequência ×{streak}!
+        </p>
+      )}
 
       {/* Pergunta + opções */}
       <div className="mx-auto mt-4 w-full max-w-[36rem] flex-1 overflow-y-auto px-4 pb-8">

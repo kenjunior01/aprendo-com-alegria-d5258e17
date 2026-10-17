@@ -123,6 +123,13 @@ function PortalPage() {
   // Premium ganho por convites (não compra) a acabar → loop de renovação por convites.
   const inviteExpiring = !profile.isPremium && premium && daysLeft > 0 && daysLeft <= 5;
 
+  // Adaptatividade: 2 derrotas seguidas no mesmo nível → perguntas 2 anos mais fáceis.
+  // Suave e invisível: a criança só nota que "conseguiu". (padrão Prodigy/Matific)
+  const harderDeltaFor = (realmId: string, levelIdx: number) => {
+    const fails = state.attempts?.[`${realmId}:${levelIdx}`] ?? 0;
+    return fails >= 2 ? -2 : 0;
+  };
+
   const play = (realm: RealmDef, levelIdx = 0, demo = false) => {
     haptic(demo ? "tap" : "celebrate");
     playPortal();
@@ -205,6 +212,7 @@ function PortalPage() {
         grade={profile?.grade ?? 1}
         levelIdx={activeLevel}
         seed={gameSeed}
+        harderDelta={harderDeltaFor(activeRealm.id, activeLevel)}
         supplies={state.supplies}
         perks={{
           startShield: getCreature(state.equippedCreature)?.perkKey === "startShield",

@@ -315,7 +315,14 @@ function ARPage() {
 // =====================================================================
 function LabMissionsPanel({ onReward }: { onReward: (xp: number, coins: number) => void }) {
   const [activeId, setActiveId] = useState<string | null>(null);
-  const [completed, setCompleted] = useState<Record<string, number>>({});
+  // Conclusões persistidas + recompensa só na 1.ª vez (antes: replays farmavam recompensas)
+  const [completed, setCompleted] = useState<Record<string, number>>(() => {
+    try {
+      return JSON.parse(localStorage.getItem("kidoz-lab-completed") ?? "{}");
+    } catch {
+      return {};
+    }
+  });
   const active = LAB_MISSIONS.find((m) => m.id === activeId) ?? null;
 
   if (active) {
@@ -324,8 +331,15 @@ function LabMissionsPanel({ onReward }: { onReward: (xp: number, coins: number) 
         mission={active}
         onClose={() => setActiveId(null)}
         onComplete={(score) => {
-          setCompleted((c) => ({ ...c, [active.id]: Math.max(c[active.id] ?? 0, score) }));
-          onReward(active.rewardXp, active.rewardCoins);
+          const primeira = !completed[active.id];
+          const next = { ...completed, [active.id]: Math.max(completed[active.id] ?? 0, score) };
+          setCompleted(next);
+          try {
+            localStorage.setItem("kidoz-lab-completed", JSON.stringify(next));
+          } catch {
+            /* storage indisponível */
+          }
+          if (primeira) onReward(active.rewardXp, active.rewardCoins);
         }}
       />
     );

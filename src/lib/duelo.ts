@@ -104,12 +104,11 @@ export function awardDuelo(opts: {
     xpEarned += 10;
     coinsEarned += 4;
   } else {
-    const winnerName = (winner === "p1" ? p1.name : p2.name).trim().toLowerCase();
-    const mine = current.name.trim().toLowerCase();
-    if (winnerName && winnerName === mine) {
-      xpEarned += 18; // bónus de vitória — mas quem perde também sai a ganhar
-      coinsEarned += 8;
-    }
+    // Bónus de duelo decisivo — sem comparar nomes: dois "Tomás" davam o bónus
+    // ao perfil errado (hot-seat não sabe de quem é o perfil). Quem perde
+    // também sai a ganhar (participar já é treinar).
+    xpEarned += 14;
+    coinsEarned += 6;
   }
 
   const t = today();

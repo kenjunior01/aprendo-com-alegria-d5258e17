@@ -55,6 +55,8 @@ type Fase = "setup" | "pronto" | "jogo" | "fim";
 
 /** Tempo de pausa após responder: leitura com calma no erro, ritmo no acerto. */
 const MS_ACERTO = 1200;
+/** Relógio por pergunta — cria urgência saudável e evita a sessão bloqueada. */
+const TEMPO_PERGUNTA = 25;
 const MS_ERRO = 2600;
 
 const P1_THEME = {
@@ -93,6 +95,7 @@ function DueloPage() {
   const [questions, setQuestions] = useState<DueloQuestion[]>([]);
   const [idx, setIdx] = useState(0);
   const [picked, setPicked] = useState<number | null>(null);
+  const [tempo, setTempo] = useState(TEMPO_PERGUNTA);
   const [contagem, setContagem] = useState(3);
   const [resultado, setResultado] = useState<{
     p1: DueloPlayer;
@@ -163,6 +166,22 @@ function DueloPage() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [idx, fase]);
+
+  // Relógio por pergunta: reinicia em cada pergunta, para quando há resposta
+  useEffect(() => {
+    if (fase !== "jogo" || picked !== null || !q) return;
+    setTempo(TEMPO_PERGUNTA);
+    const iv = window.setInterval(() => {
+      setTempo((t) => Math.max(0, Math.round((t - 0.1) * 10) / 10));
+    }, 100);
+    return () => window.clearInterval(iv);
+  }, [idx, fase, picked, q]);
+
+  // Tempo esgotado → segue o fluxo do erro (mostra a resposta certa + dica)
+  useEffect(() => {
+    if (fase === "jogo" && tempo === 0 && picked === null && q) answer(-1);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tempo]);
 
   const answer = (i: number) => {
     if (picked !== null || !q) return;
@@ -290,6 +309,21 @@ function DueloPage() {
                 Vez de {active?.name}!
               </motion.div>
             </AnimatePresence>
+
+            {/* Relógio da pergunta (25s) */}
+            <div className="mb-2 flex items-center gap-2">
+              <div className="h-2 flex-1 overflow-hidden rounded-full bg-muted">
+                <div
+                  className={`h-full transition-all duration-100 ${tempo <= 5 ? "bg-destructive" : "bg-primary"}`}
+                  style={{ width: `${(tempo / TEMPO_PERGUNTA) * 100}%` }}
+                />
+              </div>
+              <span
+                className={`font-display text-xs ${tempo <= 5 ? "text-destructive" : "text-muted-foreground"}`}
+              >
+                ⏱ {Math.ceil(tempo)}s
+              </span>
+            </div>
 
             {/* Pergunta */}
             <motion.div
