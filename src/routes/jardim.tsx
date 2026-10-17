@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { TopBar } from "@/components/TopBar";
 import { BottomNav } from "@/components/BottomNav";
@@ -17,6 +17,8 @@ import { cn } from "@/lib/utils";
 import confetti from "canvas-confetti";
 import { RouteError } from "@/components/RouteError";
 import { KidLoader } from "@/components/KidLoader";
+import { playCoins, playLevelUp, speak } from "@/lib/audio";
+import { haptic } from "@/lib/haptics";
 
 export const Route = createFileRoute("/jardim")({
   head: () => ({
@@ -60,9 +62,39 @@ function GardenPage() {
     setMissions(loadMissions());
   }, [navigate]);
 
+  // Momento "nasceu uma criatura!": o desbloqueio era retroativo e invisível —
+  // agora celebra com fanfarra, confetti e voz da mascote (padrão Lingokids/Khan Kids).
+  const prevUnlocked = useRef<string[] | null>(null);
+  const [nascido, setNascido] = useState<string | null>(null);
+  useEffect(() => {
+    if (!profile) return;
+    const unlocked = gardenState(profile).unlocked;
+    const ids = unlocked.map((i) => i.id);
+    if (prevUnlocked.current && ids.length > prevUnlocked.current.length) {
+      const novoId = ids.find((x) => !prevUnlocked.current!.includes(x));
+      const novo = unlocked.find((i) => i.id === novoId);
+      if (novo) {
+        setNascido(`${novo.emoji} ${novo.name} nasceu no teu jardim!`);
+        playLevelUp();
+        haptic("celebrate");
+        speak(`${novo.name} nasceu no teu jardim!`, { rate: 0.95 });
+        confetti({
+          particleCount: 110,
+          spread: 75,
+          origin: { y: 0.5 },
+          colors: ["#7cd16e", "#ffd166", "#5db1ff"],
+        });
+        setTimeout(() => setNascido(null), 5000);
+      }
+    }
+    prevUnlocked.current = ids;
+  }, [profile]);
+
   const handleClaim = (id: string) => {
     const m = claimMission(id);
     if (!m || !profile) return;
+    playCoins();
+    haptic("celebrate");
     const next = updateProfile({
       coins: profile.coins + m.rewardCoins,
       xp: profile.xp + m.rewardXp,
@@ -94,6 +126,17 @@ function GardenPage() {
         >
           <ArrowLeft className="h-4 w-4" /> Aventura
         </Link>
+
+        {nascido && (
+          <motion.div
+            initial={{ opacity: 0, y: -8, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            className="mt-2 rounded-2xl border-2 border-success/50 bg-success/10 p-3 text-center font-display text-sm font-bold text-success"
+            role="status"
+          >
+            🎉 {nascido}
+          </motion.div>
+        )}
 
         <motion.section
           initial={{ opacity: 0, y: 8 }}

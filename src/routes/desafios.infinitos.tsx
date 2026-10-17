@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useServerFn } from "@tanstack/react-start";
 import { TopBar } from "@/components/TopBar";
@@ -36,6 +36,10 @@ import { RouteError } from "@/components/RouteError";
 import { KidLoader } from "@/components/KidLoader";
 import { shareChallenge, type ChallengePayload } from "@/lib/challengeShare";
 import { usePremiumAccess } from "@/hooks/usePremiumAccess";
+import { haptic } from "@/lib/haptics";
+import { playCorrect, playWrong, playLevelUp } from "@/lib/audio";
+import { addMistake } from "@/lib/reviewQueue";
+import confetti from "canvas-confetti";
 
 export const Route = createFileRoute("/desafios/infinitos")({
   head: () => ({
@@ -75,6 +79,7 @@ function InfinitePage() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [progress, setProgress] = useState(() => loadInfiniteProgress());
   const [view, setView] = useState<View>("tracks");
+  const [lastSeq, setLastSeq] = useState(0);
   const [trackId, setTrackId] = useState<TrackId | null>(null);
   const [level, setLevel] = useState<number>(1);
   const [weekly, setWeekly] = useState<{ ranking: RankingRow[]; mePosition: number | null } | null>(
@@ -251,13 +256,15 @@ function InfinitePage() {
           <PlayLevel
             trackId={trackId}
             level={level}
-            onDone={(correct, total) => {
+            onDone={(correct, total, seq = 0) => {
+              const bonusSeq = seq >= 5 ? 5 : 0; // bónus por sequência de 5+ acertos seguidos
               const r = recordResult(trackId, level, correct, total);
               setProgress(r.progress);
+              setLastSeq(seq);
               if (profile) {
                 const updated = updateProfile({
                   xp: (profile.xp ?? 0) + r.xpGained,
-                  coins: (profile.coins ?? 0) + correct,
+                  coins: (profile.coins ?? 0) + correct + bonusSeq,
                 });
                 setProfile(updated);
               }
@@ -283,6 +290,7 @@ function InfinitePage() {
             trackId={trackId}
             level={level}
             stars={progress.bestStars[`${trackId}:${level}`] ?? 0}
+            seq={lastSeq}
             profileName={profile?.name ?? "Um campeão"}
             onNext={() => {
               setLevel(level + 1);
@@ -359,7 +367,7 @@ function PlayLevel({
 }: {
   trackId: TrackId;
   level: number;
-  onDone: (correct: number, total: number) => void;
+  onDone: (correct: number, total: number, seq?: number) => void;
   onBack: () => void;
 }) {
   const track = TRACKS.find((t) => t.id === trackId)!;
@@ -370,20 +378,54 @@ function PlayLevel({
   const [idx, setIdx] = useState(0);
   const [picked, setPicked] = useState<number | null>(null);
   const [correct, setCorrect] = useState(0);
+  const [streak, setStreak] = useState(0);
+  const maxSeqRef = useRef(0);
   const q = questions[idx];
 
   const select = (i: number) => {
     if (picked !== null) return;
     setPicked(i);
-    if (i === q.answerIndex) setCorrect((c) => c + 1);
-    setTimeout(() => {
-      if (idx + 1 >= questions.length)
-        onDone(correct + (i === q.answerIndex ? 1 : 0), questions.length);
-      else {
-        setIdx(idx + 1);
-        setPicked(null);
-      }
-    }, 700);
+    const hit = i === q.answerIndex;
+    if (hit) {
+      setCorrect((c) => c + 1);
+      playCorrect();
+      haptic("success");
+      setStreak((s) => {
+        const n = s + 1;
+        maxSeqRef.current = Math.max(maxSeqRef.current, n);
+        return n;
+      });
+    } else {
+      playWrong();
+      haptic("error");
+      setStreak(0);
+      // O erro entra na Revisão Mágica (prática espaçada) — a mesma fila do Quiz Relâmpago
+      const as = subjectOf(trackId);
+      addMistake({
+        subjectId: as.subjectId,
+        subjectName: as.subjectName,
+        lessonId: `infinito-${trackId}`,
+        lessonTitle: `${track.name} — nível ${level}`,
+        question: {
+          prompt: q.prompt,
+          options: q.options,
+          answerIndex: q.answerIndex,
+          hint: q.hint,
+        },
+      });
+    }
+    setTimeout(
+      () => {
+        if (idx + 1 >= questions.length)
+          onDone(correct + (hit ? 1 : 0), questions.length, maxSeqRef.current);
+        else {
+          setIdx(idx + 1);
+          setPicked(null);
+        }
+        // Acerto passa rápido (0,9s); erro dá tempo de LER a dica (2,4s) — regra do Quiz Relâmpago
+      },
+      hit ? 900 : 2400,
+    );
   };
 
   return (
@@ -405,6 +447,18 @@ function PlayLevel({
           style={{ width: `${((idx + 1) / questions.length) * 100}%` }}
         />
       </div>
+      <AnimatePresence>
+        {streak >= 3 && (
+          <motion.p
+            key={streak}
+            initial={{ scale: 0.6, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="mt-2 text-center font-display text-sm font-bold text-amber-500"
+          >
+            🔥 Sequência ×{streak}!
+          </motion.p>
+        )}
+      </AnimatePresence>
       <AnimatePresence mode="wait">
         <motion.div
           key={idx}
@@ -439,10 +493,23 @@ function PlayLevel({
   );
 }
 
+/** Mapeia a pista infinita → matéria para a Revisão Mágica saber onde enquadrar o erro. */
+function subjectOf(trackId: string): { subjectId: string; subjectName: string } {
+  if (/^(aritmetica|tabuadas|fracoes|algebra|geometria)$/.test(trackId))
+    return { subjectId: "matematica", subjectName: "Matemática" };
+  if (/^(vocabulario|gramatica|ortografia)$/.test(trackId))
+    return { subjectId: "portugues", subjectName: "Português" };
+  if (/^(geografia|historia)$/.test(trackId))
+    return { subjectId: "estudo-do-meio", subjectName: "Estudo do Meio" };
+  if (trackId === "ciencias") return { subjectId: "ciencias", subjectName: "Ciências" };
+  return { subjectId: "logica", subjectName: "Lógica" };
+}
+
 function ResultView({
   trackId,
   level,
   stars,
+  seq = 0,
   profileName,
   onNext,
   onRetry,
@@ -451,6 +518,7 @@ function ResultView({
   trackId: TrackId;
   level: number;
   stars: number;
+  seq?: number;
   profileName: string;
   onNext: () => void;
   onRetry: () => void;
@@ -458,6 +526,21 @@ function ResultView({
 }) {
   const track = TRACKS.find((t) => t.id === trackId)!;
   const advanced = stars >= 2;
+  // Celebração com o padrão-ouro da plataforma: som + haptic + confetti no 3★
+  useEffect(() => {
+    if (stars > 0) {
+      playLevelUp();
+      haptic("celebrate");
+    }
+    if (stars >= 3) {
+      confetti({
+        particleCount: 140,
+        spread: 80,
+        origin: { y: 0.6 },
+        colors: ["#7cd16e", "#ffd166", "#5db1ff"],
+      });
+    }
+  }, [stars]);
   const share = () => {
     const payload: ChallengePayload = {
       k: "infinite",
@@ -487,6 +570,11 @@ function ResultView({
           />
         ))}
       </div>
+      {seq >= 3 && (
+        <p className="mt-2 font-display text-sm font-bold text-amber-500">
+          🔥 Melhor sequência: ×{seq}
+        </p>
+      )}
       <p className="text-sm text-muted-foreground">
         {advanced
           ? "🚀 Próximo nível desbloqueado!"

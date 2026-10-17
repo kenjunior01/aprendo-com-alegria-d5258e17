@@ -22,25 +22,30 @@ import {
   type WorldItem,
   type WorldState,
   type WorldCategory,
+  pushWorldState,
 } from "@/lib/world";
 import { livingOrnaments, ecosystemSummary } from "@/lib/ecosystem";
 import { toast } from "sonner";
 import { RouteError } from "@/components/RouteError";
+import { playCoins, playFun, playTap } from "@/lib/audio";
+import { haptic } from "@/lib/haptics";
 
 export const Route = createFileRoute("/mundo")({
   head: () => ({
     meta: [
       { title: "O Meu Mundo — Kidoz" },
-      { name: "description", content: "Decora o teu quarto virtual com Abracadinhos. Adiciona móveis, plantas e fundos divertidos." },
-      { property: "og:title", content: 'O Meu Mundo — Kidoz' },
-      { property: "og:description", content: 'Decora o teu quarto virtual com Abracadinhos.' },
+      {
+        name: "description",
+        content:
+          "Decora o teu quarto virtual com Abracadinhos. Adiciona móveis, plantas e fundos divertidos.",
+      },
+      { property: "og:title", content: "O Meu Mundo — Kidoz" },
+      { property: "og:description", content: "Decora o teu quarto virtual com Abracadinhos." },
       { property: "og:url", content: "https://kidoz.online/mundo" },
       { property: "og:image", content: "https://kidoz.online/og-image.jpg" },
       { name: "twitter:image", content: "https://kidoz.online/og-image.jpg" },
     ],
-    links: [
-      { rel: "canonical", href: "https://kidoz.online/mundo" },
-    ],
+    links: [{ rel: "canonical", href: "https://kidoz.online/mundo" }],
   }),
   component: MundoPage,
   errorComponent: RouteError,
@@ -67,7 +72,16 @@ function MundoPage() {
     let cancelled = false;
     pullWorldState().then((cloud) => {
       if (cancelled || !cloud) return;
-      setWorld(cloud);
+      // Merge defensivo: se há edição local (ex.: feita offline), o local vence —
+      // antes, a cloud chegava por cima e apagava o que a criança acabou de fazer.
+      const local = loadLocalWorld();
+      const localTemConteudo = local.placed.length > 0 || !!local.background || !!local.rug;
+      if (localTemConteudo) {
+        setWorld(local);
+        void pushWorldState(local);
+      } else {
+        setWorld(cloud);
+      }
     });
     return () => {
       cancelled = true;
@@ -92,6 +106,8 @@ function MundoPage() {
         ownedItems: [...profile.ownedItems, item.id],
       });
       setProfile(updated);
+      playCoins();
+      haptic("success");
       toast.success(`Compraste ${item.name}! ${item.emoji}`);
     } else if (!ownedIds.has(item.id)) {
       const updated = updateProfile({ ownedItems: [...profile.ownedItems, item.id] });
@@ -118,6 +134,8 @@ function MundoPage() {
         return;
       }
       persist({ ...world, placed: [...world.placed, { itemId: placing.id, x, y }] });
+      playFun();
+      haptic("tap");
       setPlacing(null);
       toast.success("Adicionado! ✨");
     }
@@ -138,7 +156,10 @@ function MundoPage() {
 
       <div className="mx-auto max-w-[48rem] px-3 py-4 sm:px-4">
         <div className="mb-3 flex items-center justify-between gap-2">
-          <Link to="/app" className="inline-flex items-center gap-1 text-sm font-display text-muted-foreground">
+          <Link
+            to="/app"
+            className="inline-flex items-center gap-1 text-sm font-display text-muted-foreground"
+          >
             <ArrowLeft className="h-4 w-4" /> Voltar
           </Link>
           <h1 className="font-display text-2xl sm:text-3xl">O Meu Mundo ✨</h1>
@@ -207,7 +228,9 @@ function MundoPage() {
                   onClick={() => handleCellClick(x, y)}
                   className={cn(
                     "border border-white/10 transition-colors",
-                    placing && canPlace(world, placing, x, y) ? "hover:bg-white/30 active:bg-white/40" : "",
+                    placing && canPlace(world, placing, x, y)
+                      ? "hover:bg-white/30 active:bg-white/40"
+                      : "",
                   )}
                   aria-label={`Célula ${x},${y}`}
                 />
@@ -246,7 +269,7 @@ function MundoPage() {
           })}
 
           {/* Ecossistema vivo: ornamentos automáticos pelo progresso */}
-          {livingOrnaments(profile).map((orn) => (
+          {livingOrnaments(profile).map((orn) =>
             orn.positions.map((pos, i) => (
               <span
                 key={`${orn.id}-${i}`}
@@ -263,8 +286,8 @@ function MundoPage() {
               >
                 {orn.emoji}
               </span>
-            ))
-          ))}
+            )),
+          )}
         </div>
 
         <p className="mt-2 text-center text-[11px] text-muted-foreground">
@@ -278,7 +301,11 @@ function MundoPage() {
             <Plus className="h-5 w-5" /> Adicionar item
           </ChunkyButton>
           {selectedIdx !== null && (
-            <ChunkyButton tone="ghost" onClick={handleRemoveSelected} className="gap-2 text-destructive">
+            <ChunkyButton
+              tone="ghost"
+              onClick={handleRemoveSelected}
+              className="gap-2 text-destructive"
+            >
               <Trash2 className="h-5 w-5" /> Remover
             </ChunkyButton>
           )}
@@ -324,7 +351,9 @@ function MundoPage() {
                     onClick={() => setActiveCat(c)}
                     className={cn(
                       "shrink-0 rounded-full px-3 py-1.5 font-display text-sm transition-colors",
-                      activeCat === c ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground",
+                      activeCat === c
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-muted text-muted-foreground",
                     )}
                   >
                     {CATEGORY_LABELS[c]}
@@ -352,7 +381,9 @@ function MundoPage() {
                       )}
                     >
                       <span className="text-3xl">{item.emoji}</span>
-                      <span className="text-center font-display text-[11px] leading-tight">{item.name}</span>
+                      <span className="text-center font-display text-[11px] leading-tight">
+                        {item.name}
+                      </span>
                       {owned ? (
                         <span className="text-[10px] font-bold text-emerald-600">
                           {equipped ? "EM USO" : "TENS"}

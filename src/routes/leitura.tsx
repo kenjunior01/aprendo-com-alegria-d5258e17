@@ -6,12 +6,14 @@ import { BottomNav } from "@/components/BottomNav";
 import { Mascot } from "@/components/Mascot";
 import { ChunkyButton } from "@/components/ChunkyButton";
 import { VoiceReader } from "@/components/VoiceReader";
-import { loadProfile, type Profile } from "@/lib/storage";
+import { loadProfile, updateProfile, type Profile } from "@/lib/storage";
 import { ArrowLeft, Sparkles } from "lucide-react";
 import { getAdaptiveRecommendation } from "@/lib/ai.functions";
 import { detectRegion } from "@/lib/region";
 import { RouteError } from "@/components/RouteError";
 import { KidLoader } from "@/components/KidLoader";
+import { playCorrect, speak } from "@/lib/audio";
+import { haptic } from "@/lib/haptics";
 
 export const Route = createFileRoute("/leitura")({
   head: () => ({
@@ -103,6 +105,8 @@ function ReadingPage() {
   const [phraseIndex, setPhraseIndex] = useState(0);
   const [score, setScore] = useState(0);
   const [tip, setTip] = useState<string | null>(null);
+  const [perfect, setPerfect] = useState(0);
+  const [boost, setBoost] = useState(0);
 
   useEffect(() => {
     const p = loadProfile();
@@ -120,12 +124,28 @@ function ReadingPage() {
   if (!profile) return <KidLoader />;
 
   const phrasesMap = phrasesForRegion();
-  const phrases = phrasesMap[profile.grade] ?? phrasesMap[1];
+  // Nível adaptativo: 3 leituras perfeitas sobem temporariamente o nível das frases
+  const nivel = Math.min(4, profile.grade + boost);
+  const phrases = phrasesMap[nivel] ?? phrasesMap[profile.grade] ?? phrasesMap[1];
   const phrase = phrases[phraseIndex % phrases.length];
 
   const handleResult = (matched: boolean) => {
     if (matched) {
       setScore((s) => s + 1);
+      playCorrect();
+      haptic("success");
+      // Ler dá recompensa real (antes: 0 XP — desconectado da economia da plataforma)
+      const p = loadProfile();
+      if (p?.name) updateProfile({ xp: (p.xp ?? 0) + 3, coins: (p.coins ?? 0) + 1 });
+      // Adaptatividade: 3 leituras perfeitas seguidas sobem o nível das frases
+      const novo = perfect + 1;
+      setPerfect(novo);
+      if (novo >= 3 && (profile?.grade ?? 1) + boost < 4) {
+        setBoost((b) => b + 1);
+        setPerfect(0);
+        setTip("🎯 Estás a ler cada vez melhor — frases mais desafiantes a chegar!");
+        speak("Estás a ler cada vez melhor! Vamos para frases mais desafiantes.", { rate: 0.95 });
+      }
       void import("@/lib/dailyMissions").then(({ applyProgress }) => {
         applyProgress({ subject: "leitura", readsDelta: 1 });
       });

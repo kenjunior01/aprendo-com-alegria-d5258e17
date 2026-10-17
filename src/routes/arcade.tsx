@@ -5,12 +5,14 @@ import { motion } from "framer-motion";
 import { ArrowLeft, Trophy, Sparkles, Share2 } from "lucide-react";
 import { BottomNav } from "@/components/BottomNav";
 import { ChunkyButton } from "@/components/ChunkyButton";
-import { playLevelUp, playCorrect, speak } from "@/lib/audio";
+import { playLevelUp, playCorrect, speak, playCoins } from "@/lib/audio";
 import { RouteError } from "@/components/RouteError";
 import { ARCADE_POOL } from "@/lib/juniorGameRegistry";
 import { shareChallenge, type ChallengePayload } from "@/lib/challengeShare";
-import { loadProfile } from "@/lib/storage";
+import { loadProfile, updateProfile } from "@/lib/storage";
 import { shuffled } from "@/lib/utils";
+import { haptic } from "@/lib/haptics";
+import confetti from "canvas-confetti";
 
 export const Route = createFileRoute("/arcade")({
   head: () => ({
@@ -36,21 +38,40 @@ export const Route = createFileRoute("/arcade")({
   errorComponent: RouteError,
 });
 
-type ArcadeEntry = { id: string; title: string; emoji: string; el: React.ComponentType };
+type ArcadeEntry = {
+  id: string;
+  title: string;
+  emoji: string;
+  ageGroup: string;
+  el: React.ComponentType;
+};
 
 // Pool vem do registry central (contagem automática abaixo)
 const POOL: ArcadeEntry[] = ARCADE_POOL.map((g) => ({
   id: g.id,
   title: g.title,
   emoji: g.emoji,
+  ageGroup: g.ageGroup,
   el: g.component as unknown as React.ComponentType,
 }));
 
 const HISCORE_KEY = "kidoz-arcade-hiscore";
 
 function pickRun(n: number): ArcadeEntry[] {
+  // Graduação por ano escolar: 1.º ano não cai em jogos de bebé por acaso,
+  // e uma criança pequena não recebe jogos de 6+ (adaptatividade do Arcade).
+  const grade = loadProfile()?.grade ?? 1;
+  const faixas: Record<number, string[]> = {
+    1: ["3-4", "4-5"],
+    2: ["4-5", "6+"],
+    3: ["6+"],
+    4: ["6+"],
+  };
+  const validas = faixas[grade] ?? ["6+"];
+  const graduado = POOL.filter((g) => validas.includes(g.ageGroup));
+  const base = graduado.length >= n ? graduado : POOL;
   // Fisher–Yates justo (antes: sort(random) enviesava a ordem)
-  return shuffled(POOL).slice(0, n);
+  return shuffled(base).slice(0, n);
 }
 
 function ArcadePage() {
@@ -58,6 +79,7 @@ function ArcadePage() {
   const [idx, setIdx] = useState(0);
   const [score, setScore] = useState(0);
   const [finished, setFinished] = useState(false);
+  const [earned, setEarned] = useState<{ moedas: number; xp: number } | null>(null);
   const [hi, setHi] = useState(0);
   useEffect(() => {
     setHi(Number(localStorage.getItem(HISCORE_KEY) ?? "0"));
@@ -68,19 +90,34 @@ function ArcadePage() {
     setIdx(0);
     setScore(0);
     setFinished(false);
+    setEarned(null);
     speak(`Modo Arcade! ${n} jogos seguidos. Vamos lá!`, { rate: 0.95 });
   };
   const nextGame = () => {
     playCorrect();
+    haptic("tap");
     setScore((s) => s + 20);
     if (!run) return;
     if (idx + 1 >= run.length) {
       setFinished(true);
       playLevelUp();
+      haptic("celebrate");
       const total = score + 20;
       const prev = Number(localStorage.getItem(HISCORE_KEY) ?? "0");
       if (total > prev) localStorage.setItem(HISCORE_KEY, String(total));
-      speak(`Fim! Fizeste ${total} pontos.`, { rate: 0.95 });
+      // O Arcade entra na economia global: moedas e XP como nas lições
+      const p = loadProfile();
+      const moedas = Math.max(1, Math.round(total / 20));
+      const xp = Math.max(2, Math.round(total / 4));
+      if (p?.name) updateProfile({ coins: (p.coins ?? 0) + moedas, xp: (p.xp ?? 0) + xp });
+      setEarned({ moedas, xp });
+      confetti({
+        particleCount: 120,
+        spread: 80,
+        origin: { y: 0.6 },
+        colors: ["#7cd16e", "#ffd166", "#5db1ff"],
+      });
+      speak(`Fim! Fizeste ${total} pontos e ganhaste ${moedas} Abracadinhos!`, { rate: 0.95 });
     } else {
       setIdx((i) => i + 1);
     }
@@ -168,6 +205,11 @@ function ArcadePage() {
           >
             <h2 className="font-display text-4xl">🏆 {score} pontos!</h2>
             <p className="mt-2 text-muted-foreground">Recorde: {Math.max(score, hi)} pts</p>
+            {earned && (
+              <p className="mt-1 font-display text-sm font-bold text-primary">
+                +{earned.moedas} 💰 · +{earned.xp} ⭐ ganhos!
+              </p>
+            )}
             <div className="mx-auto mt-4 max-w-sm">
               <button
                 type="button"
