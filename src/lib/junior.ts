@@ -1,6 +1,7 @@
 // Kidoz Júnior — conteúdo + perfis por criança (2-5 anos)
 
 import type { MascotId } from "./mascots";
+import { loadProfile, updateProfile } from "./storage";
 
 export type JuniorAgeGroup = "2-3" | "3-4" | "4-5";
 
@@ -908,14 +909,78 @@ export const GAMES: JuniorGame[] = [
   },
 
   // 🇲🇿 Moçambique — orgulho local (estavam no registry mas inalcançáveis pela UI)
-  { id: "mz-provinces", title: "Províncias de Moçambique", emoji: "🇲🇿", description: "Descobre as províncias do país.", benefits: ["Geografia", "Cultura"], age: "4-5", garden: "preparacao" },
-  { id: "mz-food", title: "Sabores de Moçambique", emoji: "🥘", description: "As comidas típicas da nossa terra.", benefits: ["Vocabulário", "Cultura"], age: "4-5", garden: "preparacao" },
-  { id: "mz-animals", title: "Fauna de Moçambique", emoji: "🦒", description: "Os animais da nossa natureza.", benefits: ["Natureza", "Vocabulário"], age: "4-5", garden: "preparacao" },
-  { id: "mz-culture", title: "Ritmos de Moçambique", emoji: "🎸", description: "Música e dança de Moçambique.", benefits: ["Cultura", "Audição"], age: "4-5", garden: "preparacao" },
-  { id: "mz-flag", title: "Bandeira de Moçambique", emoji: "🚩", description: "Conhece a bandeira nacional.", benefits: ["Cidadania", "Cores"], age: "4-5", garden: "preparacao" },
-  { id: "mz-rivers", title: "Rios de Moçambique", emoji: "🌊", description: "Os grandes rios do país.", benefits: ["Geografia"], age: "4-5", garden: "preparacao" },
-  { id: "mz-cities", title: "Cidades de Moçambique", emoji: "🏢", description: "As cidades importantes do país.", benefits: ["Geografia", "Memória"], age: "4-5", garden: "preparacao" },
-  { id: "mz-heroes", title: "Heróis de Moçambique", emoji: "🏅", description: "Heróis que marcaram a nação.", benefits: ["História", "Cidadania"], age: "4-5", garden: "preparacao" },
+  {
+    id: "mz-provinces",
+    title: "Províncias de Moçambique",
+    emoji: "🇲🇿",
+    description: "Descobre as províncias do país.",
+    benefits: ["Geografia", "Cultura"],
+    age: "4-5",
+    garden: "preparacao",
+  },
+  {
+    id: "mz-food",
+    title: "Sabores de Moçambique",
+    emoji: "🥘",
+    description: "As comidas típicas da nossa terra.",
+    benefits: ["Vocabulário", "Cultura"],
+    age: "4-5",
+    garden: "preparacao",
+  },
+  {
+    id: "mz-animals",
+    title: "Fauna de Moçambique",
+    emoji: "🦒",
+    description: "Os animais da nossa natureza.",
+    benefits: ["Natureza", "Vocabulário"],
+    age: "4-5",
+    garden: "preparacao",
+  },
+  {
+    id: "mz-culture",
+    title: "Ritmos de Moçambique",
+    emoji: "🎸",
+    description: "Música e dança de Moçambique.",
+    benefits: ["Cultura", "Audição"],
+    age: "4-5",
+    garden: "preparacao",
+  },
+  {
+    id: "mz-flag",
+    title: "Bandeira de Moçambique",
+    emoji: "🚩",
+    description: "Conhece a bandeira nacional.",
+    benefits: ["Cidadania", "Cores"],
+    age: "4-5",
+    garden: "preparacao",
+  },
+  {
+    id: "mz-rivers",
+    title: "Rios de Moçambique",
+    emoji: "🌊",
+    description: "Os grandes rios do país.",
+    benefits: ["Geografia"],
+    age: "4-5",
+    garden: "preparacao",
+  },
+  {
+    id: "mz-cities",
+    title: "Cidades de Moçambique",
+    emoji: "🏢",
+    description: "As cidades importantes do país.",
+    benefits: ["Geografia", "Memória"],
+    age: "4-5",
+    garden: "preparacao",
+  },
+  {
+    id: "mz-heroes",
+    title: "Heróis de Moçambique",
+    emoji: "🏅",
+    description: "Heróis que marcaram a nação.",
+    benefits: ["História", "Cidadania"],
+    age: "4-5",
+    garden: "preparacao",
+  },
 ];
 
 export const getGardenGames = (gardenId: GardenId) => GAMES.filter((g) => g.garden === gardenId);
@@ -1119,6 +1184,10 @@ export function loadJuniorProgress(childId?: string | null): JuniorProgress {
   }
 }
 
+function isNewGameCheck(gameId: string, played: string[]): boolean {
+  return !played.includes(gameId);
+}
+
 export function recordJuniorPlay(
   gameId: string,
   note: string,
@@ -1127,6 +1196,23 @@ export function recordJuniorPlay(
   const id = childId ?? getActiveJuniorChildId();
   if (!id) return emptyProgress();
   const p = loadJuniorProgress(id);
+  // O Júnior alimenta a app principal (antes: uma criança de 3 anos que jogava
+  // todos os dias nunca subia XP, energia da mascote nem missões "10 minutos").
+  try {
+    const prof = loadProfile();
+    if (prof?.name) {
+      updateProfile({
+        xp: (prof.xp ?? 0) + (isNewGameCheck(gameId, p.playedGames) ? 4 : 1),
+        coins: (prof.coins ?? 0) + (isNewGameCheck(gameId, p.playedGames) ? 2 : 1),
+        lastPlayed: new Date().toISOString().slice(0, 10),
+      });
+    }
+    void import("./dailyMissions").then(({ applyProgress }) => {
+      applyProgress({ minutesDelta: 1 }); // minutos contam para qualquer missão de tempo
+    });
+  } catch {
+    /* perfil indisponível — o jogo continua */
+  }
   const today = ymd();
   const isNewGame = !p.playedGames.includes(gameId);
   // pontos: 25 jogo novo, 8 repetição

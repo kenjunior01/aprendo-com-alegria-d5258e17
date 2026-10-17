@@ -19,6 +19,7 @@ import {
   playStar,
   playTap,
   playWrong,
+  speak,
 } from "@/lib/audio";
 import { MascotActor, type ActorMood } from "@/components/MascotActor";
 import { getMascot, type MascotId } from "@/lib/mascots";
@@ -181,7 +182,11 @@ export function RealmGame({
   const maxStreakRef = useRef(0);
   const [creatureBurst, setCreatureBurst] = useState(0);
   const dangerFlags = useRef({ lava: false, fuel: false, heart: false });
-  const say = (line: string, mood: ActorMood) => setCoach((c) => ({ line, mood, k: c.k + 1 }));
+  const say = (line: string, mood: ActorMood) => {
+    setCoach((c) => ({ line, mood, k: c.k + 1 }));
+    // A treinadora FALA (voz pt-PT) — antes as falas eram só texto
+    speak(line.replace(/[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}]/gu, "").trim(), { rate: 0.95 });
+  };
 
   // Aviso de perigo (uma vez por limite) + som
   const checkDanger = (ug: number) => {

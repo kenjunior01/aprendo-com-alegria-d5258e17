@@ -21,7 +21,8 @@ const EVENTS: SeasonalEvent[] = [
     title: "Aventura de Natal",
     message: "Missões especiais com a família Pai Natal. Ganha estrelas douradas extra!",
     bg: "from-rose-500/20 via-emerald-500/15 to-amber-300/20",
-    start: { m: 12, d: 1 }, end: { m: 12, d: 26 },
+    start: { m: 12, d: 1 },
+    end: { m: 12, d: 26 },
   },
   {
     id: "pascoa",
@@ -29,7 +30,8 @@ const EVENTS: SeasonalEvent[] = [
     title: "Caça aos Ovos da Sabedoria",
     message: "Encontra ovos escondidos nas lições e desbloqueia uma surpresa!",
     bg: "from-pink-300/30 via-amber-200/30 to-emerald-300/30",
-    start: { m: 3, d: 25 }, end: { m: 4, d: 15 },
+    start: { m: 3, d: 25 },
+    end: { m: 4, d: 15 },
   },
   {
     id: "carnaval",
@@ -37,7 +39,8 @@ const EVENTS: SeasonalEvent[] = [
     title: "Carnaval em Festa",
     message: "Veste a tua mascote com fantasia e ganha o dobro de Abracadinhos hoje.",
     bg: "from-fuchsia-400/25 via-amber-400/25 to-cyan-400/25",
-    start: { m: 2, d: 1 }, end: { m: 2, d: 28 },
+    start: { m: 2, d: 1 },
+    end: { m: 2, d: 28 },
   },
   {
     id: "dia-crianca-pt",
@@ -45,7 +48,8 @@ const EVENTS: SeasonalEvent[] = [
     title: "Dia da Criança",
     message: "Hoje és o herói do Kidoz! Missões mais doces, prémios em dobro.",
     bg: "from-sky-300/30 via-pink-300/30 to-amber-200/30",
-    start: { m: 6, d: 1 }, end: { m: 6, d: 1 },
+    start: { m: 6, d: 1 },
+    end: { m: 6, d: 1 },
   },
   {
     id: "dia-portugal",
@@ -53,7 +57,8 @@ const EVENTS: SeasonalEvent[] = [
     title: "Dia de Portugal",
     message: "Descobre Camões e os heróis lusos numa missão especial.",
     bg: "from-emerald-500/20 via-amber-300/20 to-rose-500/20",
-    start: { m: 6, d: 10 }, end: { m: 6, d: 10 },
+    start: { m: 6, d: 10 },
+    end: { m: 6, d: 10 },
     regions: ["PT", "AO", "MZ", "CV"],
   },
   {
@@ -62,7 +67,8 @@ const EVENTS: SeasonalEvent[] = [
     title: "Independência do Brasil",
     message: "Aprende com Dom Pedro I num desafio histórico.",
     bg: "from-emerald-500/20 via-amber-300/20 to-sky-500/20",
-    start: { m: 9, d: 7 }, end: { m: 9, d: 7 },
+    start: { m: 9, d: 7 },
+    end: { m: 9, d: 7 },
     regions: ["BR"],
   },
   {
@@ -71,7 +77,8 @@ const EVENTS: SeasonalEvent[] = [
     title: "Independência de Angola",
     message: "Conhece a história do 11 de Novembro.",
     bg: "from-rose-500/20 via-amber-400/20 to-slate-700/20",
-    start: { m: 11, d: 11 }, end: { m: 11, d: 11 },
+    start: { m: 11, d: 11 },
+    end: { m: 11, d: 11 },
     regions: ["AO"],
   },
   {
@@ -80,7 +87,8 @@ const EVENTS: SeasonalEvent[] = [
     title: "Independência de Moçambique",
     message: "Descobre a bandeira e os símbolos do país.",
     bg: "from-emerald-500/20 via-rose-500/20 to-amber-300/20",
-    start: { m: 6, d: 25 }, end: { m: 6, d: 25 },
+    start: { m: 6, d: 25 },
+    end: { m: 6, d: 25 },
     regions: ["MZ"],
   },
 ];
@@ -94,11 +102,26 @@ function inRange(today: Date, ev: SeasonalEvent): boolean {
   return t >= a && t <= b;
 }
 
-export function currentSeasonalEvent(region: RegionCode | undefined, now = new Date()): SeasonalEvent | null {
+export function currentSeasonalEvent(
+  region: RegionCode | undefined,
+  now = new Date(),
+): SeasonalEvent | null {
   for (const ev of EVENTS) {
     if (!inRange(now, ev)) continue;
     if (ev.regions && (!region || !ev.regions.includes(region))) continue;
     return ev;
   }
   return null;
+}
+
+/**
+ * Multiplicador de moedas do evento sazonal ativo (×2 quando há evento).
+ * O banner promete "dobro de Abracadinhos" — agora cumpre de verdade.
+ */
+export function seasonalCoinMultiplier(): number {
+  try {
+    return currentSeasonalEvent(undefined) ? 2 : 1;
+  } catch {
+    return 1;
+  }
 }

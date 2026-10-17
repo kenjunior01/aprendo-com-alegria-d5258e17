@@ -15,6 +15,7 @@ import {
 import { ArrowLeft, Sparkles, Lock, Gift, CheckCircle2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import confetti from "canvas-confetti";
+import { seasonalCoinMultiplier } from "@/lib/seasonal";
 import { RouteError } from "@/components/RouteError";
 import { KidLoader } from "@/components/KidLoader";
 import { playCoins, playLevelUp, speak } from "@/lib/audio";
@@ -95,8 +96,10 @@ function GardenPage() {
     if (!m || !profile) return;
     playCoins();
     haptic("celebrate");
+    // Evento sazonal ativo = dobro de Abracadinhos (o banner já promete isto)
+    const mult = seasonalCoinMultiplier();
     const next = updateProfile({
-      coins: profile.coins + m.rewardCoins,
+      coins: profile.coins + m.rewardCoins * mult,
       xp: profile.xp + m.rewardXp,
     });
     setProfile(next);
