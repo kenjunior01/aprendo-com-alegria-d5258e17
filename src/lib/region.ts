@@ -1,8 +1,8 @@
-// Personalização por Região (PT/BR/AO/MZ/CV + EN fallback).
+// Personalização por Região (PT/BR/AO/MZ/CV/ST/GW + EN fallback).
 // Inclui currículo local, vocabulário, exemplos culturais e helpers
 // para a IA injetar contexto regional nos exercícios.
 
-export type RegionCode = "PT" | "BR" | "MZ" | "AO" | "CV" | "US" | "ZA" | "GB";
+export type RegionCode = "PT" | "BR" | "MZ" | "AO" | "CV" | "ST" | "GW" | "US" | "ZA" | "GB";
 
 export type RegionInfo = {
   code: RegionCode;
@@ -36,6 +36,20 @@ export const REGIONS: Record<RegionCode, RegionInfo> = {
     curriculum: "Ensino Básico",
     language: "pt",
   },
+  ST: {
+    code: "ST",
+    flag: "🇸🇹",
+    country: "São Tomé e Príncipe",
+    curriculum: "Ensino Primário",
+    language: "pt",
+  },
+  GW: {
+    code: "GW",
+    flag: "🇬🇼",
+    country: "Guiné-Bissau",
+    curriculum: "Ensino Primário",
+    language: "pt",
+  },
   US: {
     code: "US",
     flag: "🇺🇸",
@@ -54,13 +68,13 @@ export const REGIONS: Record<RegionCode, RegionInfo> = {
 };
 
 // Lista compacta para seletores na UI (focada em PALOP + EN).
-export const REGION_SELECT: RegionCode[] = ["PT", "BR", "AO", "MZ", "CV", "US"];
+export const REGION_SELECT: RegionCode[] = ["PT", "BR", "AO", "MZ", "CV", "ST", "GW", "US"];
 
 // ============ Série escolar conforme a região ============
 // Portugal/Brasil: "3.º ano" · PALOP (MZ/AO/CV): "3.ª classe" · EN: Grade/Year.
 // O cadastro, o Duelo e os filtros falam a língua da escola da criança —
 // uma criança de Maputo anda na 2.ª classe, não no "2.º ano".
-const CLASSE_REGIONS: RegionCode[] = ["MZ", "AO", "CV"];
+const CLASSE_REGIONS: RegionCode[] = ["MZ", "AO", "CV", "ST", "GW"];
 
 /** Substantivo da série escolar na região ("ano" | "classe" | "grade" | "year"). */
 export function gradeNoun(region?: RegionCode | null): string {
@@ -100,6 +114,8 @@ const TZ_TO_COUNTRY: Record<string, RegionCode> = {
   "Africa/Maputo": "MZ",
   "Africa/Luanda": "AO",
   "Atlantic/Cape_Verde": "CV",
+  "Africa/Sao_Tome": "ST",
+  "Africa/Bissau": "GW",
   "Africa/Johannesburg": "ZA",
   "Europe/London": "GB",
 };
@@ -294,6 +310,22 @@ const CULTURE: Record<RegionCode, CulturalExample> = {
     river: "Ribeira de Paúl",
     holidays: ["Dia da Independência (5 jul.)", "Carnaval de Mindelo", "Páscoa", "Natal"],
   },
+  ST: {
+    landmark: "Pico Cão Grande",
+    city: "São Tomé",
+    capital: "São Tomé",
+    currency: "Dobra (Db)",
+    river: "Ribeira de Água Izé",
+    holidays: ["Dia da Independência (12 jul.)", "Descobrimento (21 dez.)", "Páscoa", "Natal"],
+  },
+  GW: {
+    landmark: "Arquipélago dos Bijagós",
+    city: "Bissau",
+    capital: "Bissau",
+    currency: "Franco CFA",
+    river: "Rio Geba",
+    holidays: ["Dia da Independência (24 set.)", "Carnaval de Bissau", "Páscoa", "Natal"],
+  },
   US: {
     landmark: "Statue of Liberty",
     city: "New York",
@@ -391,11 +423,31 @@ const CABO_VERDE_FACTS = [
   "A praia da Laginha, em Mindelo, tem águas azul-turquesa! 🏖️",
 ];
 
+const SAO_TOME_FACTS = [
+  "São Tomé e Príncipe é o segundo menor país de África! 🌍",
+  "As ilhas ficam mesmo em cima da linha do Equador! 🌡️",
+  "O Pico de São Tomé tem mais de 2000 metros de altura! ⛰️",
+  "O Pico Cão Grande parece um dedo gigante no meio da floresta! 🗿",
+  "O cacau é a maior riqueza de São Tomé — do cacau nasce o chocolate! 🍫",
+  "As tartarugas marinhas põem ovos nas praias das ilhas! 🐢",
+];
+
+const GUINE_BISSAU_FACTS = [
+  "A Guiné-Bissau tem mais de 80 ilhas no arquipélago dos Bijagós! 🏝️",
+  "A castanha de caju é a maior exportação da Guiné-Bissau! 🌰",
+  "O Carnaval de Bissau enche as ruas de máscaras e danças! 💃",
+  "Nos Bijagós há hipopótamos que nadam no mar! 🦛",
+  "O Rio Geba desagua no mar mesmo junto a Bissau! 🌊",
+  "As tartarugas verdes põem ovos nas praias dos Bijagós! 🐢",
+];
+
 const COUNTRY_FACTS: Partial<Record<RegionCode, string[]>> = {
   BR: BRASIL_FACTS,
   AO: ANGOLA_FACTS,
   CV: CABO_VERDE_FACTS,
   MZ: MOZAMBIQUE_FACTS,
+  ST: SAO_TOME_FACTS,
+  GW: GUINE_BISSAU_FACTS,
 };
 
 /** Curiosidade do país da criança (null = não mostrar linha). */

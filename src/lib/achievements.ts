@@ -311,7 +311,7 @@ export const LOCAL_ACHIEVEMENTS: Achievement[] = [
   {
     code: "pais_globo",
     title: "Volta ao Mundo",
-    description: "Joga o quiz dos 5 países (MZ, AO, BR, PT e CV)",
+    description: "Joga o quiz de 5 países diferentes",
     icon: "globe",
     category: "jogos",
     requirement_type: "quiz_pais_countries",

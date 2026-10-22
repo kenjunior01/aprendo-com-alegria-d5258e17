@@ -27,7 +27,7 @@ VALUES
   ('pais_campeao',      'Campeão do País',        'Desbloqueia o nível Campeão no Quiz do Meu País',           'trophy',      'jogos',        'quiz_pais_levels',       3,    60,  30, 52),
   ('pais_perfeito',     'Rodada Perfeita',        'Acerta 5 em 5 numa rodada do Quiz do Meu País',             'target',      'jogos',        'quiz_pais_perfect',      1,    30,  20, 53),
   ('pais_explorador',   'Explorador da CPLP',     'Joga o quiz de 3 países diferentes',                        'globe',       'jogos',        'quiz_pais_countries',    3,    40,  20, 54),
-  ('pais_globo',        'Volta ao Mundo',         'Joga o quiz dos 5 países (MZ, AO, BR, PT e CV)',            'globe',       'jogos',        'quiz_pais_countries',    5,    80,  40, 55),
+  ('pais_globo',        'Volta ao Mundo',         'Joga o quiz de 5 países diferentes',                        'globe',       'jogos',        'quiz_pais_countries',    5,    80,  40, 55),
   ('pais_cinco_vezes',  'Colecionador de Recordes','Marca recordes em 6 desafios país + nível',                'medal',       'jogos',        'quiz_pais_records',      6,    50,  25, 56)
 ON CONFLICT (code) DO UPDATE SET
   title             = EXCLUDED.title,

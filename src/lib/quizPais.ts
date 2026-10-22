@@ -1,11 +1,11 @@
 // quizPais.ts — Quiz do Meu País: perguntas autoradas por região, 3 níveis.
 //
 // Design pedagógico (padrão Kidoz):
-// • Conteúdo 100% regional — a criança joga sobre o SEU país (MZ, AO, BR, PT, CV),
-//   com fatos que a escola local também ensina. Nada de copiar banco de terceiros.
+// • Conteúdo 100% regional — a criança joga sobre o SEU país (MZ, AO, BR, PT, CV,
+//   ST, GW), com fatos que a escola local também ensina. Nada de copiar banco de terceiros.
 // • Níveis enquadrados por idade/classe: Fácil = 1.ª–2.ª classe (6–8 anos),
 //   Médio = 3.ª (8–9), Campeão = 4.ª (9–10) — o nome da série segue a região
-//   ("classe" em MZ/AO/CV, "ano" em PT/BR).
+//   ("classe" em MZ/AO/CV/ST/GW, "ano" em PT/BR).
 // • Balanceamento por idade: cada pergunta leva um "d" (1 = leve, 3 = forte).
 //   Crianças de 1.ª/2.ª começam pelas mais leves; as grandes, pelas fortes.
 // • Desbloqueio: 4+ acertos (de 5) abre o nível seguinte — progresso guardado
@@ -72,7 +72,7 @@ const q = (
 ): QuizPaisQ => ({ level, prompt, options, answerIndex, ...(d ? { d } : {}) });
 
 /** Regiões com pack próprio (ordem de exibição no seletor). */
-export const QUIZ_PAIS_REGIONS: RegionCode[] = ["MZ", "AO", "BR", "PT", "CV"];
+export const QUIZ_PAIS_REGIONS: RegionCode[] = ["MZ", "AO", "BR", "PT", "CV", "ST", "GW"];
 
 // ─── MOÇAMBIQUE (pt-PT) ───
 const MZ_PACK: QuizPaisQ[] = [
@@ -1047,12 +1047,402 @@ const CV_PACK: QuizPaisQ[] = [
   q(3, "Quantas estrelas douradas tem a bandeira de Cabo Verde?", ["10", "5", "27", "12"], 0, 3),
 ];
 
+// ─── SÃO TOMÉ E PRÍNCIPE (pt-PT) ───
+const ST_PACK: QuizPaisQ[] = [
+  // Fácil — d1
+  q(1, "Qual é a capital de São Tomé e Príncipe?", ["São Tomé", "Praia", "Maputo", "Luanda"], 0),
+  q(
+    1,
+    "Que oceano banha São Tomé e Príncipe?",
+    ["Oceano Atlântico", "Oceano Índico", "Oceano Pacífico", "Mar Vermelho"],
+    0,
+  ),
+  q(
+    1,
+    "Qual é a língua oficial de São Tomé e Príncipe?",
+    ["Português", "Espanhol", "Inglês", "Francês"],
+    0,
+  ),
+  q(1, "Qual é a moeda de São Tomé e Príncipe?", ["Dobra", "Escudo", "Metical", "Kwanza"], 0),
+  // Fácil — d2
+  q(
+    1,
+    "São Tomé e Príncipe fica em que continente?",
+    ["África", "Europa", "Ásia", "América"],
+    0,
+    2,
+  ),
+  q(
+    1,
+    "São Tomé e Príncipe é um país...",
+    ["Formado por ilhas", "Coberto de neve", "No meio do deserto", "Sem mar perto"],
+    0,
+    2,
+  ),
+  q(
+    1,
+    "Como se chamam as pessoas de São Tomé e Príncipe?",
+    ["São-tomenses", "Moçambicanos", "Angolanos", "Brasileiros"],
+    0,
+    2,
+  ),
+  q(1, "Do fruto do cacaueiro faz-se...", ["Chocolate", "Queijo", "Mel", "Bolacha"], 0, 2),
+  // Fácil — d3
+  q(
+    1,
+    "Em que ano São Tomé e Príncipe ficou independente?",
+    ["1975", "1965", "1985", "1990"],
+    0,
+    3,
+  ),
+  q(
+    1,
+    "Como se chama a ilha mais pequena das duas principais?",
+    ["Príncipe", "Santiago", "Madeira", "Bioko"],
+    0,
+    3,
+  ),
+  q(1, "Qual destas cores NÃO está na bandeira?", ["Roxo", "Verde", "Amarelo", "Vermelho"], 0, 3),
+  q(
+    1,
+    "Que animal põe ovos nas praias das ilhas?",
+    ["A tartaruga marinha", "O urso polar", "O pinguim-imperador", "O camelo"],
+    0,
+    3,
+  ),
+  // Médio — d1
+  q(
+    2,
+    "Como se chama a montanha mais alta de São Tomé?",
+    ["Pico de São Tomé", "Kilimanjaro", "Monte Fuji", "Monte Namuli"],
+    0,
+  ),
+  q(
+    2,
+    "O Pico Cão Grande é...",
+    ["Um pico de pedra no meio da floresta", "Um barco antigo", "Um estádio", "Uma praia"],
+    0,
+  ),
+  q(2, "Qual destes pratos é típico de São Tomé?", ["Calulu", "Sushi", "Tacos", "Croissant"], 0),
+  q(
+    2,
+    "As ilhas de São Tomé e Príncipe ficam no Golfo de...",
+    ["Guiné", "Biscaia", "México", "Aden"],
+    0,
+  ),
+  // Médio — d2
+  q(
+    2,
+    "O ilhéu das Rolas fica...",
+    ["Na linha do Equador", "No Polo Norte", "No Mar Morto", "No deserto do Namibe"],
+    0,
+    2,
+  ),
+  q(
+    2,
+    "As ilhas são famosas pelas plantações de...",
+    ["Cacau", "Trigo", "Azeitonas", "Cevada"],
+    0,
+    2,
+  ),
+  q(
+    2,
+    "A reserva da biosfera da ilha do Príncipe é da...",
+    ["UNESCO", "NASA", "OTAN", "UEFA"],
+    0,
+    2,
+  ),
+  q(
+    2,
+    "São Tomé foi descoberta por navegadores de que país?",
+    ["Portugal", "Espanha", "França", "Holanda"],
+    0,
+    2,
+  ),
+  // Médio — d3
+  q(2, "As ilhas foram descobertas por volta de...", ["1470", "1770", "1870", "1570"], 0, 3),
+  q(
+    2,
+    "A ilha do Príncipe chamava-se antes...",
+    ["Santo Antão", "São Pedro", "Santa Luzia", "São João"],
+    0,
+    3,
+  ),
+  q(
+    2,
+    "Por volta de 1908, São Tomé era o maior produtor mundial de...",
+    ["Cacau", "Café", "Açúcar", "Algodão"],
+    0,
+    3,
+  ),
+  q(2, "Quantas estrelas pretas tem a bandeira?", ["2", "1", "3", "5"], 0, 3),
+  // Campeão — d1
+  q(
+    3,
+    "O Pico de São Tomé tem cerca de...",
+    ["2024 metros", "500 metros", "5000 metros", "300 metros"],
+    0,
+  ),
+  q(3, "A capital fica na ilha de...", ["São Tomé", "Príncipe", "Santiago", "Fogo"], 0),
+  q(3, "O calulu é...", ["Um prato de peixe e folhas", "Uma dança", "Um rio", "Um instrumento"], 0),
+  q(
+    3,
+    "A língua crioula mais falada em São Tomé é o...",
+    ["Forro", "Zulu", "Suaíli", "Quimbundo"],
+    0,
+  ),
+  // Campeão — d2
+  q(
+    3,
+    "O nome São Tomé vem de...",
+    ["O dia do santo em que a ilha foi vista", "Um rei de Portugal", "Um peixe local", "Uma flor"],
+    0,
+    2,
+  ),
+  q(
+    3,
+    "As roças eram...",
+    ["Grandes plantações de cacau", "Escolas antigas", "Navios de guerra", "Campos de futebol"],
+    0,
+    2,
+  ),
+  q(
+    3,
+    "O forro, o angolar e o principense são...",
+    ["Línguas faladas no país", "Danças", "Frutas", "Bairros da capital"],
+    0,
+    2,
+  ),
+  q(
+    3,
+    "São Tomé celebra o dia do descobrimento a 21 de...",
+    ["Dezembro", "Junho", "Março", "Setembro"],
+    0,
+    2,
+  ),
+  // Campeão — d3
+  q(3, "As primeiras eleições livres foram em...", ["1991", "2001", "1981", "1971"], 0, 3),
+  q(3, "O país celebrou 50 anos de independência em...", ["2025", "2015", "2005", "2030"], 0, 3),
+  q(
+    3,
+    "O parque natural Obô é...",
+    ["A floresta protegida das ilhas", "Um estádio", "Um mercado de Lisboa", "Um deserto"],
+    0,
+    3,
+  ),
+  q(
+    3,
+    "O Pico Cão Grande nasceu...",
+    ["De um vulcão antigo", "De um terremoto ontem", "Do mar seco", "De um glaciar"],
+    0,
+    3,
+  ),
+];
+
+// ─── GUINÉ-BISSAU (pt-PT) ───
+const GW_PACK: QuizPaisQ[] = [
+  // Fácil — d1
+  q(1, "Qual é a capital da Guiné-Bissau?", ["Bissau", "Conacri", "Dakar", "Praia"], 0),
+  q(
+    1,
+    "Que oceano banha a Guiné-Bissau?",
+    ["Oceano Atlântico", "Oceano Índico", "Oceano Pacífico", "Mar Vermelho"],
+    0,
+  ),
+  q(
+    1,
+    "Qual é a língua oficial da Guiné-Bissau?",
+    ["Português", "Francês", "Inglês", "Espanhol"],
+    0,
+  ),
+  q(1, "A Guiné-Bissau fica em que continente?", ["África", "Europa", "Ásia", "América"], 0),
+  // Fácil — d2
+  q(1, "Qual é a moeda da Guiné-Bissau?", ["Franco CFA", "Metical", "Dobra", "Rand"], 0, 2),
+  q(
+    1,
+    "Qual é o vizinho a norte da Guiné-Bissau?",
+    ["Senegal", "Egito", "Marrocos", "Chade"],
+    0,
+    2,
+  ),
+  q(
+    1,
+    "Como se chamam as pessoas da Guiné-Bissau?",
+    ["Guineenses", "Portugueses", "Cabo-verdianos", "Brasileiros"],
+    0,
+    2,
+  ),
+  q(1, "Que cor tem a estrela da bandeira?", ["Preta", "Azul", "Branca", "Dourada"], 0, 2),
+  // Fácil — d3
+  q(
+    1,
+    "Em que mês se celebra a independência?",
+    ["Setembro", "Janeiro", "Abril", "Dezembro"],
+    0,
+    3,
+  ),
+  q(
+    1,
+    "Quem foi o grande herói da independência?",
+    ["Amílcar Cabral", "Nelson Mandela", "Simón Bolívar", "Napoleão"],
+    0,
+    3,
+  ),
+  q(
+    1,
+    "Que rio chega ao mar junto a Bissau?",
+    ["Rio Geba", "Rio Nilo", "Rio Zambeze", "Rio Sena"],
+    0,
+    3,
+  ),
+  q(
+    1,
+    "A Guiné-Bissau é um dos maiores exportadores mundiais de...",
+    ["Castanha de caju", "Café", "Borracha", "Trigo"],
+    0,
+    3,
+  ),
+  // Médio — d1
+  q(
+    2,
+    "O famoso arquipélago da Guiné-Bissau chama-se...",
+    ["Bijagós", "Canárias", "Maldivas", "Açores"],
+    0,
+  ),
+  q(
+    2,
+    "O Carnaval de Bissau é famoso pelas...",
+    ["Máscaras e danças", "Corridas de carros", "Feiras de livros", "Guerras de almofadas"],
+    0,
+  ),
+  q(
+    2,
+    "A bandeira da Guiné-Bissau tem as cores...",
+    ["Vermelho, amarelo e verde", "Azul e branco", "Roxo e rosa", "Preto e cinzento"],
+    0,
+  ),
+  q(
+    2,
+    "A língua crioula que quase toda a gente fala chama-se...",
+    ["Crioulo (kriol)", "Zulu", "Lingala", "Suaíli"],
+    0,
+  ),
+  // Médio — d2
+  q(2, "A independência foi declarada em...", ["1973", "1963", "1983", "1993"], 0, 2),
+  q(
+    2,
+    "De que país a Guiné-Bissau ficou independente?",
+    ["Portugal", "França", "Espanha", "Bélgica"],
+    0,
+    2,
+  ),
+  q(2, "O partido que lutou pela independência chama-se...", ["PAIGC", "ONU", "UEFA", "NBA"], 0, 2),
+  q(
+    2,
+    "As tartarugas verdes põem ovos...",
+    ["Nas praias dos Bijagós", "No meio das cidades", "Na neve", "Nos desertos"],
+    0,
+    2,
+  ),
+  // Médio — d3
+  q(
+    2,
+    "Quantas ilhas tem, aproximadamente, o arquipélago dos Bijagós?",
+    ["Mais de 80", "Mais de 500", "Cinco", "Nenhuma"],
+    0,
+    3,
+  ),
+  q(
+    2,
+    "Em que cidade da Guiné nasceu Amílcar Cabral?",
+    ["Bafatá", "Dakar", "Lisboa", "Luanda"],
+    0,
+    3,
+  ),
+  q(2, "Portugal reconheceu a independência em...", ["1974", "1984", "1994", "1964"], 0, 3),
+  q(
+    2,
+    "A histórica vila com uma antiga fortaleza portuguesa chama-se...",
+    ["Cacheu", "Tomar", "Sintra", "Essaouira"],
+    0,
+    3,
+  ),
+  // Campeão — d1
+  q(
+    3,
+    "Na ilha de Orango vivem hipopótamos que...",
+    ["Nadam no mar", "Voam", "Vivem na neve", "Comem só peixe"],
+    0,
+  ),
+  q(
+    3,
+    "O parque marinho João Vieira e Poilão protege...",
+    ["Tartarugas marinhas", "Tubarões-brancos", "Pinguins", "Baleias azuis"],
+    0,
+  ),
+  q(3, "A bandeira da Guiné-Bissau inspirou-se na de...", ["Gana", "Brasil", "França", "Japão"], 0),
+  q(
+    3,
+    "Antes da independência, o país chamava-se...",
+    ["Guiné Portuguesa", "Guiné Espanhola", "Guiné Holandesa", "Nova Guiné"],
+    0,
+  ),
+  // Campeão — d2
+  q(
+    3,
+    "O estuário junto a Bissau é formado pelo rio...",
+    ["Geba", "Senegal", "Níger", "Congo"],
+    0,
+    2,
+  ),
+  q(
+    3,
+    "A floresta de Cantanhez é famosa pelos...",
+    ["Chimpanzés", "Pandas", "Koalas", "Bisontes"],
+    0,
+    2,
+  ),
+  q(
+    3,
+    "A castanha de caju cresce...",
+    ["Debaixo de um fruto chamado caju", "Dentro do mar", "Nas raízes da palmeira", "Em cavernas"],
+    0,
+    2,
+  ),
+  q(
+    3,
+    "A Guiné-Bissau tem fronteira a sul com...",
+    ["Guiné (Conacri)", "Argélia", "Libéria", "Tunísia"],
+    0,
+    2,
+  ),
+  // Campeão — d3
+  q(3, "As primeiras eleições livres foram em...", ["1994", "2004", "1984", "1974"], 0, 3),
+  q(
+    3,
+    "A UNESCO protege a natureza dos Bijagós como...",
+    ["Reserva da Biosfera", "Estádio nacional", "Campo de férias", "Parque industrial"],
+    0,
+    3,
+  ),
+  q(
+    3,
+    "O crioulo da Guiné tem palavras de...",
+    ["Português e línguas locais", "Latim só", "Russo", "Japonês"],
+    0,
+    3,
+  ),
+  q(3, "O ritmo gumbe nasceu...", ["Na Guiné-Bissau", "No Japão", "No Canadá", "Na Grécia"], 0, 3),
+];
+
 export const QUIZ_PAIS: Partial<Record<RegionCode, QuizPaisQ[]>> = {
   MZ: MZ_PACK,
   AO: AO_PACK,
   BR: BR_PACK,
   PT: PT_PACK,
   CV: CV_PACK,
+  ST: ST_PACK,
+  GW: GW_PACK,
 };
 
 // Todas as respostas certas estão no índice 0 na definição — baralhamos na saída.
