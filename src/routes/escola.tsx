@@ -28,6 +28,7 @@ import {
 import { toast } from "sonner";
 import { loadProfile, pullProfileFromCloud, type Profile } from "@/lib/storage";
 import { copyLink, openWhatsApp } from "@/lib/challengeShare";
+import { useAuth } from "@/hooks/useAuth";
 import { Share2 } from "lucide-react";
 import {
   becomeTeacher,
@@ -100,6 +101,7 @@ const SUBJECT_LABELS: Record<string, string> = {
 
 function EscolaPage() {
   const navigate = useNavigate();
+  const { user: authUser } = useAuth();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [schools, setSchools] = useState<SchoolRow[]>([]);
   const [classes, setClasses] = useState<ClassRow[]>([]);
@@ -561,6 +563,8 @@ function EscolaPage() {
               <ul className="grid gap-2 md:grid-cols-2">
                 {classes.map((c) => {
                   const sc = schools.find((s) => s.id === c.school_id);
+                  const otherTeacher =
+                    c.teacher_name && c.teacher_id !== authUser?.id ? c.teacher_name : null;
                   return (
                     <li key={c.id}>
                       <button
@@ -575,6 +579,11 @@ function EscolaPage() {
                           {sc?.name} · Código:{" "}
                           <code className="rounded bg-muted px-1">{c.invite_code}</code>
                         </p>
+                        {otherTeacher && (
+                          <p className="mt-1 text-xs font-medium text-primary">
+                            👩‍🏫 Prof. {otherTeacher}
+                          </p>
+                        )}
                       </button>
                     </li>
                   );

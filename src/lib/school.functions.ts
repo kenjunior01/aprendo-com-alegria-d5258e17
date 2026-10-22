@@ -18,6 +18,8 @@ export interface ClassRow {
   grade: number;
   invite_code: string;
   created_at: string;
+  /** Nome do professor dono — preenchido pelo listClasses (útil ao diretor). */
+  teacher_name?: string | null;
 }
 
 export const becomeTeacher = createServerFn({ method: "POST" })
@@ -81,7 +83,23 @@ export const listClasses = createServerFn({ method: "POST" })
           .eq("teacher_id", userId);
     if (data.schoolId) q = q.eq("school_id", data.schoolId);
     const { data: rows } = await q.order("created_at", { ascending: false });
-    return { classes: (rows ?? []) as unknown as ClassRow[] };
+    const classes = (rows ?? []) as unknown as ClassRow[];
+    // Nome do professor de cada turma — o diretor passa a distinguir turmas
+    // com o mesmo nome ("3.º A") criadas por professores diferentes.
+    const teacherIds = Array.from(new Set(classes.map((c) => c.teacher_id))).filter(Boolean);
+    if (teacherIds.length) {
+      const { data: profs } = await supabase
+        .from("profiles")
+        .select("id, name")
+        .in("id", teacherIds);
+      const nameById = new Map(
+        (profs ?? []).map((p) => [p.id, (p as unknown as { name: string | null }).name]),
+      );
+      return {
+        classes: classes.map((c) => ({ ...c, teacher_name: nameById.get(c.teacher_id) ?? null })),
+      };
+    }
+    return { classes };
   });
 
 export const createClass = createServerFn({ method: "POST" })
