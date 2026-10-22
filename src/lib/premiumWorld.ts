@@ -8,6 +8,7 @@
 import { generateQuestions, type GenQuestion, type TrackId } from "./infiniteChallenges";
 import { loadProfile, updateProfile, type Profile } from "./storage";
 import { recordPortalEvent } from "./portalDaily";
+import { schedulePortalCloudPush } from "./portalCloud";
 
 export type RealmId = "vulcao" | "galaxia" | "lab" | "castelo" | "dragao";
 
@@ -289,6 +290,10 @@ export function loadPortalState(): PortalState {
 export function savePortalState(s: PortalState) {
   if (typeof window === "undefined") return;
   localStorage.setItem(STATE_KEY, JSON.stringify(s));
+  // Cloud: marca modificação + push debounced — TODAS as escritas do Portal
+  // passam aqui (fim de reino, bazar, criaturas, títulos…), logo um único
+  // ponto de integração cobre tudo.
+  schedulePortalCloudPush();
 }
 
 /** Total de estrelas ganhas (máx. 45 = 5 reinos × 3 níveis × 3 ★). */

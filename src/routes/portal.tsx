@@ -33,6 +33,7 @@ import {
   type CreatureDef,
 } from "@/lib/premiumWorld";
 import { claimPortalQuest, todayQuests, type PortalQuest } from "@/lib/portalDaily";
+import { pullPortalCloud } from "@/lib/portalCloud";
 import { RealmGame } from "@/components/portal/RealmGames";
 import { CrystalBazaar } from "@/components/portal/CrystalBazaar";
 import { ConfettiCelebration } from "@/components/ConfettiCelebration";
@@ -111,6 +112,19 @@ function PortalPage() {
       cancelled = true;
     };
   }, [navigate]);
+
+  // Estado do Portal na cloud: reconcilia (estrelas, cristais, criaturas) em
+  // background, igual ao perfil. Se a cloud era mais recente, re-lê o localStorage
+  // para o React apanhar o snapshot aplicado.
+  useEffect(() => {
+    let cancelled = false;
+    void pullPortalCloud().then((applied) => {
+      if (!cancelled && applied) setState(loadPortalState());
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const premium = usePremiumAccess(profile);
   const canTour = useMemo(() => tourAvailable(), []);

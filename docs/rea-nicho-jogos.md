@@ -70,9 +70,14 @@
   Escudo da Sequência); promessas de "melhores notas garantidas".
 
 ## 4. Próximas rondas sugeridas (prioridade por impacto)
-1. Persistir o estado do Portal na cloud (coluna `portal_state` em `profiles`)
-   — hoje 45 estrelas vivem só no dispositivo.
-2. Handicap por irmão no Duelo "Misto" (cada jogador no seu ano escolar).
+1. ✅ **Persistir o estado do Portal na cloud (FEITO)** — coluna `portal_state` (jsonb) em
+   `profiles` (`supabase/sql/portal_state_cloud.sql`, idempotente) + `src/lib/portalCloud.ts`:
+   push debounced (3s) após cada `savePortalState`, pull no arranque do `/portal`, merge
+   "cloud só se mais recente" (offline-safe, padrão `juniorCloud`).
+2. ✅ **Handicap por irmão no Duelo "Misto" (FEITO)** — `duelo.ts` + `duelo.tsx`: chips
+   1.º–4.º/"Tudo" por jogador no setup; anos diferentes → pools independentes por jogador,
+   alternados por vez (o de 6 anos nunca apanha frações do 4.º); placar, ecrã "pronto" e
+   pódio mostram o ano de cada um.
 3. Anti-cheat server-side leve nos rankings (validação de plausibilidade de score).
 4. Trivia remota (`getTrivia` já existe!) alimentada pelos jogos principais.
 5. Conquistas do Júnior (hoje as 13 conquistas só contam lições).
