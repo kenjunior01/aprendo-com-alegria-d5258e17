@@ -5,6 +5,8 @@
 //   justas para os dois, mesmo com idades diferentes. No modo "Misto" cada
 //   jogador pode escolher o SEU ano (handicap por irmão): o de 6 anos só
 //   recebe perguntas do 1.º, o de 10 só do 4.º — ou "Tudo" para o banco completo.
+//   Online, chegam ainda perguntas novas da internet (trivia-import), sempre
+//   na faixa certa — offline funciona tudo igual com o banco local.
 // • Alternância estrita com ecrã de passagem de vez — ninguém responde pelos
 //   outros e cada criança tem o seu momento de brilho no palco.
 // • Erro mostra a resposta certa + explicação (aprender > ganhar) e o tempo
@@ -12,6 +14,7 @@
 // • Recompensas para o perfil local: TODOS participam, quem vence ganha bónus —
 //   nunca castigamos por perder (regressos sem culpa).
 import { ALL_TRIVIA, type TriviaQuestion } from "@/lib/triviaBoost";
+import { getTriviaWithSource, remoteToTrivia } from "@/lib/triviaSource";
 import { shuffled } from "@/lib/utils";
 import { detectRegion, localizeQuestion } from "@/lib/region";
 import { dayGap, loadProfile, saveProfile, type Profile } from "@/lib/storage";
@@ -89,15 +92,19 @@ export function pickDueloQuestions(
   grade: DueloGrade,
   perPlayer: number,
   playerGrades?: readonly [DueloPlayerGrade, DueloPlayerGrade],
+  remoteExtra?: TriviaQuestion[],
 ): DueloQuestion[] {
   const region = loadProfile()?.region ?? detectRegion().code;
   const localize = (q: TriviaQuestion) => localizeQuestion(q, region);
+  // Trivia remota (roadmap §4.4): perguntas novas da internet entram no banco
+  // com idade-âncora do pool certo — o filtro por faixa aceita-as nativamente.
+  const bank = remoteExtra?.length ? [...ALL_TRIVIA, ...remoteExtra] : ALL_TRIVIA;
 
   // Handicap por irmão: só com faixas DIFERENTES — anos iguais (ou Tudo+Tudo)
   // ficam no pool único clássico, que nunca repete pergunta entre os dois.
   if (playerGrades && playerGrades[0] !== playerGrades[1]) {
     const pools = playerGrades.map((g) =>
-      shuffled(ALL_TRIVIA.filter((q) => playerAges(g).includes(q.age))),
+      shuffled(bank.filter((q) => playerAges(g).includes(q.age))),
     );
     const cursor = [0, 0];
     const out: DueloQuestion[] = [];
@@ -115,7 +122,7 @@ export function pickDueloQuestions(
   }
 
   const ages = GRADE_AGES[grade];
-  const pool = ALL_TRIVIA.filter((q) => ages.includes(q.age));
+  const pool = bank.filter((q) => ages.includes(q.age));
   // Fisher–Yates justo (antes: sort(random) enviesava as posições)
   const baralhado = shuffled(pool);
   const total = Math.min(perPlayer * 2, baralhado.length);
@@ -127,6 +134,81 @@ export function pickDueloQuestions(
 
 /** Perguntas por jogador em cada duelo. */
 export const DUELO_PER_PLAYER = 4;
+
+// ── Trivia remota (roadmap §4.4) ────────────────────────────────────────────
+// Categorias amigas para crianças na Open Trivia DB — roda a sorte a cada
+// duelo para o conteúdo nunca se repetir. Sem internet, o banco local chega.
+const REMOTE_CATEGORIES = ["animals", "science", "general", "geography", "math", "sports"];
+/** Teto de espera: criança NUNCA fica a olhar para um spinner. */
+const REMOTE_TIMEOUT_MS = 3500;
+
+/** Pools distintos que o duelo vai precisar (evita pedidos repetidos). */
+function poolSpecs(
+  grade: DueloGrade,
+  playerGrades?: readonly [DueloPlayerGrade, DueloPlayerGrade],
+): DueloPlayerGrade[] {
+  if (playerGrades && playerGrades[0] !== playerGrades[1])
+    return [playerGrades[0], playerGrades[1]];
+  return [grade === "misto" ? null : Number(grade)];
+}
+
+/** Dificuldade remota adequada ao ano (1.º–2.º fáceis, 3.º médio, 4.º difícil). */
+function gradeDifficulty(g: DueloPlayerGrade): "easy" | "medium" | "hard" {
+  if (g == null || g <= 2) return "easy";
+  if (g === 3) return "medium";
+  return "hard";
+}
+
+/** Idade-âncora: coloca a pergunta remota na faixa certa do banco local. */
+function gradeAnchorAge(g: DueloPlayerGrade): number {
+  return g == null ? 8 : 5 + g; // 1.º→6, 2.º→7, 3.º→8, 4.º→9, Tudo→8
+}
+
+async function fetchRemoteForPool(g: DueloPlayerGrade, count: number): Promise<TriviaQuestion[]> {
+  const category = REMOTE_CATEGORIES[Math.floor(Math.random() * REMOTE_CATEGORIES.length)];
+  const { questions, source } = await getTriviaWithSource({
+    category,
+    difficulty: gradeDifficulty(g),
+    count,
+    age: gradeAnchorAge(g),
+  });
+  // "offline" = caiu no banco local — aceitar duplicaria os pools. Só remota.
+  if (source !== "remote" || !questions.length) return [];
+  return questions.map((q) => remoteToTrivia(q, gradeAnchorAge(g)));
+}
+
+const delay = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
+
+/**
+ * Perguntas remotas para este duelo (ou [] se offline/lento — o fetch fica
+ * a correr em segundo plano e enche a cache para a próxima vez).
+ */
+export async function loadDueloRemoteExtras(
+  grade: DueloGrade,
+  playerGrades?: readonly [DueloPlayerGrade, DueloPlayerGrade],
+): Promise<TriviaQuestion[]> {
+  const specs = poolSpecs(grade, playerGrades);
+  try {
+    const settled = await Promise.race([
+      Promise.all(specs.map((g) => fetchRemoteForPool(g, DUELO_PER_PLAYER * 2))),
+      delay(REMOTE_TIMEOUT_MS).then(() => null),
+    ]);
+    if (!settled) return [];
+    return settled.flat();
+  } catch {
+    return [];
+  }
+}
+
+/** pickDueloQuestions + extras remotas, com teto de espera para a criança. */
+export async function pickDueloQuestionsAsync(
+  grade: DueloGrade,
+  perPlayer: number,
+  playerGrades?: readonly [DueloPlayerGrade, DueloPlayerGrade],
+): Promise<DueloQuestion[]> {
+  const extras = await loadDueloRemoteExtras(grade, playerGrades);
+  return pickDueloQuestions(grade, perPlayer, playerGrades, extras);
+}
 
 const today = () => new Date().toISOString().slice(0, 10);
 

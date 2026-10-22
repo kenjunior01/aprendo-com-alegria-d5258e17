@@ -83,5 +83,14 @@
    acumulado (score ≤ jogos×60+100; zod 500→60); os Desafios Infinitos recalculam o teto
    do XP com a MESMA fórmula do cliente (8×(5+⌊nível/2⌋)+40) e limitam 60 rondas/hora
    (count query indexada). Zero mudanças de DB; erros em pt-PT amigáveis.
-4. Trivia remota (`getTrivia` já existe!) alimentada pelos jogos principais.
+4. ✅ **Trivia remota alimentada pelos jogos principais (FEITO)** — `triviaSource.ts` expõe
+   `getTriviaWithSource` (diz "remote" vs "offline" — quem mistura com o banco local precisa
+   disto para não duplicar pools) + `remoteToTrivia`. **Quiz Relâmpago solo** (Ligas/Sala de
+   Aula): perguntas novas da internet (Open Trivia DB → `trivia-import` → tradução PT-PT →
+   cache 7d servidor + 6h cliente) com fallback local em 4s; **desafios com seed mantêm-se
+   síncronos** (revanche justa = mesmas perguntas). **Duelo**: `pickDueloQuestionsAsync`
+   busca extras por pool (dificuldade mapeada ao ano: 1.º–2.º easy, 3.º medium, 4.º hard;
+   idade-âncora coloca-as na faixa certa do filtro), race de 3,5s → offline/lento joga
+   banco local e o fetch enche a cache ao fundo; erros remotos também entram na Revisão
+   Mágica. Zero SQL novo (`trivia_cache` já existe nas migrations).
 5. Conquistas do Júnior (hoje as 13 conquistas só contam lições).

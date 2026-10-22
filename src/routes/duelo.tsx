@@ -19,7 +19,7 @@ import {
   DUELO_PLAYER_GRADES,
   dueloMistoPoolSize,
   dueloPoolSize,
-  pickDueloQuestions,
+  pickDueloQuestionsAsync,
   type DueloGrade,
   type DueloPlayer,
   type DueloPlayerGrade,
@@ -54,7 +54,7 @@ export const Route = createFileRoute("/duelo")({
   errorComponent: RouteError,
 });
 
-type Fase = "setup" | "pronto" | "jogo" | "fim";
+type Fase = "setup" | "aPreparar" | "pronto" | "jogo" | "fim";
 
 /** Tempo de pausa após responder: leitura com calma no erro, ritmo no acerto. */
 const MS_ACERTO = 1200;
@@ -142,6 +142,7 @@ function DueloPage() {
   const totalQuestions = questions.length;
 
   const start = () => {
+    if (fase === "aPreparar") return; // duplo-clique no botão
     const n1 = p1.name.trim() || "Jogador 1";
     const n2 = p2.name.trim() || "Jogador 2";
     setP1((p) => ({ ...p, name: n1, score: 0 }));
@@ -151,16 +152,23 @@ function DueloPage() {
     const grades: [DueloPlayerGrade, DueloPlayerGrade] =
       grade === "misto" ? [playerGrades[0], playerGrades[1]] : [null, null];
     setSessionGrades(grades);
-    setQuestions(
-      pickDueloQuestions(grade, DUELO_PER_PLAYER, grade === "misto" ? playerGrades : undefined),
-    );
     setIdx(0);
     setPicked(null);
     setResultado(null);
     finishedRef.current = false;
-    setFase("pronto");
-    setContagem(3);
+    // Trivia remota (roadmap §4.4): busca perguntas novas da internet com teto
+    // de 3,5s — offline/lento entra no banco local e o duelo começa na mesma.
+    setFase("aPreparar");
     playTap();
+    void pickDueloQuestionsAsync(
+      grade,
+      DUELO_PER_PLAYER,
+      grade === "misto" ? playerGrades : undefined,
+    ).then((qs) => {
+      setQuestions(qs);
+      setFase("pronto");
+      setContagem(3);
+    });
   };
 
   // Contagem decrescente "3, 2, 1…" antes da primeira pergunta
@@ -287,6 +295,16 @@ function DueloPage() {
             onStart={start}
             pool={grade === "misto" ? dueloMistoPoolSize(playerGrades) : dueloPoolSize(grade)}
           />
+        )}
+
+        {fase === "aPreparar" && (
+          <section className="py-16 text-center" aria-live="polite">
+            <div className="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+            <p className="mt-4 font-display text-lg">A preparar as perguntas…</p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              A ir buscar perguntas novas da internet — sem ligação, o banco do jogo resolve.
+            </p>
+          </section>
         )}
 
         {fase === "pronto" && (
@@ -643,7 +661,7 @@ function SetupPhase({
           ))}
         </div>
         <p className="mt-3 text-center text-xs text-muted-foreground">
-          {pool} perguntas disponíveis nesta faixa · banco atualiza sempre
+          {pool} perguntas no banco desta faixa · online chegam perguntas novas a cada duelo
         </p>
         {grade === "misto" && (
           <p className="mt-2 text-center text-xs text-muted-foreground">

@@ -1,6 +1,9 @@
 // LightningQuiz — Quiz Relâmpago reutilizável (5 perguntas rápidas).
-// Usado na Sala de Aula (maçã) e na página /desafio (quiz partilhado via WhatsApp).
+// Usado na Sala de Aula (maçã), nas Ligas (treinar) e na página /desafio (quiz
+// partilhado via WhatsApp).
 // Com seed determinística, gerador e amigo recebem EXATAMENTE as mesmas perguntas.
+// Solo (sem seed): perguntas novas da internet (Open Trivia DB → trivia-import)
+// com fallback local em 4s — a criança nunca fica presa a um spinner.
 //
 // Aprendizagem em primeiro lugar:
 // • Erro → a resposta certa fica destacada + dica do método, com tempo para LER
@@ -12,6 +15,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { GraduationCap, MessageCircle, X } from "lucide-react";
 import { getRandomTriviaBoost, pickSeededTrivia, type TriviaQuestion } from "@/lib/triviaBoost";
+import { getTriviaWithSource, remoteToTrivia } from "@/lib/triviaSource";
 import { hintForPergunta } from "@/lib/hintFor";
 import { addMistake } from "@/lib/reviewQueue";
 import { loadProfile } from "@/lib/storage";
@@ -45,6 +49,9 @@ type Fase = "jogo" | "fim" | "revisao" | "fimRevisao";
 const MS_ACERTO = 900;
 const MS_ERRO = 2400;
 
+/** Tempo máximo de espera pela trivia remota no modo solo. */
+const SOLO_REMOTE_TIMEOUT_MS = 4000;
+
 export function LightningQuiz({
   seed,
   count = 5,
@@ -55,14 +62,24 @@ export function LightningQuiz({
   onFinish,
   onChallenge,
 }: Props) {
-  const questions = useMemo<TriviaQuestion[]>(() => {
-    const raw = seed !== undefined ? pickSeededTrivia(seed, count) : getRandomTriviaBoost(count);
-    // O teu país no jogo: vocabulário local (BR/AO/MZ); answerIndex intacto.
-    const region = loadProfile()?.region ?? detectRegion().code;
-    return raw.map((qq) => localizeQuestion(qq, region));
-  }, [seed, count]);
+  const region = useMemo(() => loadProfile()?.region ?? detectRegion().code, []);
+
+  // Desafio/revanche (seed): síncrono — os dois dispositivos jogam as MESMAS perguntas.
+  const seeded = useMemo<TriviaQuestion[]>(
+    () =>
+      seed === undefined
+        ? []
+        : pickSeededTrivia(seed, count).map((qq) => localizeQuestion(qq, region)),
+    [seed, count, region],
+  );
+
+  // Solo: trivia remota (roadmap §4.4) com fallback local imediato ao fim de 4s.
+  // Se a carga remota demorar, o banco local entra e o fetch continua ao fundo
+  // para encher a cache da próxima vez.
+  const [solo, setSolo] = useState<TriviaQuestion[] | null>(seed === undefined ? null : seeded);
+
   const [fase, setFase] = useState<Fase>("jogo");
-  const [lista, setLista] = useState<TriviaQuestion[]>(questions);
+  const [lista, setLista] = useState<TriviaQuestion[]>(seeded);
   const [idx, setIdx] = useState(0);
   const [picked, setPicked] = useState<number | null>(null);
   const [correct, setCorrect] = useState(0);
@@ -70,25 +87,59 @@ export function LightningQuiz({
   const [acertosRevisao, setAcertosRevisao] = useState(0);
   const [moedasRevisao, setMoedasRevisao] = useState(0);
   const q = lista[idx];
+  const questions = seed !== undefined ? seeded : (solo ?? []);
   const done = fase === "jogo" ? idx >= questions.length : idx >= lista.length;
   const finishedRef = useRef(false);
   const timerRef = useRef<number | null>(null);
+  const timersRef = useRef<number[]>([]);
+
+  useEffect(() => {
+    if (seed !== undefined) return;
+    let cancelled = false;
+    const age = (loadProfile()?.grade ?? 3) + 5; // âncora 6–10 (fallback offline usa ±2)
+    const carga = (async () => {
+      try {
+        const { questions: qs } = await getTriviaWithSource({ count, difficulty: "easy", age });
+        return qs.map((rq) => localizeQuestion(remoteToTrivia(rq, age), region));
+      } catch {
+        return null; // falha inesperada → o timeout local cobre
+      }
+    })();
+    const localFallback = new Promise<TriviaQuestion[]>((resolve) => {
+      const t = window.setTimeout(
+        () => resolve(getRandomTriviaBoost(count).map((qq) => localizeQuestion(qq, region))),
+        SOLO_REMOTE_TIMEOUT_MS,
+      );
+      timersRef.current.push(t);
+    });
+    void Promise.race([carga, localFallback]).then((qs) => {
+      if (cancelled || !qs) return;
+      setSolo(qs);
+      setLista(qs);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [seed, count, region]);
+  const aCarregar = seed === undefined && solo === null;
 
   useEffect(
     () => () => {
       // limpeza: nenhum timeout a avançar depois de desmontar
       if (timerRef.current) window.clearTimeout(timerRef.current);
+      for (const t of timersRef.current) window.clearTimeout(t);
     },
     [],
   );
 
   useEffect(() => {
+    if (aCarregar) return; // ainda a buscar perguntas — nada termina a meio
     if (fase === "jogo" && done && !finishedRef.current) {
       finishedRef.current = true;
       onFinish?.(correct, count);
       setFase("fim");
     }
-  }, [fase, done]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [fase, done, aCarregar]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const moedasBase = correct * coinsPerCorrect;
   const fechar = () => onClose(moedasBase + moedasRevisao);
@@ -192,7 +243,13 @@ export function LightningQuiz({
         </button>
       </div>
 
-      {emJogo && q ? (
+      {aCarregar ? (
+        // Solo remoto a chegar (teto de 4s — depois banco local entra sozinho)
+        <div className="flex flex-col items-center gap-3 py-10" role="status">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-amber-300 border-t-transparent" />
+          <p className="font-display text-sm text-muted-foreground">A preparar perguntas novas…</p>
+        </div>
+      ) : emJogo && q ? (
         <>
           <div className="mt-1 flex gap-1">
             {lista.map((_, i) => (
