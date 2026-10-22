@@ -201,12 +201,16 @@ export const joinWeeklyLeague = createServerFn({ method: "POST" })
   });
 
 // Adiciona pontos à criança ativa (perfil) e ajusta bots com base na dificuldade.
+// Anti-cheat leve (server-side, roadmap REA §4.3): o cliente só ganha 5–35 pts
+// por Quiz Relâmpago real (5 perguntas) — aqui o servidor valida RITMO e TOTAL
+// acumulado, para macros/de-dos frenéticos e flood não descolarem o placar.
+const PONTOS_MAX_JOGO = 60; // teto por submissão (legítimo: 5..35)
 export const addLeagueScore = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator(
     z.object({
       leagueId: z.string().uuid(),
-      points: z.number().int().min(1).max(500),
+      points: z.number().int().min(1).max(PONTOS_MAX_JOGO),
       childId: z.string().min(1).max(64).optional(),
     }).parse,
   )
@@ -216,14 +220,38 @@ export const addLeagueScore = createServerFn({ method: "POST" })
     // Encontra a participação dessa criança (ou única do utilizador).
     let q = supabase
       .from("league_members" as any)
-      .select("id, score, games_played")
+      .select("id, score, games_played, last_played_at")
       .eq("league_id", data.leagueId)
       .eq("user_id", userId);
     if (data.childId) q = q.eq("child_id", data.childId);
     const { data: row } = await q.maybeSingle();
     if (!row) return { ok: false as const, error: "Não estás nesta liga." };
-    const me = row as unknown as { id: string; score: number; games_played: number };
+    const me = row as unknown as {
+      id: string;
+      score: number;
+      games_played: number;
+      last_played_at: string | null;
+    };
+
+    // 1) Ritmo: um quiz de 5 perguntas nunca acaba em <20s (last_played_at
+    //    é sempre a submissão anterior). Bloqueia cliques-máquina sem
+    //    penalizar uma criança real a jogar.
+    const last = me.last_played_at ? new Date(me.last_played_at).getTime() : 0;
+    if (last && Date.now() - last < 20_000) {
+      return {
+        ok: false as const,
+        error: "Calma! Joga o quiz até ao fim para ganhares pontos.",
+      };
+    }
+    const games = me.games_played ?? 0;
     const newScore = (me.score ?? 0) + data.points;
+    // 2) Acumulado: o score nunca excede o que os jogos disputados permitem
+    //    — (games+1)×60 + folga 100. Mesmo que uma futura regressão volte a
+    //    enviar pontos enormes, o placar não descola da realidade.
+    if (newScore > (games + 1) * PONTOS_MAX_JOGO + 100) {
+      return { ok: false as const, error: "Pontos acima do possível — jogando ganhas!" };
+    }
+
     await supabase
       .from("league_members" as any)
       .update({

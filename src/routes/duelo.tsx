@@ -527,9 +527,7 @@ function SetupPhase({
   setP1: React.Dispatch<React.SetStateAction<DueloPlayer>>;
   setP2: React.Dispatch<React.SetStateAction<DueloPlayer>>;
   playerGrades: [DueloPlayerGrade, DueloPlayerGrade];
-  setPlayerGrades: React.Dispatch<
-    React.SetStateAction<[DueloPlayerGrade, DueloPlayerGrade]>
-  >;
+  setPlayerGrades: React.Dispatch<React.SetStateAction<[DueloPlayerGrade, DueloPlayerGrade]>>;
   onStart: () => void;
   pool: number;
 }) {

@@ -13,16 +13,38 @@ function ageGroupOf(age: number | null | undefined): string {
 
 export const submitInfiniteScore = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(z.object({
-    trackId: z.string().min(1).max(40),
-    level: z.number().int().min(1).max(9999),
-    score: z.number().int().min(0).max(100000),
-    stars: z.number().int().min(0).max(3),
-    age: z.number().int().min(0).max(120).nullable().optional(),
-    region: z.string().min(1).max(8).nullable().optional(),
-  }).parse)
+  .inputValidator(
+    z.object({
+      trackId: z.string().min(1).max(40),
+      level: z.number().int().min(1).max(9999),
+      score: z.number().int().min(0).max(100000),
+      stars: z.number().int().min(0).max(3),
+      age: z.number().int().min(0).max(120).nullable().optional(),
+      region: z.string().min(1).max(8).nullable().optional(),
+    }).parse,
+  )
   .handler(async ({ context, data }) => {
     const { supabase, userId } = context;
+
+    // ── Anti-cheat leve (server-side, roadmap REA §4.3) ──
+    // O cliente calcula xpGained = correct × (5 + floor(level/2)) com 8
+    // perguntas por ronda — o servidor recalcula o TETO com a mesma fórmula
+    // + folga. Mata scores-fantasia (100000) sem tocar numa criança real.
+    const xpMaxPorRonda = 8 * (5 + Math.floor(data.level / 2)) + 40;
+    if (data.score > xpMaxPorRonda) {
+      return { ok: false as const, error: "Score acima do possível nesta ronda." };
+    }
+    // Ritmo: >60 rondas/hora não é humano (uma ronda real demora ≥45s).
+    // Bloqueia flood do ranking sem penalizar a criança mais dedicada.
+    const since1h = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+    const { count } = await (supabase.from("infinite_scores" as never) as any)
+      .select("id", { count: "exact", head: true })
+      .eq("user_id", userId)
+      .gte("created_at", since1h);
+    if (typeof count === "number" && count >= 60) {
+      return { ok: false as const, error: "Muitas rondas seguidas — faz uma pausa!" };
+    }
+
     const ageGroup = ageGroupOf(data.age ?? null);
     const { error } = await (supabase.from("infinite_scores" as never) as any).insert({
       user_id: userId,
@@ -60,9 +82,21 @@ async function aggregateRanking(
   if (filter.region) q = q.eq("region", filter.region);
   const { data, error } = await q;
   if (error || !Array.isArray(data)) return [];
-  const totals = new Map<string, { total: number; ageGroup: string | null; region: string | null }>();
-  for (const row of data as Array<{ user_id: string; score: number; age_group: string | null; region: string | null }>) {
-    const cur = totals.get(row.user_id) ?? { total: 0, ageGroup: row.age_group, region: row.region };
+  const totals = new Map<
+    string,
+    { total: number; ageGroup: string | null; region: string | null }
+  >();
+  for (const row of data as Array<{
+    user_id: string;
+    score: number;
+    age_group: string | null;
+    region: string | null;
+  }>) {
+    const cur = totals.get(row.user_id) ?? {
+      total: 0,
+      ageGroup: row.age_group,
+      region: row.region,
+    };
     cur.total += row.score ?? 0;
     totals.set(row.user_id, cur);
   }
@@ -77,7 +111,11 @@ async function aggregateRanking(
     .select("id, name, mascot")
     .in("id", ids);
   const profMap = new Map<string, { name: string; mascot: string | null }>();
-  for (const p of (profs ?? []) as Array<{ id: string; name: string | null; mascot: string | null }>) {
+  for (const p of (profs ?? []) as Array<{
+    id: string;
+    name: string | null;
+    mascot: string | null;
+  }>) {
     profMap.set(p.id, { name: p.name ?? "Aprendiz", mascot: p.mascot });
   }
   return sorted.map((r) => ({
@@ -92,15 +130,17 @@ async function aggregateRanking(
 
 export const getInfiniteWeeklyRanking = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(z.object({
-    ageGroup: z.string().nullable().optional(),
-    region: z.string().nullable().optional(),
-  }).parse)
+  .inputValidator(
+    z.object({
+      ageGroup: z.string().nullable().optional(),
+      region: z.string().nullable().optional(),
+    }).parse,
+  )
   .handler(async ({ context, data }) => {
     const { supabase, userId } = context;
     const since = new Date();
     const day = since.getUTCDay();
-    const diff = (day === 0 ? 6 : day - 1);
+    const diff = day === 0 ? 6 : day - 1;
     since.setUTCDate(since.getUTCDate() - diff);
     since.setUTCHours(0, 0, 0, 0);
     const ranking = await aggregateRanking(supabase, {
@@ -117,21 +157,39 @@ function currentSeason(): { id: string; name: string; emoji: string; endsAt: str
   const month = now.getUTCMonth() + 1;
   const year = now.getUTCFullYear();
   // Northern hemisphere seasons (PT)
-  let id = "primavera", name = "Primavera Mágica", emoji = "🌸", endMonth = 5;
-  if (month >= 6 && month <= 8) { id = "verao"; name = "Verão Aventureiro"; emoji = "☀️"; endMonth = 8; }
-  else if (month >= 9 && month <= 11) { id = "outono"; name = "Outono Sábio"; emoji = "🍂"; endMonth = 11; }
-  else if (month === 12 || month <= 2) { id = "inverno"; name = "Inverno Estelar"; emoji = "❄️"; endMonth = 2; }
-  const endYear = (id === "inverno" && month === 12) ? year + 1 : year;
+  let id = "primavera",
+    name = "Primavera Mágica",
+    emoji = "🌸",
+    endMonth = 5;
+  if (month >= 6 && month <= 8) {
+    id = "verao";
+    name = "Verão Aventureiro";
+    emoji = "☀️";
+    endMonth = 8;
+  } else if (month >= 9 && month <= 11) {
+    id = "outono";
+    name = "Outono Sábio";
+    emoji = "🍂";
+    endMonth = 11;
+  } else if (month === 12 || month <= 2) {
+    id = "inverno";
+    name = "Inverno Estelar";
+    emoji = "❄️";
+    endMonth = 2;
+  }
+  const endYear = id === "inverno" && month === 12 ? year + 1 : year;
   const endsAt = new Date(Date.UTC(endYear, endMonth, 0, 23, 59, 59)).toISOString();
   return { id: `${year}-${id}`, name, emoji, endsAt };
 }
 
 export const getInfiniteSeasonalTournament = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(z.object({
-    ageGroup: z.string().nullable().optional(),
-    region: z.string().nullable().optional(),
-  }).parse)
+  .inputValidator(
+    z.object({
+      ageGroup: z.string().nullable().optional(),
+      region: z.string().nullable().optional(),
+    }).parse,
+  )
   .handler(async ({ context, data }) => {
     const { supabase, userId } = context;
     const season = currentSeason();
