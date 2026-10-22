@@ -15,11 +15,13 @@ import {
   loadQuizPaisProgress,
   pickQuizPais,
   quizPaisCountry,
+  quizPaisLevelFrame,
+  quizPaisRewards,
   saveQuizPaisResult,
   type QuizPaisProgress,
   type QuizPaisQ,
 } from "@/lib/quizPais";
-import { detectRegion, REGIONS, type RegionCode } from "@/lib/region";
+import { detectRegion, gradeBadge, REGIONS, type RegionCode } from "@/lib/region";
 import { loadProfile, updateProfile } from "@/lib/storage";
 import { haptic } from "@/lib/haptics";
 import { playCorrect, playLevelUp, playWrong } from "@/lib/audio";
@@ -60,7 +62,9 @@ export function QuizPaisGame() {
     if (!region) return;
     haptic("tap");
     setLevel(lv);
-    setQuestions(pickQuizPais(region, lv));
+    // Balanceamento por idade: a grade da criança escolhe se a rodada vem
+    // mais leve (1.ª/2.ª) ou mais forte (4.ª/4.º) dentro do nível.
+    setQuestions(pickQuizPais(region, lv, perfil?.grade));
     setIdx(0);
     setPicked(null);
     setCorrect(0);
@@ -94,11 +98,11 @@ export function QuizPaisGame() {
             playLevelUp();
             void confetti({ particleCount: 140, spread: 75, origin: { y: 0.6 } });
           }
-          // Recompensas: moedas + XP diretas no perfil (padrão do arcade).
+          // Recompensas: moedas + XP diretas no perfil (padrão do arcade),
+          // escaladas pelo nível — Campeão paga mais que Fácil.
           // Lê o perfil NO clique — jogadas repetidas na mesma sessão nunca perdem moedas.
           const atual = loadProfile();
-          const moedas = acertos * 2 + (acertos >= 5 ? 5 : 0);
-          const xp = acertos * 4;
+          const { moedas, xp } = quizPaisRewards(level, acertos);
           updateProfile({ coins: (atual?.coins ?? 0) + moedas, xp: (atual?.xp ?? 0) + xp });
           setFase("fim");
         } else {
@@ -172,9 +176,11 @@ export function QuizPaisGame() {
               Escolhe o teu nível — 4 acertos de 5 abrem o seguinte!
             </p>
             <div className="mt-3 grid gap-2">
-              {QUIZ_PAIS_LEVELS.map(({ level: lv, nome, emoji, desc }) => {
+              {QUIZ_PAIS_LEVELS.map(({ level: lv, nome, emoji, desc, grades }) => {
                 const locked = lv > progress.unlocked;
                 const best = progress.best[`${region}:${lv}`];
+                const g = perfil?.grade ?? 0;
+                const recomendado = g >= grades[0] && g <= grades[1];
                 return (
                   <button
                     key={lv}
@@ -194,8 +200,15 @@ export function QuizPaisGame() {
                     <span className="min-w-0 flex-1">
                       <span className="block font-display text-sm font-bold">
                         Nível {lv} · {nome}
+                        {recomendado && (
+                          <span className="ml-2 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-bold text-primary">
+                            Para ti ({gradeBadge(g, region)})
+                          </span>
+                        )}
                       </span>
-                      <span className="block text-xs text-muted-foreground">{desc}</span>
+                      <span className="block text-xs text-muted-foreground">
+                        {desc} · {quizPaisLevelFrame(lv, region)}
+                      </span>
                     </span>
                     {best != null && (
                       <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-700 dark:bg-amber-950/40 dark:text-amber-300">
@@ -289,7 +302,8 @@ export function QuizPaisGame() {
             </div>
             <p className="mt-2 font-display text-2xl font-bold">{correct}/5 acertos!</p>
             <p className="mt-1 text-sm text-success">
-              +{correct * 2 + (correct >= 5 ? 5 : 0)} 🪙 · +{correct * 4} ⭐
+              +{quizPaisRewards(level, correct).moedas} 🪙 · +{quizPaisRewards(level, correct).xp}{" "}
+              ⭐
             </p>
             {resultado?.isRecord && (
               <p className="mt-2 font-display text-sm font-bold text-amber-600">
