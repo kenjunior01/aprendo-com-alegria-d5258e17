@@ -78,6 +78,10 @@
    1.º–4.º/"Tudo" por jogador no setup; anos diferentes → pools independentes por jogador,
    alternados por vez (o de 6 anos nunca apanha frações do 4.º); placar, ecrã "pronto" e
    pódio mostram o ano de cada um.
-3. Anti-cheat server-side leve nos rankings (validação de plausibilidade de score).
+3. ✅ **Anti-cheat server-side leve nos rankings (FEITO)** — `leagues.functions.ts` +
+   `infiniteRanking.functions.ts`: a Ligas valida ritmo (mín. 20s entre quizzes) e total
+   acumulado (score ≤ jogos×60+100; zod 500→60); os Desafios Infinitos recalculam o teto
+   do XP com a MESMA fórmula do cliente (8×(5+⌊nível/2⌋)+40) e limitam 60 rondas/hora
+   (count query indexada). Zero mudanças de DB; erros em pt-PT amigáveis.
 4. Trivia remota (`getTrivia` já existe!) alimentada pelos jogos principais.
 5. Conquistas do Júnior (hoje as 13 conquistas só contam lições).
