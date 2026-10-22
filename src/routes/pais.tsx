@@ -12,6 +12,7 @@ import {
   resetProfile,
   type Profile,
 } from "@/lib/storage";
+import { gradeBadge, gradeLabel } from "@/lib/region";
 import { getTodayMinutes } from "@/lib/usageTracker";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -516,7 +517,7 @@ function ParentDashboard() {
                       onClick={() => setGradeFilter(g)}
                       className={`shrink-0 rounded-full px-3 py-1.5 text-xs font-display ${gradeFilter === g ? "bg-primary text-primary-foreground" : "border border-border bg-card text-muted-foreground"}`}
                     >
-                      {g}.º
+                      {gradeBadge(g, loadProfile()?.region)}
                     </button>
                   ))}
                 </div>
@@ -554,7 +555,7 @@ function ParentDashboard() {
                         <span
                           className={`block text-[10px] font-normal ${active ? "text-primary-foreground/80" : "text-muted-foreground"}`}
                         >
-                          {c.grade}.º · ⭐{c.xp} · 🔥{c.streak}d
+                          {gradeBadge(c.grade, loadProfile()?.region)} · ⭐{c.xp} · 🔥{c.streak}d
                         </span>
                       </span>
                     </button>
@@ -833,7 +834,8 @@ function DashboardView({ data }: { data: ParentDashboardData }) {
           <div>
             <h2 className="font-display text-2xl">{data.child.name}</h2>
             <p className="text-sm text-muted-foreground">
-              {data.child.grade}.º ano · ⭐ {data.child.xp} XP · 🔥 {data.child.streak}d
+              {gradeLabel(data.child.grade, loadProfile()?.region)} · ⭐ {data.child.xp} XP · 🔥{" "}
+              {data.child.streak}d
             </p>
           </div>
         </div>

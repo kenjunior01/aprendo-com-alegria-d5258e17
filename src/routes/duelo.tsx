@@ -15,6 +15,7 @@ import { loadProfile } from "@/lib/storage";
 import {
   awardDuelo,
   DUELO_GRADE_LABEL,
+  dueloGradeLabel,
   DUELO_PER_PLAYER,
   DUELO_PLAYER_GRADES,
   dueloMistoPoolSize,
@@ -28,6 +29,14 @@ import {
 import { playCorrect, playLevelUp, playTap, playWrong, speak, stopSpeech } from "@/lib/audio";
 import { haptic } from "@/lib/haptics";
 import { cn } from "@/lib/utils";
+import {
+  detectRegion,
+  gradeBadge,
+  gradeLabel,
+  gradeNoun,
+  gradeQuestion,
+  type RegionCode,
+} from "@/lib/region";
 
 export const Route = createFileRoute("/duelo")({
   head: () => ({
@@ -125,6 +134,9 @@ function DueloPage() {
   const p2Ref = useRef(p2);
   p1Ref.current = p1;
   p2Ref.current = p2;
+  // Região do perfil — muda "2.º ano" para "2.ª classe" (MZ/AO/CV) em tudo
+  // o que a criança vê: chips, placar, pódio e pergunta do cadastro.
+  const regionCode = profile?.region ?? detectRegion().code;
 
   useEffect(
     () => () => {
@@ -293,6 +305,7 @@ function DueloPage() {
             playerGrades={playerGrades}
             setPlayerGrades={setPlayerGrades}
             onStart={start}
+            region={regionCode}
             pool={grade === "misto" ? dueloMistoPoolSize(playerGrades) : dueloPoolSize(grade)}
           />
         )}
@@ -341,6 +354,7 @@ function DueloPage() {
               vez={vez}
               progresso={{ idx, total: totalQuestions }}
               grades={sessionGrades}
+              region={regionCode}
             />
 
             {/* Banner da vez */}
@@ -449,6 +463,7 @@ function DueloPage() {
             resultado={resultado}
             temPerfil={Boolean(profile)}
             grades={sessionGrades}
+            region={regionCode}
             onRevanche={start}
             onNovo={() => {
               setFase("setup");
@@ -469,12 +484,14 @@ function ScoreBoard({
   vez,
   progresso,
   grades,
+  region,
 }: {
   p1: DueloPlayer;
   p2: DueloPlayer;
   vez: 0 | 1;
   progresso: { idx: number; total: number };
   grades: [DueloPlayerGrade, DueloPlayerGrade];
+  region: RegionCode;
 }) {
   const max = Math.max(1, progresso.total / 2);
   const card = (p: DueloPlayer, ativo: boolean, theme: typeof P1_THEME, g: DueloPlayerGrade) => (
@@ -492,7 +509,7 @@ function ScoreBoard({
             {p.name}
             {g != null && (
               <span className="ml-1.5 rounded-full bg-muted px-1.5 py-0.5 text-[10px] font-bold text-muted-foreground">
-                {g}.º
+                {gradeBadge(g, region)}
               </span>
             )}
           </p>
@@ -536,6 +553,7 @@ function SetupPhase({
   playerGrades,
   setPlayerGrades,
   onStart,
+  region,
   pool,
 }: {
   grade: DueloGrade;
@@ -547,6 +565,7 @@ function SetupPhase({
   playerGrades: [DueloPlayerGrade, DueloPlayerGrade];
   setPlayerGrades: React.Dispatch<React.SetStateAction<[DueloPlayerGrade, DueloPlayerGrade]>>;
   onStart: () => void;
+  region: RegionCode;
   pool: number;
 }) {
   const mascotPicker = (p: DueloPlayer, set: React.Dispatch<React.SetStateAction<DueloPlayer>>) => (
@@ -605,7 +624,7 @@ function SetupPhase({
             {grade === "misto" && (
               <div className="mt-3">
                 <p className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground">
-                  Ano deste jogador
+                  {gradeNoun(region) === "classe" ? "Classe deste jogador" : "Ano deste jogador"}
                 </p>
                 <div className="mt-1.5 flex flex-wrap justify-center gap-1.5">
                   {[...DUELO_PLAYER_GRADES, null].map((g) => (
@@ -627,7 +646,7 @@ function SetupPhase({
                           : "border-border bg-background hover:border-primary/50",
                       )}
                     >
-                      {g == null ? "Tudo" : `${g}.º`}
+                      {g == null ? "Tudo" : gradeBadge(g, region)}
                     </button>
                   ))}
                 </div>
@@ -640,7 +659,7 @@ function SetupPhase({
       {/* Ano escolar */}
       <div className="card-chunky mt-4 rounded-3xl border-2 border-border bg-card p-4">
         <p className="text-center font-display text-sm text-muted-foreground">
-          Perguntas para que ano? (justo para os dois)
+          {gradeQuestion(region)} (justo para os dois)
         </p>
         <div className="mt-3 flex flex-wrap justify-center gap-2">
           {(Object.keys(DUELO_GRADE_LABEL) as DueloGrade[]).map((g) => (
@@ -656,7 +675,7 @@ function SetupPhase({
                   : "border-border bg-background hover:border-primary/50",
               )}
             >
-              {DUELO_GRADE_LABEL[g]}
+              {dueloGradeLabel(g, region)}
             </button>
           ))}
         </div>
@@ -688,6 +707,7 @@ function PodiumPhase({
   resultado,
   temPerfil,
   grades,
+  region,
   onRevanche,
   onNovo,
   onShare,
@@ -701,6 +721,7 @@ function PodiumPhase({
   };
   temPerfil: boolean;
   grades: [DueloPlayerGrade, DueloPlayerGrade];
+  region: RegionCode;
   onRevanche: () => void;
   onNovo: () => void;
   onShare: () => void;
@@ -745,9 +766,21 @@ function PodiumPhase({
 
         {/* Placar final */}
         <div className="mx-auto mt-5 flex max-w-md items-center justify-center gap-4">
-          <FinalScore p={p1} venceu={winner === "p1"} theme={P1_THEME} gradeNum={grades[0]} />
+          <FinalScore
+            p={p1}
+            venceu={winner === "p1"}
+            theme={P1_THEME}
+            gradeNum={grades[0]}
+            region={region}
+          />
           <span className="font-display text-2xl text-muted-foreground">×</span>
-          <FinalScore p={p2} venceu={winner === "p2"} theme={P2_THEME} gradeNum={grades[1]} />
+          <FinalScore
+            p={p2}
+            venceu={winner === "p2"}
+            theme={P2_THEME}
+            gradeNum={grades[1]}
+            region={region}
+          />
         </div>
 
         {/* Recompensas do perfil local */}
@@ -784,11 +817,13 @@ function FinalScore({
   venceu,
   theme,
   gradeNum,
+  region,
 }: {
   p: DueloPlayer;
   venceu: boolean;
   theme: typeof P1_THEME;
   gradeNum: DueloPlayerGrade;
+  region: RegionCode;
 }) {
   return (
     <div
@@ -803,7 +838,7 @@ function FinalScore({
       <p className="mt-1 truncate font-display text-sm">{p.name}</p>
       {gradeNum != null && (
         <p className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground">
-          {gradeNum}.º ano
+          {gradeLabel(gradeNum, region)}
         </p>
       )}
       <p className="font-display text-2xl font-bold">{p.score}</p>

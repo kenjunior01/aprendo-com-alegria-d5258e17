@@ -7,7 +7,14 @@ import { ChunkyButton } from "@/components/ChunkyButton";
 import { MASCOTS, type MascotId } from "@/lib/mascots";
 import { defaultProfile, saveProfile, type Profile } from "@/lib/storage";
 import { applyWelcomeBonus, REF_CODE_RE } from "@/lib/referral";
-import { REGION_SELECT, REGIONS, detectRegion, type RegionCode } from "@/lib/region";
+import {
+  REGION_SELECT,
+  REGIONS,
+  detectRegion,
+  gradeQuestion,
+  gradeLabel,
+  type RegionCode,
+} from "@/lib/region";
 import { cn } from "@/lib/utils";
 import { RouteError } from "@/components/RouteError";
 
@@ -314,7 +321,7 @@ function Onboarding() {
 
           {!showConsent && step === 3 && role === "child" && (
             <Step key="3">
-              <h1 className="font-display text-3xl sm:text-4xl">Em que ano andas?</h1>
+              <h1 className="font-display text-3xl sm:text-4xl">{gradeQuestion(region)}</h1>
               <p className="text-muted-foreground">Vamos ajustar a aventura ao teu nível.</p>
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
                 {[1, 2, 3, 4].map((g) => (
@@ -326,7 +333,7 @@ function Onboarding() {
                       grade === g && "border-primary bg-accent text-accent-foreground",
                     )}
                   >
-                    {g}.º ano
+                    {gradeLabel(g, region)}
                   </button>
                 ))}
               </div>

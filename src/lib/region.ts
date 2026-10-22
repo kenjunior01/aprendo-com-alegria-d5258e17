@@ -56,6 +56,38 @@ export const REGIONS: Record<RegionCode, RegionInfo> = {
 // Lista compacta para seletores na UI (focada em PALOP + EN).
 export const REGION_SELECT: RegionCode[] = ["PT", "BR", "AO", "MZ", "CV", "US"];
 
+// ============ Série escolar conforme a região ============
+// Portugal/Brasil: "3.º ano" · PALOP (MZ/AO/CV): "3.ª classe" · EN: Grade/Year.
+// O cadastro, o Duelo e os filtros falam a língua da escola da criança —
+// uma criança de Maputo anda na 2.ª classe, não no "2.º ano".
+const CLASSE_REGIONS: RegionCode[] = ["MZ", "AO", "CV"];
+
+/** Substantivo da série escolar na região ("ano" | "classe" | "grade" | "year"). */
+export function gradeNoun(region?: RegionCode | null): string {
+  if (region && CLASSE_REGIONS.includes(region)) return "classe";
+  if (region && REGIONS[region]?.language === "en") return region === "GB" ? "year" : "grade";
+  return "ano";
+}
+
+/** Série completa pela região: "3.º ano" (PT/BR) ou "3.ª classe" (MZ/AO/CV). */
+export function gradeLabel(grade: number, region?: RegionCode | null): string {
+  const noun = gradeNoun(region);
+  if (noun === "classe") return `${grade}.ª classe`;
+  if (noun === "grade") return `Grade ${grade}`;
+  if (noun === "year") return `Year ${grade}`;
+  return `${grade}.º ano`;
+}
+
+/** Badge curto pela região: "3.º" (ano) ou "3.ª" (classe). */
+export function gradeBadge(grade: number, region?: RegionCode | null): string {
+  return gradeNoun(region) === "classe" ? `${grade}.ª` : `${grade}.º`;
+}
+
+/** Pergunta do cadastro conforme a região: "Em que ano/classe andas?". */
+export function gradeQuestion(region?: RegionCode | null): string {
+  return gradeNoun(region) === "classe" ? "Em que classe andas?" : "Em que ano andas?";
+}
+
 const TZ_TO_COUNTRY: Record<string, RegionCode> = {
   "Europe/Lisbon": "PT",
   "Atlantic/Azores": "PT",

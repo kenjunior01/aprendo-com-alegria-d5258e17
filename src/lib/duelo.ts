@@ -16,7 +16,7 @@
 import { ALL_TRIVIA, type TriviaQuestion } from "@/lib/triviaBoost";
 import { getTriviaWithSource, remoteToTrivia } from "@/lib/triviaSource";
 import { shuffled } from "@/lib/utils";
-import { detectRegion, localizeQuestion } from "@/lib/region";
+import { detectRegion, gradeLabel, localizeQuestion, type RegionCode } from "@/lib/region";
 import { dayGap, loadProfile, saveProfile, type Profile } from "@/lib/storage";
 import type { MascotId } from "@/lib/mascots";
 
@@ -49,6 +49,15 @@ export const DUELO_GRADE_LABEL: Record<DueloGrade, string> = {
   "4": "4.º ano",
   misto: "Misto",
 };
+
+/**
+ * Label da série conforme a REGIÃO do perfil — uma criança de Maputo anda na
+ * "2.ª classe", não no "2.º ano". `DUELO_GRADE_LABEL` mantém-se para a lista
+ * de chaves e fallback PT.
+ */
+export function dueloGradeLabel(g: DueloGrade, region?: RegionCode | null): string {
+  return g === "misto" ? "Misto" : gradeLabel(Number(g), region);
+}
 
 /** Anos escolares do handicap por jogador (chips do modo Misto). */
 export const DUELO_PLAYER_GRADES = [1, 2, 3, 4] as const;
