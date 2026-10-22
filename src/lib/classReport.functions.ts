@@ -43,21 +43,34 @@ export const generateClassReport = createServerFn({ method: "POST" })
     const { supabase, userId } = context;
     const days = data.days ?? 30;
 
-    // Turma tem de pertencer ao professor autenticado
+    // Turma tem de ser gerida por quem pede: professor da turma OU dono da
+    // escola (diretor). Escolas RLS já devolve null a quem não é dono.
     const { data: cls } = await supabase
       // eslint-disable-next-line @typescript-eslint/no-explicit-any -- tabela fora do schema gerado
       .from("classes" as any)
-      .select("id, name, grade, school_id")
+      .select("id, name, grade, school_id, teacher_id")
       .eq("id", data.classId)
-      .eq("teacher_id", userId)
       .maybeSingle();
     const klass = cls as unknown as {
       id: string;
       name: string;
       grade: number;
       school_id: string;
+      teacher_id: string;
     } | null;
     if (!klass) return { error: "Turma não encontrada." as const };
+    let isAllowed = klass.teacher_id === userId;
+    if (!isAllowed) {
+      const { data: owned } = await supabase
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any -- tabela fora do schema gerado
+        .from("schools" as any)
+        .select("id")
+        .eq("id", klass.school_id)
+        .eq("owner_teacher_id", userId)
+        .maybeSingle();
+      isAllowed = Boolean(owned);
+    }
+    if (!isAllowed) return { error: "Turma não encontrada." as const };
 
     const { data: school } = await supabase
       // eslint-disable-next-line @typescript-eslint/no-explicit-any -- tabela fora do schema gerado

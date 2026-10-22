@@ -63,10 +63,22 @@ export const listClasses = createServerFn({ method: "POST" })
   .inputValidator(z.object({ schoolId: z.string().uuid().optional() }).parse)
   .handler(async ({ context, data }) => {
     const { supabase, userId } = context;
-    let q = supabase
-      .from("classes" as any)
-      .select("*")
-      .eq("teacher_id", userId);
+    // Diretor: vê TAMBÉM as turmas criadas por outros professores da(s) sua(s)
+    // escola(s) — o RLS de classes já autoriza (teacher OU dono da escola).
+    const { data: mySchools } = await supabase
+      .from("schools" as any)
+      .select("id")
+      .eq("owner_teacher_id", userId);
+    const schoolIds = ((mySchools ?? []) as unknown as Array<{ id: string }>).map((s) => s.id);
+    let q = schoolIds.length
+      ? supabase
+          .from("classes" as any)
+          .select("*")
+          .or(`teacher_id.eq.${userId},school_id.in.(${schoolIds.join(",")})`)
+      : supabase
+          .from("classes" as any)
+          .select("*")
+          .eq("teacher_id", userId);
     if (data.schoolId) q = q.eq("school_id", data.schoolId);
     const { data: rows } = await q.order("created_at", { ascending: false });
     return { classes: (rows ?? []) as unknown as ClassRow[] };
