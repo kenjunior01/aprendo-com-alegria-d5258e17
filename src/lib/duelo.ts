@@ -2,7 +2,9 @@
 //
 // Design pedagógico:
 // • Perguntas da trivia Kidoz (890 no banco) filtradas pelo ano escolar —
-//   justas para os dois, mesmo com idades diferentes (modo "Misto" abre tudo).
+//   justas para os dois, mesmo com idades diferentes. No modo "Misto" cada
+//   jogador pode escolher o SEU ano (handicap por irmão): o de 6 anos só
+//   recebe perguntas do 1.º, o de 10 só do 4.º — ou "Tudo" para o banco completo.
 // • Alternância estrita com ecrã de passagem de vez — ninguém responde pelos
 //   outros e cada criança tem o seu momento de brilho no palco.
 // • Erro mostra a resposta certa + explicação (aprender > ganhar) e o tempo
@@ -42,8 +44,19 @@ export const DUELO_GRADE_LABEL: Record<DueloGrade, string> = {
   "2": "2.º ano",
   "3": "3.º ano",
   "4": "4.º ano",
-  misto: "Misto — todos",
+  misto: "Misto",
 };
+
+/** Anos escolares do handicap por jogador (chips do modo Misto). */
+export const DUELO_PLAYER_GRADES = [1, 2, 3, 4] as const;
+
+/** Ano de um jogador no Misto: 1–4 ou null = banco completo ("Tudo"). */
+export type DueloPlayerGrade = number | null;
+
+function playerAges(g: DueloPlayerGrade): number[] {
+  if (g == null) return GRADE_AGES.misto;
+  return GRADE_AGES[String(g) as DueloGrade] ?? GRADE_AGES.misto;
+}
 
 /** Perguntas suficientes por ano para não repetir muito em duelos seguidos? */
 export function dueloPoolSize(grade: DueloGrade): number {
@@ -52,19 +65,62 @@ export function dueloPoolSize(grade: DueloGrade): number {
 }
 
 /**
+ * Pool combinado no Misto quando cada jogador tem o seu ano (união das faixas
+ * dos dois) — para mostrar "X perguntas disponíveis" no setup.
+ */
+export function dueloMistoPoolSize(
+  playerGrades: readonly [DueloPlayerGrade, DueloPlayerGrade],
+): number {
+  const ages = new Set([...playerAges(playerGrades[0]), ...playerAges(playerGrades[1])]);
+  return ALL_TRIVIA.filter((q) => ages.has(q.age)).length;
+}
+
+/**
  * Escolhe perguntas para o duelo: baralha o pool da faixa de idade e
  * devolve `perPlayer × 2` perguntas com a vez alternada (P1 começa).
  * Vocabulário localizado pela região do perfil (BR/AO/MZ…).
+ *
+ * Com `playerGrades` (Misto com handicap por irmão): cada jogador sorteia do
+ * SEU pool de ano, alternando a vez — pools independentes, nunca misturados.
+ * Se um pool for curto, a vez desse jogador usa o pool do outro (nunca fica
+ * sem pergunta).
  */
-export function pickDueloQuestions(grade: DueloGrade, perPlayer: number): DueloQuestion[] {
+export function pickDueloQuestions(
+  grade: DueloGrade,
+  perPlayer: number,
+  playerGrades?: readonly [DueloPlayerGrade, DueloPlayerGrade],
+): DueloQuestion[] {
+  const region = loadProfile()?.region ?? detectRegion().code;
+  const localize = (q: TriviaQuestion) => localizeQuestion(q, region);
+
+  // Handicap por irmão: só com faixas DIFERENTES — anos iguais (ou Tudo+Tudo)
+  // ficam no pool único clássico, que nunca repete pergunta entre os dois.
+  if (playerGrades && playerGrades[0] !== playerGrades[1]) {
+    const pools = playerGrades.map((g) =>
+      shuffled(ALL_TRIVIA.filter((q) => playerAges(g).includes(q.age))),
+    );
+    const cursor = [0, 0];
+    const out: DueloQuestion[] = [];
+    for (let i = 0; i < perPlayer * 2; i++) {
+      const turn = (i % 2) as 0 | 1;
+      const own = pools[turn][cursor[turn]];
+      const other = (1 - turn) as 0 | 1;
+      const q = own ?? pools[other][cursor[other]];
+      if (!q) break;
+      if (own) cursor[turn]++;
+      else cursor[other]++;
+      out.push({ ...localize(q), turn });
+    }
+    return out;
+  }
+
   const ages = GRADE_AGES[grade];
   const pool = ALL_TRIVIA.filter((q) => ages.includes(q.age));
   // Fisher–Yates justo (antes: sort(random) enviesava as posições)
   const baralhado = shuffled(pool);
-  const region = loadProfile()?.region ?? detectRegion().code;
   const total = Math.min(perPlayer * 2, baralhado.length);
   return baralhado.slice(0, total).map((q, i) => ({
-    ...localizeQuestion(q, region),
+    ...localize(q),
     turn: (i % 2) as 0 | 1,
   }));
 }

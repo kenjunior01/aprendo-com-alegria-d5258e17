@@ -16,10 +16,13 @@ import {
   awardDuelo,
   DUELO_GRADE_LABEL,
   DUELO_PER_PLAYER,
+  DUELO_PLAYER_GRADES,
+  dueloMistoPoolSize,
   dueloPoolSize,
   pickDueloQuestions,
   type DueloGrade,
   type DueloPlayer,
+  type DueloPlayerGrade,
   type DueloQuestion,
 } from "@/lib/duelo";
 import { playCorrect, playLevelUp, playTap, playWrong, speak, stopSpeech } from "@/lib/audio";
@@ -82,6 +85,16 @@ function DueloPage() {
       ? (String(profile.grade) as DueloGrade)
       : "misto",
   );
+  // Handicap por irmão (modo Misto): ano escolar de cada jogador (null = "Tudo")
+  const [playerGrades, setPlayerGrades] = useState<[DueloPlayerGrade, DueloPlayerGrade]>(() => [
+    profile?.grade && profile.grade >= 1 && profile.grade <= 4 ? profile.grade : null,
+    null,
+  ]);
+  // Snapshot dos anos do duelo em curso — placar/pódio mostram o ano de cada um
+  const [sessionGrades, setSessionGrades] = useState<[DueloPlayerGrade, DueloPlayerGrade]>([
+    null,
+    null,
+  ]);
 
   // Jogadores
   const [p1, setP1] = useState<DueloPlayer>({
@@ -135,7 +148,12 @@ function DueloPage() {
     setP2((p) => ({ ...p, name: n2, score: 0 }));
     p1Ref.current = { ...p1, name: n1, score: 0 };
     p2Ref.current = { ...p2, name: n2, score: 0 };
-    setQuestions(pickDueloQuestions(grade, DUELO_PER_PLAYER));
+    const grades: [DueloPlayerGrade, DueloPlayerGrade] =
+      grade === "misto" ? [playerGrades[0], playerGrades[1]] : [null, null];
+    setSessionGrades(grades);
+    setQuestions(
+      pickDueloQuestions(grade, DUELO_PER_PLAYER, grade === "misto" ? playerGrades : undefined),
+    );
     setIdx(0);
     setPicked(null);
     setResultado(null);
@@ -264,8 +282,10 @@ function DueloPage() {
             p2={p2}
             setP1={setP1}
             setP2={setP2}
+            playerGrades={playerGrades}
+            setPlayerGrades={setPlayerGrades}
             onStart={start}
-            pool={dueloPoolSize(grade)}
+            pool={grade === "misto" ? dueloMistoPoolSize(playerGrades) : dueloPoolSize(grade)}
           />
         )}
 
@@ -283,7 +303,13 @@ function DueloPage() {
               {p1.name} <span className="text-muted-foreground">contra</span> {p2.name}
             </p>
             <p className="mt-1 text-sm text-muted-foreground">
-              {totalQuestions} perguntas · {DUELO_PER_PLAYER} para cada · vale tudo menos desistir!
+              {totalQuestions} perguntas · {DUELO_PER_PLAYER} para cada ·{" "}
+              {grade === "misto" &&
+              sessionGrades[0] !== null &&
+              sessionGrades[1] !== null &&
+              sessionGrades[0] !== sessionGrades[1]
+                ? "cada um no seu ano!"
+                : "vale tudo menos desistir!"}
             </p>
           </section>
         )}
@@ -291,7 +317,13 @@ function DueloPage() {
         {fase === "jogo" && q && (
           <section>
             {/* Placar ao vivo */}
-            <ScoreBoard p1={p1} p2={p2} vez={vez} progresso={{ idx, total: totalQuestions }} />
+            <ScoreBoard
+              p1={p1}
+              p2={p2}
+              vez={vez}
+              progresso={{ idx, total: totalQuestions }}
+              grades={sessionGrades}
+            />
 
             {/* Banner da vez */}
             <AnimatePresence mode="wait">
@@ -398,6 +430,7 @@ function DueloPage() {
           <PodiumPhase
             resultado={resultado}
             temPerfil={Boolean(profile)}
+            grades={sessionGrades}
             onRevanche={start}
             onNovo={() => {
               setFase("setup");
@@ -411,20 +444,22 @@ function DueloPage() {
   );
 }
 
-/** Placar ao vivo: barras animadas + destaque da vez. */
+/** Placar ao vivo: barras animadas + destaque da vez (+ ano no Misto). */
 function ScoreBoard({
   p1,
   p2,
   vez,
   progresso,
+  grades,
 }: {
   p1: DueloPlayer;
   p2: DueloPlayer;
   vez: 0 | 1;
   progresso: { idx: number; total: number };
+  grades: [DueloPlayerGrade, DueloPlayerGrade];
 }) {
   const max = Math.max(1, progresso.total / 2);
-  const card = (p: DueloPlayer, ativo: boolean, theme: typeof P1_THEME) => (
+  const card = (p: DueloPlayer, ativo: boolean, theme: typeof P1_THEME, g: DueloPlayerGrade) => (
     <div
       className={cn(
         "flex-1 rounded-2xl border-2 bg-card p-3 transition",
@@ -435,7 +470,14 @@ function ScoreBoard({
       <div className="flex items-center gap-2">
         <MascotIcon id={p.mascotId} size={30} />
         <div className="min-w-0 flex-1">
-          <p className="truncate font-display text-sm leading-tight">{p.name}</p>
+          <p className="truncate font-display text-sm leading-tight">
+            {p.name}
+            {g != null && (
+              <span className="ml-1.5 rounded-full bg-muted px-1.5 py-0.5 text-[10px] font-bold text-muted-foreground">
+                {g}.º
+              </span>
+            )}
+          </p>
           <p
             className={cn(
               "text-[10px] font-bold uppercase tracking-wide",
@@ -458,14 +500,14 @@ function ScoreBoard({
   );
   return (
     <div className="flex items-stretch gap-2">
-      {card(p1, vez === 0, P1_THEME)}
+      {card(p1, vez === 0, P1_THEME, grades[0])}
       <div className="flex items-center font-display text-lg text-muted-foreground">×</div>
-      {card(p2, vez === 1, P2_THEME)}
+      {card(p2, vez === 1, P2_THEME, grades[1])}
     </div>
   );
 }
 
-/** Fase de configuração: nomes, mascotes e ano escolar. */
+/** Fase de configuração: nomes, mascotes e ano escolar (por jogador no Misto). */
 function SetupPhase({
   grade,
   setGrade,
@@ -473,6 +515,8 @@ function SetupPhase({
   p2,
   setP1,
   setP2,
+  playerGrades,
+  setPlayerGrades,
   onStart,
   pool,
 }: {
@@ -482,6 +526,10 @@ function SetupPhase({
   p2: DueloPlayer;
   setP1: React.Dispatch<React.SetStateAction<DueloPlayer>>;
   setP2: React.Dispatch<React.SetStateAction<DueloPlayer>>;
+  playerGrades: [DueloPlayerGrade, DueloPlayerGrade];
+  setPlayerGrades: React.Dispatch<
+    React.SetStateAction<[DueloPlayerGrade, DueloPlayerGrade]>
+  >;
   onStart: () => void;
   pool: number;
 }) {
@@ -538,6 +586,37 @@ function SetupPhase({
               className="mt-3 w-full rounded-2xl border-2 border-border bg-background px-3 py-2 text-center font-display text-base outline-none focus:border-primary"
             />
             <div className="mt-3">{mascotPicker(p, set)}</div>
+            {grade === "misto" && (
+              <div className="mt-3">
+                <p className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground">
+                  Ano deste jogador
+                </p>
+                <div className="mt-1.5 flex flex-wrap justify-center gap-1.5">
+                  {[...DUELO_PLAYER_GRADES, null].map((g) => (
+                    <button
+                      key={String(g)}
+                      type="button"
+                      aria-pressed={playerGrades[pi] === g}
+                      onClick={() =>
+                        setPlayerGrades((prev) => {
+                          const next: [DueloPlayerGrade, DueloPlayerGrade] = [prev[0], prev[1]];
+                          next[pi] = g;
+                          return next;
+                        })
+                      }
+                      className={cn(
+                        "rounded-full border-2 px-2.5 py-1 font-display text-xs transition active:scale-95",
+                        playerGrades[pi] === g
+                          ? "border-primary bg-primary text-primary-foreground shadow-sm"
+                          : "border-border bg-background hover:border-primary/50",
+                      )}
+                    >
+                      {g == null ? "Tudo" : `${g}.º`}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         ))}
       </div>
@@ -568,6 +647,12 @@ function SetupPhase({
         <p className="mt-3 text-center text-xs text-muted-foreground">
           {pool} perguntas disponíveis nesta faixa · banco atualiza sempre
         </p>
+        {grade === "misto" && (
+          <p className="mt-2 text-center text-xs text-muted-foreground">
+            Irmãos de anos diferentes? Escolhe o ano de cada jogador nos cartões lá em cima — cada
+            um só recebe perguntas do seu nível.
+          </p>
+        )}
       </div>
 
       <div className="mt-6 flex flex-col items-center gap-2">
@@ -586,6 +671,7 @@ function SetupPhase({
 function PodiumPhase({
   resultado,
   temPerfil,
+  grades,
   onRevanche,
   onNovo,
   onShare,
@@ -598,6 +684,7 @@ function PodiumPhase({
     winner: "p1" | "p2" | "empate";
   };
   temPerfil: boolean;
+  grades: [DueloPlayerGrade, DueloPlayerGrade];
   onRevanche: () => void;
   onNovo: () => void;
   onShare: () => void;
@@ -642,9 +729,9 @@ function PodiumPhase({
 
         {/* Placar final */}
         <div className="mx-auto mt-5 flex max-w-md items-center justify-center gap-4">
-          <FinalScore p={p1} venceu={winner === "p1"} theme={P1_THEME} />
+          <FinalScore p={p1} venceu={winner === "p1"} theme={P1_THEME} gradeNum={grades[0]} />
           <span className="font-display text-2xl text-muted-foreground">×</span>
-          <FinalScore p={p2} venceu={winner === "p2"} theme={P2_THEME} />
+          <FinalScore p={p2} venceu={winner === "p2"} theme={P2_THEME} gradeNum={grades[1]} />
         </div>
 
         {/* Recompensas do perfil local */}
@@ -680,10 +767,12 @@ function FinalScore({
   p,
   venceu,
   theme,
+  gradeNum,
 }: {
   p: DueloPlayer;
   venceu: boolean;
   theme: typeof P1_THEME;
+  gradeNum: DueloPlayerGrade;
 }) {
   return (
     <div
@@ -696,6 +785,11 @@ function FinalScore({
         <MascotIcon id={p.mascotId} size={34} />
       </div>
       <p className="mt-1 truncate font-display text-sm">{p.name}</p>
+      {gradeNum != null && (
+        <p className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground">
+          {gradeNum}.º ano
+        </p>
+      )}
       <p className="font-display text-2xl font-bold">{p.score}</p>
     </div>
   );
