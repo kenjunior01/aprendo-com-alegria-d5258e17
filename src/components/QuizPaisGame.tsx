@@ -23,6 +23,7 @@ import {
 } from "@/lib/quizPais";
 import { detectRegion, gradeBadge, REGIONS, type RegionCode } from "@/lib/region";
 import { loadProfile, updateProfile } from "@/lib/storage";
+import { checkAndUnlockAchievements, type Achievement } from "@/lib/achievements";
 import { haptic } from "@/lib/haptics";
 import { playCorrect, playLevelUp, playWrong } from "@/lib/audio";
 import { cn } from "@/lib/utils";
@@ -57,6 +58,7 @@ export function QuizPaisGame() {
   const [resultado, setResultado] = useState<{ unlockedNow: boolean; isRecord: boolean } | null>(
     null,
   );
+  const [novasConquistas, setNovasConquistas] = useState<Achievement[]>([]);
 
   const jogar = (lv: 1 | 2 | 3) => {
     if (!region) return;
@@ -69,6 +71,7 @@ export function QuizPaisGame() {
     setPicked(null);
     setCorrect(0);
     setResultado(null);
+    setNovasConquistas([]);
     setFase("jogo");
   };
 
@@ -104,6 +107,19 @@ export function QuizPaisGame() {
           const atual = loadProfile();
           const { moedas, xp } = quizPaisRewards(level, acertos);
           updateProfile({ coins: (atual?.coins ?? 0) + moedas, xp: (atual?.xp ?? 0) + xp });
+          // Conquistas do Júnior: a rodada do País também desbloqueia medalhas
+          // (sem wasPerfect — lições perfeitas continuam a ser só das lições).
+          void checkAndUnlockAchievements().then((novas) => {
+            if (novas.length > 0) {
+              setNovasConquistas(novas);
+              void confetti({
+                particleCount: 120,
+                spread: 90,
+                origin: { y: 0.4 },
+                colors: ["#ffd166", "#ff8c42", "#5db1ff"],
+              });
+            }
+          });
           setFase("fim");
         } else {
           setIdx((n) => n + 1);
@@ -315,6 +331,15 @@ export function QuizPaisGame() {
                 <Sparkles className="h-4 w-4" /> Nível {Math.min(level + 1, QUIZ_PAIS_MAX_LEVEL)}{" "}
                 desbloqueado!
               </p>
+            )}
+            {novasConquistas.length > 0 && (
+              <div className="mt-3 space-y-1">
+                {novasConquistas.slice(0, 3).map((a) => (
+                  <p key={a.code} className="font-display text-sm font-bold text-secondary">
+                    🏅 Nova conquista: {a.title} (+{a.coin_reward} 🪙)
+                  </p>
+                ))}
+              </div>
             )}
             <div className="mt-4 flex flex-wrap justify-center gap-2">
               <ChunkyButton tone="primary" onClick={() => jogar(level)}>

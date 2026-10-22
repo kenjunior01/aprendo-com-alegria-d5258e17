@@ -10,6 +10,7 @@ import { KidLoader } from "@/components/KidLoader";
 import {
   fetchAchievements,
   fetchUnlocked,
+  gameStatValue,
   getPerfectLessons,
   type Achievement,
 } from "@/lib/achievements";
@@ -28,6 +29,10 @@ import {
   ShoppingBag,
   Target,
   Lock,
+  Map,
+  Globe,
+  Gamepad2,
+  Medal,
 } from "lucide-react";
 
 export const Route = createFileRoute("/conquistas")({
@@ -65,6 +70,10 @@ const ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
   coins: Coins,
   "shopping-bag": ShoppingBag,
   target: Target,
+  map: Map,
+  globe: Globe,
+  "gamepad-2": Gamepad2,
+  medal: Medal,
 };
 
 const CATEGORY_LABEL: Record<string, string> = {
@@ -73,6 +82,7 @@ const CATEGORY_LABEL: Record<string, string> = {
   xp: "Experiência",
   economia: "Economia",
   precisao: "Precisão",
+  jogos: "Jogos",
   geral: "Geral",
 };
 
@@ -96,6 +106,10 @@ function progressFor(a: Achievement, p: Profile, perfectLessons: number): number
       break;
     case "perfect_lessons":
       current = perfectLessons;
+      break;
+    default:
+      // Tipos de jogos (quiz_pais_*): mesma fonte que o desbloqueio.
+      current = gameStatValue(a.requirement_type);
       break;
   }
   return Math.min(1, current / a.requirement_value);
@@ -176,8 +190,8 @@ function AchievementsPage() {
             <div className="text-5xl mb-3">🏆</div>
             <h2 className="font-display text-xl">Sem conquistas ainda</h2>
             <p className="text-sm text-muted-foreground mt-2">
-              Começa a aprender para ganhar conquistas! 🏆 Cada missão que completas te dá medalhas
-              e Abracadinhos.
+              Começa a aprender ou joga um desafio para ganhar conquistas! 🏆 Lições, Quiz do Meu
+              País e ofensivas dão medalhas e Abracadinhos.
             </p>
             <Link to="/app" className="mt-4 inline-block">
               <ChunkyButton tone="primary">Começar aventura</ChunkyButton>
