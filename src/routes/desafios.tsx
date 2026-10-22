@@ -48,6 +48,7 @@ import {
 } from "@/lib/challenges.functions";
 import { toast } from "sonner";
 import { LigasPanel } from "@/components/LigasPanel";
+import { QuizPaisGame } from "@/components/QuizPaisGame";
 import { ChallengeShareSheet } from "@/components/ChallengeShareSheet";
 import type { ChallengePayload } from "@/lib/challengeShare";
 import { haptic } from "@/lib/haptics";
@@ -293,7 +294,7 @@ function DesafiosPage() {
         )}
 
         <Tabs defaultValue="ai" className="w-full">
-          <TabsList className="mb-8 grid w-full grid-cols-5 h-16 bg-white p-2 rounded-2xl shadow-lg">
+          <TabsList className="mb-8 grid w-full grid-cols-6 h-16 bg-white p-2 rounded-2xl shadow-lg">
             <TabsTrigger
               value="ai"
               className="rounded-xl data-[state=active]:bg-primary data-[state=active]:text-white transition-all gap-2"
@@ -316,6 +317,13 @@ function DesafiosPage() {
               <span className="hidden sm:inline">LIGAS</span>
             </TabsTrigger>
             <TabsTrigger
+              value="pais"
+              className="rounded-xl data-[state=active]:bg-emerald-600 data-[state=active]:text-white transition-all gap-2"
+            >
+              <MapPin className="h-4 w-4" />
+              <span className="hidden sm:inline">PAÍS</span>
+            </TabsTrigger>
+            <TabsTrigger
               value="ranking"
               className="rounded-xl data-[state=active]:bg-blue-600 data-[state=active]:text-white transition-all gap-2"
             >
@@ -332,6 +340,10 @@ function DesafiosPage() {
           </TabsList>
 
           <AnimatePresence mode="wait">
+            <TabsContent value="pais" key="pais">
+              <QuizPaisGame />
+            </TabsContent>
+
             <TabsContent value="ai" key="ai">
               {loading ? (
                 <div className="flex flex-col items-center py-12">
