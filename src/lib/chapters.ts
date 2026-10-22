@@ -53,7 +53,15 @@ export const CHAPTERS: Chapter[] = [
     themeColorVar: "--pt-portuguese",
     bgGradient: "from-[oklch(0.95_0.05_50)] to-[oklch(0.92_0.08_30)]",
     grade: 1,
-    missions: pick("portugues", ["pt-vogais", "pt-silabas", "pt-rimas"]),
+    missions: pick("portugues", [
+      "pt-vogais",
+      "pt-silabas",
+      "pt-rimas",
+      "pt-alfabeto",
+      "pt-palavras",
+      "pt-frases",
+      "pt-categorias",
+    ]),
   },
   {
     id: "vale-dos-numeros",
@@ -70,6 +78,10 @@ export const CHAPTERS: Chapter[] = [
       "mat-somas",
       "boost-mat-somar20",
       "boost-mat-subtrair",
+      "mat-ordem",
+      "mat-formas-1",
+      "mat-dobro",
+      "mat-comparar",
     ]),
   },
   {
@@ -82,7 +94,14 @@ export const CHAPTERS: Chapter[] = [
     themeColorVar: "--pt-world",
     bgGradient: "from-[oklch(0.94_0.06_145)] to-[oklch(0.9_0.09_155)]",
     grade: 1,
-    missions: pick("estudo-do-meio", ["em-portugal", "boost-edm-corpo"]),
+    missions: pick("estudo-do-meio", [
+      "em-portugal",
+      "boost-edm-corpo",
+      "em-escola",
+      "em-animais-casa",
+      "em-dia-noite",
+      "em-higiene",
+    ]),
   },
 
   // === 2.º ANO === Floresta das Palavras
@@ -96,7 +115,15 @@ export const CHAPTERS: Chapter[] = [
     themeColorVar: "--pt-portuguese",
     bgGradient: "from-[oklch(0.95_0.05_120)] to-[oklch(0.9_0.08_100)]",
     grade: 2,
-    missions: pick("portugues", ["pt-singular-plural", "pt-masc-fem", "boost-pt-silabas"]),
+    missions: pick("portugues", [
+      "pt-singular-plural",
+      "pt-masc-fem",
+      "boost-pt-silabas",
+      "pt-digramas",
+      "pt-antonimos",
+      "pt-texto-curto",
+      "pt-escrever",
+    ]),
   },
   {
     id: "torre-tabuada",
@@ -114,6 +141,10 @@ export const CHAPTERS: Chapter[] = [
       "mat-dezenas",
       "boost-mat-tabuada2",
       "boost-mat-formas",
+      "mat-dinheiro",
+      "mat-horas-1",
+      "mat-medidas",
+      "mat-problemas-1",
     ]),
   },
   {
@@ -132,6 +163,10 @@ export const CHAPTERS: Chapter[] = [
       "em-tempo",
       "boost-edm-familia",
       "boost-edm-natureza",
+      "em-plantas",
+      "em-agua",
+      "em-trabalhos",
+      "em-transportes",
     ]),
   },
 
