@@ -215,7 +215,7 @@ export const Route = createFileRoute("/api/public/tutor-stream")({
           ? body.childName.slice(0, 30).replace(/[^\p{L}\p{N} '-]/gu, "")
           : "";
         const grade =
-          typeof body.childGrade === "number" && body.childGrade >= 1 && body.childGrade <= 4
+          typeof body.childGrade === "number" && body.childGrade >= 1 && body.childGrade <= 6
             ? body.childGrade
             : null;
         const ctx = childName

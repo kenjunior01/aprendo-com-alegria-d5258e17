@@ -90,13 +90,13 @@ function DueloPage() {
 
   const [fase, setFase] = useState<Fase>("setup");
   const [grade, setGrade] = useState<DueloGrade>(
-    profile?.grade && profile.grade >= 1 && profile.grade <= 4
+    profile?.grade && profile.grade >= 1 && profile.grade <= 6
       ? (String(profile.grade) as DueloGrade)
       : "misto",
   );
   // Handicap por irmão (modo Misto): ano escolar de cada jogador (null = "Tudo")
   const [playerGrades, setPlayerGrades] = useState<[DueloPlayerGrade, DueloPlayerGrade]>(() => [
-    profile?.grade && profile.grade >= 1 && profile.grade <= 4 ? profile.grade : null,
+    profile?.grade && profile.grade >= 1 && profile.grade <= 6 ? profile.grade : null,
     null,
   ]);
   // Snapshot dos anos do duelo em curso — placar/pódio mostram o ano de cada um

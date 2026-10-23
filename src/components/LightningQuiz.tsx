@@ -96,10 +96,14 @@ export function LightningQuiz({
   useEffect(() => {
     if (seed !== undefined) return;
     let cancelled = false;
-    const age = (loadProfile()?.grade ?? 3) + 5; // âncora 6–10 (fallback offline usa ±2)
+    const profileGrade = loadProfile()?.grade ?? 3;
+    const age = profileGrade + 5; // âncora 6–11 (fallback offline usa ±2)
+    // Séries grandes recebem perguntas remotas mais difíceis (como no Duelo)
+    const difficulty =
+      profileGrade >= 6 ? "hard" : profileGrade >= 5 ? "medium" : ("easy" as const);
     const carga = (async () => {
       try {
-        const { questions: qs } = await getTriviaWithSource({ count, difficulty: "easy", age });
+        const { questions: qs } = await getTriviaWithSource({ count, difficulty, age });
         return qs.map((rq) => localizeQuestion(remoteToTrivia(rq, age), region));
       } catch {
         return null; // falha inesperada → o timeout local cobre

@@ -26,12 +26,7 @@ const Q = (
   explanation?: string,
 ) => ({ prompt, options, answerIndex, hint, explanation });
 
-const VF = (
-  prompt: string,
-  answerIndex: number,
-  hint?: string,
-  explanation?: string,
-) => ({
+const VF = (prompt: string, answerIndex: number, hint?: string, explanation?: string) => ({
   prompt,
   options: ["Verdadeiro", "Falso"],
   kind: "truefalse" as const,

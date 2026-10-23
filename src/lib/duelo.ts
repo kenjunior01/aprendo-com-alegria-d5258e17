@@ -1,10 +1,10 @@
 // duelo.ts — Motor do Duelo da Família: 2 jogadores, 1 dispositivo, 0 discussões.
 //
 // Design pedagógico:
-// • Perguntas da trivia Kidoz (890 no banco) filtradas pelo ano escolar —
+// • Perguntas da trivia Kidoz (banco + lições senior) filtradas pelo ano escolar —
 //   justas para os dois, mesmo com idades diferentes. No modo "Misto" cada
 //   jogador pode escolher o SEU ano (handicap por irmão): o de 6 anos só
-//   recebe perguntas do 1.º, o de 10 só do 4.º — ou "Tudo" para o banco completo.
+//   recebe perguntas do 1.º, o de 11 só do 6.º — ou "Tudo" para o banco completo.
 //   Online, chegam ainda perguntas novas da internet (trivia-import), sempre
 //   na faixa certa — offline funciona tudo igual com o banco local.
 // • Alternância estrita com ecrã de passagem de vez — ninguém responde pelos
@@ -20,7 +20,7 @@ import { detectRegion, gradeLabel, localizeQuestion, type RegionCode } from "@/l
 import { dayGap, loadProfile, saveProfile, type Profile } from "@/lib/storage";
 import type { MascotId } from "@/lib/mascots";
 
-export type DueloGrade = "1" | "2" | "3" | "4" | "misto";
+export type DueloGrade = "1" | "2" | "3" | "4" | "5" | "6" | "misto";
 
 export interface DueloPlayer {
   name: string;
@@ -33,13 +33,16 @@ export interface DueloQuestion extends TriviaQuestion {
   turn: 0 | 1;
 }
 
-/** Ano escolar → idades das perguntas da trivia (faixa justa). */
+/** Ano escolar → idades das perguntas da trivia (faixa justa).
+ *  5.º/6.º ano comem das lições senior (triviaSenior.ts) — idades 10–12. */
 const GRADE_AGES: Record<DueloGrade, number[]> = {
   "1": [6, 7],
   "2": [7, 8],
   "3": [8, 9],
   "4": [9, 10],
-  misto: [6, 7, 8, 9, 10],
+  "5": [10, 11],
+  "6": [11, 12],
+  misto: [6, 7, 8, 9, 10, 11, 12],
 };
 
 export const DUELO_GRADE_LABEL: Record<DueloGrade, string> = {
@@ -47,6 +50,8 @@ export const DUELO_GRADE_LABEL: Record<DueloGrade, string> = {
   "2": "2.º ano",
   "3": "3.º ano",
   "4": "4.º ano",
+  "5": "5.º ano",
+  "6": "6.º ano",
   misto: "Misto",
 };
 
@@ -60,9 +65,9 @@ export function dueloGradeLabel(g: DueloGrade, region?: RegionCode | null): stri
 }
 
 /** Anos escolares do handicap por jogador (chips do modo Misto). */
-export const DUELO_PLAYER_GRADES = [1, 2, 3, 4] as const;
+export const DUELO_PLAYER_GRADES = [1, 2, 3, 4, 5, 6] as const;
 
-/** Ano de um jogador no Misto: 1–4 ou null = banco completo ("Tudo"). */
+/** Ano de um jogador no Misto: 1–6 ou null = banco completo ("Tudo"). */
 export type DueloPlayerGrade = number | null;
 
 function playerAges(g: DueloPlayerGrade): number[] {
@@ -161,16 +166,16 @@ function poolSpecs(
   return [grade === "misto" ? null : Number(grade)];
 }
 
-/** Dificuldade remota adequada ao ano (1.º–2.º fáceis, 3.º médio, 4.º difícil). */
+/** Dificuldade remota adequada ao ano (1.º–2.º fáceis, 3.º–4.º médio, 5.º–6.º difícil). */
 function gradeDifficulty(g: DueloPlayerGrade): "easy" | "medium" | "hard" {
   if (g == null || g <= 2) return "easy";
-  if (g === 3) return "medium";
+  if (g === 3 || g === 4) return "medium";
   return "hard";
 }
 
 /** Idade-âncora: coloca a pergunta remota na faixa certa do banco local. */
 function gradeAnchorAge(g: DueloPlayerGrade): number {
-  return g == null ? 8 : 5 + g; // 1.º→6, 2.º→7, 3.º→8, 4.º→9, Tudo→8
+  return g == null ? 8 : 5 + g; // 1.º→6 … 4.º→9, 5.º→10, 6.º→11, Tudo→8
 }
 
 async function fetchRemoteForPool(g: DueloPlayerGrade, count: number): Promise<TriviaQuestion[]> {

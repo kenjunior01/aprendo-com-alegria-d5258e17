@@ -943,11 +943,18 @@ export const TRIVIA_BOOST: TriviaQuestion[] = [
   },
 ];
 
-/** Banco total: triviaBank (auto-gerado) + boost autorado + ultra (Ronda 2). */
+/** Banco total: triviaBank (auto-gerado) + boost autorado + ultra (Ronda 2)
+ *  + senior (lições do 5.º/6.º ano, idades 10–12 — via triviaSenior.ts). */
 import { shuffled } from "@/lib/utils";
 import { TRIVIA_BANK } from "@/lib/triviaBank";
 import { TRIVIA_ULTRA } from "@/lib/triviaUltra";
-export const ALL_TRIVIA: TriviaQuestion[] = [...TRIVIA_BANK, ...TRIVIA_BOOST, ...TRIVIA_ULTRA];
+import { SENIOR_TRIVIA } from "@/lib/triviaSenior";
+export const ALL_TRIVIA: TriviaQuestion[] = [
+  ...TRIVIA_BANK,
+  ...TRIVIA_BOOST,
+  ...TRIVIA_ULTRA,
+  ...SENIOR_TRIVIA,
+];
 
 /** Escolhe n perguntas aleatórias do banco total, opcionalmente por categoria. */
 export function getRandomTriviaBoost(n: number, category?: string): TriviaQuestion[] {
