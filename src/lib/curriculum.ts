@@ -1,4 +1,4 @@
-// Conteúdo curricular para 1.º ciclo (Portugal — 1.º ao 4.º ano)
+// Conteúdo curricular para 1.º ciclo + continuação (1.º ao 6.º ano)
 // Tipos de exercício: escolha múltipla (clássico), verdadeiro/falso,
 // ordenar (sílabas, números, estações…) e contar (grelha visual de emojis).
 
@@ -10,7 +10,7 @@ export type SubjectId =
   | "ciencias"
   | "cidadania"
   | string;
-export type GradeLevel = 1 | 2 | 3 | 4;
+export type GradeLevel = 1 | 2 | 3 | 4 | 5 | 6;
 
 export interface Question {
   prompt: string;
@@ -1890,6 +1890,7 @@ export const SUBJECTS: Subject[] = [...SUBJECTS_CORE, ...SUBJECTS_EXTRA];
 import { BOOST_LESSONS } from "./curriculumBoost";
 import { BOOST2_LESSONS } from "./curriculumBoost2";
 import { BOOST3_LESSONS } from "./curriculumBoost3";
+import { SENIOR_LESSONS } from "./curriculumSenior";
 for (const s of SUBJECTS) {
   const extra = BOOST_LESSONS[s.id];
   if (extra?.length) s.lessons.push(...extra);
@@ -1897,6 +1898,9 @@ for (const s of SUBJECTS) {
   if (extra2?.length) s.lessons.push(...extra2);
   const extra3 = BOOST3_LESSONS[s.id];
   if (extra3?.length) s.lessons.push(...extra3);
+  // 5.º e 6.º ano (curriculumSenior.ts) — a escola cresce até às idades 10–12.
+  const senior = SENIOR_LESSONS[s.id];
+  if (senior?.length) s.lessons.push(...senior);
 }
 
 export const getSubject = (id: string) => SUBJECTS.find((s) => s.id === id);
@@ -1951,4 +1955,6 @@ export const GRADE_LABEL: Record<GradeLevel, string> = {
   2: "2.º ano",
   3: "3.º ano",
   4: "4.º ano",
+  5: "5.º ano",
+  6: "6.º ano",
 };

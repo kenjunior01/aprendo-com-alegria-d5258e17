@@ -334,6 +334,48 @@ export const CHAPTERS: Chapter[] = [
     grade: 3,
     missions: pick("ingles", ["en-corpo", "en-comida", "boost-en-greetings", "en-verbos"]),
   },
+  // === 5.º ANO — Grande Expedição ===
+  {
+    id: "planeta-azul",
+    number: 17,
+    title: "Planeta Azul",
+    subtitle: "5.º ano · Grande Expedição",
+    story:
+      "Uma ilha misteriosa surgiu no meio do oceano! A Mocha diz que só quem domina a leitura, os números e os segredos do planeta consegue explorá-la. Embarca nesta expedição azul!",
+    emoji: "🌊",
+    themeColorVar: "--pt-world",
+    bgGradient: "from-[oklch(0.94_0.05_230)] to-[oklch(0.9_0.08_220)]",
+    grade: 5,
+    missions: [
+      ...pick("portugues", ["pt-leitura", "pt-ortografia"]),
+      ...pick("matematica", ["mat-fracoes", "mat-geometria"]),
+      ...pick("estudo-do-meio", ["edm-planeta"]),
+      ...pick("ciencias", ["ci-fotossintese"]),
+      ...pick("ingles", ["en-food"]),
+      ...pick("cidadania", ["cid-planeta"]),
+    ],
+  },
+  // === 6.º ANO — Grande Expedição ===
+  {
+    id: "desafio-dos-mestres",
+    number: 18,
+    title: "Desafio dos Mestres",
+    subtitle: "6.º ano · Grande Expedição",
+    story:
+      "O castelo dos Mestres abre as portas uma vez por ano. Para entrares no salão dos campeões, terás de provar que dominas as narrativas, os números, o corpo humano e os direitos de todos. Boa sorte, mestre!",
+    emoji: "🎓",
+    themeColorVar: "--pt-civic",
+    bgGradient: "from-[oklch(0.93_0.06_45)] to-[oklch(0.89_0.09_35)]",
+    grade: 6,
+    missions: [
+      ...pick("portugues", ["pt-narrativa", "pt-gramatica"]),
+      ...pick("matematica", ["mat-decimais", "mat-percentagens"]),
+      ...pick("estudo-do-meio", ["edm-energias"]),
+      ...pick("ciencias", ["ci-coracao"]),
+      ...pick("ingles", ["en-market"]),
+      ...pick("cidadania", ["cid-direitos"]),
+    ],
+  },
 ];
 
 export const getChapter = (id: string) => CHAPTERS.find((c) => c.id === id);

@@ -323,8 +323,8 @@ function Onboarding() {
             <Step key="3">
               <h1 className="font-display text-3xl sm:text-4xl">{gradeQuestion(region)}</h1>
               <p className="text-muted-foreground">Vamos ajustar a aventura ao teu nível.</p>
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-                {[1, 2, 3, 4].map((g) => (
+              <div className="grid grid-cols-3 gap-3 sm:grid-cols-6">
+                {[1, 2, 3, 4, 5, 6].map((g) => (
                   <button
                     key={g}
                     onClick={() => setGrade(g)}

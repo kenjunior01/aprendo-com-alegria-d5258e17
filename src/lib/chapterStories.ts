@@ -101,6 +101,22 @@ export const CHAPTER_STORIES: Record<string, ChapterStory> = {
     outroBody: "O Tito entrega-te a capa verde dos defensores da Terra.",
     reward: "🌍 Capa do Guardião",
   },
+  "planeta-azul": {
+    introTitle: "Bem-vindo(a) ao Planeta Azul!",
+    introBody:
+      "Uma ilha misteriosa apareceu no meio do oceano. Leitura, frações, continentes e plantas — a expedição azul começa agora!",
+    outroTitle: "Expedição azul concluída!",
+    outroBody: "Exploraste a ilha misteriosa de ponta a ponta. O oceano guarda um novo segredo para ti…",
+    reward: "🌊 Bússola do Explorador",
+  },
+  "desafio-dos-mestres": {
+    introTitle: "O castelo abriu as portas!",
+    introBody:
+      "Uma vez por ano, o salão dos campeões aceita novos mestres. Narrativas, decimais, o corpo humano e os direitos de todos — mostra o que sabes!",
+    outroTitle: "Mestre coroado!",
+    outroBody: "O salão dos campeões tem um trono novo com o teu nome. Até ao próximo desafio, mestre!",
+    reward: "🎓 Coroa do Mestre",
+  },
 };
 
 export const getChapterStory = (id: string): ChapterStory => CHAPTER_STORIES[id] ?? FALLBACK;

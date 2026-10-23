@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 export interface Profile {
   name: string;
   age: number;
-  grade: number; // 1..4 (ano escolar)
+  grade: number; // 0 = Júnior · 1–6 (ano escolar)
   mascot: MascotId;
   xp: number;
   coins: number; // Abracadinhos
