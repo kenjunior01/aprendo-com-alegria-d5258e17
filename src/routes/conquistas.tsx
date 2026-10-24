@@ -33,6 +33,8 @@ import {
   Globe,
   Gamepad2,
   Medal,
+  Swords,
+  Brain,
 } from "lucide-react";
 
 export const Route = createFileRoute("/conquistas")({
@@ -74,6 +76,8 @@ const ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
   globe: Globe,
   "gamepad-2": Gamepad2,
   medal: Medal,
+  swords: Swords,
+  brain: Brain,
 };
 
 const CATEGORY_LABEL: Record<string, string> = {
@@ -191,7 +195,7 @@ function AchievementsPage() {
             <h2 className="font-display text-xl">Sem conquistas ainda</h2>
             <p className="text-sm text-muted-foreground mt-2">
               Começa a aprender ou joga um desafio para ganhar conquistas! 🏆 Lições, Quiz do Meu
-              País e ofensivas dão medalhas e Abracadinhos.
+              País, Duelos da Família e ofensivas dão medalhas e Abracadinhos.
             </p>
             <Link to="/app" className="mt-4 inline-block">
               <ChunkyButton tone="primary">Começar aventura</ChunkyButton>

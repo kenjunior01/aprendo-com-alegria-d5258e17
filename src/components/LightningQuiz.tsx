@@ -19,6 +19,8 @@ import { getTriviaWithSource, remoteToTrivia } from "@/lib/triviaSource";
 import { hintForPergunta } from "@/lib/hintFor";
 import { addMistake } from "@/lib/reviewQueue";
 import { loadProfile } from "@/lib/storage";
+import { recordRelampagoResult } from "@/lib/pvpStats";
+import { checkAndUnlockAchievements, type Achievement } from "@/lib/achievements";
 import { detectRegion, localizeQuestion } from "@/lib/region";
 import { haptic } from "@/lib/haptics";
 import { playCorrect, playWrong } from "@/lib/audio";
@@ -86,6 +88,7 @@ export function LightningQuiz({
   const [missed, setMissed] = useState<TriviaQuestion[]>([]);
   const [acertosRevisao, setAcertosRevisao] = useState(0);
   const [moedasRevisao, setMoedasRevisao] = useState(0);
+  const [novasConquistas, setNovasConquistas] = useState<Achievement[]>([]);
   const q = lista[idx];
   const questions = seed !== undefined ? seeded : (solo ?? []);
   const done = fase === "jogo" ? idx >= questions.length : idx >= lista.length;
@@ -141,6 +144,13 @@ export function LightningQuiz({
     if (fase === "jogo" && done && !finishedRef.current) {
       finishedRef.current = true;
       onFinish?.(correct, count);
+      // Conquistas de Relâmpago: contadores cumulativos do dispositivo avançam
+      // em TODAS as rodadas (solo, maçã da sala, treino das ligas e desafios) —
+      // o desbloqueio mostra a faixa "Nova conquista" no ecrã final.
+      recordRelampagoResult(correct, count);
+      void checkAndUnlockAchievements().then((novas) => {
+        if (novas.length > 0) setNovasConquistas(novas);
+      });
       setFase("fim");
     }
   }, [fase, done, aCarregar]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -366,6 +376,16 @@ export function LightningQuiz({
 
           {coinsPerCorrect > 0 && scoreToBeat === undefined && (
             <p className="mt-1 text-sm text-muted-foreground">+{moedasBase} moedas ganhas 🪙</p>
+          )}
+
+          {novasConquistas.length > 0 && (
+            <div className="mt-3 space-y-1">
+              {novasConquistas.slice(0, 3).map((a) => (
+                <p key={a.code} className="font-display text-sm font-bold text-secondary">
+                  🏅 Nova conquista: {a.title} (+{a.coin_reward} 🪙)
+                </p>
+              ))}
+            </div>
           )}
 
           <div className="mt-4 flex flex-wrap items-center justify-center gap-2">

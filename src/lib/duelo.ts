@@ -15,6 +15,7 @@
 //   nunca castigamos por perder (regressos sem culpa).
 import { ALL_TRIVIA, type TriviaQuestion } from "@/lib/triviaBoost";
 import { getTriviaWithSource, remoteToTrivia } from "@/lib/triviaSource";
+import { recordDueloResult } from "@/lib/pvpStats";
 import { shuffled } from "@/lib/utils";
 import { detectRegion, gradeLabel, localizeQuestion, type RegionCode } from "@/lib/region";
 import { dayGap, loadProfile, saveProfile, type Profile } from "@/lib/storage";
@@ -262,6 +263,10 @@ export function awardDuelo(opts: {
     xpEarned += 14;
     coinsEarned += 6;
   }
+
+  // Conquistas de duelo: contadores cumulativos do dispositivo (pvpStats.ts)
+  // avançam SEMPRE que um duelo termina — o desbloqueio corre no duelo.tsx.
+  recordDueloResult(correctTotal);
 
   const t = today();
   let streak = current.streak;

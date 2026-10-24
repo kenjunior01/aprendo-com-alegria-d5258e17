@@ -28,6 +28,7 @@ import {
 } from "@/lib/duelo";
 import { playCorrect, playLevelUp, playTap, playWrong, speak, stopSpeech } from "@/lib/audio";
 import { haptic } from "@/lib/haptics";
+import { checkAndUnlockAchievements, type Achievement } from "@/lib/achievements";
 import { cn } from "@/lib/utils";
 import {
   detectRegion,
@@ -89,6 +90,8 @@ function DueloPage() {
   const profile = useMemo(() => loadProfile(), []);
 
   const [fase, setFase] = useState<Fase>("setup");
+  // Conquistas de duelo desbloqueadas nesta partida (faixa do pódio)
+  const [novasConquistas, setNovasConquistas] = useState<Achievement[]>([]);
   const [grade, setGrade] = useState<DueloGrade>(
     profile?.grade && profile.grade >= 1 && profile.grade <= 6
       ? (String(profile.grade) as DueloGrade)
@@ -167,6 +170,7 @@ function DueloPage() {
     setIdx(0);
     setPicked(null);
     setResultado(null);
+    setNovasConquistas([]);
     finishedRef.current = false;
     // Trivia remota (roadmap §4.4): busca perguntas novas da internet com teto
     // de 3,5s — offline/lento entra no banco local e o duelo começa na mesma.
@@ -260,6 +264,19 @@ function DueloPage() {
       xpEarned: res.xpEarned,
       coinsEarned: res.coinsEarned,
       winner: res.winner,
+    });
+    // Conquistas de duelo: awardDuelo já gravou os contadores cumulativos
+    // (pvpStats.ts) — o desbloqueio mostra a faixa no pódio (padrão do Quiz País).
+    void checkAndUnlockAchievements().then((novas) => {
+      if (novas.length > 0) {
+        setNovasConquistas(novas);
+        void confetti({
+          particleCount: 120,
+          spread: 90,
+          origin: { y: 0.4 },
+          colors: ["#ffd166", "#ff8c42", "#5db1ff"],
+        });
+      }
     });
     setFase("fim");
     playLevelUp();
@@ -464,6 +481,7 @@ function DueloPage() {
             temPerfil={Boolean(profile)}
             grades={sessionGrades}
             region={regionCode}
+            novasConquistas={novasConquistas}
             onRevanche={start}
             onNovo={() => {
               setFase("setup");
@@ -708,6 +726,7 @@ function PodiumPhase({
   temPerfil,
   grades,
   region,
+  novasConquistas,
   onRevanche,
   onNovo,
   onShare,
@@ -722,6 +741,7 @@ function PodiumPhase({
   temPerfil: boolean;
   grades: [DueloPlayerGrade, DueloPlayerGrade];
   region: RegionCode;
+  novasConquistas: Achievement[];
   onRevanche: () => void;
   onNovo: () => void;
   onShare: () => void;
@@ -785,10 +805,21 @@ function PodiumPhase({
 
         {/* Recompensas do perfil local */}
         {temPerfil && (
-          <p className="mt-5 rounded-2xl bg-success/10 px-4 py-3 text-sm font-medium text-success">
-            ⭐ O teu perfil ganhou {xpEarned} XP e {coinsEarned} abracadinhos! Participar já é
-            treinar.
-          </p>
+          <div className="mt-5">
+            <p className="rounded-2xl bg-success/10 px-4 py-3 text-sm font-medium text-success">
+              ⭐ O teu perfil ganhou {xpEarned} XP e {coinsEarned} abracadinhos! Participar já é
+              treinar.
+            </p>
+            {novasConquistas.length > 0 && (
+              <div className="mt-2 space-y-1">
+                {novasConquistas.slice(0, 3).map((a) => (
+                  <p key={a.code} className="font-display text-sm font-bold text-secondary">
+                    🏅 Nova conquista: {a.title} (+{a.coin_reward} 🪙)
+                  </p>
+                ))}
+              </div>
+            )}
+          </div>
         )}
       </div>
 

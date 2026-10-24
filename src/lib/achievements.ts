@@ -2,6 +2,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { loadProfile, updateProfile, type Profile } from "./storage";
 import { lsGet, lsSet } from "./localStore";
 import { loadQuizPaisProgress } from "./quizPais";
+import { loadPvpStats } from "./pvpStats";
 
 export interface Achievement {
   code: string;
@@ -332,6 +333,105 @@ export const LOCAL_ACHIEVEMENTS: Achievement[] = [
     xp_reward: 25,
     sort_order: 56,
   },
+  // — Conquistas de Duelo — duelos completos e acertos acumulados (pvpStats).
+  //   Sem "vitórias": o hot-seat não sabe de quem é o perfil (duelo.ts).
+  {
+    code: "duelo_primeiro",
+    title: "Primeiro Duelo",
+    description: "Joga o teu primeiro Duelo da Família",
+    icon: "swords",
+    category: "jogos",
+    requirement_type: "duelo_rounds",
+    requirement_value: 1,
+    coin_reward: 20,
+    xp_reward: 10,
+    sort_order: 57,
+  },
+  {
+    code: "duelo_cinco",
+    title: "Guerreiro da Família",
+    description: "Joga 5 Duelos da Família",
+    icon: "swords",
+    category: "jogos",
+    requirement_type: "duelo_rounds",
+    requirement_value: 5,
+    coin_reward: 40,
+    xp_reward: 20,
+    sort_order: 58,
+  },
+  {
+    code: "duelo_vinte",
+    title: "Mestre da Arena",
+    description: "Joga 20 Duelos da Família",
+    icon: "crown",
+    category: "jogos",
+    requirement_type: "duelo_rounds",
+    requirement_value: 20,
+    coin_reward: 80,
+    xp_reward: 40,
+    sort_order: 59,
+  },
+  {
+    code: "duelo_acertos",
+    title: "Cérebro em Duelo",
+    description: "Acerta 50 perguntas em Duelos",
+    icon: "brain",
+    category: "jogos",
+    requirement_type: "duelo_correct",
+    requirement_value: 50,
+    coin_reward: 60,
+    xp_reward: 30,
+    sort_order: 60,
+  },
+  // — Conquistas de Relâmpago — rodadas terminadas e rodadas sem falhar —
+  {
+    code: "relampago_primeiro",
+    title: "Primeira Faísca",
+    description: "Completa a tua primeira rodada do Quiz Relâmpago",
+    icon: "zap",
+    category: "jogos",
+    requirement_type: "relampago_rounds",
+    requirement_value: 1,
+    coin_reward: 20,
+    xp_reward: 10,
+    sort_order: 61,
+  },
+  {
+    code: "relampago_dez",
+    title: "Trovão Rápido",
+    description: "Completa 10 rodadas do Quiz Relâmpago",
+    icon: "zap",
+    category: "jogos",
+    requirement_type: "relampago_rounds",
+    requirement_value: 10,
+    coin_reward: 50,
+    xp_reward: 25,
+    sort_order: 62,
+  },
+  {
+    code: "relampago_perfeito",
+    title: "Relâmpago Perfeito",
+    description: "Completa uma rodada do Quiz Relâmpago sem falhar",
+    icon: "target",
+    category: "jogos",
+    requirement_type: "relampago_perfect",
+    requirement_value: 1,
+    coin_reward: 30,
+    xp_reward: 20,
+    sort_order: 63,
+  },
+  {
+    code: "relampago_perfeito_10",
+    title: "Tempestade Perfeita",
+    description: "Completa 10 rodadas do Quiz Relâmpago sem falhar",
+    icon: "target",
+    category: "jogos",
+    requirement_type: "relampago_perfect",
+    requirement_value: 10,
+    coin_reward: 90,
+    xp_reward: 45,
+    sort_order: 64,
+  },
 ];
 
 export async function fetchAchievements(): Promise<Achievement[]> {
@@ -368,12 +468,16 @@ export async function fetchUnlocked(): Promise<UnlockedAchievement[]> {
   return (data ?? []) as UnlockedAchievement[];
 }
 
-// ── Estatísticas de jogos (Conquistas do Júnior) ──
-// Tipos novos avaliados no cliente a partir do progresso do Quiz do Meu País:
+// ── Estatísticas de jogos (Conquistas do Júnior + Conquistas de Duelo) ──
+// Tipos avaliados no cliente a partir do progresso local:
 //  - quiz_pais_levels    → maior nível desbloqueado (1..3)
 //  - quiz_pais_perfect   → rodadas com 5/5 (em todos os países)
 //  - quiz_pais_countries → países diferentes já jogados
 //  - quiz_pais_records   → recordes marcados (chaves país:nível com placar)
+//  - duelo_rounds        → duelos da Família terminados (pvpStats.ts)
+//  - duelo_correct       → acertos acumulados nos duelos
+//  - relampago_rounds    → rodadas do Quiz Relâmpago terminadas
+//  - relampago_perfect   → rodadas do Relâmpago sem falhar
 // Única fonte de verdade: usada pelo desbloqueio E pelas barras de progresso.
 export function gameStatValue(type: string): number {
   switch (type) {
@@ -385,16 +489,28 @@ export function gameStatValue(type: string): number {
       return new Set(Object.keys(loadQuizPaisProgress().best).map((k) => k.split(":")[0])).size;
     case "quiz_pais_records":
       return Object.keys(loadQuizPaisProgress().best).length;
+    case "duelo_rounds":
+      return loadPvpStats().dueloRounds;
+    case "duelo_correct":
+      return loadPvpStats().dueloCorrect;
+    case "relampago_rounds":
+      return loadPvpStats().relampagoRounds;
+    case "relampago_perfect":
+      return loadPvpStats().relampagoPerfect;
     default:
       return 0;
   }
 }
 
-const GAME_TYPES = new Set([
+export const GAME_TYPES = new Set([
   "quiz_pais_levels",
   "quiz_pais_perfect",
   "quiz_pais_countries",
   "quiz_pais_records",
+  "duelo_rounds",
+  "duelo_correct",
+  "relampago_rounds",
+  "relampago_perfect",
 ]);
 
 function meetsRequirement(a: Achievement, p: Profile, perfectLessons: number): boolean {
