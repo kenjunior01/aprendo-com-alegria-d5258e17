@@ -1,6 +1,7 @@
 // triviaSenior.ts — Ponte currículo→trivia: as lições do 5.º e 6.º ano
-// (curriculumSenior.ts) alimentam o Duelo da Família e o Quiz Relâmpago
-// nas idades 10–12, que antes só tinham 27 perguntas no teto.
+// (curriculumSenior.ts + curriculumSeniorBoost.ts) alimentam o Duelo da
+// Família e o Quiz Relâmpago nas idades 10–12, que antes só tinham 27
+// perguntas no teto.
 //
 // Cada pergunta MCQ/VF de lição vira uma TriviaQuestion com:
 // • age ancorado na faixa do ano — 5.º → 10, 6.º → 11;
@@ -8,8 +9,9 @@
 //   pergunta) — o Duelo e o Relâmpago mostram as opções pela ordem
 //   guardada, ao contrário das lições (que baralham com shuffleMcqOptions);
 // • VF mantém options fixos ["Verdadeiro", "Falso"].
-import type { Question } from "@/lib/curriculum";
+import type { Lesson, Question } from "@/lib/curriculum";
 import { SENIOR_LESSONS } from "@/lib/curriculumSenior";
+import { SENIOR_BOOST_LESSONS } from "@/lib/curriculumSeniorBoost";
 import type { TriviaQuestion } from "@/lib/triviaBoost";
 
 /** Ano escolar → idade-âncora da pergunta (dentro da faixa do GRADE_AGES). */
@@ -60,7 +62,16 @@ function lessonToTrivia(q: Question, category: string, age: number): TriviaQuest
   };
 }
 
-export const SENIOR_TRIVIA: TriviaQuestion[] = Object.entries(SENIOR_LESSONS).flatMap(
+/** As duas rondas senior fundidas por matéria (ronda 1 + boost), pela ordem
+ *  do caminho de aprendizagem — a ponte usa esta fusão, não um dos ficheiros. */
+const ALL_SENIOR_LESSONS: Record<string, Lesson[]> = {};
+for (const [sid, lessons] of Object.entries(SENIOR_LESSONS))
+  ALL_SENIOR_LESSONS[sid] = [...(lessons ?? [])];
+for (const [sid, lessons] of Object.entries(SENIOR_BOOST_LESSONS)) {
+  ALL_SENIOR_LESSONS[sid] = [...(ALL_SENIOR_LESSONS[sid] ?? []), ...(lessons ?? [])];
+}
+
+export const SENIOR_TRIVIA: TriviaQuestion[] = Object.entries(ALL_SENIOR_LESSONS).flatMap(
   ([subjectId, lessons]) => {
     const category = CATEGORY_BY_SUBJECT[subjectId] ?? "mundo";
     return (lessons ?? []).flatMap((lesson) => {

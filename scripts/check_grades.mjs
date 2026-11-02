@@ -60,12 +60,13 @@ for (const g of [5, 6]) {
     if (ls.length) seniorByGrade[g][s.id] = ls.length;
   }
   const total = Object.values(seniorByGrade[g]).reduce((a, b) => a + b, 0);
-  if (total !== 8) problems.push(`Esperava 8 lições no ${g}.º ano, há ${total}`);
+  if (total !== 16) problems.push(`Esperava 16 lições no ${g}.º ano (2 rondas), há ${total}`);
   info.push(`${g}.º ano: ${JSON.stringify(seniorByGrade[g])}`);
 }
 const seniorLessons = SUBJECTS.flatMap((s) => s.lessons.filter((l) => l.grade >= 5));
 const seniorQuestions = seniorLessons.reduce((a, l) => a + l.questions.length, 0);
-if (seniorQuestions !== 96) problems.push(`Esperava 96 perguntas senior, há ${seniorQuestions}`);
+if (seniorQuestions !== 192)
+  problems.push(`Esperava 192 perguntas senior (2 rondas × 96), há ${seniorQuestions}`);
 info.push(`Perguntas senior: ${seniorQuestions}`);
 
 // Convenção MCQ: resposta certa em answerIndex 0 (shuffleMcqOptions baralha no runtime)
@@ -109,8 +110,8 @@ if (new Set(numbers).size !== numbers.length) problems.push("Números de capítu
 info.push(`Capítulos: ${CHAPTERS.length}, missões: ${totalMissions()}`);
 
 // ── 4. Ponte triviaSenior ──────────────────────────────────────────────────
-if (SENIOR_TRIVIA.length !== 96)
-  problems.push(`SENIOR_TRIVIA esperava 96, há ${SENIOR_TRIVIA.length}`);
+if (SENIOR_TRIVIA.length !== 192)
+  problems.push(`SENIOR_TRIVIA esperava 192 (2 rondas), há ${SENIOR_TRIVIA.length}`);
 const badAge = SENIOR_TRIVIA.filter((q) => q.age !== 10 && q.age !== 11);
 if (badAge.length) problems.push(`${badAge.length} perguntas senior fora das idades 10–11`);
 let vfs = 0;
@@ -125,7 +126,14 @@ for (const [i, q] of SENIOR_TRIVIA.entries()) {
 }
 if (posCount[0] === SENIOR_TRIVIA.length - vfs)
   problems.push("MCQ senior tudo com answerIndex 0 — rotação falhou!");
-info.push(`Trivia senior: 96 (VF: ${vfs}); posições da certa (A/B/C/D): ${posCount.join("/")}`);
+let vfFalse = 0;
+for (const q of SENIOR_TRIVIA) {
+  if (JSON.stringify(q.options) === JSON.stringify(["Verdadeiro", "Falso"]) && q.answerIndex === 1)
+    vfFalse++;
+}
+info.push(
+  `Trivia senior: ${SENIOR_TRIVIA.length} (VF: ${vfs}, das quais Falso: ${vfFalse}); posições da certa (A/B/C/D): ${posCount.join("/")}`,
+);
 
 // ── 5. ALL_TRIVIA inclui o senior ──────────────────────────────────────────
 const ages = ALL_TRIVIA.reduce((m, q) => ((m[q.age] = (m[q.age] ?? 0) + 1), m), {});

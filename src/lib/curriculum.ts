@@ -1891,6 +1891,7 @@ import { BOOST_LESSONS } from "./curriculumBoost";
 import { BOOST2_LESSONS } from "./curriculumBoost2";
 import { BOOST3_LESSONS } from "./curriculumBoost3";
 import { SENIOR_LESSONS } from "./curriculumSenior";
+import { SENIOR_BOOST_LESSONS } from "./curriculumSeniorBoost";
 for (const s of SUBJECTS) {
   const extra = BOOST_LESSONS[s.id];
   if (extra?.length) s.lessons.push(...extra);
@@ -1901,6 +1902,10 @@ for (const s of SUBJECTS) {
   // 5.º e 6.º ano (curriculumSenior.ts) — a escola cresce até às idades 10–12.
   const senior = SENIOR_LESSONS[s.id];
   if (senior?.length) s.lessons.push(...senior);
+  // 2.ª ronda senior (curriculumSeniorBoost.ts) — aprofunda edm/ciências/
+  // cidadania/inglês no 5.º e 6.º; fica no fim do caminho de cada matéria.
+  const seniorBoost = SENIOR_BOOST_LESSONS[s.id];
+  if (seniorBoost?.length) s.lessons.push(...seniorBoost);
 }
 
 export const getSubject = (id: string) => SUBJECTS.find((s) => s.id === id);
