@@ -11,11 +11,11 @@ const root = path.join(here, "..");
 const outFile = path.join(root, "node_modules", ".cache", "check_grades.bundle.mjs");
 
 const entry = `
-import { SUBJECTS, GRADE_LABEL } from "${path.join(root, "src/lib/curriculum.ts")}";
+import { SUBJECTS, GRADE_LABEL, getLesson } from "${path.join(root, "src/lib/curriculum.ts")}";
 import { ALL_TRIVIA } from "${path.join(root, "src/lib/triviaBoost.ts")}";
 import { SENIOR_TRIVIA } from "${path.join(root, "src/lib/triviaSenior.ts")}";
-import { CHAPTERS, totalMissions } from "${path.join(root, "src/lib/chapters.ts")}";
-globalThis.__AUDIT__ = { SUBJECTS, GRADE_LABEL, ALL_TRIVIA, SENIOR_TRIVIA, CHAPTERS, totalMissions };
+import { CHAPTERS, totalMissions, chapterForRegion } from "${path.join(root, "src/lib/chapters.ts")}";
+globalThis.__AUDIT__ = { SUBJECTS, GRADE_LABEL, getLesson, ALL_TRIVIA, SENIOR_TRIVIA, CHAPTERS, totalMissions, chapterForRegion };
 `;
 
 const bundle = await rolldown({
@@ -37,8 +37,16 @@ const bundle = await rolldown({
 await bundle.write({ file: outFile, format: "esm" });
 await import(outFile);
 
-const { SUBJECTS, GRADE_LABEL, ALL_TRIVIA, SENIOR_TRIVIA, CHAPTERS, totalMissions } =
-  globalThis.__AUDIT__;
+const {
+  SUBJECTS,
+  GRADE_LABEL,
+  getLesson,
+  ALL_TRIVIA,
+  SENIOR_TRIVIA,
+  CHAPTERS,
+  totalMissions,
+  chapterForRegion,
+} = globalThis.__AUDIT__;
 const problems = [];
 const info = [];
 
@@ -56,14 +64,14 @@ info.push(`Lições no total: ${globalIds.size}`);
 const seniorByGrade = { 5: {}, 6: {} };
 for (const g of [5, 6]) {
   for (const s of SUBJECTS) {
-    const ls = s.lessons.filter((l) => l.grade === g);
+    const ls = s.lessons.filter((l) => l.grade === g && !l.region);
     if (ls.length) seniorByGrade[g][s.id] = ls.length;
   }
   const total = Object.values(seniorByGrade[g]).reduce((a, b) => a + b, 0);
   if (total !== 16) problems.push(`Esperava 16 lições no ${g}.º ano (2 rondas), há ${total}`);
   info.push(`${g}.º ano: ${JSON.stringify(seniorByGrade[g])}`);
 }
-const seniorLessons = SUBJECTS.flatMap((s) => s.lessons.filter((l) => l.grade >= 5));
+const seniorLessons = SUBJECTS.flatMap((s) => s.lessons.filter((l) => l.grade >= 5 && !l.region));
 const seniorQuestions = seniorLessons.reduce((a, l) => a + l.questions.length, 0);
 if (seniorQuestions !== 192)
   problems.push(`Esperava 192 perguntas senior (2 rondas × 96), há ${seniorQuestions}`);
@@ -101,13 +109,67 @@ const pa = CHAPTERS.find((c) => c.id === "planeta-azul");
 const dm = CHAPTERS.find((c) => c.id === "desafio-dos-mestres");
 if (!pa) problems.push("Capítulo planeta-azul em falta");
 if (!dm) problems.push("Capítulo desafio-dos-mestres em falta");
-if (pa?.missions.length !== 8)
-  problems.push(`planeta-azul: esperava 8 missões, há ${pa?.missions.length}`);
-if (dm?.missions.length !== 8)
-  problems.push(`desafio-dos-mestres: esperava 8 missões, há ${dm?.missions.length}`);
+// Bruto: 8 missões universais + 7 regionais (1 por país). Filtrado por uma
+// região: 8 + 1.
+if (pa?.missions.length !== 15)
+  problems.push(
+    `planeta-azul bruto: esperava 15 missões (8 + 7 regionais), há ${pa?.missions.length}`,
+  );
+if (dm?.missions.length !== 15)
+  problems.push(
+    `desafio-dos-mestres bruto: esperava 15 missões (8 + 7 regionais), há ${dm?.missions.length}`,
+  );
+const paMZ = pa ? chapterForRegion(pa, "MZ") : null;
+if (paMZ?.missions.length !== 9)
+  problems.push(`planeta-azul (MZ): esperava 9 missões, há ${paMZ?.missions.length}`);
+const paReg = paMZ?.missions.filter((m) => m.region) ?? [];
+if (paReg.length !== 1 || paReg[0].region !== "MZ")
+  problems.push("planeta-azul (MZ): a única missão regional devia ser a de MZ");
 const numbers = CHAPTERS.map((c) => c.number).sort((a, b) => a - b);
 if (new Set(numbers).size !== numbers.length) problems.push("Números de capítulo duplicados");
-info.push(`Capítulos: ${CHAPTERS.length}, missões: ${totalMissions()}`);
+info.push(
+  `Capítulos: ${CHAPTERS.length}, missões: ${totalMissions("MZ")} por país (${totalMissions()} sem região, ${CHAPTERS.reduce((a, c) => a + c.missions.length, 0)} no bruto)`,
+);
+
+// ── 3b. Lições regionais "O Meu País" ────────────────────────────────────────
+const regionalLessons = SUBJECTS.flatMap((s) => s.lessons.filter((l) => l.region));
+const COUNTRIES = ["PT", "BR", "MZ", "AO", "CV", "ST", "GW"];
+if (regionalLessons.length !== 42)
+  problems.push(`Esperava 42 lições regionais (7 países × 6 anos), há ${regionalLessons.length}`);
+for (const c of COUNTRIES) {
+  const byC = regionalLessons.filter((l) => l.region === c);
+  if (byC.length !== 6) problems.push(`${c}: esperava 6 lições regionais, há ${byC.length}`);
+  for (const g of [1, 2, 3, 4, 5, 6]) {
+    if (!byC.some((l) => l.grade === g))
+      problems.push(`${c}: falta a lição regional do ${g}.º ano`);
+  }
+  for (const l of byC) {
+    if (l.questions.length !== 4)
+      problems.push(`${c}/${l.id}: esperava 4 perguntas, há ${l.questions.length}`);
+    if (!l.id.startsWith("em-"))
+      problems.push(`Lição regional com id fora do prefixo em-: ${l.id}`);
+    for (const [i, q] of l.questions.entries()) {
+      if (!q.hint) problems.push(`${c}/${l.id}[${i}]: sem hint`);
+      if (!q.explanation) problems.push(`${c}/${l.id}[${i}]: sem explanation`);
+      if (q.kind === "truefalse") {
+        if (JSON.stringify(q.options) !== JSON.stringify(["Verdadeiro", "Falso"]))
+          problems.push(`${c}/${l.id}[${i}]: VF com options errados`);
+      } else if (q.answerIndex !== 0) {
+        problems.push(`${c}/${l.id}[${i}]: MCQ regional com answerIndex != 0`);
+      }
+    }
+  }
+}
+// getLesson resolve as regionais (o player precisa)
+if (getLesson("estudo-do-meio", "em-mz-g1")?.title !== "Conhecer Moçambique")
+  problems.push("getLesson não resolve a lição regional em-mz-g1");
+// missões regionais nos capítulos: todas as 42 presentes no bruto, uma por país/ano
+const regionalMissions = CHAPTERS.flatMap((c) => c.missions.filter((m) => m.region));
+if (regionalMissions.length !== 42)
+  problems.push(`Esperava 42 missões regionais nos capítulos, há ${regionalMissions.length}`);
+info.push(
+  `Regionais: 42 lições (${COUNTRIES.length} países × 6 anos), ${regionalMissions.length} missões; MZ vê ${totalMissions("MZ")} missões`,
+);
 
 // ── 4. Ponte triviaSenior ──────────────────────────────────────────────────
 if (SENIOR_TRIVIA.length !== 192)

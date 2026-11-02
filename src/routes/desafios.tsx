@@ -36,6 +36,7 @@ import { localProfile, refreshProfile } from "@/lib/profileFast";
 import { supabase } from "@/integrations/supabase/client";
 import type { MascotId } from "@/lib/mascots";
 import { SUBJECTS, getSubject } from "@/lib/curriculum";
+import type { RegionCode } from "@/lib/region";
 import {
   listMyChallenges,
   getOrCreateDailyAiChallenge,
@@ -428,6 +429,7 @@ function DesafiosPage() {
                 friends={friends}
                 myUserId={myUserId}
                 myGrade={profile.grade ?? 1}
+                myRegion={profile.region}
                 onRespond={async (id, accept) => {
                   const r = await fnRespond({ data: { friendshipId: id, accept } });
                   if (r.ok) {
@@ -560,6 +562,7 @@ function DesafiosPage() {
         onOpenChange={setExpressOpen}
         profileName={profile.name}
         myGrade={profile.grade}
+        myRegion={profile.region}
         onReady={(payload, title) => {
           setSharePayload(payload);
           setShareTitle(title);
@@ -674,6 +677,7 @@ function FriendsBlock({
   onChallenge,
   myUserId,
   myGrade,
+  myRegion,
 }: {
   friends: Awaited<ReturnType<typeof listFriends>>["friends"];
   onRespond: (id: string, accept: boolean) => Promise<void>;
@@ -681,6 +685,7 @@ function FriendsBlock({
   onChallenge: (opponentId: string, subjectId: string, lessonId: string) => Promise<void>;
   myUserId: string;
   myGrade: number;
+  myRegion?: RegionCode | null;
 }) {
   const [addId, setAddId] = useState("");
   const incoming = friends.filter((f) => f.incoming);
@@ -802,6 +807,7 @@ function FriendsBlock({
                 <ChallengeFriendDialog
                   friendName={f.name}
                   myGrade={myGrade}
+                  myRegion={myRegion}
                   onConfirm={(subjectId, lessonId) => onChallenge(f.userId, subjectId, lessonId)}
                 />
               </motion.div>
@@ -837,18 +843,23 @@ function CopyIcon({ className }: { className?: string }) {
 function ChallengeFriendDialog({
   friendName,
   myGrade,
+  myRegion,
   onConfirm,
 }: {
   friendName: string;
   myGrade: number;
+  myRegion?: RegionCode | null;
   onConfirm: (subjectId: string, lessonId: string) => Promise<void>;
 }) {
   const [open, setOpen] = useState(false);
   const [subjectId, setSubjectId] = useState<string>("portugues");
   const subject = useMemo(() => getSubject(subjectId), [subjectId]);
   const lessonsForGrade = useMemo(
-    () => subject?.lessons.filter((l) => l.grade === myGrade) ?? subject?.lessons ?? [],
-    [subject, myGrade],
+    () =>
+      subject?.lessons.filter((l) => l.grade === myGrade && (!l.region || l.region === myRegion)) ??
+      subject?.lessons ??
+      [],
+    [subject, myGrade, myRegion],
   );
   const [lessonId, setLessonId] = useState<string>(lessonsForGrade[0]?.id ?? "");
   const [busy, setBusy] = useState(false);
@@ -1079,22 +1090,25 @@ function ExpressChallengeDialog({
   onOpenChange,
   profileName,
   myGrade,
+  myRegion,
   onReady,
 }: {
   open: boolean;
   onOpenChange: (v: boolean) => void;
   profileName: string;
   myGrade: number;
+  myRegion?: RegionCode | null;
   onReady: (payload: ChallengePayload, title: string) => void;
 }) {
   const [subjectId, setSubjectId] = useState<string>("matematica");
   const subject = useMemo(() => getSubject(subjectId), [subjectId]);
   const lessons = useMemo(
     () =>
-      subject?.lessons.filter((l) => l.grade === myGrade).length
-        ? subject.lessons.filter((l) => l.grade === myGrade)
+      subject?.lessons.filter((l) => l.grade === myGrade && (!l.region || l.region === myRegion))
+        .length
+        ? subject.lessons.filter((l) => l.grade === myGrade && (!l.region || l.region === myRegion))
         : (subject?.lessons ?? []),
-    [subject, myGrade],
+    [subject, myGrade, myRegion],
   );
   const [lessonId, setLessonId] = useState<string>(lessons[0]?.id ?? "");
 

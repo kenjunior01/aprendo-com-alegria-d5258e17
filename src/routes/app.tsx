@@ -5,7 +5,7 @@ import { TopBar } from "@/components/TopBar";
 import { BottomNav } from "@/components/BottomNav";
 import { Mascot } from "@/components/Mascot";
 import { MascotVoiceTutor } from "@/components/MascotVoiceTutor";
-import { CHAPTERS, type Chapter, type Mission } from "@/lib/chapters";
+import { CHAPTERS, chapterForRegion, type Chapter, type Mission } from "@/lib/chapters";
 import type { Profile } from "@/lib/storage";
 import { dayGap, effectiveStreak } from "@/lib/storage";
 import { getMascot, prewarmMascotEmotions } from "@/lib/mascots";
@@ -117,7 +117,11 @@ function AppHome() {
             2. Revisão Mágica (só quando há erros a rever)
             3. Caminho do capítulo ativo em cheio + restantes compactos
             4. Descobrir mais (tudo o resto, abaixo do aprendizado) */}
-        <MissionOfTheDay completedLessons={profile.completedLessons} grade={profile.grade} />
+        <MissionOfTheDay
+          completedLessons={profile.completedLessons}
+          grade={profile.grade}
+          region={profile.region}
+        />
 
         <RevisaoMagicCard />
 
@@ -194,7 +198,11 @@ function RevisaoMagicCard() {
  * abrem a página do capítulo. Evita o scroll infinito de 12+ caminhos.
  */
 function FocusedPath({ profile }: { profile: Profile }) {
-  const visibleChapters = CHAPTERS.filter((c) => c.grade <= Math.min(4, profile.grade + 1));
+  const region = profile.region ?? null;
+  const regionChapters = CHAPTERS.map((c) => chapterForRegion(c, region));
+  // Caminho focado: ano e seguinte (teto 6 — os capítulos do 5.º/6.º também
+  // são alcançáveis quando o perfil chega a esses anos).
+  const visibleChapters = regionChapters.filter((c) => c.grade <= Math.min(6, profile.grade + 1));
   const completed = useMemo(() => new Set(profile.completedLessons), [profile.completedLessons]);
   const activeChapter = visibleChapters.find((ch) =>
     ch.missions.some((m) => !completed.has(m.lessonId)),

@@ -99,8 +99,8 @@ export function MascotRoom({ profile }: Props) {
   const region = profile.region ?? "PT";
   const t = (text: string) => localize(text, region);
   const nextMission = useMemo(
-    () => getNextMission(profile.completedLessons, profile.grade),
-    [profile.completedLessons, profile.grade],
+    () => getNextMission(profile.completedLessons, profile.grade, profile.region),
+    [profile.completedLessons, profile.grade, profile.region],
   );
 
   const goToNextMission = () => {

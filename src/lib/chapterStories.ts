@@ -34,12 +34,12 @@ export const CHAPTER_STORIES: Record<string, ChapterStory> = {
     reward: "🔢 Coleira de Números",
   },
   "pais-magico": {
-    introTitle: "Portugal à descoberta",
+    introTitle: "O Meu País à descoberta",
     introBody:
       "A Pipoca preparou as malas. Vamos saltar de cidade em cidade e descobrir os rios do nosso país!",
     outroTitle: "Que viagem incrível!",
     outroBody: "A Pipoca pôs uma bandeira no mapa por cada lugar que visitaste.",
-    reward: "🇵🇹 Bandeirinha da Pipoca",
+    reward: "🚩 Bandeirinha da Pipoca",
   },
   "floresta-das-palavras": {
     introTitle: "Árvores que falam!",
@@ -82,11 +82,10 @@ export const CHAPTER_STORIES: Record<string, ChapterStory> = {
     reward: "🧪 Frasco da Sabedoria",
   },
   "expedicao-portugal": {
-    introTitle: "Atravessa Portugal!",
-    introBody:
-      "18 distritos, montanhas, ondas e até o Sistema Solar. A Pipoca já te marcou o caminho.",
+    introTitle: "Atravessa o Meu País!",
+    introBody: "Cidades, montanhas, ondas e até o Sistema Solar. A Pipoca já te marcou o caminho.",
     outroTitle: "Expedição concluída!",
-    outroBody: "Carimbaste o passaporte de cada distrito.",
+    outroBody: "Carimbaste o passaporte de cada lugar.",
     reward: "🛤️ Passaporte de Expedição",
   },
   "biblioteca-real": {

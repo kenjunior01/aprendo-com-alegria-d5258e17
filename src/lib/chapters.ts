@@ -3,6 +3,8 @@
 // Esta camada vive POR CIMA do currículo de src/lib/curriculum.ts.
 
 import { SUBJECTS, type GradeLevel, type SubjectId } from "./curriculum";
+import { REGIONAL_LESSONS } from "./curriculumRegional";
+import type { RegionCode } from "./region";
 
 export interface Mission {
   lessonId: string;
@@ -10,6 +12,8 @@ export interface Mission {
   title: string;
   emoji: string;
   grade: GradeLevel;
+  /** Missão regional — só aparece a perfis desta região (undefined = universal). */
+  region?: RegionCode;
 }
 
 export interface Chapter {
@@ -40,6 +44,24 @@ const pick = (subjectId: SubjectId, lessonIds: string[]): Mission[] => {
       grade: l.grade,
     }));
 };
+
+// Missões regionais "O Meu País" — 1 por país e ano (em-XX-gN), derivadas
+// das lições regionais do estudo-do-meio. Cada capítulo edm recebe as do
+// seu ano; o filtro por região acontece em chapterForRegion (no consumo).
+const REGIONAL_MISSIONS_BY_GRADE = new Map<number, Mission[]>();
+for (const l of REGIONAL_LESSONS["estudo-do-meio"] ?? []) {
+  const list = REGIONAL_MISSIONS_BY_GRADE.get(l.grade) ?? [];
+  list.push({
+    lessonId: l.id,
+    subjectId: "estudo-do-meio",
+    title: l.title,
+    emoji: l.emoji,
+    grade: l.grade,
+    region: l.region,
+  });
+  REGIONAL_MISSIONS_BY_GRADE.set(l.grade, list);
+}
+const pickRegional = (grade: GradeLevel): Mission[] => REGIONAL_MISSIONS_BY_GRADE.get(grade) ?? [];
 
 export const CHAPTERS: Chapter[] = [
   // === 1.º ANO === Ilha das Letras
@@ -87,21 +109,25 @@ export const CHAPTERS: Chapter[] = [
   {
     id: "pais-magico",
     number: 3,
-    title: "Portugal Mágico",
+    title: "O Meu País Mágico",
     subtitle: "1.º ano · Estudo do Meio",
-    story: "Pipoca está a viajar por Portugal. Vai com ela descobrir cidades e rios!",
-    emoji: "🇵🇹",
+    story:
+      "A Pipoca está a viajar pelo nosso país. Vai com ela descobrir cidades, rios e tesouros!",
+    emoji: "🗺️",
     themeColorVar: "--pt-world",
     bgGradient: "from-[oklch(0.94_0.06_145)] to-[oklch(0.9_0.09_155)]",
     grade: 1,
-    missions: pick("estudo-do-meio", [
-      "em-portugal",
-      "boost-edm-corpo",
-      "em-escola",
-      "em-animais-casa",
-      "em-dia-noite",
-      "em-higiene",
-    ]),
+    missions: [
+      ...pick("estudo-do-meio", [
+        "em-portugal",
+        "boost-edm-corpo",
+        "em-escola",
+        "em-animais-casa",
+        "em-dia-noite",
+        "em-higiene",
+      ]),
+      ...pickRegional(1),
+    ],
   },
 
   // === 2.º ANO === Floresta das Palavras
@@ -157,17 +183,20 @@ export const CHAPTERS: Chapter[] = [
     themeColorVar: "--pt-world",
     bgGradient: "from-[oklch(0.94_0.06_140)] to-[oklch(0.9_0.09_170)]",
     grade: 2,
-    missions: pick("estudo-do-meio", [
-      "em-corpo",
-      "em-natureza",
-      "em-tempo",
-      "boost-edm-familia",
-      "boost-edm-natureza",
-      "em-plantas",
-      "em-agua",
-      "em-trabalhos",
-      "em-transportes",
-    ]),
+    missions: [
+      ...pick("estudo-do-meio", [
+        "em-corpo",
+        "em-natureza",
+        "em-tempo",
+        "boost-edm-familia",
+        "boost-edm-natureza",
+        "em-plantas",
+        "em-agua",
+        "em-trabalhos",
+        "em-transportes",
+      ]),
+      ...pickRegional(2),
+    ],
   },
 
   // === 3.º ANO === Castelo da Gramática
@@ -209,14 +238,17 @@ export const CHAPTERS: Chapter[] = [
   {
     id: "expedicao-portugal",
     number: 9,
-    title: "Expedição Portugal",
+    title: "Expedição ao Meu País",
     subtitle: "3.º ano · Estudo do Meio",
-    story: "Atravessa os 18 distritos e olha o céu para conhecer o Sistema Solar.",
+    story: "Atravessa o nosso país de norte a sul e olha o céu para conhecer o Sistema Solar.",
     emoji: "🚞",
     themeColorVar: "--pt-world",
     bgGradient: "from-[oklch(0.93_0.06_160)] to-[oklch(0.88_0.1_180)]",
     grade: 3,
-    missions: pick("estudo-do-meio", ["em-distritos", "em-sistema-solar", "boost-edm-mocambique"]),
+    missions: [
+      ...pick("estudo-do-meio", ["em-distritos", "em-sistema-solar", "boost-edm-mocambique"]),
+      ...pickRegional(3),
+    ],
   },
 
   // === 4.º ANO === Galáxia do Saber
@@ -254,12 +286,15 @@ export const CHAPTERS: Chapter[] = [
     number: 12,
     title: "Guardiões do Planeta",
     subtitle: "4.º ano · Estudo do Meio",
-    story: "Viaja na história de Portugal e torna-te um guardião do ambiente.",
+    story: "Viaja na história do nosso país e torna-te um guardião do ambiente.",
     emoji: "🌍",
     themeColorVar: "--pt-world",
     bgGradient: "from-[oklch(0.92_0.07_140)] to-[oklch(0.86_0.11_170)]",
     grade: 4,
-    missions: pick("estudo-do-meio", ["em-historia", "em-ambiente", "boost-edm-agua"]),
+    missions: [
+      ...pick("estudo-do-meio", ["em-historia", "em-ambiente", "boost-edm-agua"]),
+      ...pickRegional(4),
+    ],
   },
 
   // === MUNDOS DE DESCOBERTA === matérias extra, ordenadas do fácil ao difícil
@@ -353,6 +388,7 @@ export const CHAPTERS: Chapter[] = [
       ...pick("ciencias", ["ci-fotossintese"]),
       ...pick("ingles", ["en-food"]),
       ...pick("cidadania", ["cid-planeta"]),
+      ...pickRegional(5),
     ],
   },
   // === 6.º ANO — Grande Expedição ===
@@ -374,6 +410,7 @@ export const CHAPTERS: Chapter[] = [
       ...pick("ciencias", ["ci-coracao"]),
       ...pick("ingles", ["en-market"]),
       ...pick("cidadania", ["cid-direitos"]),
+      ...pickRegional(6),
     ],
   },
 ];
@@ -382,7 +419,25 @@ export const getChapter = (id: string) => CHAPTERS.find((c) => c.id === id);
 
 export const chaptersForGrade = (grade: number) => CHAPTERS.filter((c) => c.grade <= grade + 1); // mostra o ano e o seguinte
 
-export const totalMissions = () => CHAPTERS.reduce((sum, c) => sum + c.missions.length, 0);
+/**
+ * Devolve o capítulo com as missões FILTRADAS pela região do perfil:
+ * missões universais (sem region) sempre ficam; cada missão regional só
+ * aparece à região que lhe corresponde. Sem região definida (visitante ou
+ * perfil antigo sem país), nenhuma missão regional aparece. É a única
+ * fonte de verdade para quem renderiza capítulos: caminho, página do
+ * capítulo, missão do dia e próxima missão.
+ */
+export const chapterForRegion = (chapter: Chapter, region?: RegionCode | null): Chapter => {
+  if (!chapter.missions.some((m) => m.region)) return chapter;
+  return {
+    ...chapter,
+    missions: chapter.missions.filter((m) => !m.region || m.region === region),
+  };
+};
+
+/** Missões visíveis para uma região (universais + a regional do país). */
+export const totalMissions = (region?: RegionCode | null) =>
+  CHAPTERS.reduce((sum, c) => sum + chapterForRegion(c, region).missions.length, 0);
 
 export const isChapterComplete = (chapter: Chapter, completedLessons: string[]) =>
   chapter.missions.every((m) => completedLessons.includes(m.lessonId));

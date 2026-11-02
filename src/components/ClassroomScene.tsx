@@ -205,8 +205,8 @@ export function ClassroomScene({ profile, onDrawMode }: Props) {
     [profile.mascot],
   );
   const next = useMemo(
-    () => getNextMission(profile.completedLessons, profile.grade),
-    [profile.completedLessons, profile.grade],
+    () => getNextMission(profile.completedLessons, profile.grade, profile.region),
+    [profile.completedLessons, profile.grade, profile.region],
   );
 
   // Relógio real: atualiza a cada 30 s

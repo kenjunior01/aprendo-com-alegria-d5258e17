@@ -2,12 +2,15 @@ import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { Sparkles, ChevronRight } from "lucide-react";
-import { CHAPTERS } from "@/lib/chapters";
+import { CHAPTERS, chapterForRegion } from "@/lib/chapters";
+import type { RegionCode } from "@/lib/region";
 import { cn } from "@/lib/utils";
 
 interface Props {
   completedLessons: string[];
   grade: number;
+  /** Região do perfil — filtra as missões regionais "O Meu País". */
+  region?: RegionCode | null;
 }
 
 /**
@@ -18,7 +21,7 @@ interface Props {
  * currículo). Assim o cartão e o caminho nunca dizem coisas diferentes —
  * a criança avança sempre na sequência pedagógica certa.
  */
-export function MissionOfTheDay({ completedLessons, grade }: Props) {
+export function MissionOfTheDay({ completedLessons, grade, region }: Props) {
   const [pulse, setPulse] = useState(false);
   useEffect(() => {
     const t = setTimeout(() => setPulse(true), 600);
@@ -26,7 +29,9 @@ export function MissionOfTheDay({ completedLessons, grade }: Props) {
   }, []);
 
   const set = new Set(completedLessons);
-  const visible = CHAPTERS.filter((c) => c.grade <= Math.min(4, grade + 1));
+  const visible = CHAPTERS.map((c) => chapterForRegion(c, region)).filter(
+    (c) => c.grade <= Math.min(6, grade + 1),
+  );
   const chapter = visible.find((c) => c.missions.some((m) => !set.has(m.lessonId)));
   if (!chapter) return null;
   const mission = chapter.missions.find((m) => !set.has(m.lessonId)) ?? chapter.missions[0];

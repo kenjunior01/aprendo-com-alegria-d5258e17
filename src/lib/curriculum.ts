@@ -1,6 +1,7 @@
 // Conteúdo curricular para 1.º ciclo + continuação (1.º ao 6.º ano)
 // Tipos de exercício: escolha múltipla (clássico), verdadeiro/falso,
 // ordenar (sílabas, números, estações…) e contar (grelha visual de emojis).
+import type { RegionCode } from "./region";
 
 export type SubjectId =
   | "portugues"
@@ -35,6 +36,8 @@ export interface Lesson {
   emoji: string;
   grade: GradeLevel;
   questions: Question[];
+  /** Região a que a lição pertence (undefined = universal, para todos os países). */
+  region?: RegionCode;
 }
 
 export interface Subject {
@@ -1892,6 +1895,7 @@ import { BOOST2_LESSONS } from "./curriculumBoost2";
 import { BOOST3_LESSONS } from "./curriculumBoost3";
 import { SENIOR_LESSONS } from "./curriculumSenior";
 import { SENIOR_BOOST_LESSONS } from "./curriculumSeniorBoost";
+import { REGIONAL_LESSONS } from "./curriculumRegional";
 for (const s of SUBJECTS) {
   const extra = BOOST_LESSONS[s.id];
   if (extra?.length) s.lessons.push(...extra);
@@ -1906,6 +1910,11 @@ for (const s of SUBJECTS) {
   // cidadania/inglês no 5.º e 6.º; fica no fim do caminho de cada matéria.
   const seniorBoost = SENIOR_BOOST_LESSONS[s.id];
   if (seniorBoost?.length) s.lessons.push(...seniorBoost);
+  // Lições regionais (curriculumRegional.ts) — "O Meu País": entram SEMPRE
+  // no estudo-do-meio mas com region marcada; os consumidores filtram pela
+  // região do perfil (cada criança só vê a do seu país).
+  const regional = REGIONAL_LESSONS[s.id];
+  if (regional?.length) s.lessons.push(...regional);
 }
 
 export const getSubject = (id: string) => SUBJECTS.find((s) => s.id === id);

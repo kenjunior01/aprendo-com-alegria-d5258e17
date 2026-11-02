@@ -5,7 +5,7 @@ import { TopBar } from "@/components/TopBar";
 import { BottomNav } from "@/components/BottomNav";
 import { Mascot } from "@/components/Mascot";
 import { ChunkyButton } from "@/components/ChunkyButton";
-import { getChapter, chapterProgress } from "@/lib/chapters";
+import { getChapter, chapterForRegion, chapterProgress } from "@/lib/chapters";
 import { loadProfile, type Profile } from "@/lib/storage";
 import { ArrowLeft, Check, Lock, Play } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -47,7 +47,6 @@ export const Route = createFileRoute("/capitulo/$chapterId")({
 function ChapterPage() {
   const { chapterId } = useParams({ from: "/capitulo/$chapterId" });
   const navigate = useNavigate();
-  const chapter = getChapter(chapterId);
   const [profile, setProfile] = useState<Profile | null>(null);
 
   useEffect(() => {
@@ -58,6 +57,11 @@ function ChapterPage() {
     }
     setProfile(p);
   }, [navigate]);
+
+  // Missões regionais "O Meu País" filtradas pela região do perfil
+  // (null enquanto o perfil carrega — o capítulo só renderiza com perfil).
+  const chapterRaw = getChapter(chapterId);
+  const chapter = chapterRaw ? chapterForRegion(chapterRaw, profile?.region) : undefined;
 
   if (!profile) return <KidLoader />;
   if (!chapter) {

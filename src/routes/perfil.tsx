@@ -70,7 +70,7 @@ function ProfilePage() {
 
   if (!profile) return <KidLoader />;
 
-  const total = totalMissions();
+  const total = totalMissions(profile.region);
   const completed = profile.completedLessons.length;
 
   const changeMascot = (id: MascotId) => {
