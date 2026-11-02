@@ -9,6 +9,7 @@ import { MascotIcon } from "@/components/MascotIcon";
 import { StarRating } from "@/components/StarRating";
 import { XPCounter, CoinCounter } from "@/components/XPCounter";
 import { ChunkyButton } from "@/components/ChunkyButton";
+import { HandUnderline } from "@/components/HandUnderline";
 import {
   ConfettiCelebration,
   fireConfetti,
@@ -227,7 +228,13 @@ export function LessonCompleteScreen({
             {celebrationMessage}
           </h1>
           <p className="mt-2 text-base text-muted-foreground">
-            Missão completa: <strong className="text-foreground">{lessonTitle}</strong>
+            Missão completa:{" "}
+            {/* O nome da lição conquistada leva o signature move — é o momento
+                de milestone do ecrã (após o confetti, a caneta risca o nome). */}
+            <span className="relative inline-block">
+              <strong className="text-foreground">{lessonTitle}</strong>
+              <HandUnderline className="text-xp" delay={0.7} strokeWidth={7} />
+            </span>
           </p>
           {chapterName && <p className="mt-0.5 text-xs text-muted-foreground/70">{chapterName}</p>}
         </motion.div>

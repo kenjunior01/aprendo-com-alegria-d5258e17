@@ -9,6 +9,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import { detectRegion, regionBadgeText, REGIONS, type RegionInfo } from "@/lib/region";
 import { RouteError } from "@/components/RouteError";
 import { CountUp } from "@/components/CountUp";
+import { HandUnderline } from "@/components/HandUnderline";
 import { cn } from "@/lib/utils";
 import { HomeMiniDemo } from "@/components/HomeMiniDemo";
 import { SCHOOL_TIERS, eur as eurEscolas } from "@/lib/schoolPricing";
@@ -239,25 +240,9 @@ function Landing() {
           Aprender é{" "}
           <span className="relative inline-block text-primary">
             brincar
-            {/* Signature move: sublinhado desenhado à mão (path draw) —
-                o gesto de “riscar a caneta” dá vida ao “brincar”. */}
-            <svg
-              aria-hidden
-              viewBox="0 0 220 24"
-              preserveAspectRatio="none"
-              className="absolute -bottom-1 left-0 h-[0.3em] w-full text-xp sm:-bottom-1.5"
-              fill="none"
-            >
-              <motion.path
-                d="M6 15 C 55 7, 120 5, 214 11"
-                stroke="currentColor"
-                strokeWidth="8"
-                strokeLinecap="round"
-                initial={{ pathLength: 0, opacity: 0 }}
-                animate={{ pathLength: 1, opacity: 1 }}
-                transition={{ delay: 0.75, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-              />
-            </svg>
+            {/* Signature move da marca — o mesmo gesto, uma só fonte:
+                HandUnderline partilha o path draw com capítulos e lições. */}
+            <HandUnderline className="text-xp" delay={0.75} />
           </span>
           !
         </motion.h1>

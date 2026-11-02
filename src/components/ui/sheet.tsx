@@ -31,7 +31,11 @@ const SheetOverlay = React.forwardRef<
 SheetOverlay.displayName = SheetPrimitive.Overlay.displayName;
 
 const sheetVariants = cva(
-  "fixed z-50 gap-4 bg-background p-6 shadow-lg transition ease-in-out data-[state=closed]:duration-300 data-[state=open]:duration-500 data-[state=open]:animate-in data-[state=closed]:animate-out",
+  // Entrada 350ms (era 500 — deslizamentos direcionais não precisam de meio
+  // segundo; 350 mantém a suavidade sem parecer lento). A saída mantém o slide:
+  // é o gesto de dispensa do utilizador — movimento com significado (exceção
+  // documentada no motion-cookbook).
+  "fixed z-50 gap-4 bg-background p-6 shadow-lg transition ease-in-out data-[state=closed]:duration-300 data-[state=open]:duration-350 data-[state=open]:animate-in data-[state=closed]:animate-out",
   {
     variants: {
       side: {

@@ -5,6 +5,7 @@ import { TopBar } from "@/components/TopBar";
 import { BottomNav } from "@/components/BottomNav";
 import { Mascot } from "@/components/Mascot";
 import { ChunkyButton } from "@/components/ChunkyButton";
+import { HandUnderline } from "@/components/HandUnderline";
 import { getChapter, chapterForRegion, chapterProgress } from "@/lib/chapters";
 import { loadProfile, type Profile } from "@/lib/storage";
 import { ArrowLeft, Check, Lock, Play } from "lucide-react";
@@ -109,7 +110,18 @@ function ChapterPage() {
           <p className="font-display text-xs font-semibold uppercase tracking-wide text-foreground/70">
             Capítulo {chapter.number} · {chapter.subtitle}
           </p>
-          <h1 className="mt-1 font-display text-3xl leading-tight sm:text-4xl">{chapter.title}</h1>
+          <h1 className="mt-1 font-display text-3xl leading-tight sm:text-4xl">
+            {/* Momento milestone: o título do capítulo recebe o signature move,
+                desenhado na cor do tema do capítulo após a entrada do herói. */}
+            <span className="relative inline-block">
+              {chapter.title}
+              <HandUnderline
+                delay={0.45}
+                strokeWidth={7}
+                style={{ color: `var(${chapter.themeColorVar})` }}
+              />
+            </span>
+          </h1>
           <p className="mt-3 max-w-[28rem] text-sm leading-relaxed text-foreground/85 sm:text-base">
             {chapter.story}
           </p>
