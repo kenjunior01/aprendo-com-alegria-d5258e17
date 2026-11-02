@@ -5,9 +5,11 @@ import { ChunkyButton } from "@/components/ChunkyButton";
 import { AlegriaLogo } from "@/components/AlegriaLogo";
 import { MASCOTS } from "@/lib/mascots";
 import { localProfile, refreshProfile } from "@/lib/profileFast";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { detectRegion, regionBadgeText, REGIONS, type RegionInfo } from "@/lib/region";
 import { RouteError } from "@/components/RouteError";
+import { CountUp } from "@/components/CountUp";
+import { cn } from "@/lib/utils";
 import { HomeMiniDemo } from "@/components/HomeMiniDemo";
 import { SCHOOL_TIERS, eur as eurEscolas } from "@/lib/schoolPricing";
 
@@ -18,13 +20,13 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "App de aprendizagem infantil estilo Duolingo para o 1.º ciclo: Portugal, Moçambique, Angola, Cabo Verde e Brasil. Português, Matemática e Estudo do Meio com mascotes divertidas — e funciona offline.",
+          "App de aprendizagem infantil estilo Duolingo para o 1.º e 2.º ciclo (1.º ao 6.º ano): Portugal, Brasil, Moçambique, Angola, Cabo Verde, São Tomé e Guiné-Bissau. Português, Matemática e Estudo do Meio com mascotes divertidas — e funciona offline.",
       },
       { property: "og:title", content: "Kidoz — Aprender a brincar | App educativa para crianças" },
       {
         property: "og:description",
         content:
-          "App de aprendizagem infantil estilo Duolingo para o 1.º ciclo em 5 países lusófonos. Português, Matemática e Estudo do Meio com mascotes divertidas — e funciona offline.",
+          "App de aprendizagem infantil estilo Duolingo para o 1.º e 2.º ciclo em 7 países lusófonos. Português, Matemática e Estudo do Meio com mascotes divertidas — e funciona offline.",
       },
       { property: "og:url", content: "https://kidoz.online/" },
       {
@@ -65,7 +67,7 @@ export const Route = createFileRoute("/")({
               name: "Que idades e anos abrange?",
               acceptedAnswer: {
                 "@type": "Answer",
-                text: "Do 1.º ao 4.º ano (1.º ciclo, 6-10 anos), com modo Júnior adaptado para crianças dos 2 aos 5 anos.",
+                text: "Do 1.º ao 6.º ano (6-12 anos), com modo Júnior adaptado para crianças dos 2 aos 5 anos.",
               },
             },
             {
@@ -93,11 +95,19 @@ export const Route = createFileRoute("/")({
   errorComponent: RouteError,
 });
 
+// Entrada "materializing" (recipe: Jakub — opacity + y + blur em spring):
+// o elemento entra EM FOCO em vez de só aparecer. Bounce 0.18 = lúdico
+// sem exagero — kids app pede Jakub + Jhey, não as regras de speed do Emil.
 const stagger: { container: Variants; item: Variants } = {
-  container: { animate: { transition: { staggerChildren: 0.08 } } },
+  container: { animate: { transition: { staggerChildren: 0.07 } } },
   item: {
-    initial: { opacity: 0, y: 16 },
-    animate: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" } },
+    initial: { opacity: 0, y: 18, filter: "blur(5px)" },
+    animate: {
+      opacity: 1,
+      y: 0,
+      filter: "blur(0px)",
+      transition: { type: "spring", duration: 0.55, bounce: 0.18 },
+    },
   },
 };
 
@@ -108,6 +118,8 @@ const PAISES_HOME = [
   { code: "MZ", flag: "🇲🇿", nome: "Moçambique" },
   { code: "AO", flag: "🇦🇴", nome: "Angola" },
   { code: "CV", flag: "🇨🇻", nome: "Cabo Verde" },
+  { code: "ST", flag: "🇸🇹", nome: "São Tomé" },
+  { code: "GW", flag: "🇬🇼", nome: "Guiné-Bissau" },
   { code: "BR", flag: "🇧🇷", nome: "Brasil" },
 ] as const;
 
@@ -224,7 +236,30 @@ function Landing() {
           transition={{ delay: 0.15, duration: 0.5 }}
           className="font-display text-4xl font-bold leading-tight sm:text-5xl md:text-7xl"
         >
-          Aprender é <span className="text-primary">brincar</span>!
+          Aprender é{" "}
+          <span className="relative inline-block text-primary">
+            brincar
+            {/* Signature move: sublinhado desenhado à mão (path draw) —
+                o gesto de “riscar a caneta” dá vida ao “brincar”. */}
+            <svg
+              aria-hidden
+              viewBox="0 0 220 24"
+              preserveAspectRatio="none"
+              className="absolute -bottom-1 left-0 h-[0.3em] w-full text-xp sm:-bottom-1.5"
+              fill="none"
+            >
+              <motion.path
+                d="M6 15 C 55 7, 120 5, 214 11"
+                stroke="currentColor"
+                strokeWidth="8"
+                strokeLinecap="round"
+                initial={{ pathLength: 0, opacity: 0 }}
+                animate={{ pathLength: 1, opacity: 1 }}
+                transition={{ delay: 0.75, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+              />
+            </svg>
+          </span>
+          !
         </motion.h1>
 
         {/* Subtitle */}
@@ -234,8 +269,8 @@ function Landing() {
           transition={{ delay: 0.2, duration: 0.5 }}
           className="mt-3 max-w-[36rem] text-base text-foreground/80 sm:mt-4 sm:text-lg md:text-xl"
         >
-          Português, Matemática e Estudo do Meio com mascotes divertidas, lições curtas e muitas
-          estrelinhas. ✨
+          Do 1.º ao 6.º ano: Português, Matemática, Estudo do Meio e mais — com mascotes divertidas,
+          lições curtas e muitas estrelinhas. ✨
         </motion.p>
 
         {/* Mascot row */}
@@ -311,15 +346,26 @@ function Landing() {
           className="mt-12 grid w-full gap-3 sm:mt-16 sm:gap-4 md:grid-cols-3"
         >
           <motion.div variants={stagger.item}>
-            <FeatureCard emoji="📚" title="Português" text="Vogais, sílabas, gramática, plurais" />
+            <FeatureCard
+              emoji="📚"
+              title="Português"
+              tone="pt"
+              text="Vogais, sílabas, gramática, plurais"
+            />
           </motion.div>
           <motion.div variants={stagger.item}>
-            <FeatureCard emoji="➕" title="Matemática" text="Tabuada, divisões, frações" />
+            <FeatureCard
+              emoji="➕"
+              title="Matemática"
+              tone="math"
+              text="Tabuada, divisões, frações"
+            />
           </motion.div>
           <motion.div variants={stagger.item}>
             <FeatureCard
               emoji="🌍"
               title="Estudo do Meio"
+              tone="world"
               text={`${region?.country ?? "Portugal"}, história, ambiente`}
             />
           </motion.div>
@@ -473,17 +519,17 @@ function HowItWorks() {
     <section className="mt-12 w-full sm:mt-16">
       <h2 className="mb-2 text-center font-display text-2xl sm:text-3xl">Como funciona</h2>
       <p className="mb-5 text-center text-sm text-muted-foreground">
-        Aprender pouco e muitas vezes — como o Duolingo, mas para o programa português.
+        Aprender pouco e muitas vezes — como o Duolingo, mas para o programa do teu país.
       </p>
       <ol className="grid gap-3 sm:gap-4 md:grid-cols-3">
         {steps.map((s, i) => (
           <motion.li
             key={s.n}
-            initial={{ opacity: 0, y: 16 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: i * 0.1 }}
-            className="card-chunky relative overflow-hidden rounded-3xl border border-border bg-card p-5 text-left"
+            initial={{ opacity: 0, y: 18, filter: "blur(5px)" }}
+            whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+            viewport={{ once: true, margin: "-40px" }}
+            transition={{ delay: i * 0.08, type: "spring", duration: 0.55, bounce: 0.15 }}
+            className="card-chunky card-lift relative overflow-hidden rounded-3xl border border-border bg-card p-5 text-left"
           >
             <span
               aria-hidden
@@ -521,10 +567,10 @@ function LessonPathPreview() {
         {nodes.map((n, i) => (
           <motion.div
             key={n.t}
-            initial={{ opacity: 0, x: i % 2 === 0 ? -16 : 16 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: i * 0.06 }}
+            initial={{ opacity: 0, x: i % 2 === 0 ? -16 : 16, filter: "blur(4px)" }}
+            whileInView={{ opacity: 1, x: 0, filter: "blur(0px)" }}
+            viewport={{ once: true, margin: "-40px" }}
+            transition={{ delay: i * 0.06, type: "spring", duration: 0.5, bounce: 0.15 }}
             className={`relative mb-4 flex items-center gap-3 ${i % 2 === 0 ? "ml-0 mr-auto" : "ml-auto mr-0"}`}
             style={{ width: "min(85%, 22rem)" }}
           >
@@ -533,7 +579,7 @@ function LessonPathPreview() {
             >
               {n.e}
             </div>
-            <div className="card-chunky flex-1 rounded-2xl border border-border bg-card px-4 py-3">
+            <div className="card-chunky card-lift flex-1 rounded-2xl border border-border bg-card px-4 py-3">
               <p className="font-display text-base">{n.t}</p>
               <p className="text-xs text-muted-foreground">5 min · {(i + 1) * 10} XP</p>
             </div>
@@ -544,12 +590,33 @@ function LessonPathPreview() {
   );
 }
 
-function FeatureCard({ emoji, title, text }: { emoji: string; title: string; text: string }) {
+// Cores das matérias (tokens semânticos do tema) — os cartões da home
+// falam a mesma língua visual do caminho de aventura dentro da app.
+const CARD_TONES = {
+  pt: "bg-pt-portuguese/15",
+  math: "bg-pt-math/15",
+  world: "bg-pt-world/15",
+} as const;
+
+function FeatureCard({
+  emoji,
+  title,
+  text,
+  tone,
+}: {
+  emoji: string;
+  title: string;
+  text: string;
+  tone?: keyof typeof CARD_TONES;
+}) {
   return (
-    <div className="card-chunky rounded-3xl border border-border bg-card p-4 text-left sm:p-5">
+    <div className="card-chunky card-lift rounded-3xl border border-border bg-card p-4 text-left sm:p-5">
       <div
         aria-hidden
-        className="grid h-12 w-12 place-items-center rounded-2xl bg-muted text-2xl sm:text-3xl"
+        className={cn(
+          "grid h-12 w-12 place-items-center rounded-2xl text-2xl sm:text-3xl",
+          tone ? CARD_TONES[tone] : "bg-muted",
+        )}
       >
         {emoji}
       </div>
@@ -591,11 +658,11 @@ function Testimonials() {
         {TESTIMONIALS.map((t, i) => (
           <motion.figure
             key={t.name}
-            initial={{ opacity: 0, y: 12 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: i * 0.1 }}
-            className="card-chunky rounded-3xl border border-border bg-card p-4 text-left sm:p-5"
+            initial={{ opacity: 0, y: 18, filter: "blur(5px)" }}
+            whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+            viewport={{ once: true, margin: "-40px" }}
+            transition={{ delay: i * 0.08, type: "spring", duration: 0.55, bounce: 0.15 }}
+            className="card-chunky card-lift rounded-3xl border border-border bg-card p-4 text-left sm:p-5"
           >
             <div className="mb-2 flex gap-0.5 text-xp text-sm">★★★★★</div>
             <blockquote className="text-sm leading-snug">"{t.text}"</blockquote>
@@ -614,17 +681,20 @@ function Testimonials() {
 }
 
 function StatsStrip() {
-  const stats = [
-    { n: "30+", label: "lições" },
-    { n: "300+", label: "exercícios" },
-    { n: "5", label: "países adaptados" },
+  // Números reais da plataforma (check_grades: 183 lições · ALL_TRIVIA 1082
+  // · 7 países lusófonos) — a página PROVA as claims em vez de afirmá-las.
+  const stats: { n: ReactNode; label: string }[] = [
+    { n: <CountUp to={183} />, label: "lições autoradas" },
+    { n: <CountUp to={1000} suffix="+" />, label: "perguntas e exercícios" },
+    { n: <CountUp to={7} />, label: "países lusófonos" },
     { n: "5 min", label: "por dia chega" },
   ];
   return (
     <motion.section
-      initial={{ opacity: 0, y: 16 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
+      initial={{ opacity: 0, y: 18, filter: "blur(5px)" }}
+      whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+      viewport={{ once: true, margin: "-40px" }}
+      transition={{ type: "spring", duration: 0.55, bounce: 0.15 }}
       aria-label="Números da Kidoz"
       className="card-chunky mt-12 grid w-full grid-cols-2 gap-2 rounded-3xl border border-border bg-card/90 p-4 backdrop-blur sm:mt-16 sm:grid-cols-4 sm:p-5"
     >
@@ -701,8 +771,12 @@ function PremiumStrip() {
     { e: "🎁", t: "Itens exclusivos da loja todos os meses" },
   ];
   return (
-    <section
+    <motion.section
       aria-labelledby="premium-heading"
+      initial={{ opacity: 0, y: 18, filter: "blur(5px)" }}
+      whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+      viewport={{ once: true, margin: "-40px" }}
+      transition={{ type: "spring", duration: 0.55, bounce: 0.15 }}
       className="card-chunky relative mt-12 w-full overflow-hidden rounded-3xl border-2 border-amber-400/50 bg-gradient-to-br from-amber-400/15 via-secondary/15 to-primary/15 p-5 sm:mt-16 sm:p-8"
     >
       <p className="text-center font-display text-[10px] font-black uppercase tracking-[0.3em] text-amber-600">
@@ -743,7 +817,7 @@ function PremiumStrip() {
       <p className="mt-3 text-center text-[11px] text-muted-foreground">
         💳 Pagamento seguro · 🔒 Sem anúncios · 👪 Até 4 crianças
       </p>
-    </section>
+    </motion.section>
   );
 }
 
@@ -776,7 +850,14 @@ function SchoolsTeaser({ pais }: { pais: string }) {
     },
   ];
   return (
-    <section aria-labelledby="escolas-heading" className="mt-12 w-full sm:mt-16">
+    <motion.section
+      aria-labelledby="escolas-heading"
+      initial={{ opacity: 0, y: 18, filter: "blur(5px)" }}
+      whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+      viewport={{ once: true, margin: "-40px" }}
+      transition={{ type: "spring", duration: 0.55, bounce: 0.15 }}
+      className="mt-12 w-full sm:mt-16"
+    >
       <div className="text-center">
         <p className="font-display text-[10px] font-black uppercase tracking-[0.3em] text-primary/70">
           Para escolas e instituições
@@ -785,15 +866,16 @@ function SchoolsTeaser({ pais }: { pais: string }) {
           A escola inteira a aprender — mesmo sem internet
         </h2>
         <p className="mx-auto mt-2 max-w-[40rem] text-sm text-muted-foreground sm:text-base">
-          Em 5 países: Portugal, Moçambique, Angola, Cabo Verde e Brasil. Cada aluno custa menos de
-          12 cêntimos por dia útil — e os Fundadores travam 50% de desconto no 1.º ano.
+          Em 7 países: Portugal, Moçambique, Angola, Cabo Verde, São Tomé e Príncipe, Guiné-Bissau e
+          Brasil. Cada aluno custa menos de 12 cêntimos por dia útil — e os Fundadores travam 50% de
+          desconto no 1.º ano.
         </p>
       </div>
       <div className="mt-4 grid gap-3 md:grid-cols-3">
         {cards.map((c) => (
           <div
             key={c.t}
-            className="card-chunky rounded-3xl border border-border bg-card p-4 text-left sm:p-5"
+            className="card-chunky card-lift rounded-3xl border border-border bg-card p-4 text-left sm:p-5"
           >
             <div
               aria-hidden
@@ -824,7 +906,7 @@ function SchoolsTeaser({ pais }: { pais: string }) {
           </ChunkyButton>
         </Link>
       </div>
-    </section>
+    </motion.section>
   );
 }
 

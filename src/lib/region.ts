@@ -13,12 +13,18 @@ export type RegionInfo = {
 };
 
 export const REGIONS: Record<RegionCode, RegionInfo> = {
-  PT: { code: "PT", flag: "🇵🇹", country: "Portugal", curriculum: "1.º ciclo", language: "pt" },
+  PT: {
+    code: "PT",
+    flag: "🇵🇹",
+    country: "Portugal",
+    curriculum: "1.º e 2.º ciclo",
+    language: "pt",
+  },
   BR: {
     code: "BR",
     flag: "🇧🇷",
     country: "Brasil",
-    curriculum: "Ensino Fundamental I",
+    curriculum: "Ensino Fundamental",
     language: "pt",
   },
   MZ: {
