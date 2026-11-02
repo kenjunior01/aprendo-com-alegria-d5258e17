@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import confetti from "canvas-confetti";
 import { ArrowLeft, Crown, Home, RefreshCw, Swords, Trophy } from "lucide-react";
 import { ChunkyButton } from "@/components/ChunkyButton";
+import { HandUnderline } from "@/components/HandUnderline";
 import { MascotIcon } from "@/components/MascotIcon";
 import { RouteError } from "@/components/RouteError";
 import { MASCOTS } from "@/lib/mascots";
@@ -767,7 +768,16 @@ function PodiumPhase({
             >
               <Trophy className="h-14 w-14 text-amber-500" />
             </motion.div>
-            <h2 className="mt-3 font-display text-3xl">🎉 {win.name} venceu!</h2>
+            <h2 className="mt-3 font-display text-3xl">
+              🎉{" "}
+              {/* Momento milestone: o nome de quem venceu leva o signature move
+                  (âmbar do troféu) — a caneta risca depois do troféu entrar. */}
+              <span className="relative inline-block">
+                {win.name}
+                <HandUnderline className="text-amber-500" delay={0.55} strokeWidth={7} />
+              </span>{" "}
+              venceu!
+            </h2>
             <p className="mt-1 font-display text-sm text-muted-foreground">
               {winMascot?.article ?? ""} {winMascot?.name ?? ""} está muito orgulhoso!
             </p>

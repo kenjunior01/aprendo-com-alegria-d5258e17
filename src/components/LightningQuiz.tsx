@@ -25,6 +25,7 @@ import { detectRegion, localizeQuestion } from "@/lib/region";
 import { haptic } from "@/lib/haptics";
 import { playCorrect, playWrong } from "@/lib/audio";
 import { cn, shuffled } from "@/lib/utils";
+import { HandUnderline } from "@/components/HandUnderline";
 
 interface Props {
   /** Seed determinística — se ausente, gera perguntas aleatórias. */
@@ -342,7 +343,15 @@ export function LightningQuiz({
             {resultEmoji}
           </motion.p>
           <p className="mt-2 font-display text-2xl font-bold">
-            {correct}/{count} acertos!
+            {/* Milestone: o resultado leva o signature move — a caneta risca
+                o placar depois do emoji entrar (dourado da marca). */}
+            <span className="relative inline-block">
+              <span className="tabular-nums">
+                {correct}/{count}
+              </span>
+              <HandUnderline className="text-xp" delay={0.55} strokeWidth={7} />
+            </span>{" "}
+            acertos!
           </p>
 
           {/* Comparação com o desafiante */}
