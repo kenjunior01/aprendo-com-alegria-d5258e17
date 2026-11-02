@@ -370,7 +370,7 @@ export const BOOST3_LESSONS: Partial<Record<SubjectId, Lesson[]>> = {
         ["112", "911", "100", "021"],
         0,
         "Três algarismos fáceis de lembrar.",
-        "O 112 é o número de emergência gratuito em toda a Europa — memoriza-o!",
+        "O 112 é o número de emergência gratuito em toda a Europa — e aprende também o número de emergência do teu país, perguntando aos teus pais ou professores!",
       ),
       VF(
         "Os polícias ajudam a manter as ruas seguras.",

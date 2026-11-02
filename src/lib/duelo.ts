@@ -13,7 +13,7 @@
 //   de leitura é maior no erro do que no acerto (mesma regra do Quiz Relâmpago).
 // • Recompensas para o perfil local: TODOS participam, quem vence ganha bónus —
 //   nunca castigamos por perder (regressos sem culpa).
-import { ALL_TRIVIA, type TriviaQuestion } from "@/lib/triviaBoost";
+import { ALL_TRIVIA, triviaForRegion, type TriviaQuestion } from "@/lib/triviaBoost";
 import { getTriviaWithSource, remoteToTrivia } from "@/lib/triviaSource";
 import { recordDueloResult } from "@/lib/pvpStats";
 import { shuffled } from "@/lib/utils";
@@ -76,10 +76,13 @@ function playerAges(g: DueloPlayerGrade): number[] {
   return GRADE_AGES[String(g) as DueloGrade] ?? GRADE_AGES.misto;
 }
 
+/** Região do dispositivo: filtra categorias de país nos pools de jogo. */
+const deviceRegion = (): string | null => loadProfile()?.region ?? detectRegion().code;
+
 /** Perguntas suficientes por ano para não repetir muito em duelos seguidos? */
 export function dueloPoolSize(grade: DueloGrade): number {
   const ages = GRADE_AGES[grade];
-  return ALL_TRIVIA.filter((q) => ages.includes(q.age)).length;
+  return triviaForRegion(ALL_TRIVIA, deviceRegion()).filter((q) => ages.includes(q.age)).length;
 }
 
 /**
@@ -90,7 +93,7 @@ export function dueloMistoPoolSize(
   playerGrades: readonly [DueloPlayerGrade, DueloPlayerGrade],
 ): number {
   const ages = new Set([...playerAges(playerGrades[0]), ...playerAges(playerGrades[1])]);
-  return ALL_TRIVIA.filter((q) => ages.has(q.age)).length;
+  return triviaForRegion(ALL_TRIVIA, deviceRegion()).filter((q) => ages.has(q.age)).length;
 }
 
 /**
@@ -113,7 +116,11 @@ export function pickDueloQuestions(
   const localize = (q: TriviaQuestion) => localizeQuestion(q, region);
   // Trivia remota (roadmap §4.4): perguntas novas da internet entram no banco
   // com idade-âncora do pool certo — o filtro por faixa aceita-as nativamente.
-  const bank = remoteExtra?.length ? [...ALL_TRIVIA, ...remoteExtra] : ALL_TRIVIA;
+  // triviaForRegion (Task 50): categorias de país dos outros saem do pool.
+  const bank = triviaForRegion(
+    remoteExtra?.length ? [...ALL_TRIVIA, ...remoteExtra] : ALL_TRIVIA,
+    region,
+  );
 
   // Handicap por irmão: só com faixas DIFERENTES — anos iguais (ou Tudo+Tudo)
   // ficam no pool único clássico, que nunca repete pergunta entre os dois.

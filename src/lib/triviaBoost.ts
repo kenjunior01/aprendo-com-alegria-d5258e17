@@ -949,6 +949,7 @@ import { shuffled } from "@/lib/utils";
 import { TRIVIA_BANK } from "@/lib/triviaBank";
 import { TRIVIA_ULTRA } from "@/lib/triviaUltra";
 import { SENIOR_TRIVIA } from "@/lib/triviaSenior";
+import type { RegionCode } from "@/lib/region";
 export const ALL_TRIVIA: TriviaQuestion[] = [
   ...TRIVIA_BANK,
   ...TRIVIA_BOOST,
@@ -956,9 +957,41 @@ export const ALL_TRIVIA: TriviaQuestion[] = [
   ...SENIOR_TRIVIA,
 ];
 
-/** Escolhe n perguntas aleatórias do banco total, opcionalmente por categoria. */
-export function getRandomTriviaBoost(n: number, category?: string): TriviaQuestion[] {
-  const pool = category ? ALL_TRIVIA.filter((q) => q.category === category) : ALL_TRIVIA;
+/**
+ * Categorias do banco que pertencem a UM país (Task 50): uma criança de
+ * Maputo não devia levar "Qual é a capital de Portugal?" no Duelo — nem uma
+ * de Lisboa a moeda de Moçambique. O filtro é aplicado nos POOLS de jogo
+ * (Duelo, Relâmpago solo, fallback offline); o banco ALL_TRIVIA continua
+ * completo para desafios partilhados por seed (revanche justa = perguntas
+ * iguais nos dois dispositivos, independentemente da região).
+ */
+export const COUNTRY_CATEGORY_REGION: Record<string, RegionCode> = {
+  portugal: "PT",
+  mocambique: "MZ",
+};
+
+/** Mantém só as perguntas sem país (ou do país do jogador). Região nula ou
+ *  desconhecida (visitante sem perfil) = banco completo, como nos desafios
+ *  partilhados por seed. */
+export function triviaForRegion<T extends { category: string }>(
+  qs: readonly T[],
+  region?: string | null,
+): T[] {
+  return qs.filter((q) => {
+    const r = COUNTRY_CATEGORY_REGION[q.category];
+    return !r || region == null || r === region;
+  });
+}
+
+/** Escolhe n perguntas aleatórias do banco total, opcionalmente por categoria
+ *  e respeitando a região do jogador (categorias de país dos outros saem). */
+export function getRandomTriviaBoost(
+  n: number,
+  category?: string,
+  region?: string | null,
+): TriviaQuestion[] {
+  const base = category ? ALL_TRIVIA.filter((q) => q.category === category) : ALL_TRIVIA;
+  const pool = triviaForRegion(base, region);
   // Fisher–Yates justo (antes: sort(random) enviesava as posições)
   return shuffled(pool).slice(0, n);
 }

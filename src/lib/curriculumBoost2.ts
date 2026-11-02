@@ -51,10 +51,10 @@ export const BOOST2_LESSONS: Partial<Record<SubjectId, Lesson[]>> = {
         "O voto secreto protege cada pessoa de pressões: só tu sabes em quem votaste.",
       ),
       VF(
-        "Em Portugal, os maiores de 18 anos podem votar.",
+        "Na maioria dos países lusófonos, os maiores de 18 anos podem votar.",
         0,
         "Idade de votar.",
-        "Em Portugal (e na maioria dos países lusófonos) o voto é possível a partir dos 18 anos.",
+        "Em Portugal, Angola, Moçambique, Cabo Verde e muitos outros o voto é a partir dos 18 anos; no Brasil também se pode votar a partir dos 16.",
       ),
       Q(
         "O que é um deputado?",

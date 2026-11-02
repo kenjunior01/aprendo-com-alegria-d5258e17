@@ -119,7 +119,7 @@ export const CHAPTERS: Chapter[] = [
     grade: 1,
     missions: [
       ...pick("estudo-do-meio", [
-        "em-portugal",
+        "em-onde-vivo",
         "boost-edm-corpo",
         "em-escola",
         "em-animais-casa",
@@ -246,7 +246,7 @@ export const CHAPTERS: Chapter[] = [
     bgGradient: "from-[oklch(0.93_0.06_160)] to-[oklch(0.88_0.1_180)]",
     grade: 3,
     missions: [
-      ...pick("estudo-do-meio", ["em-distritos", "em-sistema-solar", "boost-edm-mocambique"]),
+      ...pick("estudo-do-meio", ["em-comunidade", "em-sistema-solar", "em-casas"]),
       ...pickRegional(3),
     ],
   },
@@ -292,7 +292,7 @@ export const CHAPTERS: Chapter[] = [
     bgGradient: "from-[oklch(0.92_0.07_140)] to-[oklch(0.86_0.11_170)]",
     grade: 4,
     missions: [
-      ...pick("estudo-do-meio", ["em-historia", "em-ambiente", "boost-edm-agua"]),
+      ...pick("estudo-do-meio", ["em-memoria", "em-ambiente", "boost-edm-agua"]),
       ...pickRegional(4),
     ],
   },

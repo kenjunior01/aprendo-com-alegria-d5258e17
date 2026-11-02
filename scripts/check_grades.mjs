@@ -12,10 +12,10 @@ const outFile = path.join(root, "node_modules", ".cache", "check_grades.bundle.m
 
 const entry = `
 import { SUBJECTS, GRADE_LABEL, getLesson } from "${path.join(root, "src/lib/curriculum.ts")}";
-import { ALL_TRIVIA } from "${path.join(root, "src/lib/triviaBoost.ts")}";
+import { ALL_TRIVIA, triviaForRegion } from "${path.join(root, "src/lib/triviaBoost.ts")}";
 import { SENIOR_TRIVIA } from "${path.join(root, "src/lib/triviaSenior.ts")}";
 import { CHAPTERS, totalMissions, chapterForRegion } from "${path.join(root, "src/lib/chapters.ts")}";
-globalThis.__AUDIT__ = { SUBJECTS, GRADE_LABEL, getLesson, ALL_TRIVIA, SENIOR_TRIVIA, CHAPTERS, totalMissions, chapterForRegion };
+globalThis.__AUDIT__ = { SUBJECTS, GRADE_LABEL, getLesson, ALL_TRIVIA, SENIOR_TRIVIA, CHAPTERS, totalMissions, chapterForRegion, triviaForRegion };
 `;
 
 const bundle = await rolldown({
@@ -46,6 +46,7 @@ const {
   CHAPTERS,
   totalMissions,
   chapterForRegion,
+  triviaForRegion,
 } = globalThis.__AUDIT__;
 const problems = [];
 const info = [];
@@ -214,6 +215,82 @@ info.push(`Pools do Duelo — 5.º ano (10–11): ${poolSizes.g5} · 6.º ano (1
 for (const g of [1, 2, 3, 4, 5, 6]) {
   if (!GRADE_LABEL[g]) problems.push(`GRADE_LABEL sem o ${g}.º ano`);
 }
+
+// ── 7. Core neutro (Task 50) — o caminho universal não tem lições de país ──
+// As 4 lições país-específicas antigas deixaram de existir.
+for (const legacy of ["em-portugal", "em-distritos", "em-historia", "boost-edm-mocambique"]) {
+  if (getLesson("estudo-do-meio", legacy))
+    problems.push(`Lição país-específica ainda no core: ${legacy}`);
+}
+// As 4 lições universais novas existem, com 5 perguntas e convenção certa.
+const novasUniversais = [
+  ["em-onde-vivo", 1],
+  ["em-comunidade", 3],
+  ["em-casas", 3],
+  ["em-memoria", 4],
+];
+for (const [id, grade] of novasUniversais) {
+  const l = getLesson("estudo-do-meio", id);
+  if (!l) {
+    problems.push(`Lição universal nova em falta: ${id}`);
+    continue;
+  }
+  if (l.grade !== grade) problems.push(`${id}: esperava o ${grade}.º ano, é o ${l.grade}.º`);
+  if (l.region) problems.push(`${id}: lição universal não devia ter region`);
+  if (l.questions.length !== 5)
+    problems.push(`${id}: esperava 5 perguntas, há ${l.questions.length}`);
+  for (const [i, q] of l.questions.entries()) {
+    if (!q.hint) problems.push(`${id}[${i}]: sem hint`);
+    if (!q.explanation) problems.push(`${id}[${i}]: sem explanation`);
+    if (q.kind === "truefalse") {
+      if (JSON.stringify(q.options) !== JSON.stringify(["Verdadeiro", "Falso"]))
+        problems.push(`${id}[${i}]: VF com options errados`);
+    } else if (q.kind && q.kind !== "truefalse") {
+      // order/count/etc. não têm answerIndex
+    } else if (q.answerIndex !== 0) {
+      problems.push(`${id}[${i}]: MCQ universal com answerIndex != 0`);
+    }
+  }
+}
+// Nenhuma lição NÃO-regional tem país no título (o país vive nas em-{cc}-gN).
+const countryRe =
+  /Portugal|Moçambique|Mocambique|Angola|Brasil|Cabo Verde|São Tomé|Sao Tome|Guiné|Guine/;
+for (const s of SUBJECTS) {
+  for (const l of s.lessons) {
+    if (l.region) continue;
+    if (countryRe.test(l.title))
+      problems.push(`Lição core com país no título: ${l.id} ("${l.title}")`);
+    for (const [i, q] of l.questions.entries()) {
+      if (/capital d[oe] (Portugal|Moçambique|Angola|Brasil)/i.test(q.prompt ?? ""))
+        problems.push(`Lição core com "capital de país": ${l.id}[${i}]`);
+    }
+  }
+}
+info.push(
+  `Core neutro: 4 lições país-específicas removidas, 4 universais novas (Onde Eu Vivo, A Minha Comunidade, Casas de Todo o Lugar, História Viva)`,
+);
+
+// ── 8. Gate regional da trivia (Task 50) ───────────────────────────────────
+const countCat = (qs, cat) => qs.filter((q) => q.category === cat).length;
+const pt = triviaForRegion(ALL_TRIVIA, "PT");
+const mz = triviaForRegion(ALL_TRIVIA, "MZ");
+const cv = triviaForRegion(ALL_TRIVIA, "CV");
+const anon = triviaForRegion(ALL_TRIVIA, null);
+const nPortugal = countCat(ALL_TRIVIA, "portugal");
+const nMocambique = countCat(ALL_TRIVIA, "mocambique");
+if (nPortugal < 5) problems.push(`Banco devia ter perguntas "portugal", tem ${nPortugal}`);
+if (nMocambique < 30) problems.push(`Banco devia ter perguntas "mocambique", tem ${nMocambique}`);
+if (countCat(pt, "mocambique") !== 0) problems.push("PT recebe perguntas da categoria mocambique");
+if (countCat(pt, "portugal") !== nPortugal) problems.push("PT perdeu perguntas portugal");
+if (countCat(mz, "portugal") !== 0) problems.push("MZ recebe perguntas da categoria portugal");
+if (countCat(mz, "mocambique") !== nMocambique) problems.push("MZ perdeu perguntas mocambique");
+if (countCat(cv, "mocambique") !== 0 || countCat(cv, "portugal") !== 0)
+  problems.push("CV recebe perguntas de país alheio");
+if (anon.length !== ALL_TRIVIA.length)
+  problems.push("Sem região, o banco devia ficar completo (desafios partilhados)");
+info.push(
+  `Trivia regional: PT ${pt.length} (${nPortugal} portugal) · MZ ${mz.length} (${nMocambique} mocambique) · CV ${cv.length} · sem região ${anon.length} (banco ${ALL_TRIVIA.length})`,
+);
 
 if (problems.length) {
   console.error(

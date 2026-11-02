@@ -106,7 +106,7 @@ export function LightningQuiz({
       profileGrade >= 6 ? "hard" : profileGrade >= 5 ? "medium" : ("easy" as const);
     const carga = (async () => {
       try {
-        const { questions: qs } = await getTriviaWithSource({ count, difficulty, age });
+        const { questions: qs } = await getTriviaWithSource({ count, difficulty, age, region });
         return qs.map((rq) => localizeQuestion(remoteToTrivia(rq, age), region));
       } catch {
         return null; // falha inesperada → o timeout local cobre
@@ -114,7 +114,12 @@ export function LightningQuiz({
     })();
     const localFallback = new Promise<TriviaQuestion[]>((resolve) => {
       const t = window.setTimeout(
-        () => resolve(getRandomTriviaBoost(count).map((qq) => localizeQuestion(qq, region))),
+        () =>
+          resolve(
+            getRandomTriviaBoost(count, undefined, region).map((qq) =>
+              localizeQuestion(qq, region),
+            ),
+          ),
         SOLO_REMOTE_TIMEOUT_MS,
       );
       timersRef.current.push(t);

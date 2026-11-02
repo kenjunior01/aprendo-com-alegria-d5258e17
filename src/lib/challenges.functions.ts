@@ -80,7 +80,9 @@ export const createPvpChallenge = createServerFn({ method: "POST" })
 // Submit score for a challenge participant.
 export const submitChallengeScore = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(z.object({ challengeId: z.string().uuid(), score: z.number().int().min(0) }).parse)
+  .inputValidator(
+    z.object({ challengeId: z.string().uuid(), score: z.number().int().min(0) }).parse,
+  )
   .handler(async ({ context, data }) => {
     const { supabase, userId } = context;
     const { data: ch } = await supabase
@@ -105,7 +107,7 @@ export const submitChallengeScore = createServerFn({ method: "POST" })
       winner = (cs ?? 0) >= 70 ? c.creator_id : null;
     } else if (cs != null && os != null) {
       status = "completed";
-      winner = cs === os ? null : (cs > os ? c.creator_id : c.opponent_id);
+      winner = cs === os ? null : cs > os ? c.creator_id : c.opponent_id;
     }
 
     const { error } = await supabase
@@ -179,19 +181,27 @@ export const getOrCreateDailyAiChallenge = createServerFn({ method: "POST" })
       if (!stats[k].lessons.includes(s.lesson_id)) stats[k].lessons.push(s.lesson_id);
     }
 
-    // Default subject rotation by region focus (region-aware default seed)
+    // Default subject rotation by region focus (region-aware default seed).
+    // Task 50: cada região começa por UMA lição do SEU país (em-{cc}-g1,
+    // lições regionais do curriculumRegional.ts) — visitantes sem região
+    // (US/ZA/GB) recebem uma lição universal que existe sempre.
     const defaultBySubject: Record<string, { subject: string; lesson: string }> = {
-      PT: { subject: "estudo-do-meio", lesson: "em-portugal" },
-      BR: { subject: "estudo-do-meio", lesson: "em-natureza" },
-      AO: { subject: "portugues", lesson: "pt-vogais" },
-      MZ: { subject: "portugues", lesson: "pt-vogais" },
-      CV: { subject: "portugues", lesson: "pt-vogais" },
+      PT: { subject: "estudo-do-meio", lesson: "em-pt-g1" },
+      BR: { subject: "estudo-do-meio", lesson: "em-br-g1" },
+      AO: { subject: "estudo-do-meio", lesson: "em-ao-g1" },
+      MZ: { subject: "estudo-do-meio", lesson: "em-mz-g1" },
+      CV: { subject: "estudo-do-meio", lesson: "em-cv-g1" },
+      ST: { subject: "estudo-do-meio", lesson: "em-st-g1" },
+      GW: { subject: "estudo-do-meio", lesson: "em-gw-g1" },
+      US: { subject: "estudo-do-meio", lesson: "em-escola" },
+      ZA: { subject: "estudo-do-meio", lesson: "em-escola" },
+      GB: { subject: "estudo-do-meio", lesson: "em-escola" },
     };
 
     const ranked = Object.entries(stats).sort(
       (a, b) => a[1].c / (a[1].t || 1) - b[1].c / (b[1].t || 1),
     );
-    const fallback = defaultBySubject[region] ?? defaultBySubject.PT;
+    const fallback = defaultBySubject[region] ?? { subject: "estudo-do-meio", lesson: "em-escola" };
     const subject = ranked[0]?.[0] ?? fallback.subject;
     // Pick most-recent unfinished lesson if available, else fallback
     const lesson = ranked[0]?.[1].lessons[0] ?? fallback.lesson;
@@ -253,7 +263,13 @@ export const getWeeklyRanking = createServerFn({ method: "GET" })
       .slice(0, 20);
 
     const meIdx = ranking.findIndex((r) => r.userId === userId);
-    return { ranking, me: meIdx >= 0 ? { rank: meIdx + 1, xp: totals[userId] ?? 0 } : { rank: null, xp: totals[userId] ?? 0 } };
+    return {
+      ranking,
+      me:
+        meIdx >= 0
+          ? { rank: meIdx + 1, xp: totals[userId] ?? 0 }
+          : { rank: null, xp: totals[userId] ?? 0 },
+    };
   });
 
 // Friendship management
@@ -262,7 +278,8 @@ export const requestFriendship = createServerFn({ method: "POST" })
   .inputValidator(z.object({ addresseeId: z.string().uuid() }).parse)
   .handler(async ({ context, data }) => {
     const { supabase, userId } = context;
-    if (data.addresseeId === userId) return { ok: false as const, error: "Não te podes adicionar a ti." };
+    if (data.addresseeId === userId)
+      return { ok: false as const, error: "Não te podes adicionar a ti." };
     const { error } = await supabase
       .from("friendships" as any)
       .insert({ requester_id: userId, addressee_id: data.addresseeId });
@@ -292,7 +309,10 @@ export const listFriends = createServerFn({ method: "GET" })
       .select("id, requester_id, addressee_id, status")
       .or(`requester_id.eq.${userId},addressee_id.eq.${userId}`);
     const list = (rels ?? []) as unknown as Array<{
-      id: string; requester_id: string; addressee_id: string; status: string;
+      id: string;
+      requester_id: string;
+      addressee_id: string;
+      status: string;
     }>;
     const otherIds = list.map((r) => (r.requester_id === userId ? r.addressee_id : r.requester_id));
     const { data: profs } = otherIds.length

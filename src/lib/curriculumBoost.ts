@@ -276,28 +276,9 @@ export const BOOST_LESSONS: Partial<Record<SubjectId, Lesson[]>> = {
         0,
       ),
     ]),
-    L("boost-edm-mocambique", "Orgulho de Moçambique", "🇲🇿", 3, [
-      Q("Qual é a capital de Moçambique?", ["Maputo", "Beira", "Nampula", "Quelimane"], 0),
-      Q("A moeda de Moçambique é o…", ["metical", "escudo", "dólar", "cwanza"], 0),
-      Q(
-        "Que símbolos estão na bandeira de Moçambique?",
-        ["AKM, enxada, livro e estrela", "águia e cobra", "leão e coroa", "sol e lua"],
-        0,
-        "Simbolos de defesa, produção, educação!",
-      ),
-      Q("O rio mais importante de Moçambique é o…", ["Zambeze", "Nilo", "Congo", "Limpopo sul"], 0),
-      Q("Uma comida tradicional moçambicana é…", ["xima", "sushi", "paella", "pizza"], 0),
-      Q(
-        "Quantas províncias tem Moçambique?",
-        ["10", "8", "12", "11"],
-        0,
-        "10 + a cidade de Maputo!",
-      ),
-      Q("A língua oficial de Moçambique é…", ["português", "inglês", "espanhol", "swahili"], 0),
-      Q("Moçambique fica em que continente?", ["África", "Ásia", "Europa", "Oceânia"], 0),
-      Q("O mar que banha Moçambique é o…", ["Índico", "Atlântico", "Pacífico", "Ártico"], 0),
-      Q("A ilha de Moçambique deu nome ao…", ["país", "continente", "planeta", "oceano"], 0),
-    ]),
+    // boost-edm-mocambique removido (Task 50): o conteúdo do país de cada
+    // criança vive nas lições regionais em-{cc}-gN (curriculumRegional.ts) —
+    // uma lição de Moçambique no caminho universal prejudicava os outros países.
     L("boost-edm-agua", "Planeta Água", "💧", 4, [
       Q("A água no estado sólido é…", ["gelo", "vapor", "chuva", "orvalho"], 0),
       Q(

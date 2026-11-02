@@ -1324,36 +1324,63 @@ const SUBJECTS_CORE: Subject[] = [
   {
     id: "estudo-do-meio",
     name: "Estudo do Meio",
-    tagline: "Portugal, natureza e o mundo",
+    tagline: "O meu país, a natureza e o mundo",
     emoji: "🌍",
     colorVar: "--pt-world",
     lessons: [
       {
-        id: "em-portugal",
-        title: "O nosso Portugal",
-        emoji: "🇵🇹",
+        // Lição UNIVERSAL (Task 50): os factos do país de cada criança vivem
+        // agora nas lições regionais em-{cc}-gN (curriculumRegional.ts).
+        id: "em-onde-vivo",
+        title: "Onde Eu Vivo",
+        emoji: "🏡",
         grade: 1,
         questions: [
           {
-            prompt: "Qual é a capital de Portugal?",
-            options: ["Porto", "Lisboa", "Coimbra", "Faro"],
-            answerIndex: 1,
+            prompt: "O sítio onde vivemos com a nossa família chama-se…",
+            options: ["a nossa casa", "a escola", "o mercado", "o hospital"],
+            answerIndex: 0,
+            hint: "É onde dormimos e tomamos o pequeno-almoço.",
+            explanation:
+              "A nossa casa é o nosso cantinho: ali dormimos, comemos e brincamos com a família.",
           },
           {
-            prompt: "Quantas cores tem a bandeira portuguesa?",
-            options: ["1", "2", "3", "4"],
-            answerIndex: 1,
-            hint: "Verde e vermelho",
+            prompt: "Na cidade, as casas ficam ao longo das…",
+            options: ["ruas", "árvores", "nuvens", "montanhas"],
+            answerIndex: 0,
+            hint: "Cada uma tem nome na placa.",
+            explanation:
+              "Na cidade, as ruas organizam as casas — e cada rua tem nome para encontrarmos o caminho.",
           },
           {
-            prompt: "Que rio passa em Lisboa?",
-            options: ["Douro", "Tejo", "Mondego", "Guadiana"],
-            answerIndex: 1,
+            prompt: "Põe do mais pequeno ao maior!",
+            kind: "order",
+            sequence: ["A minha casa", "A minha rua", "A minha cidade"],
+            hint: "Começa onde dormes!",
+            explanation:
+              "A casa fica na rua; as ruas formam a cidade — ou a aldeia — onde vivemos.",
           },
           {
-            prompt: "Que oceano banha Portugal?",
-            options: ["Pacífico", "Índico", "Atlântico", "Ártico"],
-            answerIndex: 2,
+            prompt: "A nossa casa pode estar numa cidade ou numa aldeia.",
+            kind: "truefalse",
+            options: ["Verdadeiro", "Falso"],
+            answerIndex: 0,
+            hint: "Há famílias nos dois lugares.",
+            explanation:
+              "Verdadeiro! Há quem viva em cidades grandes e quem viva em aldeias — os dois lugares podem ser o nosso lar.",
+          },
+          {
+            prompt: "O número na porta da casa serve para…",
+            options: [
+              "encontrar a casa certa",
+              "contar os passarinhos",
+              "medir a chuva",
+              "ouvir a rádio",
+            ],
+            answerIndex: 0,
+            hint: "As visitas precisam dele.",
+            explanation:
+              "O número da porta (quando existe) ajuda as visitas e o correio a encontrar a casa certa.",
           },
         ],
       },
@@ -1748,30 +1775,121 @@ const SUBJECTS_CORE: Subject[] = [
       },
       // 3.º ano
       {
-        id: "em-distritos",
-        title: "Distritos de Portugal",
-        emoji: "🗺️",
+        // Lições UNIVERSAIS (Task 50): substituem "Distritos de Portugal" —
+        // a divisão administrativa do país de cada criança pertence às
+        // lições regionais em-{cc}-gN.
+        id: "em-comunidade",
+        title: "A Minha Comunidade",
+        emoji: "🏘️",
         grade: 3,
         questions: [
           {
-            prompt: "Quantos distritos tem Portugal continental?",
-            options: ["16", "18", "20", "22"],
-            answerIndex: 1,
+            prompt: "Onde compramos frutas, legumes e peixe fresco?",
+            options: ["No mercado", "Na escola", "No hospital", "No estádio"],
+            answerIndex: 0,
+            hint: "Tem barracas e vendedores.",
+            explanation:
+              "No mercado encontram-se frutas, legumes e peixe — é o coração de muitas comunidades.",
           },
           {
-            prompt: "Em que distrito fica o Porto?",
-            options: ["Lisboa", "Porto", "Braga", "Aveiro"],
-            answerIndex: 1,
+            prompt: "Quando alguém fica doente, a família leva-o ao…",
+            options: ["centro de saúde", "mercado", "campo de futebol", "correio"],
+            answerIndex: 0,
+            hint: "Lá trabalham enfermeiros e médicos.",
+            explanation:
+              "No centro de saúde (ou hospital) enfermeiros e médicos cuidam de nós com carinho.",
           },
           {
-            prompt: "Qual é o distrito mais a sul?",
-            options: ["Beja", "Faro", "Évora", "Setúbal"],
-            answerIndex: 1,
+            prompt: "A biblioteca é o sítio onde…",
+            options: [
+              "podemos ler e pedir livros",
+              "compramos comida",
+              "lavamos a roupa",
+              "assistimos a jogos",
+            ],
+            answerIndex: 0,
+            hint: "Shhh… aqui fala-se baixinho.",
+            explanation:
+              "Na biblioteca guardam-se livros para todos lerem — com calma e sem pressa.",
           },
           {
-            prompt: "As ilhas dos Açores e Madeira são…",
-            options: ["distritos", "regiões autónomas", "países", "cidades"],
-            answerIndex: 1,
+            prompt: "Quem entrega as cartas e as encomendas em casa?",
+            options: ["O carteiro", "O piloto", "O treinador", "O jardineiro"],
+            answerIndex: 0,
+            hint: "Anda de mochila ou de bicicleta.",
+            explanation:
+              "O carteiro percorre ruas e aldeias para levar notícias e encomendas às famílias.",
+          },
+          {
+            prompt: "Ajudar os vizinhos deixa a comunidade mais forte.",
+            kind: "truefalse",
+            options: ["Verdadeiro", "Falso"],
+            answerIndex: 0,
+            hint: "Pensa no que acontece quando todos ajudam.",
+            explanation:
+              "Verdadeiro! Quando emprestamos, partilhamos e ajudamos, a comunidade inteira ganha.",
+          },
+        ],
+      },
+      {
+        id: "em-casas",
+        title: "Casas de Todo o Lugar",
+        emoji: "🧱",
+        grade: 3,
+        questions: [
+          {
+            prompt: "Nas cidades grandes, muitas famílias vivem em…",
+            options: [
+              "prédios com apartamentos",
+              "tendas de campanha",
+              "barcos de pesca",
+              "carros",
+            ],
+            answerIndex: 0,
+            hint: "Prédios altos, um andar em cima do outro.",
+            explanation: "Os prédios têm muitos andares: cada apartamento é a casa de uma família.",
+          },
+          {
+            prompt: "No campo, é comum as famílias terem…",
+            options: [
+              "um quintal para plantar",
+              "um elevador",
+              "um metro debaixo de casa",
+              "cinco garagens",
+            ],
+            answerIndex: 0,
+            hint: "Espaço para o milho, a mandioca e as galinhas.",
+            explanation:
+              "No campo há mais espaço: quintais com hortas, árvores de fruta e animais.",
+          },
+          {
+            prompt: "Qual destes materiais NÃO serve para construir uma casa?",
+            options: ["a chuva", "a madeira", "o tijolo", "a pedra"],
+            answerIndex: 0,
+            hint: "Uma delas cai do céu!",
+            explanation:
+              "Chuva não constrói nada — madeira, tijolo e pedra são materiais de construção.",
+          },
+          {
+            prompt: "O telhado da casa serve para…",
+            options: [
+              "proteger da chuva e do sol",
+              "guardar os carros",
+              "cozinhar o jantar",
+              "ser a porta de entrada",
+            ],
+            answerIndex: 0,
+            hint: "Olha para cima quando chove.",
+            explanation: "O telhado é como um chapéu da casa: protege a família da chuva e do sol.",
+          },
+          {
+            prompt: "Em cada lugar constrói-se a casa do jeito que o lugar permite.",
+            kind: "truefalse",
+            options: ["Verdadeiro", "Falso"],
+            answerIndex: 0,
+            hint: "Pedra na montanha, palha junto ao rio…",
+            explanation:
+              "Verdadeiro! Onde há pedra constrói-se com pedra; onde há palha e caniço, com palha e caniço.",
           },
         ],
       },
@@ -1812,40 +1930,58 @@ const SUBJECTS_CORE: Subject[] = [
       },
       // 4.º ano
       {
-        id: "em-historia",
-        title: "História de Portugal",
-        emoji: "🏰",
+        // Lição UNIVERSAL (Task 50): substitui "História de Portugal" — a
+        // história de cada país vive nas lições regionais em-{cc}-gN (e a
+        // fundação de Portugal continua na em-pt-g4 e em-pt-g5).
+        id: "em-memoria",
+        title: "História Viva",
+        emoji: "🕰️",
         grade: 4,
         questions: [
           {
-            prompt: "Quem foi o primeiro rei de Portugal?",
-            options: ["D. João I", "D. Afonso Henriques", "D. Dinis", "D. Manuel"],
-            answerIndex: 1,
-          },
-          {
-            prompt: "Em que ano se fundou Portugal?",
-            options: ["1143", "1500", "1640", "1910"],
+            prompt: "A História estuda…",
+            options: [
+              "a vida das pessoas no passado",
+              "só as estrelas",
+              "só o futuro",
+              "só os jogos",
+            ],
             answerIndex: 0,
+            hint: "Reis, famílias, aldeias e países de há muito tempo.",
+            explanation:
+              "A História é a memória das pessoas: conta como viviam, lutavam e festejavam no passado.",
           },
           {
-            prompt: "Quem chegou à Índia em 1498?",
-            options: [
-              "Pedro Álvares Cabral",
-              "Vasco da Gama",
-              "Fernão de Magalhães",
-              "Bartolomeu Dias",
-            ],
-            answerIndex: 1,
+            prompt: "Quem guarda histórias antigas para nos contar?",
+            options: ["Os avós e os anciãos", "Os bebés", "Os robôs", "Os carros"],
+            answerIndex: 0,
+            hint: "Quem já viveu muitos anos.",
+            explanation:
+              "Os avós e os anciãos são bibliotecas vivas: guardam histórias que ninguém escreveu em livros.",
           },
           {
-            prompt: "Quem descobriu o Brasil?",
-            options: [
-              "Vasco da Gama",
-              "Pedro Álvares Cabral",
-              "Cristóvão Colombo",
-              "Fernão Mendes Pinto",
-            ],
-            answerIndex: 1,
+            prompt: "Objetos antigos, como panelas e ferramentas, ficam guardados no…",
+            options: ["museu", "supermercado", "estádio", "aeroporto"],
+            answerIndex: 0,
+            hint: "Lá as coisas têm vidrinhos e etiquetas.",
+            explanation: "Os museus guardam os tesouros do passado para todos poderem visitá-los.",
+          },
+          {
+            prompt: "Fotografias, cartas e livros antigos ajudam-nos a conhecer…",
+            options: ["o passado", "o fundo do mar", "o interior da Terra", "o futuro"],
+            answerIndex: 0,
+            hint: "São pistas de quem viveu antes de nós.",
+            explanation:
+              "São fontes históricas: pistas deixadas por quem viveu antes, como pegadas no tempo.",
+          },
+          {
+            prompt: "As histórias contadas de pais para filhos também fazem parte da História.",
+            kind: "truefalse",
+            options: ["Verdadeiro", "Falso"],
+            answerIndex: 0,
+            hint: "Pensa nas histórias que os avós contam à noite.",
+            explanation:
+              "Verdadeiro! É a tradição oral: antes de existirem livros, a História viajava de voz em voz.",
           },
         ],
       },
@@ -1856,17 +1992,17 @@ const SUBJECTS_CORE: Subject[] = [
         grade: 4,
         questions: [
           {
-            prompt: "Em que ecoponto se coloca o papel?",
+            prompt: "Em que contentor de reciclagem se coloca o papel?",
             options: ["Amarelo", "Azul", "Verde", "Vermelho"],
             answerIndex: 1,
           },
           {
-            prompt: "Em que ecoponto se coloca o vidro?",
+            prompt: "Em que contentor de reciclagem se coloca o vidro?",
             options: ["Amarelo", "Azul", "Verde", "Castanho"],
             answerIndex: 2,
           },
           {
-            prompt: "O ecoponto amarelo é para…",
+            prompt: "O contentor amarelo de reciclagem é para…",
             options: ["vidro", "papel", "plástico e metal", "lixo orgânico"],
             answerIndex: 2,
           },

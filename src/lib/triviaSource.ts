@@ -1,6 +1,6 @@
 // Trivia source com cache local + fallback offline para `triviaBank` + `triviaBoost`.
 import { supabase } from "@/integrations/supabase/client";
-import { ALL_TRIVIA, type TriviaQuestion } from "@/lib/triviaBoost";
+import { ALL_TRIVIA, triviaForRegion, type TriviaQuestion } from "@/lib/triviaBoost";
 import { shuffled } from "@/lib/utils";
 
 const LS_PREFIX = "alegria.trivia.cache.v1::";
@@ -33,8 +33,13 @@ function writeLocal(key: string, qs: RemoteTriviaQ[]) {
   }
 }
 
-function fallbackOffline(count: number, age?: number): RemoteTriviaQ[] {
-  const pool = ALL_TRIVIA.filter((q) => age == null || Math.abs(q.age - age) <= 2);
+function fallbackOffline(count: number, age?: number, region?: string | null): RemoteTriviaQ[] {
+  // Task 50: o fallback offline também respeita a região — categorias de país
+  // (mocambique/portugal) não chegam a jogadores de outros países.
+  const pool = triviaForRegion(
+    ALL_TRIVIA.filter((q) => age == null || Math.abs(q.age - age) <= 2),
+    region,
+  );
   const src = pool.length ? pool : ALL_TRIVIA;
   const baralhado = shuffled(src).slice(0, count);
   return baralhado.map((q: TriviaQuestion) => ({
@@ -57,6 +62,8 @@ export async function getTriviaWithSource(opts: {
   difficulty?: "easy" | "medium" | "hard";
   count?: number;
   age?: number;
+  /** Região do jogador: filtra categorias de país no fallback offline. */
+  region?: string | null;
 }): Promise<{ questions: RemoteTriviaQ[]; source: TriviaSourceKind }> {
   const category = opts.category ?? "general";
   const difficulty = opts.difficulty ?? "easy";
@@ -82,7 +89,7 @@ export async function getTriviaWithSource(opts: {
   } catch (e) {
     console.warn("[triviaSource] remote failed, fallback offline", e);
   }
-  return { questions: fallbackOffline(count, opts.age), source: "offline" };
+  return { questions: fallbackOffline(count, opts.age, opts.region), source: "offline" };
 }
 
 export async function getTrivia(opts: {
