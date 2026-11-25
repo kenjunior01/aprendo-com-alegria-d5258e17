@@ -1,18 +1,23 @@
 // Streaming chat endpoint para o Tutor IA (Mocha).
 // Recebe POST com { messages, childName, childGrade } e responde com text/event-stream
-// passando os tokens vindos do Lovable AI Gateway tal como saem.
+// passando os tokens vindos do provider de IA tal como saem.
+//
+// Providers (ordem de preferência — ver src/lib/aiProviders.server.ts):
+//   1. NVIDIA NIM (nemotron, reasoning off) — principal desde 2026-11
+//   2. Lovable AI Gateway — fallback
 //
 // Hardening (auditoria de segurança):
 // 1. Autenticação opcional Supabase JWT — utilizadores autenticados têm limites
 //    mais generosos; anónimos ficam sujeitos a limites por IP.
 // 2. Rate limiting em memória por utilizador/IP (janela deslizante).
-// 3. Timeout no upstream + retry único (corrige 502 intermitentes).
+// 3. Timeout no upstream + cadeia de providers (corrige 502 intermitentes).
 // 4. Proteção de custos: max_tokens, nº máximo de mensagens e comprimento por mensagem.
 // 5. Filtro de PII nas mensagens da criança (emails/telefones são removidos).
 // 6. Prompt de sistema blindado (segurança infantil COPPA/GDPR-K).
 
 import { createFileRoute } from "@tanstack/react-router";
 import { createClient } from "@supabase/supabase-js";
+import { tutorUpstreams } from "@/lib/aiProviders.server";
 
 interface ChatMsg {
   role: "user" | "assistant";
@@ -22,10 +27,6 @@ interface ChatMsg {
 // ---------------------------------------------------------------------------
 // Configuração
 // ---------------------------------------------------------------------------
-const MODELS = [
-  process.env.TUTOR_MODEL || "google/gemini-3-flash-preview",
-  "google/gemini-2.0-flash-exp", // fallback se o modelo primário falhar
-];
 const UPSTREAM_TIMEOUT_MS = 25_000;
 const MAX_MESSAGES = 24;
 const MAX_MSG_CHARS = 600;
@@ -132,16 +133,27 @@ function sanitizeChildMessage(text: string): string {
 // ---------------------------------------------------------------------------
 // Prompt de sistema — blindado para crianças (COPPA/GDPR-K)
 // ---------------------------------------------------------------------------
-const DEFAULT_SYSTEM = `És um tutor mascote do Kidoz — uma plataforma educativa para crianças do 1.º ciclo em Portugal e Moçambique (6-10 anos).
+const DEFAULT_SYSTEM = `És um tutor mascote do Kidoz — uma plataforma educativa para crianças do 1.º ao 6.º ano em Portugal e Moçambique (6-12 anos).
+
+COMO ENSINAS (método, obrigatório):
+- Nunca dês a resposta direta a exercícios escolares. Usa a escada de dicas:
+  1.ª vez: pergunta-guia suave que aponta a direção.
+  2.ª vez: divide o problema em passos pequenos.
+  3.ª vez: resolves um exemplo PARECIDO (com outros números/palavras), passo a passo, e convidas a criança a aplicar ao exercício dela.
+- Celebra o esforço antes da precisão: nunca digas "errado" — diz "quase!", "boa tentativa!" e corrige com bondade.
+- Adapta ao ano da criança: 1.º-2.º → frases muito curtas, palavras simples, exemplos com objetos do dia a dia; 3.º-4.º → passos numerados; 5.º-6.º → desafios de raciocínio e podes ir mais a fundo.
+- Matemática: incentiva a decompor em dezenas/unidades, desenhar, ou contar por saltos.
+- Português: para ler, usa sons e sílabas; para escrever, regras com exemplos curtos.
+- Inglês: dá a palavra em inglês com a tradução entre parênteses (ex.: weather (tempo)).
+- Podes inventar micro-histórias, adivinhas e desafios lúdicos para motivar.
 
 Estilo:
 - Fala em português, calorosamente, como um amiguinho.
-- Usa frases curtas (máx. 2-3 frases por resposta na maioria dos casos).
+- Usa frases curtas (máx. 2-4 frases por resposta na maioria dos casos).
 - Usa emojis com moderação.
-- Nunca dês a resposta direta a problemas escolares: faz perguntas-guia.
 - Redireciona com gentileza para aprendizagem se necessário.
 
-Áreas: Português, Matemática, Estudo do Meio.
+Áreas: Português, Matemática, Estudo do Meio, Ciências, Cidadania, Inglês.
 
 REGRAS DE SEGURANÇA (obrigatórias, sem exceções):
 - Nunca peças nem repitas informações pessoais: nome completo, morada, escola, telefone, email, passwords ou fotos.
@@ -155,8 +167,8 @@ export const Route = createFileRoute("/api/public/tutor-stream")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const apiKey = process.env.LOVABLE_API_KEY;
-        if (!apiKey) {
+        const upstreams = tutorUpstreams();
+        if (upstreams.length === 0) {
           return new Response(JSON.stringify({ error: "AI not configured" }), { status: 500 });
         }
 
@@ -224,21 +236,25 @@ export const Route = createFileRoute("/api/public/tutor-stream")({
 
         const systemPrompt = `${DEFAULT_SYSTEM}\n\nPERSONA ESPECÍFICA:\n${persona || "És uma coruja sábia chamada Mocha."}${ctx}`;
 
-        // ---- Chamada upstream com timeout + fallback de modelo --------------
+        // ---- Chamada upstream com timeout + cadeia de providers -------------
         let upstream: Response | null = null;
         let lastStatus = 0;
 
-        for (const model of MODELS) {
+        for (const provider of upstreams) {
           try {
-            const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+            const res = await fetch(provider.url, {
               method: "POST",
-              headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
+              headers: {
+                Authorization: `Bearer ${provider.apiKey}`,
+                "Content-Type": "application/json",
+              },
               body: JSON.stringify({
-                model,
+                model: provider.model,
                 stream: true,
                 max_tokens: MAX_OUTPUT_TOKENS,
                 temperature: 0.7,
                 messages: [{ role: "system", content: systemPrompt }, ...cleaned],
+                ...(provider.bodyExtras ?? {}),
               }),
               signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS),
             });
@@ -248,10 +264,10 @@ export const Route = createFileRoute("/api/public/tutor-stream")({
               break;
             }
             lastStatus = res.status;
-            // 429/402 não melhoram com fallback de modelo — sai logo
-            if (res.status === 429 || res.status === 402) break;
+            // 429/402 neste provider não impedem tentar o próximo
+            // (quotas são independentes) — continua a cadeia
           } catch {
-            // timeout/rede — tenta próximo modelo
+            // timeout/rede — tenta próximo provider
           }
         }
 

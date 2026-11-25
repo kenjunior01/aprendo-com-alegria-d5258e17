@@ -2,6 +2,7 @@
 
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { tutorUpstreams } from "@/lib/aiProviders.server";
 
 interface Recommendation {
   title: string;
@@ -36,8 +37,8 @@ export const explainMistake = createServerFn({ method: "POST" })
     };
   })
   .handler(async ({ data }): Promise<MistakeExplanation> => {
-    const apiKey = process.env.LOVABLE_API_KEY;
-    if (!apiKey) {
+    const upstreams = tutorUpstreams();
+    if (upstreams.length === 0) {
       return {
         explanation: `A resposta certa é "${data.correctAnswer}". Não faz mal — vamos tentar outra vez!`,
         hint: "Lê devagar a pergunta antes de responderes.",
@@ -55,54 +56,78 @@ Resposta correta: "${data.correctAnswer}"
 
 Explica em 1-2 frases curtas porque a resposta correta é a correta, e dá uma dica para a próxima tentativa.`;
 
-    try {
-      const resp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-        method: "POST",
-        headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
-        body: JSON.stringify({
-          model: "google/gemini-3-flash-preview",
-          messages: [
-            { role: "system", content: systemMsg },
-            { role: "user", content: userMsg },
-          ],
-          tools: [{
-            type: "function",
-            function: {
-              name: "explain",
-              description: "Explicar de forma encorajadora à criança",
-              parameters: {
-                type: "object",
-                properties: {
-                  explanation: { type: "string", description: "Explicação curta e gentil em pt-PT (1-2 frases)" },
-                  hint: { type: "string", description: "Dica curta para a próxima tentativa em pt-PT" },
-                },
-                required: ["explanation", "hint"],
-                additionalProperties: false,
+    const tools = [
+      {
+        type: "function",
+        function: {
+          name: "explain",
+          description: "Explicar de forma encorajadora à criança",
+          parameters: {
+            type: "object",
+            properties: {
+              explanation: {
+                type: "string",
+                description: "Explicação curta e gentil em pt-PT (1-2 frases)",
               },
+              hint: { type: "string", description: "Dica curta para a próxima tentativa em pt-PT" },
             },
-          }],
-          tool_choice: { type: "function", function: { name: "explain" } },
-        }),
-      });
+            required: ["explanation", "hint"],
+            additionalProperties: false,
+          },
+        },
+      },
+    ];
 
-      if (resp.status === 429) {
-        return { explanation: "Vamos com calma — respira fundo!", hint: "Tenta de novo daqui a pouco." };
+    let lastStatus = 0;
+    for (const provider of upstreams) {
+      try {
+        const resp = await fetch(provider.url, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${provider.apiKey}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            model: provider.model,
+            messages: [
+              { role: "system", content: systemMsg },
+              { role: "user", content: userMsg },
+            ],
+            tools,
+            tool_choice: { type: "function", function: { name: "explain" } },
+            ...(provider.bodyExtras ?? {}),
+          }),
+          signal: AbortSignal.timeout(25_000),
+        });
+
+        lastStatus = resp.status;
+        if (resp.status === 429) continue;
+        if (!resp.ok) continue;
+        const json = await resp.json();
+        const args = json.choices?.[0]?.message?.tool_calls?.[0]?.function?.arguments;
+        if (args) {
+          try {
+            return JSON.parse(args) as MistakeExplanation;
+          } catch {
+            /* JSON inválido — tenta próximo provider */
+          }
+        }
+      } catch {
+        /* timeout/rede — tenta próximo provider */
       }
-      if (!resp.ok) throw new Error(`AI ${resp.status}`);
-      const json = await resp.json();
-      const args = json.choices?.[0]?.message?.tool_calls?.[0]?.function?.arguments;
-      if (args) return JSON.parse(args) as MistakeExplanation;
-    } catch {
-      /* fallthrough */
     }
 
+    if (lastStatus === 429) {
+      return {
+        explanation: "Vamos com calma — respira fundo!",
+        hint: "Tenta de novo daqui a pouco.",
+      };
+    }
     return {
       explanation: `A resposta certa é "${data.correctAnswer}". Olha bem para a pergunta — vais ver que faz sentido!`,
       hint: "Lê a pergunta em voz alta antes de escolher.",
     };
   });
-
-
 
 export const getAdaptiveRecommendation = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -149,8 +174,8 @@ export const getAdaptiveRecommendation = createServerFn({ method: "POST" })
       total: v.total,
     }));
 
-    const apiKey = process.env.LOVABLE_API_KEY;
-    if (!apiKey) {
+    const upstreams = tutorUpstreams();
+    if (upstreams.length === 0) {
       const weakest = summary.sort((a, b) => a.acc - b.acc)[0];
       return {
         title: "Continua a praticar!",
@@ -174,44 +199,79 @@ ${summary.map((s) => `- ${s.sub}: ${Math.round(s.acc * 100)}% de acerto em ${s.t
 
 Última sessão: ${sessions[0].subject_id}, ${sessions[0].correct}/${sessions[0].total}.`;
 
-    try {
-      const resp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-        method: "POST",
-        headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
-        body: JSON.stringify({
-          model: "google/gemini-3-flash-preview",
-          messages: [
-            { role: "system", content: `És um tutor educacional infantil. ${ctx} Sê breve, caloroso e motivador.` },
-            { role: "user", content: prompt },
-          ],
-          tools: [{
-            type: "function",
-            function: {
-              name: "recommend",
-              description: "Recomendar próximo foco à criança",
-              parameters: {
-                type: "object",
-                properties: {
-                  title: { type: "string", description: "Título curto, máx 6 palavras, em pt-PT" },
-                  message: { type: "string", description: "Mensagem motivadora 1-2 frases, em pt-PT" },
-                  focusSubject: { type: "string", enum: ["portugues", "matematica", "estudo-do-meio", "geral"] },
-                  difficulty: { type: "string", enum: ["facil", "medio", "dificil"] },
-                },
-                required: ["title", "message", "focusSubject", "difficulty"],
-                additionalProperties: false,
+    const tools = [
+      {
+        type: "function",
+        function: {
+          name: "recommend",
+          description: "Recomendar próximo foco à criança",
+          parameters: {
+            type: "object",
+            properties: {
+              title: { type: "string", description: "Título curto, máx 6 palavras, em pt-PT" },
+              message: { type: "string", description: "Mensagem motivadora 1-2 frases, em pt-PT" },
+              focusSubject: {
+                type: "string",
+                enum: ["portugues", "matematica", "estudo-do-meio", "geral"],
               },
+              difficulty: { type: "string", enum: ["facil", "medio", "dificil"] },
             },
-          }],
-          tool_choice: { type: "function", function: { name: "recommend" } },
-        }),
-      });
+            required: ["title", "message", "focusSubject", "difficulty"],
+            additionalProperties: false,
+          },
+        },
+      },
+    ];
 
-      if (!resp.ok) throw new Error(`AI ${resp.status}`);
-      const data = await resp.json();
-      const args = data.choices?.[0]?.message?.tool_calls?.[0]?.function?.arguments;
-      if (args) return JSON.parse(args) as Recommendation;
-    } catch {
-      // fallthrough
+    let lastStatus = 0;
+    for (const provider of upstreams) {
+      try {
+        const resp = await fetch(provider.url, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${provider.apiKey}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            model: provider.model,
+            messages: [
+              {
+                role: "system",
+                content: `És um tutor educacional infantil. ${ctx} Sê breve, caloroso e motivador.`,
+              },
+              { role: "user", content: prompt },
+            ],
+            tools,
+            tool_choice: { type: "function", function: { name: "recommend" } },
+            ...(provider.bodyExtras ?? {}),
+          }),
+          signal: AbortSignal.timeout(25_000),
+        });
+
+        lastStatus = resp.status;
+        if (!resp.ok) continue;
+        const data = await resp.json();
+        const args = data.choices?.[0]?.message?.tool_calls?.[0]?.function?.arguments;
+        if (args) {
+          try {
+            return JSON.parse(args) as Recommendation;
+          } catch {
+            /* JSON inválido — tenta próximo provider */
+          }
+        }
+      } catch {
+        // timeout/rede — tenta próximo provider
+      }
+    }
+
+    if (lastStatus === 429) {
+      const weakest = summary.sort((a, b) => a.acc - b.acc)[0];
+      return {
+        title: "Vamos com calma!",
+        message: `Respira fundo e tenta mais missões de ${weakest?.sub ?? "qualquer disciplina"}. Tu consegues!`,
+        focusSubject: (weakest?.sub as Recommendation["focusSubject"]) ?? "geral",
+        difficulty: "medio",
+      };
     }
 
     const weakest = summary.sort((a, b) => a.acc - b.acc)[0];
