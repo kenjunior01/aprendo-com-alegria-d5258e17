@@ -25,7 +25,7 @@ interface Props {
 
 const KEY = (id: string) => `alegria-tutorial-seen::${id}`;
 
-export function useShouldShowTutorial(gameId: string) {
+function useShouldShowTutorial(gameId: string) {
   const [show, setShow] = useState(true);
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -108,9 +108,13 @@ export function GameTutorial({ gameId, title, steps, onStart, forceShow, parentN
               className="touch-target-kid inline-flex items-center justify-center gap-2 rounded-2xl bg-primary px-5 py-3 font-display text-primary-foreground"
             >
               {idx < steps.length - 1 ? (
-                <>Seguinte <ChevronRight className="h-5 w-5" /></>
+                <>
+                  Seguinte <ChevronRight className="h-5 w-5" />
+                </>
               ) : (
-                <>Vamos jogar! <Play className="h-5 w-5" /></>
+                <>
+                  Vamos jogar! <Play className="h-5 w-5" />
+                </>
               )}
             </button>
           </div>
