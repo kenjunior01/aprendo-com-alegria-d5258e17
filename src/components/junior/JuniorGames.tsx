@@ -13,7 +13,12 @@ import { shuffled } from "@/lib/utils"; // Fisher–Yates justo
 // 1) Jardim das Cores e Formas (2-3) — versão "tap-tap" + narração
 // ============================================================
 
-interface ColorItem { id: string; emoji: string; color: string; targetId: string }
+interface ColorItem {
+  id: string;
+  emoji: string;
+  color: string;
+  targetId: string;
+}
 
 const COLOR_POOL: ColorItem[] = [
   { id: "f1", emoji: "🌹", color: "Vermelho", targetId: "vermelho" },
@@ -22,28 +27,50 @@ const COLOR_POOL: ColorItem[] = [
   { id: "f4", emoji: "🌻", color: "Amarelo", targetId: "amarelo" },
   { id: "f5", emoji: "🍌", color: "Amarelo", targetId: "amarelo" },
   { id: "f6", emoji: "🍋", color: "Amarelo", targetId: "amarelo" },
-  { id: "f7", emoji: "🫐", color: "Azul",     targetId: "azul" },
-  { id: "f8", emoji: "💙", color: "Azul",     targetId: "azul" },
-  { id: "f9", emoji: "🌊", color: "Azul",     targetId: "azul" },
-  { id: "fa", emoji: "🍃", color: "Verde",    targetId: "verde" },
-  { id: "fb", emoji: "🥦", color: "Verde",    targetId: "verde" },
-  { id: "fc", emoji: "🍇", color: "Roxo",     targetId: "roxo" },
-  { id: "fd", emoji: "🍆", color: "Roxo",     targetId: "roxo" },
+  { id: "f7", emoji: "🫐", color: "Azul", targetId: "azul" },
+  { id: "f8", emoji: "💙", color: "Azul", targetId: "azul" },
+  { id: "f9", emoji: "🌊", color: "Azul", targetId: "azul" },
+  { id: "fa", emoji: "🍃", color: "Verde", targetId: "verde" },
+  { id: "fb", emoji: "🥦", color: "Verde", targetId: "verde" },
+  { id: "fc", emoji: "🍇", color: "Roxo", targetId: "roxo" },
+  { id: "fd", emoji: "🍆", color: "Roxo", targetId: "roxo" },
 ];
 
 const POTS = [
-  { id: "vermelho", label: "Vermelho", bg: "bg-red-200",    ring: "ring-red-400",    text: "text-red-700" },
-  { id: "amarelo",  label: "Amarelo",  bg: "bg-yellow-200", ring: "ring-yellow-400", text: "text-yellow-700" },
-  { id: "azul",     label: "Azul",     bg: "bg-blue-200",   ring: "ring-blue-400",   text: "text-blue-700" },
-  { id: "verde",    label: "Verde",    bg: "bg-green-200",  ring: "ring-green-400",  text: "text-green-700" },
-  { id: "roxo",     label: "Roxo",     bg: "bg-purple-200", ring: "ring-purple-400", text: "text-purple-700" },
+  {
+    id: "vermelho",
+    label: "Vermelho",
+    bg: "bg-red-200",
+    ring: "ring-red-400",
+    text: "text-red-700",
+  },
+  {
+    id: "amarelo",
+    label: "Amarelo",
+    bg: "bg-yellow-200",
+    ring: "ring-yellow-400",
+    text: "text-yellow-700",
+  },
+  { id: "azul", label: "Azul", bg: "bg-blue-200", ring: "ring-blue-400", text: "text-blue-700" },
+  {
+    id: "verde",
+    label: "Verde",
+    bg: "bg-green-200",
+    ring: "ring-green-400",
+    text: "text-green-700",
+  },
+  {
+    id: "roxo",
+    label: "Roxo",
+    bg: "bg-purple-200",
+    ring: "ring-purple-400",
+    text: "text-purple-700",
+  },
 ];
 
 export function GameJardimCores({ onDone }: { onDone?: () => void }) {
   const [started, setStarted] = useState(false);
-  const [items, setItems] = useState<ColorItem[]>(() =>
-    shuffled(COLOR_POOL).slice(0, 8),
-  );
+  const [items, setItems] = useState<ColorItem[]>(() => shuffled(COLOR_POOL).slice(0, 8));
   const [score, setScore] = useState(0);
   const [picked, setPicked] = useState<ColorItem | null>(null);
   const [feedback, setFeedback] = useState<{ ok: boolean; text: string } | null>(null);
@@ -54,7 +81,8 @@ export function GameJardimCores({ onDone }: { onDone?: () => void }) {
   const done = items.length === 0;
 
   useEffect(() => {
-    if (started && picked) speak(`${picked.color}. Onde está o vaso ${picked.color.toLowerCase()}?`, { rate: 0.9 });
+    if (started && picked)
+      speak(`${picked.color}. Onde está o vaso ${picked.color.toLowerCase()}?`, { rate: 0.9 });
   }, [picked, started]);
 
   const choose = (it: ColorItem) => {
@@ -79,7 +107,9 @@ export function GameJardimCores({ onDone }: { onDone?: () => void }) {
       }
     } else {
       playWrong();
-      speak(`Não, isso é ${POTS.find((p) => p.id === potId)?.label}. Procura o ${picked.color.toLowerCase()}.`);
+      speak(
+        `Não, isso é ${POTS.find((p) => p.id === potId)?.label}. Procura o ${picked.color.toLowerCase()}.`,
+      );
       setFeedback({ ok: false, text: "Tenta outra cor 💛" });
     }
     setPicked(null);
@@ -102,7 +132,9 @@ export function GameJardimCores({ onDone }: { onDone?: () => void }) {
       />
 
       <p className="text-center text-sm text-muted-foreground">
-        {picked ? `Agora toca no vaso ${picked.color.toLowerCase()}.` : "Toca numa flor para começar."}
+        {picked
+          ? `Agora toca no vaso ${picked.color.toLowerCase()}.`
+          : "Toca numa flor para começar."}
       </p>
 
       {/* Vasos */}
@@ -151,7 +183,9 @@ export function GameJardimCores({ onDone }: { onDone?: () => void }) {
             {feedback.text}
           </p>
         )}
-        {done && <p className="mt-3 font-display text-2xl text-success">🌟 Completaste o jardim! 🌟</p>}
+        {done && (
+          <p className="mt-3 font-display text-2xl text-success">🌟 Completaste o jardim! 🌟</p>
+        )}
       </div>
     </div>
   );
@@ -161,24 +195,32 @@ export function GameJardimCores({ onDone }: { onDone?: () => void }) {
 // 2) Orquestra dos Animais (2-3) — narração + sons sintéticos
 // ============================================================
 
-interface AnimalQ { emoji: string; name: string; sound: string; pitch: number; freq: number }
+interface AnimalQ {
+  emoji: string;
+  name: string;
+  sound: string;
+  pitch: number;
+  freq: number;
+}
 
 // freq + pitch usados para gerar um "som" sintético reconhecível além do TTS
 const ANIMALS: AnimalQ[] = [
-  { emoji: "🐮", name: "Vaca",    sound: "Mooo",     pitch: 0.6, freq: 110 },
-  { emoji: "🐶", name: "Cão",     sound: "Au au",    pitch: 1.1, freq: 280 },
-  { emoji: "🐱", name: "Gato",    sound: "Miauuu",   pitch: 1.4, freq: 520 },
-  { emoji: "🦆", name: "Pato",    sound: "Quá quá",  pitch: 1.0, freq: 360 },
-  { emoji: "🐑", name: "Ovelha",  sound: "Méééé",    pitch: 1.2, freq: 420 },
-  { emoji: "🐔", name: "Galinha", sound: "Cócócó",   pitch: 1.3, freq: 480 },
-  { emoji: "🐷", name: "Porco",   sound: "Oinc oinc",pitch: 0.8, freq: 200 },
-  { emoji: "🐴", name: "Cavalo",  sound: "Hiiii",    pitch: 1.1, freq: 340 },
+  { emoji: "🐮", name: "Vaca", sound: "Mooo", pitch: 0.6, freq: 110 },
+  { emoji: "🐶", name: "Cão", sound: "Au au", pitch: 1.1, freq: 280 },
+  { emoji: "🐱", name: "Gato", sound: "Miauuu", pitch: 1.4, freq: 520 },
+  { emoji: "🦆", name: "Pato", sound: "Quá quá", pitch: 1.0, freq: 360 },
+  { emoji: "🐑", name: "Ovelha", sound: "Méééé", pitch: 1.2, freq: 420 },
+  { emoji: "🐔", name: "Galinha", sound: "Cócócó", pitch: 1.3, freq: 480 },
+  { emoji: "🐷", name: "Porco", sound: "Oinc oinc", pitch: 0.8, freq: 200 },
+  { emoji: "🐴", name: "Cavalo", sound: "Hiiii", pitch: 1.1, freq: 340 },
 ];
 
 function playAnimalTone(a: AnimalQ) {
   // pequeno "rugido" sintético antes da voz, p/ reforçar o som
   try {
-    const AC = (window.AudioContext || (window as any).webkitAudioContext);
+    const AC =
+      window.AudioContext ||
+      (window as Window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
     if (!AC) return;
     const ctx = new AC();
     const osc = ctx.createOscillator();
@@ -189,9 +231,13 @@ function playAnimalTone(a: AnimalQ) {
     gain.gain.setValueAtTime(0.0001, ctx.currentTime);
     gain.gain.exponentialRampToValueAtTime(0.22, ctx.currentTime + 0.04);
     gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.42);
-    osc.connect(gain); gain.connect(ctx.destination);
-    osc.start(); osc.stop(ctx.currentTime + 0.45);
-  } catch { /* noop */ }
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.45);
+  } catch {
+    /* noop */
+  }
 }
 
 function playAnimal(a: AnimalQ) {
@@ -214,7 +260,7 @@ export function GameOrquestraAnimais({ onDone }: { onDone?: () => void }) {
     if (!target) return [];
     const others = shuffled(ANIMALS.filter((a) => a.name !== target.name)).slice(0, 2);
     return shuffled([...others, target]);
-  }, [round, target]);
+  }, [target]);
 
   // Toca o som-alvo automaticamente ao iniciar a ronda
   useEffect(() => {
@@ -228,7 +274,9 @@ export function GameOrquestraAnimais({ onDone }: { onDone?: () => void }) {
     return (
       <div className="text-center">
         <p className="font-display text-2xl text-success">🎶 Bravo, maestro!</p>
-        <p className="mt-1">Pontuação: {score}/{order.length}</p>
+        <p className="mt-1">
+          Pontuação: {score}/{order.length}
+        </p>
       </div>
     );
   }
@@ -270,7 +318,9 @@ export function GameOrquestraAnimais({ onDone }: { onDone?: () => void }) {
         parentNote="Se não perceber, repita o som consigo (mooo, miauuu) — ajuda a associar."
       />
 
-      <p className="text-sm text-muted-foreground">Quem faz este som? ({round + 1}/{order.length})</p>
+      <p className="text-sm text-muted-foreground">
+        Quem faz este som? ({round + 1}/{order.length})
+      </p>
 
       <div className="flex flex-col items-center gap-2">
         <button
@@ -314,12 +364,17 @@ export function GameOrquestraAnimais({ onDone }: { onDone?: () => void }) {
 // 3) Rotinas do Kido (3-4)
 // ============================================================
 
-interface RoutineStep { emoji: string; label: string; tools: string[]; correct: string }
+interface RoutineStep {
+  emoji: string;
+  label: string;
+  tools: string[];
+  correct: string;
+}
 const ROUTINE: RoutineStep[] = [
   { emoji: "🦷", label: "Lavar os dentes", tools: ["🪥", "🍪", "🧸"], correct: "🪥" },
-  { emoji: "🍽️", label: "Pequeno-almoço",  tools: ["🥣", "👟", "📚"], correct: "🥣" },
-  { emoji: "🛁", label: "Hora do banho",   tools: ["🧼", "🚗", "🍌"], correct: "🧼" },
-  { emoji: "🛏️", label: "Dormir",          tools: ["🧸", "⚽", "🎮"], correct: "🧸" },
+  { emoji: "🍽️", label: "Pequeno-almoço", tools: ["🥣", "👟", "📚"], correct: "🥣" },
+  { emoji: "🛁", label: "Hora do banho", tools: ["🧼", "🚗", "🍌"], correct: "🧼" },
+  { emoji: "🛏️", label: "Dormir", tools: ["🧸", "⚽", "🎮"], correct: "🧸" },
 ];
 
 export function GameRotinasKido({ onDone }: { onDone?: () => void }) {
@@ -373,7 +428,9 @@ export function GameRotinasKido({ onDone }: { onDone?: () => void }) {
       <motion.div animate={{ scale: happy ? 1.2 : 1 }} className="text-7xl">
         {happy ? "😄" : "🙂"}
       </motion.div>
-      <p className="font-display text-lg">{current.label} {current.emoji}</p>
+      <p className="font-display text-lg">
+        {current.label} {current.emoji}
+      </p>
       <button
         onClick={() => speak(current.label)}
         className="inline-flex items-center gap-1 text-xs text-muted-foreground underline"
@@ -399,7 +456,10 @@ export function GameRotinasKido({ onDone }: { onDone?: () => void }) {
 // 4) Livro Mágico (4-5)
 // ============================================================
 
-interface StoryBeat { scene: string; choices: { emoji: string; next: string }[] }
+interface StoryBeat {
+  scene: string;
+  choices: { emoji: string; next: string }[];
+}
 const STORY: Record<string, StoryBeat> = {
   start: {
     scene: "🌳 O Kido encontra um amigo na floresta. Quem é?",
@@ -433,7 +493,9 @@ export function GameLivroMagico({ onDone }: { onDone?: () => void }) {
   const beat = STORY[node];
   const ended = beat.choices.length === 0;
 
-  useEffect(() => { speak(beat.scene.replace(/[^\p{L}\p{N}\s.,!?]/gu, " ")); }, [node, beat.scene]);
+  useEffect(() => {
+    speak(beat.scene.replace(/[^\p{L}\p{N}\s.,!?]/gu, " "));
+  }, [node, beat.scene]);
 
   const choose = (next: string) => {
     playTap();
